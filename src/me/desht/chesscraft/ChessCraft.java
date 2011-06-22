@@ -74,7 +74,6 @@ public class ChessCraft extends JavaPlugin {
 		if (!getDataFolder().exists()) getDataFolder().mkdir();
 
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
-		
 	}
 
 	private void setupPermissions() {
