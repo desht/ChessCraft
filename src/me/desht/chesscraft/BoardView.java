@@ -357,7 +357,24 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 
 	// Wipe the board's contents - generally called just before the board is deleted 
-	void wipe() {
-		// TODO: should really restore to previous terrain
+	void wipe() {			
+		int[][] bounds = getBounds();
+		int fw = frameWidth - 1;
+		int x1 = bounds[0][0] - fw, x2 = bounds[1][0] + fw;
+		int z1 = bounds[0][1] - fw, z2 = bounds[1][1] + fw;
+		// (x1,z1) & (x2,z2) are the outermost ring of the frame
+		int y1 = a1Square.getBlockY();
+		int y2 = a1Square.getBlockY() + 1 + height;
+		
+		World w = a1Square.getWorld();
+
+		// TODO: restore to previous terrain, not air
+		for (int x = x1; x <= x2; x++) {
+			for (int y = y1; y <= y2; y++) {
+				for (int z = z1; z <= z2; z++) {
+					w.getBlockAt(x, y, z).setTypeId(0);
+				}
+			}
+		}
 	}
 }
