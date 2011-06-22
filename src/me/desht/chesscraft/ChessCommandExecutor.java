@@ -1,0 +1,340 @@
+package me.desht.chesscraft;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import me.desht.chesscraft.exceptions.ChessException;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import chesspresso.Chess;
+import chesspresso.move.IllegalMoveException;
+
+public class ChessCommandExecutor implements CommandExecutor {
+
+	private ChessCraft plugin;
+	private final List<String> messageBuffer = new ArrayList<String>();
+	private static int pageSize = 16;
+	
+	public ChessCommandExecutor(ChessCraft plugin) {
+		this.plugin = plugin;
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label,
+			String[] args) {
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+		}
+		
+    	if (label.equalsIgnoreCase("chess")) {
+    		if (args.length == 0) {
+    			return false;
+    		}
+    		if (!plugin.isAllowedTo(player, "chess.commands." + args[0])) {
+    			plugin.errorMessage(player, "You are not allowed to do that.");
+    			return true;
+    		}
+    		try {
+    			if (partialMatch(args[0], "b")) {			// board
+    				boardCommands(player, args);
+    			} else if (partialMatch(args[0], "g")) {	// game
+    				gameCommands(player, args);
+    			} else if (partialMatch(args[0], "i")) {	// invite
+    				inviteCommand(player, args);
+    			} else if (partialMatch(args[0], "j")) {	// join
+    				joinCommand(player, args);
+    			} else if (partialMatch(args[0], "s")) {	// start
+    				startCommand(player, args);
+    			} else if (partialMatch(args[0], "m")) {	// move
+    				moveCommand(player, args);
+    			} else if (partialMatch(args[0], "p")) {	// page
+    				pagedDisplay(player, args);
+    			}
+    		} catch (IllegalArgumentException e) {
+    			plugin.errorMessage(player, e.getMessage());
+    		} catch (ChessException e) {
+    			plugin.errorMessage(player, e.getMessage());
+    		} catch (IllegalMoveException e ) {
+    			plugin.errorMessage(player, e.getMessage());
+    		}
+    	} else {
+    		return false;
+    	}
+		return true;
+	}
+	
+	private void startCommand(Player player, String[] args) throws ChessException {
+		if (args.length >= 2) {
+			plugin.getGame(args[1]).start(player);
+		} else {
+			Game game = plugin.getCurrentGame(player);
+			game.start(player);
+		}
+	}
+
+	private void moveCommand(Player player, String[] args) throws IllegalMoveException, ChessException {
+		if (args.length < 2) {
+			// TODO: usage
+			return;
+		}
+		Game game = plugin.getCurrentGame(player);
+		if (game == null) {
+			plugin.errorMessage(player, "You're not playing a game right now so you can't make a move.");
+			return;
+		}
+
+		String move = combine(args, 1);
+		if (move.length() != 4) {
+			plugin.errorMessage(player, "Invalid move string '" + move + "'.");
+			return;
+		}
+		int from = Chess.strToSqi(move.substring(0, 2));
+		if (from == Chess.NO_SQUARE) {
+			plugin.errorMessage(player, "Invalid FROM square in '" + move + "'.");
+			return;
+		}
+		int to   = Chess.strToSqi(move.substring(2, 4));
+		if (to == Chess.NO_SQUARE) {
+			plugin.errorMessage(player, "Invalid TO square in '" + move + "'.");
+			return;
+		}
+		game.setFromSquare(from);
+		game.doMove(player, to);
+	}
+
+	private void gameCommands(Player player, String[] args) throws ChessException {
+		if (args.length < 2) {
+			// TODO: usage
+			return;
+		}
+		if (partialMatch(args[1], "c")) {			// create
+			if (args.length >= 4) {
+				String gameName = args[2];
+				String boardName = args[3];
+				Game game = new Game(plugin, gameName, plugin.getBoardView(boardName), player);
+				plugin.addGame(gameName, game);
+				plugin.setCurrentGame(player, game);
+				plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + boardName + "'.");
+			}
+		} else if (partialMatch(args[1], "l")) {	// list
+			messageBuffer.clear();
+			for (Game game : plugin.listGames()) {
+				String name = game.getName();
+				String curGame = name.equals(plugin.getCurrentGame(player).getName()) ? "+ " : "  ";
+				String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
+				String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
+				String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
+				String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
+				StringBuilder info = new StringBuilder(": " + ChatColor.WHITE + curMoveW + white + " (W) v " + curMoveB + black + " (B) ");
+				info.append(ChatColor.YELLOW + "[" + game.getState() + "]");
+				if (game.getInvited().length() > 0)
+					info.append(" invited: " + game.getInvited());
+				messageBuffer.add(curGame + name + info);
+			}
+			pagedDisplay(player, 1);
+		} else if (partialMatch(args[1], "x")) {	// list
+			Game game = plugin.getGame(args[2]);
+			game.show_all();
+		}
+	}
+
+	private void boardCommands(Player player, String[] args) throws ChessException {
+		if (args.length < 2) {
+			// TODO: usage
+			return;
+		}
+		if (partialMatch(args[1], "c")) {			// create
+			tryCreateBoard(player, args);
+		} else if (partialMatch(args[1], "d")) {	// delete
+			tryDeleteBoard(player, args);
+		} else if (partialMatch(args[1], "l")) {	// list
+			messageBuffer.clear();
+			for (BoardView bv: plugin.listBoardViews()) {
+				StringBuilder info = new StringBuilder();
+				info.append(formatLoc(bv.getA1Square()));
+				info.append(" square=" + bv.getSquareSize() + " frwidth=" + bv.getFrameWidth() + " height=" + (bv.getHeight() + 2) + " lit=" + bv.getIsLit());
+				messageBuffer.add(bv.getName() + ": " + info.toString());
+			}
+			pagedDisplay(player, 1);
+		}
+	}
+
+	private void tryCreateBoard(Player player, String[] args) {
+		Location l = null;
+		if (args.length == 3) {
+			l = player.getLocation();
+		} else if (args.length == 4) {
+			l = parseLocation(args[3], player);
+		} else {
+			return;
+		}
+		String name = args[2];
+		if (!plugin.checkBoardView(name)) {
+			// TODO: check it doesn't overlap any other board
+			BoardView view = new BoardView(name, plugin, l);
+			plugin.addBoardView(name, view);
+			view.paintAll();
+			plugin.statusMessage(player, "Board '" + name + "' has been created at " + formatLoc(view.getA1Square()) + ".");
+		} else {
+			plugin.errorMessage(player, "Board '" + name + "' already exists.");
+		}
+	}
+
+	private void tryDeleteBoard(Player player, String[] args) {
+		if (args.length >= 3) {
+			String name = args[2];
+			try {
+				BoardView view = plugin.getBoardView(name);
+				if (view.getGame() == null) {
+					view.wipe();
+					plugin.statusMessage(player, "Delete board '" + name + "'.");
+				} else {
+					plugin.errorMessage(player, "Cannot delete board '" + name + "': it is used by game '" + view.getGame().getName() + "'.");
+				}
+			} catch (ChessException e) {
+				plugin.errorMessage(player, "No such board '" + name + "'.");
+			}
+		}
+	}
+
+	private void inviteCommand(Player player, String[] args) throws ChessException {
+		if (args.length < 2) {
+			// TODO: usage
+			return;
+		}
+		String invitee = args[1];
+		Game game = plugin.getCurrentGame(player);
+		if (game == null) {
+			plugin.errorMessage(player, "You're not playing a game right now so you can't invite anyone.");
+			return;
+		}
+		game.invitePlayer(player, invitee);
+		Player inv = plugin.getServer().getPlayer(invitee);
+		if (inv != null) {
+			inv.sendMessage(ChatColor.YELLOW + "You have been invited to the chess game '" + game.getName() + "' by " + player.getName() + ".");
+			inv.sendMessage(ChatColor.YELLOW + "Type '/chess join' to join the game.");
+			plugin.statusMessage(player, "An invitation has been sent to " + invitee + ".");
+		} else {
+			game.clearInvitation();
+			plugin.errorMessage(player, invitee + " must have just gone offline!  Invitation cancelled.");
+		}
+	}
+
+	private void joinCommand(Player player, String[] args) throws ChessException {
+		if (args.length >= 2) {
+			String gameName = args[1];
+			plugin.getGame(gameName).addPlayer(player);
+		} else {
+			String added = null;
+			for (Game game : plugin.listGames()) {
+				if (game.getInvited().equalsIgnoreCase(player.getName())) {
+					game.addPlayer(player);
+					added = game.getName();
+					break;
+				}
+			}
+			if (added != null) {
+				int playingAs = plugin.getGame(added).playingAs(player.getName());
+				plugin.statusMessage(player, "You have been added to the chess game '" + added + "'.");
+				plugin.statusMessage(player, "You will be playing as " + Game.getColour(playingAs) + ".");
+			} else {
+				plugin.errorMessage(player, "You don't have any open invitations.");
+			}
+		}
+	}
+
+	private void pagedDisplay(Player player, String[] args) {
+		int pageNum = 1;
+		if (args.length < 2) return;
+		try {
+			pageNum = Integer.parseInt(args[1]);
+			pagedDisplay(player, pageNum);
+		} catch (NumberFormatException e) {
+			plugin.errorMessage(player, "invalid argument '" + args[1] + "'");
+		}
+	}
+	
+	private void pagedDisplay(Player player, int pageNum) {
+		if (player != null) {
+			// pretty paged display
+			int nMessages = messageBuffer.size();
+			plugin.statusMessage(player, ChatColor.GREEN + "" +  nMessages +
+					" lines (page " + pageNum + "/" + ((nMessages-1) / pageSize + 1) + ")");
+			plugin.statusMessage(player, ChatColor.GREEN + "---------------");
+			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
+				plugin.statusMessage(player, messageBuffer.get(i));
+			}
+			plugin.statusMessage(player, ChatColor.GREEN + "---------------");
+			String footer = (nMessages > pageSize * pageNum) ? "Use /sms page [page#] to see more" : "";
+			plugin.statusMessage(player, ChatColor.GREEN + footer);
+		} else {
+			// just dump the whole message buffer to the console
+			for (String s: messageBuffer) {
+				plugin.statusMessage(null, ChatColor.stripColor(s));
+			}
+		}
+	}
+	
+	private static String combine(String[] args, int idx) {
+		return combine(args, idx, args.length - 1);
+	}
+	private static String combine(String[] args, int idx1, int idx2) {
+		StringBuilder result = new StringBuilder();
+		for (int i = idx1; i <= idx2; i++) {
+			result.append(args[i]);
+			if (i < idx2) {
+				result.append(" ");
+			}
+		}
+		return result.toString();
+	}
+
+	private static Boolean partialMatch(String str, String match) {
+		int l = match.length();
+		if (str.length() < l) return false;
+		return str.substring(0, l).equalsIgnoreCase(match);
+	}
+
+//	private boolean onConsole(Player player) {
+//		if (player == null) {
+//			plugin.errorMessage(player, "This command cannot be run from the console.");
+//			return true;
+//		} else {
+//			return false;
+//		}
+//	}
+	
+	private Location parseLocation(String arglist, Player player) {
+		String s = player == null ? ",worldname" : "";
+		String args[] = arglist.split(",");
+		try {
+			int x = Integer.parseInt(args[0]);
+			int y = Integer.parseInt(args[1]);
+			int z = Integer.parseInt(args[2]);
+			World w = (player == null) ?
+					plugin.getServer().getWorld(args[3]) :
+					player.getWorld();
+			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
+			return new Location(w, x, y, z);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
+		}
+	}
+	
+	private String formatLoc(Location loc) {
+		StringBuilder str = new StringBuilder(ChatColor.WHITE + "@ " +
+			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
+			loc.getWorld().getName());
+		return str.toString();
+	}
+}

@@ -1,0 +1,10 @@
+name: ChessCraft
+main: me.desht.chesscraft.ChessCraft
+version: 0.1
+softdepend: [ Permissions ]
+commands:
+  chess:
+    description: Play Chess
+    usage: |
+      /sms board <create|...>
+      /sms page <page-number>
