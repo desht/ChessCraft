@@ -255,7 +255,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 
 	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
 	private Location rowColToWorldNE(int row, int col) {
-		return rowColToWorld(row, col, 4, 4);
+		return rowColToWorld(row, col, squareSize, squareSize);
 	}
 	
 	private Location rowColToWorldCenter(int row, int col) {
