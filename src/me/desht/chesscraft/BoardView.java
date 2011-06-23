@@ -1,12 +1,16 @@
 package me.desht.chesscraft;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.util.config.Configuration;
+import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
 import chesspresso.position.ImmutablePosition;
@@ -15,6 +19,9 @@ import chesspresso.position.PositionListener;
 
 public class BoardView implements PositionListener, PositionChangeListener {
 	
+	private static final String styleDir =
+		ChessCraft.directory + File.separator + "board_styles";
+	
 	private ChessCraft plugin;
 	private String name;
 	private Game game;
@@ -22,6 +29,11 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private int frameWidth;
 	private int squareSize;
 	private int height;
+	private int[] blackSquareId;
+	private int[] whiteSquareId;
+	private int[] frameId;
+	private int[] enclosureId;
+	private String pieceStyle;
 	private Material blackSquareMat;
 	private Material whiteSquareMat;
 	private Material frameMat;
@@ -29,24 +41,27 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
 	
-	BoardView(String name, ChessCraft plugin, Location where) {
+	BoardView(String name, ChessCraft plugin, Location where, String style) {
 		this.plugin = plugin;
 		
-		Configuration c = plugin.getConfiguration();
+//		Configuration c = plugin.getConfiguration();
+		
+		if (style == null) style = "Standard";
 		
 		this.name = name;
 		game = null;	// indicates board not used by any game yet
-		squareSize = c.getInt("board.square_size", 5);
-		frameWidth = c.getInt("board.frame_width", 3);
-		height = c.getInt("board.height", 6);
-		blackSquareMat = Material.getMaterial(c.getInt("board.black_square", 49));
-		whiteSquareMat = Material.getMaterial(c.getInt("board.white_square", 24));
-		frameMat = Material.getMaterial(c.getInt("board.frame", 5));
-		enclosureMat = Material.getMaterial(c.getInt("board.enclosure", 20));
-		isLit = c.getBoolean("board.lit", false);
+//		squareSize = c.getInt("board.square_size", 5);
+//		frameWidth = c.getInt("board.frame_width", 3);
+//		height = c.getInt("board.height", 6);
+//		blackSquareMat = Material.getMaterial(c.getInt("board.black_square", 49));
+//		whiteSquareMat = Material.getMaterial(c.getInt("board.white_square", 24));
+//		frameMat = Material.getMaterial(c.getInt("board.frame", 5));
+//		enclosureMat = Material.getMaterial(c.getInt("board.enclosure", 20));
+//		isLit = c.getBoolean("board.lit", false);
+		loadStyle(style);
 		a1Square = calcBaseSquare(where);
 		
-		stones = createStones(c.getString("board.piece_style", "Standard"));
+		stones = createStones(pieceStyle);
 	}
 	
 	public String getName() {
@@ -96,6 +111,31 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	public Map<Integer, ChessStone> getStones() {
 		return stones;
 	}
+
+	@SuppressWarnings("unchecked")
+	void loadStyle(String style) {
+		Yaml yaml = new Yaml();
+
+		File f = new File(styleDir, style + ".yml");
+		try {        	
+        	Map<String,Object> styleMap = 
+        		(Map<String,Object>) yaml.load(new FileInputStream(f));
+        	
+        	squareSize = Integer.parseInt((String)styleMap.get("square_size"));
+        	frameWidth = Integer.parseInt((String)styleMap.get("frame_width"));
+        	height     = Integer.parseInt((String)styleMap.get("height"));
+        	isLit      = Boolean.valueOf((String)styleMap.get("lit"));
+        	pieceStyle = (String)styleMap.get("piece_style");
+        	
+        	blackSquareId = ChessCraft.parseIdAndData((String)styleMap.get("black_square"));
+        	whiteSquareId = ChessCraft.parseIdAndData((String)styleMap.get("white_square"));
+        	frameId       = ChessCraft.parseIdAndData((String)styleMap.get("frame"));
+        	enclosureId   = ChessCraft.parseIdAndData((String)styleMap.get("enclosure"));
+		} catch (Exception e) {
+			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
+		}
+	}
+	
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;

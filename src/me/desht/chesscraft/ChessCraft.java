@@ -215,4 +215,16 @@ public class ChessCraft extends JavaPlugin {
 		default: return "(unknown)";
 		}
 	}
+
+	static int[] parseIdAndData(String string) {
+		String[] items = string.split(":");
+		int[] res = new int[2];
+		res[0] = Integer.parseInt(items[0]);
+		if (items.length >= 2) {
+			res[1] = Integer.parseInt(items[1]);
+		} else {
+			res[1] = 0;
+		}
+		return res;
+	}
 }

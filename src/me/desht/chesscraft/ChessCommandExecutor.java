@@ -1,7 +1,11 @@
 package me.desht.chesscraft;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -147,15 +151,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void boardCommands(Player player, String[] args) throws ChessException {
-		if (args.length < 2) {
-			// TODO: usage
-			return;
-		}
-		if (partialMatch(args[1], "c")) {			// create
+		if (partialMatch(args, 1, "c")) {		// create
 			tryCreateBoard(player, args);
-		} else if (partialMatch(args[1], "d")) {	// delete
+		} else if (partialMatch(args, 1, "d")) {	// delete
 			tryDeleteBoard(player, args);
-		} else if (partialMatch(args[1], "l")) {	// list
+		} else if (partialMatch(args, 1, "l")) {	// list
 			messageBuffer.clear();
 			for (BoardView bv: plugin.listBoardViews()) {
 				StringBuilder info = new StringBuilder();
@@ -164,22 +164,23 @@ public class ChessCommandExecutor implements CommandExecutor {
 				messageBuffer.add(bv.getName() + ": " + info.toString());
 			}
 			pagedDisplay(player, 1);
+		} else {
+			plugin.errorMessage(player, "Usage: /chess board create <boardname> [-style <style>] [-loc <location>]");
+			plugin.errorMessage(player, "       /chess board delete <boardname>");
+			plugin.errorMessage(player, "       /chess board list");
 		}
 	}
 
 	private void tryCreateBoard(Player player, String[] args) {
-		Location l = null;
-		if (args.length == 3) {
-			l = player.getLocation();
-		} else if (args.length == 4) {
-			l = parseLocation(args[3], player);
-		} else {
-			return;
-		}
+		Map<String, String>options = parseCommand(args, 3);
+
 		String name = args[2];
+		Location l = options.containsKey("loc") ? parseLocation(options.get("loc"), player) : player.getLocation();
+		String style = options.get("style");
+		
 		if (!plugin.checkBoardView(name)) {
 			// TODO: check it doesn't overlap any other board
-			BoardView view = new BoardView(name, plugin, l);
+			BoardView view = new BoardView(name, plugin, l, style);
 			plugin.addBoardView(name, view);
 			view.paintAll();
 			plugin.statusMessage(player, "Board '" + name + "' has been created at " + formatLoc(view.getA1Square()) + ".");
@@ -188,19 +189,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void tryDeleteBoard(Player player, String[] args) {
+	private void tryDeleteBoard(Player player, String[] args) throws ChessException {
 		if (args.length >= 3) {
 			String name = args[2];
-			try {
-				BoardView view = plugin.getBoardView(name);
-				if (view.getGame() == null) {
-					view.wipe();
-					plugin.statusMessage(player, "Delete board '" + name + "'.");
-				} else {
-					plugin.errorMessage(player, "Cannot delete board '" + name + "': it is used by game '" + view.getGame().getName() + "'.");
-				}
-			} catch (ChessException e) {
-				plugin.errorMessage(player, "No such board '" + name + "'.");
+			BoardView view = plugin.getBoardView(name);
+			if (view.getGame() == null) {
+				view.wipe();
+				plugin.statusMessage(player, "Deleted board '" + name + "'.");
+			} else {
+				plugin.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '" + view.getGame().getName() + "'.");
 			}
 		}
 	}
@@ -297,6 +294,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return result.toString();
 	}
 
+	private static boolean partialMatch(String[] args, int index, String match) {
+		if (index >= args.length) return false;
+		return partialMatch(args[index], match);
+	}
+	
 	private static Boolean partialMatch(String str, String match) {
 		int l = match.length();
 		if (str.length() < l) return false;
@@ -331,6 +333,25 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 	
+	private Map<String, String> parseCommand(String[] args, int start) {
+		Map<String,String> res = new HashMap<String,String>();
+		
+		Pattern pattern = Pattern.compile("^-(.+)");
+	
+		for (int i = start; i < args.length; i++) {
+			Matcher matcher = pattern.matcher(args[i]);
+			if (matcher.find()) {
+				String opt = matcher.group();
+				try {
+					res.put(opt, args[++i]);
+				} catch (ArrayIndexOutOfBoundsException e) {
+					res.put(opt, null);
+				}
+			}
+		}
+		return res;
+	}
+
 	private String formatLoc(Location loc) {
 		StringBuilder str = new StringBuilder(ChatColor.WHITE + "@ " +
 			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
