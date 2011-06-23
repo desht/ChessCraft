@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import me.desht.chesscraft.exceptions.ChessException;
+
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.util.config.Configuration;
 import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
@@ -29,38 +29,22 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private int frameWidth;
 	private int squareSize;
 	private int height;
-	private int[] blackSquareId;
-	private int[] whiteSquareId;
-	private int[] frameId;
-	private int[] enclosureId;
+	private MaterialWithData blackSquareId;
+	private MaterialWithData whiteSquareId;
+	private MaterialWithData frameId;
+	private MaterialWithData enclosureId;
 	private String pieceStyle;
-	private Material blackSquareMat;
-	private Material whiteSquareMat;
-	private Material frameMat;
-	private Material enclosureMat;
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
 	
-	BoardView(String name, ChessCraft plugin, Location where, String style) {
+	BoardView(String bName, ChessCraft plugin, Location where, String style) throws ChessException {
 		this.plugin = plugin;
-		
-//		Configuration c = plugin.getConfiguration();
-		
-		if (style == null) style = "Standard";
-		
-		this.name = name;
+
+		name = bName;
 		game = null;	// indicates board not used by any game yet
-//		squareSize = c.getInt("board.square_size", 5);
-//		frameWidth = c.getInt("board.frame_width", 3);
-//		height = c.getInt("board.height", 6);
-//		blackSquareMat = Material.getMaterial(c.getInt("board.black_square", 49));
-//		whiteSquareMat = Material.getMaterial(c.getInt("board.white_square", 24));
-//		frameMat = Material.getMaterial(c.getInt("board.frame", 5));
-//		enclosureMat = Material.getMaterial(c.getInt("board.enclosure", 20));
-//		isLit = c.getBoolean("board.lit", false);
+		if (style == null) style = "Standard";		
 		loadStyle(style);
 		a1Square = calcBaseSquare(where);
-		
 		stones = createStones(pieceStyle);
 	}
 	
@@ -88,22 +72,6 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		return height;
 	}
 
-	public Material getBlackSquareMat() {
-		return blackSquareMat;
-	}
-
-	public Material getWhiteSquareMat() {
-		return whiteSquareMat;
-	}
-
-	public Material getFrameMat() {
-		return frameMat;
-	}
-
-	public Material getEnclosureMat() {
-		return enclosureMat;
-	}
-
 	public Boolean getIsLit() {
 		return isLit;
 	}
@@ -113,7 +81,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 
 	@SuppressWarnings("unchecked")
-	void loadStyle(String style) {
+	void loadStyle(String style) throws ChessException {
 		Yaml yaml = new Yaml();
 
 		File f = new File(styleDir, style + ".yml");
@@ -121,10 +89,10 @@ public class BoardView implements PositionListener, PositionChangeListener {
         	Map<String,Object> styleMap = 
         		(Map<String,Object>) yaml.load(new FileInputStream(f));
         	
-        	squareSize = Integer.parseInt((String)styleMap.get("square_size"));
-        	frameWidth = Integer.parseInt((String)styleMap.get("frame_width"));
-        	height     = Integer.parseInt((String)styleMap.get("height"));
-        	isLit      = Boolean.valueOf((String)styleMap.get("lit"));
+        	squareSize = (Integer)styleMap.get("square_size");
+        	frameWidth = (Integer)styleMap.get("frame_width");
+        	height     = (Integer)styleMap.get("height");
+        	isLit      = (Boolean)styleMap.get("lit");
         	pieceStyle = (String)styleMap.get("piece_style");
         	
         	blackSquareId = ChessCraft.parseIdAndData((String)styleMap.get("black_square"));
@@ -132,7 +100,9 @@ public class BoardView implements PositionListener, PositionChangeListener {
         	frameId       = ChessCraft.parseIdAndData((String)styleMap.get("frame"));
         	enclosureId   = ChessCraft.parseIdAndData((String)styleMap.get("enclosure"));
 		} catch (Exception e) {
+			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
+			throw new ChessException("Board style '" + style + "' is not available.");
 		}
 	}
 	
@@ -146,11 +116,13 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		return res;
 	}
 
-	private Map<Integer, ChessStone> createStones(String style) {
+	private Map<Integer, ChessStone> createStones(String pieceStyle) throws ChessException {
+		if (!plugin.library.isSetLoaded(pieceStyle))
+			throw new ChessException("No such chess set " + pieceStyle);
 		Map<Integer,ChessStone> result = new HashMap<Integer,ChessStone>();
 		for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
 			if (stone != Chess.NO_STONE) 
-				result.put(stone, plugin.library.getStone(style, stone));
+				result.put(stone, plugin.library.getStone(pieceStyle, stone));
 		}
 		return result;
 	}
@@ -169,27 +141,28 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		// (x1,z1) & (x2,z2) are the outermost ring of the frame
 		int y1 = a1Square.getBlockY() + 1;
 		int y2 = a1Square.getBlockY() + 1 + height;
-		int eId = enclosureMat.getId();
 		World w = a1Square.getWorld();
 
-		System.out.println("y1=" + y1 + "y2=" + y2 + "(" + x1 + "," + z1 + "), (" + x2 + "," + z2 + ")");
 		// draw enclosure walls
 		for (int y = y1; y < y2 && y < 127; y++) {
 			for (int x = x1; x <= x2; x++) {
-				w.getBlockAt(x, y, z1).setTypeId(eId);
-				w.getBlockAt(x, y, z2).setTypeId(eId);
+				w.getBlockAt(x, y, z1).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
+				w.getBlockAt(x, y, z2).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
 			}
 			for (int z = z1; z <= z2; z++) {
-				w.getBlockAt(x1, y, z).setTypeId(eId);
-				w.getBlockAt(x2, y, z).setTypeId(eId);
+				w.getBlockAt(x1, y, z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
+				w.getBlockAt(x2, y, z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
 			}
 		}
-		// draw enclosure roof
+		// draw enclosure roof, with possible lighting
 		if (y2 > 127) return;
 		for (int x = 0; x <= x2 - x1; x++) {
 			for (int z = 0; z <= z2 - z1; z++) {
-				int id = isLit && height < 7 && x % squareSize == squareSize / 2 && z % squareSize == squareSize / 2 ? 89 : eId;
-				w.getBlockAt(x1 + x, y2, z1 + z).setTypeId(id);
+				if (isLit && height < 7 && x % squareSize == squareSize / 2 && z % squareSize == squareSize / 2) {
+					w.getBlockAt(x1 + x, y2, z1 + z).setTypeId(89);
+				} else {
+					w.getBlockAt(x1 + x, y2, z1 + z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
+				}
 			}
 		}
 	}
@@ -204,9 +177,9 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		System.out.println("bounds: (" + x1 + "," + z1 + "), (" + x2 + "," + z2 +")");
 		
 		for (int f = 0; f < frameWidth; f++) {
-			int fId = isLit && f == 0 ? 89 : frameMat.getId();
+			int fId = isLit && f == 0 ? 89 : frameId.material;
 			for (int x = x1 - f; x <= x2 + f; x++) {
-				w.getBlockAt(x, y, z1 - f).setTypeId(fId);
+				w.getBlockAt(x, y, z1 - f).setTypeIdAndData(fId, frameId.data, false);
 				w.getBlockAt(x, y, z2 + f).setTypeId(fId);
 			}
 			for (int z = z1 - f; z <= z2 + f; z++) {
@@ -219,7 +192,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private void paintBoard() {
 		for (int i = 0; i < Chess.NUM_OF_SQUARES; i++) {
 			paintSquareAt(i);
-//			paintPieceAt(i);
+			paintPieceAt(i, Chess.NO_STONE);
 		}
 	}
 
@@ -256,13 +229,14 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
 		Location l = rowColToWorldNE(row, col);
-		int mId = Chess.isWhiteSquare(sqi) ? whiteSquareMat.getId() : blackSquareMat.getId();
+		int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
+		int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
 		int cx = l.getBlockX();
 		int cz = l.getBlockZ();
 		World w = a1Square.getWorld();
 		for (int x = 0; x < squareSize; x++) {
 			for (int z = 0; z < squareSize; z++) {
-				w.getBlockAt(cx + x, l.getBlockY(), cz + z).setTypeId(mId);
+				w.getBlockAt(cx + x, l.getBlockY(), cz + z).setTypeIdAndData(matId, (byte)matData, false);
 			}
 		}
 		if (isLit && height > 6) {
@@ -272,7 +246,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 
 	// Return the bounds of the chessboard - the innermost ring of the frame
-	private int[][] getBounds() {
+	int[][] getBounds() {
 		Location a1 = rowColToWorldCenter(0, 0);
 		Location h8 = rowColToWorldCenter(7, 7);
 	
@@ -385,6 +359,22 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	// true if the location is above the board AND within the board's height range
 	boolean isAboveBoard(Location loc) {
 		return isOnBoard(loc, 1, height - 1);
+	}
+	
+	// true if the location is *anywhere* within the board, including frame & enclosure
+	boolean isPartOfBoard(Location loc) {
+		int[][] bounds = getBounds();
+		int fw = getFrameWidth() - 1;
+		int x1 = bounds[0][0] - fw;
+		int x2 = bounds[1][0] + fw;
+		int z1 = bounds[0][1] - fw; 
+		int z2 = bounds[1][1] + fw;
+		int y1 = getA1Square().getBlockY();
+		int y2 = y1 + getHeight() + 1;
+		int x = loc.getBlockX();
+		int y = loc.getBlockY();
+		int z = loc.getBlockZ();
+		return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
 	}
 	
 	int getSquareAt(Location loc) {

@@ -57,6 +57,9 @@ public class ChessPlayerListener extends PlayerListener {
 	}
 	
 	private void pieceClicked(Player player, Game game, Location loc) throws IllegalMoveException, ChessException {
+		if (game.getState() != GameState.RUNNING)
+			return;
+		
 		if (game.isPlayerToMove(player)) {
 			if (game.getFromSquare() == Chess.NO_SQUARE) {
 				int sqi = game.getView().getSquareAt(loc);

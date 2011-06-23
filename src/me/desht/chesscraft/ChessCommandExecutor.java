@@ -57,6 +57,8 @@ public class ChessCommandExecutor implements CommandExecutor {
     				joinCommand(player, args);
     			} else if (partialMatch(args[0], "s")) {	// start
     				startCommand(player, args);
+    			} else if (partialMatch(args[0], "r")) {	// resign
+    				resignCommand(player, args);
     			} else if (partialMatch(args[0], "m")) {	// move
     				moveCommand(player, args);
     			} else if (partialMatch(args[0], "p")) {	// page
@@ -81,6 +83,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			Game game = plugin.getCurrentGame(player);
 			game.start(player);
+		}
+	}
+
+	private void resignCommand(Player player, String[] args) throws ChessException {
+		if (args.length >= 2) {
+			plugin.getGame(args[1]).resign(player);
+		} else {
+			Game game = plugin.getCurrentGame(player);
+			game.resign(player);
 		}
 	}
 
@@ -115,20 +126,24 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void gameCommands(Player player, String[] args) throws ChessException {
-		if (args.length < 2) {
-			// TODO: usage
-			return;
-		}
-		if (partialMatch(args[1], "c")) {			// create
+		if (partialMatch(args, 1, "c")) {			// create
+			String gameName;
+			String boardName;
 			if (args.length >= 4) {
-				String gameName = args[2];
-				String boardName = args[3];
-				Game game = new Game(plugin, gameName, plugin.getBoardView(boardName), player);
-				plugin.addGame(gameName, game);
-				plugin.setCurrentGame(player, game);
-				plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + boardName + "'.");
+				boardName = args[3];
+			} else {
+				boardName = plugin.getFreeBoard();
 			}
-		} else if (partialMatch(args[1], "l")) {	// list
+			if (args.length >= 3) {
+				gameName = args[2];
+			} else {
+				gameName = makeGameName(player);
+			}
+			Game game = new Game(plugin, gameName, plugin.getBoardView(boardName), player);
+			plugin.addGame(gameName, game);
+			plugin.setCurrentGame(player, game);
+			plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + boardName + "'.");
+		} else if (partialMatch(args, 1, "l")) {	// list
 			messageBuffer.clear();
 			for (Game game : plugin.listGames()) {
 				String name = game.getName();
@@ -144,9 +159,28 @@ public class ChessCommandExecutor implements CommandExecutor {
 				messageBuffer.add(curGame + name + info);
 			}
 			pagedDisplay(player, 1);
-		} else if (partialMatch(args[1], "x")) {	// list
+		} else if (args.length >= 3 && partialMatch(args, 1, "d")) { 	// delete
+			String gameName = args[2];
+			Game game = plugin.getGame(gameName);
+			game.alert(game.getPlayerWhite(), "Game deleted by " + player.getName() + "!");
+			game.alert(game.getPlayerBlack(), "Game deleted by " + player.getName() + "!");
+			game.getView().setGame(null);
+			game.getView().paintAll();
+			plugin.removeGame(gameName);
+			plugin.statusMessage(player, "Game '" + gameName + "' has been deleted.");
+		} else if (args.length >= 3 && partialMatch(args, 1, "p")) {	// play (set current)
+			String gameName = args[2];
+			Game game = plugin.getGame(gameName);
+			plugin.setCurrentGame(player, game.getName());
+			plugin.statusMessage(player, "Game '" + gameName + "' is now your current game.");
+		} else if (partialMatch(args, 1, "x")) {	// temp debugging
 			Game game = plugin.getGame(args[2]);
 			game.show_all();
+		} else {
+			plugin.errorMessage(player, "Usage: /chess game create [<gamename>] [<boardname>]");
+			plugin.errorMessage(player, "       /chess game delete <gamename>");
+			plugin.errorMessage(player, "       /chess game play <gamename>");
+			plugin.errorMessage(player, "       /chess game list");
 		}
 	}
 
@@ -171,7 +205,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	private void tryCreateBoard(Player player, String[] args) {
+	private void tryCreateBoard(Player player, String[] args) throws ChessException {
 		Map<String, String>options = parseCommand(args, 3);
 
 		String name = args[2];
@@ -195,6 +229,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			BoardView view = plugin.getBoardView(name);
 			if (view.getGame() == null) {
 				view.wipe();
+				plugin.removeBoardView(name);
 				plugin.statusMessage(player, "Deleted board '" + name + "'.");
 			} else {
 				plugin.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '" + view.getGame().getName() + "'.");
@@ -357,5 +392,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
 			loc.getWorld().getName());
 		return str.toString();
+	}
+
+	// Generate a game name based on the player's name and a possible index number
+	private String makeGameName(Player player) {
+		String base = player.getName();
+		String res;
+		int n = 1;
+		do {
+			res = base + "-" + n++;
+		} while (plugin.checkGame(res));
+		
+		return res;
 	}
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import me.desht.chesscraft.exceptions.ChessException;
+
 import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
@@ -44,6 +46,10 @@ public class ChessPieceLibrary {
 		}
 	}
 
+	boolean isSetLoaded(String setName) {
+		return templates.containsKey(setName);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void loadChessSet(File f) throws FileNotFoundException {
 
@@ -55,6 +61,8 @@ public class ChessPieceLibrary {
         		(Map<String,Object>) yaml.load(new FileInputStream(f));
 
         	setName = (String) pieceMap.get("name");
+        	if (templates.get(setName) != null)
+        		throw new ChessException("Duplicate chess set name " + setName + " detected");
         	
         	Map<String, Map<String,Integer>> mm = (Map<String, Map<String,Integer>>) pieceMap.get("materials");
         	Map<String, Integer> whiteMats = mm.get("white");

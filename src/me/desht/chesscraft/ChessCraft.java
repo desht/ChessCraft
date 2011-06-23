@@ -65,8 +65,8 @@ public class ChessCraft extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
+//		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 		
 		library = new ChessPieceLibrary(this);
@@ -179,6 +179,10 @@ public class ChessCraft extends JavaPlugin {
 		chessGames.remove(gameName);
 	}
 	
+	boolean checkGame(String name) {
+		return chessGames.containsKey(name);
+	}
+	
 	List<Game> listGames() {
 		SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
 		List<Game> res = new ArrayList<Game>();
@@ -216,15 +220,20 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
-	static int[] parseIdAndData(String string) {
+	static MaterialWithData parseIdAndData(String string) {
 		String[] items = string.split(":");
-		int[] res = new int[2];
-		res[0] = Integer.parseInt(items[0]);
-		if (items.length >= 2) {
-			res[1] = Integer.parseInt(items[1]);
-		} else {
-			res[1] = 0;
+		int mat = Integer.parseInt(items[0]);
+		byte data = 0;
+		if (items.length >= 2)
+			data = Byte.parseByte(items[1]);
+		return new MaterialWithData(mat, data);
+	}
+	
+	String getFreeBoard() throws ChessException {
+		for (BoardView bv: listBoardViews()) {
+			if (bv.getGame() == null)
+				return bv.getName();
 		}
-		return res;
+		throw new ChessException("There are no free boards to create a game on.");
 	}
 }

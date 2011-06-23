@@ -15,7 +15,10 @@ import chesspresso.move.Move;
 import chesspresso.position.Position;
 
 public class Game {
-//	private ChessCraft plugin;
+	enum ResultType {
+		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned
+	}
+	private ChessCraft plugin;
 	private String name;
 	private Position position;
 	private BoardView view;
@@ -27,7 +30,7 @@ public class Game {
 	private List<String> history;
 	
 	Game(ChessCraft plugin, String name, BoardView view, Player player) throws ChessException {
-//		this.plugin = plugin;
+		this.plugin = plugin;
 		this.view = view;
 		this.name = name;
 		if (view.getGame() != null)
@@ -137,6 +140,19 @@ public class Game {
 		state = GameState.RUNNING;
 	}
 	
+	void resign(Player p) throws ChessException {
+		if (!isPlayerInGame(p))
+			throw new ChessException("Can't start a game you're not in!");
+		state = GameState.FINISHED;
+		String winner;
+		String loser = p.getName();
+		if (loser.equalsIgnoreCase(playerWhite)) 
+			winner = playerBlack;
+		else
+			winner = playerWhite;
+		announceResult(winner, loser, ResultType.Resigned);
+	}
+	
 	// Do a move for Player p to toSquare.  fromSquare is already set, either from 
 	// command-line, or from clicking a piece
 	void doMove(Player p, int toSquare) throws IllegalMoveException, ChessException {
@@ -160,14 +176,10 @@ public class Game {
 			fromSquare = Chess.NO_SQUARE;
 			history.add(lastMove.getLAN());
 			if (position.isMate()) {
-//				alert(getPlayerToMove(), "You have been mated by " + getPlayerNotToMove() + "!");
-//				alert(getPlayerNotToMove(), "You have mated " + getPlayerToMove() + "!");
-				Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + "::" + getPlayerNotToMove() + " checkmated " + getPlayerToMove() + " in a game of chess!");
+				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Checkmate);
 				state = GameState.FINISHED;
 			} else if (position.isStaleMate()) {
-//				alert(playerWhite, "The game is a stalemate!");
-//				alert(playerBlack, "The game is a stalemate!");
-				Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + "::" + getPlayerNotToMove() + " drew with " + getPlayerToMove() + " (stalemate) in a game of chess!");
+				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Stalemate);
 				state = GameState.FINISHED;
 			} else {
 				alert(getPlayerToMove(), getColour(prevToMove) + " played [" + lastMove.getLAN() + "].");
@@ -175,6 +187,45 @@ public class Game {
 			}
 		} catch (IllegalMoveException e) {
 			throw e;
+		}
+	}
+	
+	// Announce the result of the game to the server
+	// p1 is the winner, p2 is the loser (unless it's a draw)
+	void announceResult(String p1, String p2, ResultType rt) {
+		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) {
+			String msg = "";
+			switch(rt) {
+			case Checkmate:
+				msg = p1 + " checkmated " + p2 + " in a game of Chess!"; break;
+			case Stalemate:
+				msg = p1 + " drew with " + p2 + " (stalemate) in a game of Chess!"; break;
+			case DrawAgreed:
+				msg = p1 + " drew with " + p2 + " (draw agreed) in a game of Chess!"; break;
+			case Resigned:
+				msg = p1 + " beat " + p2 + " (resigned) in a game of Chess!"; break;
+			}
+			if (!msg.isEmpty())
+				Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: " + msg);
+		} else {
+			switch(rt) {
+			case Checkmate:
+				alert(p1, "You checkmated " + p2 + "!");
+				alert(p2, "You were checkmated by " + p1 + "!");
+				break;
+			case Stalemate:
+				alert(p1, "Game is drawn - stalemate!");
+				alert(p2, "Game is drawn - stalemate!");
+				break;
+			case Resigned:
+				alert(p1, p2 + " has resigned - you win!");
+				alert(p2, "You have resigned. " + p1 + " wins!");
+				break;
+			case DrawAgreed:
+				alert(p1, "Game is drawn - draw agreed!");
+				alert(p1, "Game is drawn - draw agreed!");
+				break;
+			}
 		}
 	}
 	
