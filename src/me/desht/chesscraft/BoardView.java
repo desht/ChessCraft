@@ -346,13 +346,6 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		bounds.shift(Direction.Up, minHeight);
 		bounds.expand(Direction.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
-//		
-//		if (loc.getBlockY() >= a1Square.getBlockY() + minHeight && loc.getBlockY() <= a1Square.getBlockY() + maxHeight &&
-//				loc.getBlockX() <= a1Square.getBlockX() && loc.getBlockX() > a1Square.getBlockX() - squareSize * 8 &&
-//				loc.getBlockZ() <= a1Square.getBlockZ() && loc.getBlockZ() > a1Square.getBlockZ() - squareSize * 8)
-//			return true;
-//		else 
-//			return false;
 	}
 	
 	// true if the location is part of the board itself
@@ -374,11 +367,10 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 	
 	int getSquareAt(Location loc) {
-		if (!isOnBoard(loc, 0, height - 1)) return Chess.NO_SQUARE;
-		
+		if (!isOnBoard(loc, 0, height - 1))
+			return Chess.NO_SQUARE;
 		int row = (a1Square.getBlockX() - loc.getBlockX()) / squareSize;
-		int col = (a1Square.getBlockZ() - loc.getBlockZ()) / squareSize;
-		
+		int col = (a1Square.getBlockZ() - loc.getBlockZ()) / squareSize;		
 		return Chess.coorToSqi(col, row);
 	}
 
