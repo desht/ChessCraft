@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import me.desht.chesscraft.Cuboid.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
@@ -134,57 +135,54 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 	
 	private void paintEnclosure() {
-		int[][] bounds = getBounds();
+		Cuboid bounds = getBounds();
 		int fw = frameWidth - 1;
-		int x1 = bounds[0][0] - fw, x2 = bounds[1][0] + fw;
-		int z1 = bounds[0][1] - fw, z2 = bounds[1][1] + fw;
-		// (x1,z1) & (x2,z2) are the outermost ring of the frame
+		int x1 = bounds.getLowerNE().getBlockX() - fw;
+		int z1 = bounds.getLowerNE().getBlockZ() - fw;
+		int x2 = bounds.getUpperSW().getBlockX() + fw;
+		int z2 = bounds.getUpperSW().getBlockZ() + fw;
+		// (x1,z1) & (x2,z2) are now the outermost corners of the frame
 		int y1 = a1Square.getBlockY() + 1;
 		int y2 = a1Square.getBlockY() + 1 + height;
+		if (y2 > 127) y2 = 127;
 		World w = a1Square.getWorld();
 
-		// draw enclosure walls
-		for (int y = y1; y < y2 && y < 127; y++) {
-			for (int x = x1; x <= x2; x++) {
-				w.getBlockAt(x, y, z1).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
-				w.getBlockAt(x, y, z2).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
-			}
-			for (int z = z1; z <= z2; z++) {
-				w.getBlockAt(x1, y, z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
-				w.getBlockAt(x2, y, z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
-			}
-		}
-		// draw enclosure roof, with possible lighting
-		if (y2 > 127) return;
-		for (int x = 0; x <= x2 - x1; x++) {
-			for (int z = 0; z <= z2 - z1; z++) {
-				if (isLit && height < 7 && x % squareSize == squareSize / 2 && z % squareSize == squareSize / 2) {
-					w.getBlockAt(x1 + x, y2, z1 + z).setTypeId(89);
-				} else {
-					w.getBlockAt(x1 + x, y2, z1 + z).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
-				}
+		Cuboid walls[] = {
+				new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)),	// west
+				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x2, y2, z1)),	// east
+				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x1, y2, z2)),	// north
+				new Cuboid(new Location(w, x2, y1, z1), new Location(w, x2, y2, z2)),	// south
+				new Cuboid(new Location(w, x1, y2, z1), new Location(w, x2, y2, z2)),	// roof
+		};
+		for (Cuboid wall : walls) {
+			for (Location l: wall) {
+				w.getBlockAt(l).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
 			}
 		}
 	}
 
 	private void paintFrame() {
-		int[][] bounds = getBounds();	
+		Cuboid bounds = getBounds();	
 
 		World w = a1Square.getWorld();
 		int y = a1Square.getBlockY();
-		int x1 = bounds[0][0], x2 = bounds[1][0];
-		int z1 = bounds[0][1], z2 = bounds[1][1];
+		int fw = frameWidth - 1;
+		int x1 = bounds.getLowerNE().getBlockX();
+		int z1 = bounds.getLowerNE().getBlockZ();
+		int x2 = bounds.getUpperSW().getBlockX();
+		int z2 = bounds.getUpperSW().getBlockZ();
+		
 		System.out.println("bounds: (" + x1 + "," + z1 + "), (" + x2 + "," + z2 +")");
 		
-		for (int f = 0; f < frameWidth; f++) {
-			int fId = isLit && f == 0 ? 89 : frameId.material;
-			for (int x = x1 - f; x <= x2 + f; x++) {
-				w.getBlockAt(x, y, z1 - f).setTypeIdAndData(fId, frameId.data, false);
-				w.getBlockAt(x, y, z2 + f).setTypeId(fId);
-			}
-			for (int z = z1 - f; z <= z2 + f; z++) {
-				w.getBlockAt(x1 - f, y, z).setTypeId(fId);
-				w.getBlockAt(x2 + f, y, z).setTypeId(fId);
+		Cuboid[] frameParts = {
+				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1 + fw, y, z1)),	// east side
+				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x1 + fw, y, z2 + fw)),	// west side
+				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)),	// north side
+				new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)),	// south side
+		};
+		for (Cuboid part : frameParts) {
+			for (Location l: part) {
+				w.getBlockAt(l).setTypeIdAndData(frameId.material, frameId.data, false);
 			}
 		}
 	}
@@ -246,25 +244,25 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 
 	// Return the bounds of the chessboard - the innermost ring of the frame
-	int[][] getBounds() {
+	Cuboid getBounds() {
 		Location a1 = rowColToWorldCenter(0, 0);
 		Location h8 = rowColToWorldCenter(7, 7);
-	
-		int x1 = a1.getBlockX(), z1 = a1.getBlockZ();
-		int x2 = h8.getBlockX(), z2 = h8.getBlockZ();
+
+		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
+		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
 		
 		int tmp = 0;
 		if (x1 > x2) { tmp = x1; x1 = x2; x2 = tmp; }
 		if (z1 > z2) { tmp = z1; z1 = z2; z2 = tmp; }
 		
-		x1 -= squareSize / 2 + 1; x2 += squareSize / 2 + 1;
-		z1 -= squareSize / 2 + 1; z2 += squareSize / 2 + 1;
+		x1 -= squareSize / 2 + 1;
+		z1 -= squareSize / 2 + 1;
+		x2 += squareSize / 2 + 1;
+		z2 += squareSize / 2 + 1;
 		
-		int res[][] = new int[2][2];
-		res[0][0] = x1;	res[0][1] = z1;
-		res[1][0] = x2;	res[1][1] = z2;
-		
-		return res;
+		World w = a1Square.getWorld();
+		int y = a1Square.getBlockY();
+		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2));
 	}
 
 	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
@@ -343,12 +341,18 @@ public class BoardView implements PositionListener, PositionChangeListener {
 
 
 	boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
-		if (loc.getBlockY() >= a1Square.getBlockY() + minHeight && loc.getBlockY() <= a1Square.getBlockY() + maxHeight &&
-				loc.getBlockX() <= a1Square.getBlockX() && loc.getBlockX() > a1Square.getBlockX() - squareSize * 8 &&
-				loc.getBlockZ() <= a1Square.getBlockZ() && loc.getBlockZ() > a1Square.getBlockZ() - squareSize * 8)
-			return true;
-		else 
-			return false;
+		Cuboid bounds = getBounds();
+		bounds.inset(Direction.Horizontal, 1);
+		bounds.shift(Direction.Up, minHeight);
+		bounds.expand(Direction.Up, maxHeight - minHeight);
+		return bounds.contains(loc);
+//		
+//		if (loc.getBlockY() >= a1Square.getBlockY() + minHeight && loc.getBlockY() <= a1Square.getBlockY() + maxHeight &&
+//				loc.getBlockX() <= a1Square.getBlockX() && loc.getBlockX() > a1Square.getBlockX() - squareSize * 8 &&
+//				loc.getBlockZ() <= a1Square.getBlockZ() && loc.getBlockZ() > a1Square.getBlockZ() - squareSize * 8)
+//			return true;
+//		else 
+//			return false;
 	}
 	
 	// true if the location is part of the board itself
@@ -363,18 +367,10 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	
 	// true if the location is *anywhere* within the board, including frame & enclosure
 	boolean isPartOfBoard(Location loc) {
-		int[][] bounds = getBounds();
-		int fw = getFrameWidth() - 1;
-		int x1 = bounds[0][0] - fw;
-		int x2 = bounds[1][0] + fw;
-		int z1 = bounds[0][1] - fw; 
-		int z2 = bounds[1][1] + fw;
-		int y1 = getA1Square().getBlockY();
-		int y2 = y1 + getHeight() + 1;
-		int x = loc.getBlockX();
-		int y = loc.getBlockY();
-		int z = loc.getBlockZ();
-		return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
+		Cuboid bounds = getBounds();
+		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
+		bounds.expand(Direction.Up, getHeight() + 1);
+		return bounds.contains(loc);
 	}
 	
 	int getSquareAt(Location loc) {
@@ -387,24 +383,13 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	}
 
 	// Wipe the board's contents - generally called just before the board is deleted 
-	void wipe() {			
-		int[][] bounds = getBounds();
-		int fw = frameWidth - 1;
-		int x1 = bounds[0][0] - fw, x2 = bounds[1][0] + fw;
-		int z1 = bounds[0][1] - fw, z2 = bounds[1][1] + fw;
-		// (x1,z1) & (x2,z2) are the outermost ring of the frame
-		int y1 = a1Square.getBlockY();
-		int y2 = a1Square.getBlockY() + 1 + height;
-		
-		World w = a1Square.getWorld();
-
-		// TODO: restore to previous terrain, not air
-		for (int x = x1; x <= x2; x++) {
-			for (int y = y1; y <= y2; y++) {
-				for (int z = z1; z <= z2; z++) {
-					w.getBlockAt(x, y, z).setTypeId(0);
-				}
-			}
+	void wipe() {
+		Cuboid bounds = getBounds();
+		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
+		bounds.expand(Direction.Up, getHeight() + 1);
+		for (Location l : bounds) {
+			// TODO: restore to previous terrain, not air
+			l.getBlock().setTypeId(0);
 		}
 	}
 }
