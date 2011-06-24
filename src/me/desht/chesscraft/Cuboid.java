@@ -122,4 +122,8 @@ public class Cuboid implements Iterable<Location> {
 	public Iterator<Location> iterator() {
 		return new CuboidIterator(lowerNE, upperSW);
 	}
+	
+	public String toString() {
+		return lowerNE.toString() + " -> " + upperSW.toString();
+	}
 }
