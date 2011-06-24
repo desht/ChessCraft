@@ -52,10 +52,20 @@ public class ChessPlayerListener extends PlayerListener {
 		} catch (ChessException e) {
 			plugin.errorMessage(player, e.getMessage());
 		} catch (IllegalMoveException e) {
-			plugin.errorMessage(player, e.getMessage());
+			cancelMove(event);
+			plugin.errorMessage(player, e.getMessage() + " - move cancelled.");
 		}
 	}
 	
+	private void cancelMove(PlayerInteractEvent event) {
+		BoardView bv = onChessBoard(event.getClickedBlock().getLocation());
+		if (bv == null) 
+			bv = aboveChessBoard(event.getClickedBlock().getLocation());
+		if (bv != null && bv.getGame() != null) {
+			bv.getGame().setFromSquare(Chess.NO_SQUARE);
+		}
+	}
+
 	private void pieceClicked(Player player, Game game, Location loc) throws IllegalMoveException, ChessException {
 		if (game.getState() != GameState.RUNNING)
 			return;
@@ -67,9 +77,10 @@ public class ChessPlayerListener extends PlayerListener {
 				if (colour == game.getPosition().getToPlay()) {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
-					String what = ChessCraft.pieceToStr(piece);
+					String what = ChessCraft.pieceToStr(piece).toUpperCase();
 					plugin.statusMessage(player, "Selected your " + what + " at " + Chess.sqiToStr(sqi) + ".");
-					plugin.statusMessage(player, "Click a square or another piece to move your " + what + ", or click the " + what + " again to cancel.");
+					plugin.statusMessage(player, "- Right-click a square or another piece to move your " + what);
+					plugin.statusMessage(player, "- Right-click the " + what + " again to cancel.");
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
