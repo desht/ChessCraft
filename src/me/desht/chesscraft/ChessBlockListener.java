@@ -31,10 +31,8 @@ public class ChessBlockListener extends BlockListener {
 		if (event.isCancelled()) return;
 		Location loc = event.getBlock().getLocation();
 
-		System.out.println("block place " + loc);
 		for (BoardView bv : plugin.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
-				System.out.println("cancelled");
 				event.setCancelled(true);
 				return;
 			}
