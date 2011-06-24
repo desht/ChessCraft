@@ -55,14 +55,18 @@ public class ChessCommandExecutor implements CommandExecutor {
     				inviteCommand(player, args);
     			} else if (partialMatch(args[0], "j")) {	// join
     				joinCommand(player, args);
-    			} else if (partialMatch(args[0], "s")) {	// start
+    			} else if (partialMatch(args[0], "st")) {	// start
     				startCommand(player, args);
-    			} else if (partialMatch(args[0], "r")) {	// resign
+    			} else if (partialMatch(args[0], "res")) {	// resign
     				resignCommand(player, args);
     			} else if (partialMatch(args[0], "m")) {	// move
     				moveCommand(player, args);
     			} else if (partialMatch(args[0], "p")) {	// page
     				pagedDisplay(player, args);
+    			} else if (partialMatch(args[0], "sa")) {	// save
+    				saveCommand(player, args);
+    			} else if (partialMatch(args[0], "rel")) {	// reload
+    				reloadCommand(player, args);
     			}
     		} catch (IllegalArgumentException e) {
     			plugin.errorMessage(player, e.getMessage());
@@ -77,6 +81,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return true;
 	}
 	
+	private void saveCommand(Player player, String[] args) {
+		plugin.persistence.saveAll();
+	}
+	
+	private void reloadCommand(Player player, String[] args) {
+		plugin.persistence.reloadAll();
+	}
+
 	private void startCommand(Player player, String[] args) throws ChessException {
 		if (args.length >= 2) {
 			plugin.getGame(args[1]).start(player);
@@ -238,25 +250,22 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void inviteCommand(Player player, String[] args) throws ChessException {
-		if (args.length < 2) {
-			// TODO: usage
-			return;
-		}
-		String invitee = args[1];
 		Game game = plugin.getCurrentGame(player);
 		if (game == null) {
 			plugin.errorMessage(player, "You're not playing a game right now so you can't invite anyone.");
 			return;
 		}
-		game.invitePlayer(player, invitee);
-		Player inv = plugin.getServer().getPlayer(invitee);
-		if (inv != null) {
-			inv.sendMessage(ChatColor.YELLOW + "You have been invited to the chess game '" + game.getName() + "' by " + player.getName() + ".");
-			inv.sendMessage(ChatColor.YELLOW + "Type '/chess join' to join the game.");
-			plugin.statusMessage(player, "An invitation has been sent to " + invitee + ".");
+		if (args.length >= 2) {
+			Player invitee = plugin.getServer().getPlayer(args[1]);
+			if (invitee != null) {
+				game.invitePlayer(player, invitee);
+				plugin.statusMessage(player, "An invitation has been sent to " + args[1] + ".");
+			} else {
+				game.clearInvitation();
+				plugin.errorMessage(player, invitee + " is not online.");
+			}
 		} else {
-			game.clearInvitation();
-			plugin.errorMessage(player, invitee + " must have just gone offline!  Invitation cancelled.");
+			game.inviteOpen(player);
 		}
 	}
 

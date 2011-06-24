@@ -49,6 +49,16 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		stones = createStones(pieceStyle);
 	}
 	
+	Map<String,Object> freeze() {
+		Map<String,Object> result = new HashMap<String,Object>();
+		result.put("name", name);
+		result.put("game", game == null ? "" : game.getName());
+		result.put("pieceStyle", pieceStyle);
+		result.put("location", ChessPersistence.makeBlockList(a1Square));
+		
+		return result;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -110,7 +120,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
-		Location res = new Location(where.getWorld(), where.getX() + xOff, where.getY() - 1, where.getZ() + zOff);
+		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY() - 1, where.getBlockZ() + zOff);
 
 		System.out.println("standing at " + where);
 		System.out.println("board origin " + res);

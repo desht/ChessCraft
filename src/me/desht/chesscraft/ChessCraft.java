@@ -44,6 +44,7 @@ public class ChessCraft extends JavaPlugin {
 	private final ChessBlockListener blockListener = new ChessBlockListener(this);
 	private final ChessEntityListener entityListener = new ChessEntityListener(this);
 	private final ChessCommandExecutor commandExecutor = new ChessCommandExecutor(this);
+	final ChessPersistence persistence = new ChessPersistence(this);
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("test", true);
@@ -51,7 +52,8 @@ public class ChessCraft extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		logger.info(description.getName() + " version " + description.getVersion() + "is disabled!");
+		save();
+		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!");
 	}
 
 	@Override
@@ -235,5 +237,9 @@ public class ChessCraft extends JavaPlugin {
 				return bv.getName();
 		}
 		throw new ChessException("There are no free boards to create a game on.");
+	}
+	
+	void save() {
+		persistence.saveAll();
 	}
 }

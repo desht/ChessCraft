@@ -1,7 +1,9 @@
 package me.desht.chesscraft;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -46,6 +48,21 @@ public class Game {
 		position = Position.createInitialPosition();
 		position.addPositionChangeListener(view);
 		position.addPositionListener(view);
+	}
+	
+	Map<String,Object> freeze() {
+		Map<String,Object> result = new HashMap<String,Object>();
+		
+		result.put("name", name);
+		result.put("boardview", view.getName());
+		result.put("playerWhite", playerWhite);
+		result.put("playerBlack", playerBlack);
+		result.put("state", state.toString());
+		result.put("invited", invited);
+		result.put("moves", history);
+		result.put("position", position.getFEN());
+		
+		return result;
 	}
 	
 	String getName() {
@@ -96,7 +113,7 @@ public class Game {
 		if (state != GameState.SETTING_UP) {
 			throw new ChessException("Can only add players during game setup phase.");
 		}
-		if (!invited.equalsIgnoreCase(player.getName())) {
+		if (!invited.equals("*") && !invited.equalsIgnoreCase(player.getName())) {
 			throw new ChessException("Player " + player.getName() + " doesn't have an invitation.");
 		}
 		String otherPlayer = null;
@@ -114,16 +131,29 @@ public class Game {
 		clearInvitation();
 	}
 	
-	void invitePlayer(Player inviter, String name) throws ChessException {
+	void invitePlayer(Player inviter, Player invitee) throws ChessException {
 		if (!isPlayerInGame(inviter))
 			throw new ChessException("Can't invite a player to a game you're not in!");
-		if (name != null) {
-			if (Bukkit.getServer().getPlayer(name) == null)
-				throw new ChessException("Player " + name + " isn't online.");
+		if (invited.equals(invitee.getName()))
+			return;
+		alert(invitee, "You have been invited to the chess game '" + getName() + "' by " + inviter.getName() + ".");
+		alert(invitee, "Type '/chess join' to join the game.");
+		if (!invited.isEmpty()) {
+			Player oldInvited = Bukkit.getServer().getPlayer(invited);
+			if (oldInvited != null)
+				alert(oldInvited, "Your invitation to chess game '" + getName() + "' has been withdrawn.");
 		}
-		invited = name;
+		invited = invitee.getName();
 	}
 	
+	void inviteOpen(Player inviter) throws ChessException {
+		if (!isPlayerInGame(inviter))
+			throw new ChessException("Can't invite a player to a game you're not in!");
+		Bukkit.getServer().broadcastMessage(inviter.getName() + " has created an open invitation to a chess game.");
+		Bukkit.getServer().broadcastMessage("Type '/chess join " + getName() + "' to join.");
+		invited = "*";
+	}
+		
 	void clearInvitation() {
 		invited = "";
 	}
@@ -279,12 +309,13 @@ public class Game {
 		}
 	}
 	
+	void alert(Player player, String message) {
+		player.sendMessage(ChatColor.YELLOW + ":: Chess game '" + getName() + "': " + message);
+	}
 	void alert(String playerName, String message) {
 		Player p = Bukkit.getServer().getPlayer(playerName);
-		if (p == null) {
-			return;
-		}
-		p.sendMessage(ChatColor.YELLOW + ":: Chess game '" + getName() + "': " + message);
+		if (p != null)
+			alert(p, message);
 	}
 	
 	String getPlayerToMove() {
