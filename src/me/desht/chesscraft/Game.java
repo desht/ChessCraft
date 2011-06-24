@@ -38,7 +38,7 @@ public class Game {
 		if (view.getGame() != null)
 			throw new ChessException("That board already has a game on it.");
 		view.setGame(this);
-		playerWhite = player.getName();
+		playerWhite = player == null ? "" : player.getName();
 		playerBlack = "";
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
@@ -63,6 +63,18 @@ public class Game {
 		result.put("position", position.getFEN());
 		
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	void thaw(Map<String,Object> map) {
+		playerWhite = (String) map.get("playerWhite");
+		playerBlack = (String) map.get("playerBlack");
+		state = GameState.valueOf((String) map.get("state"));
+		invited = (String) map.get("invited");
+		history = (List<String>) map.get("moves");
+		position = new Position((String) map.get("position"));
+		position.addPositionChangeListener(view);
+		position.addPositionListener(view);
 	}
 	
 	String getName() {

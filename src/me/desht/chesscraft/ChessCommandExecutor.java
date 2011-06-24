@@ -85,7 +85,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.persistence.saveAll();
 	}
 	
-	private void reloadCommand(Player player, String[] args) {
+	private void reloadCommand(Player player, String[] args) throws ChessException {
 		plugin.persistence.reloadAll();
 	}
 

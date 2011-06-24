@@ -52,7 +52,7 @@ public class ChessCraft extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		save();
+		persistence.saveAll();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!");
 	}
 
@@ -74,7 +74,9 @@ public class ChessCraft extends JavaPlugin {
 		library = new ChessPieceLibrary(this);
 		
 		if (!getDataFolder().exists()) getDataFolder().mkdir();
-
+	
+		persistence.reloadAll();
+		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
@@ -239,7 +241,4 @@ public class ChessCraft extends JavaPlugin {
 		throw new ChessException("There are no free boards to create a game on.");
 	}
 	
-	void save() {
-		persistence.saveAll();
-	}
 }
