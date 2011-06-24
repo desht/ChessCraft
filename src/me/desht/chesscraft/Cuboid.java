@@ -47,7 +47,7 @@ public class Cuboid implements Iterable<Location> {
 		
 	}
 	
-	public void expand(Direction dir, int amount) {
+	public Cuboid expand(Direction dir, int amount) {
 		switch (dir) {
 		case North: lowerNE.setX(lowerNE.getBlockX() - amount); break;
 		case South: upperSW.setX(upperSW.getBlockX() + amount); break;
@@ -57,13 +57,39 @@ public class Cuboid implements Iterable<Location> {
 		case Up:    upperSW.setY(upperSW.getBlockY() + amount); break;
 		default: throw new IllegalArgumentException("invalid direction " + dir);
 		}
+		return this;
 	}
 	
-	public void shift(Direction dir, int amount) {
-		expand(dir, amount);
-		expand(opposite(dir), -amount);
+	public Cuboid shift(Direction dir, int amount) {
+		return expand(dir, amount).expand(opposite(dir), -amount);
 	}
 	
+	public Cuboid outset(Direction dir, int amount) {
+		switch (dir) {
+		case Horizontal:
+			expand(Direction.North, amount);
+			expand(Direction.South, amount);
+			expand(Direction.East, amount);
+			expand(Direction.West, amount);
+			break;
+		case Vertical:
+			expand(Direction.Down, amount);
+			expand(Direction.Up, amount);
+			break;
+		case Both:
+			outset(Direction.Horizontal, amount);
+			outset(Direction.Vertical, amount);
+			break;
+		default:
+			throw new IllegalArgumentException("invalid direction " + dir);
+		}
+		return this;
+	}
+
+	public Cuboid inset(Direction dir, int amount) {
+		return outset(dir, -amount);
+	}
+
 	public Direction opposite(Direction dir) {
 		switch (dir) {
 		case North: return Direction.South;
@@ -90,31 +116,6 @@ public class Cuboid implements Iterable<Location> {
 		if (l.getWorld() != lowerNE.getWorld())
 			return false;
 		return contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
-	}
-	
-	public void outset(Direction dir, int amount) {
-		switch (dir) {
-		case Horizontal:
-			expand(Direction.North, amount);
-			expand(Direction.South, amount);
-			expand(Direction.East, amount);
-			expand(Direction.West, amount);
-			break;
-		case Vertical:
-			expand(Direction.Down, amount);
-			expand(Direction.Up, amount);
-			break;
-		case Both:
-			outset(Direction.Horizontal, amount);
-			outset(Direction.Vertical, amount);
-			break;
-		default:
-			throw new IllegalArgumentException("invalid direction " + dir);
-		}
-	}
-	
-	public void inset(Direction dir, int amount) {
-		outset(dir, -amount);
 	}
 	
 	@Override
