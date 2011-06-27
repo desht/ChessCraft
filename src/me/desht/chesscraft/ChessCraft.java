@@ -65,12 +65,12 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-		
-		configInitialise();
 
 		if (!getDataFolder().exists())
 			setupDefaultStructure();
-	
+		
+		configInitialise();
+
 		setupPermissions();
 		getCommand("chess").setExecutor(commandExecutor);
 
@@ -83,21 +83,21 @@ public class ChessCraft extends JavaPlugin {
 		
 		library = new ChessPieceLibrary(this);
 		
-
 		persistence.reload();
 		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 	
 	private void setupDefaultStructure() {
+		log(Level.INFO, "Performing first-time setup");
 		try {
 			getDataFolder().mkdir();
 			new File(getDataFolder(), "archive").mkdir();
 			new File(getDataFolder(), "board_styles").mkdir();
 			new File(getDataFolder(), "piece_styles").mkdir();
 			
-			extractResource("default-board.yml", "board_styles/Standard.yml");
-			extractResource("default-pieces.yml", "piece_styles/Standard.yml");
+			extractResource("/datafiles/default-board.yml", "board_styles/Standard.yml");
+			extractResource("/datafiles/default-pieces.yml", "piece_styles/Standard.yml");
 		} catch (FileNotFoundException e) {
 			log(Level.SEVERE, e.getMessage());
 		} catch (IOException e) {
@@ -106,7 +106,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 	
 	private void extractResource(String from, String to) throws IOException {
-		InputStream in = this.getClass().getResourceAsStream("resources/" + from);
+		InputStream in = this.getClass().getResourceAsStream(from);
 		if (in == null) {
 			throw new IOException("can't extract resource " + from + " from plugin JAR");
 		}

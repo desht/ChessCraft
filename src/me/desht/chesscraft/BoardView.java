@@ -38,24 +38,45 @@ public class BoardView implements PositionListener {
 	private String pieceStyle;
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
+	private String boardStyle;
 	
-	BoardView(String bName, ChessCraft plugin, Location where, String style) throws ChessException {
+	BoardView(String bName, ChessCraft plugin, Location where, String bStyle) throws ChessException {
 		this.plugin = plugin;
+		boardStyle = bStyle;
 
 		name = bName;
 		game = null;	// indicates board not used by any game yet
-		if (style == null) style = "Standard";		
-		loadStyle(style);
+		if (boardStyle == null) boardStyle = "Standard";
+		loadStyle(boardStyle);
 		origin = where;
 		a1Square = calcBaseSquare(where);
+		validateIntersections();
 		stones = createStones(pieceStyle);
 	}
 	
+	// Ensure this board doesn't intersect any other boards
+	private void validateIntersections() throws ChessException {
+		Cuboid bounds = getBounds();
+		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
+		bounds.expand(Direction.Up, getHeight() + 1);
+
+		for (BoardView bv : plugin.listBoardViews()) {
+			if (bv.getA1Square().getWorld() != getA1Square().getWorld())
+				continue;
+			for (Location l : bounds.corners()) {
+				if (bv.getOuterBounds().contains(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+					throw new ChessException("Board would intersect existing board " + bv.getName());
+				}
+			}
+		}
+	}
+
 	Map<String,Object> freeze() {
 		Map<String,Object> result = new HashMap<String,Object>();
 		result.put("name", name);
 		result.put("game", game == null ? "" : game.getName());
 		result.put("pieceStyle", pieceStyle);
+		result.put("boardStyle", boardStyle);
 		result.put("origin", ChessPersistence.makeBlockList(origin));
 		
 		return result;
@@ -65,6 +86,14 @@ public class BoardView implements PositionListener {
 		return name;
 	}
 	
+	public String getBoardStyle() {
+		return boardStyle;
+	}
+
+	public String getPieceStyle() {
+		return pieceStyle;
+	}
+
 	public Game getGame() {
 		return game;
 	}
@@ -271,6 +300,13 @@ public class BoardView implements PositionListener {
 		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, squareSize / 2 + 1);
 	}
 
+	Cuboid getOuterBounds() {
+		Cuboid res = getBounds();
+		res.outset(Direction.Horizontal, getFrameWidth() - 1);
+		res.expand(Direction.Up, getHeight() + 1);
+		return res;
+	}
+
 	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
 	private Location rowColToWorldNE(int row, int col) {
 		return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
@@ -382,10 +418,7 @@ public class BoardView implements PositionListener {
 
 	// Wipe the board's contents - generally called just before the board is deleted 
 	void wipe() {
-		Cuboid bounds = getBounds();
-		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
-		bounds.expand(Direction.Up, getHeight() + 1);
-		for (Location l : bounds) {
+		for (Location l : getOuterBounds()) {
 			// TODO: restore to previous terrain, not air
 			l.getBlock().setTypeId(0);
 		}

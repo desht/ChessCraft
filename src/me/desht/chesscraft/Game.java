@@ -96,7 +96,7 @@ public class Game {
 		state = GameState.valueOf((String) map.get("state"));
 		invited = (String) map.get("invited");
 		history = (List<String>) map.get("moves");
-		started.setTime((Integer) map.get("started"));
+		started.setTime((Long) map.get("started"));
 		position = new Position((String) map.get("position"));
 //		position.addPositionChangeListener(view);
 		position.addPositionListener(view);

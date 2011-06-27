@@ -156,7 +156,7 @@ public class ChessPersistence {
 			World w = findWorld((String) origin.get(0));
 			Location originLoc = new Location(w, (Integer)origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
 			try {
-				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("pieceStyle"));
+				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"));
 				plugin.addBoardView(bvName, bv);
 				nLoaded++;
 			} catch (Exception e) {

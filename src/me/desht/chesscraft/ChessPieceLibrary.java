@@ -18,7 +18,7 @@ import chesspresso.Chess;
 public class ChessPieceLibrary {
 	ChessCraft plugin;
 	private static final String libraryDir =
-		ChessCraft.directory + File.separator + "pieces";
+		ChessCraft.directory + File.separator + "piece_styles";
 	private final Map<String,Map<Integer,PieceTemplate>> templates =
 		new HashMap<String,Map<Integer,PieceTemplate>>();
 	

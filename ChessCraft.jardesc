@@ -11,12 +11,7 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/ChessCraft/ChessCraft.jardesc"/>
-        <file path="/ChessCraft/.classpath"/>
-        <folder path="/ChessCraft/resources"/>
-        <file path="/ChessCraft/.project"/>
-        <file path="/ChessCraft/src/plugin.yml"/>
-        <file path="/ChessCraft/TODO"/>
+        <javaElement handleIdentifier="=ChessCraft/src"/>
         <folder path="/ChessCraft/META-INF"/>
     </selectedElements>
 </jardesc>
