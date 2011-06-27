@@ -14,11 +14,11 @@ import org.bukkit.World;
 import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
-import chesspresso.position.ImmutablePosition;
-import chesspresso.position.PositionChangeListener;
+//import chesspresso.position.ImmutablePosition;
+//import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 
-public class BoardView implements PositionListener, PositionChangeListener {
+public class BoardView implements PositionListener {
 	
 	private static final String styleDir =
 		ChessCraft.directory + File.separator + "board_styles";
@@ -27,6 +27,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private String name;
 	private Game game;
 	private Location a1Square;
+	private Location origin;
 	private int frameWidth;
 	private int squareSize;
 	private int height;
@@ -45,6 +46,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		game = null;	// indicates board not used by any game yet
 		if (style == null) style = "Standard";		
 		loadStyle(style);
+		origin = where;
 		a1Square = calcBaseSquare(where);
 		stones = createStones(pieceStyle);
 	}
@@ -54,7 +56,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		result.put("name", name);
 		result.put("game", game == null ? "" : game.getName());
 		result.put("pieceStyle", pieceStyle);
-		result.put("location", ChessPersistence.makeBlockList(a1Square));
+		result.put("origin", ChessPersistence.makeBlockList(origin));
 		
 		return result;
 	}
@@ -117,13 +119,16 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		}
 	}
 	
+	// Given a board origin (the block above the centre of the A1 square),
+	// calculate the southwest corner of the A1 square (which is also the southwest
+	// corner of the whole board)
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
 		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY() - 1, where.getBlockZ() + zOff);
 
-		System.out.println("standing at " + where);
-		System.out.println("board origin " + res);
+		System.out.println("origin:   " + where);
+		System.out.println("a1square: " + res);
 		return res;
 	}
 
@@ -182,11 +187,11 @@ public class BoardView implements PositionListener, PositionChangeListener {
 		int x2 = bounds.getUpperSW().getBlockX();
 		int z2 = bounds.getUpperSW().getBlockZ();
 		
-		System.out.println("bounds: (" + x1 + "," + z1 + "), (" + x2 + "," + z2 +")");
+		System.out.println("bounds: " + bounds);
 		
 		Cuboid[] frameParts = {
-				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1 + fw, y, z1)),	// east side
-				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x1 + fw, y, z2 + fw)),	// west side
+				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)),	// east side
+				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)),	// west side
 				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)),	// north side
 				new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)),	// south side
 		};
@@ -200,11 +205,12 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private void paintBoard() {
 		for (int i = 0; i < Chess.NUM_OF_SQUARES; i++) {
 			paintSquareAt(i);
-			paintPieceAt(i, Chess.NO_STONE);
+			int stone = game != null ? game.getPosition().getStone(i) : Chess.NO_STONE;
+			paintStoneAt(i, stone);
 		}
 	}
 
-	private void paintPieceAt(int sqi, int stone) {
+	private void paintStoneAt(int sqi, int stone) {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
 		Location l = rowColToWorld(row, col, 0 , 0);
@@ -236,21 +242,15 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	private void paintSquareAt(int sqi) {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
-		Location l = rowColToWorldNE(row, col);
+		Location locNE = rowColToWorldNE(row, col);
 		int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
 		int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
-		int cx = l.getBlockX();
-		int cz = l.getBlockZ();
-		World w = a1Square.getWorld();
-		for (int x = 0; x < squareSize; x++) {
-			for (int z = 0; z < squareSize; z++) {
-				w.getBlockAt(cx + x, l.getBlockY(), cz + z).setTypeIdAndData(matId, (byte)matData, false);
-			}
+		Cuboid square = new Cuboid(locNE, locNE);
+		square.expand(Direction.South, squareSize - 1);
+		square.expand(Direction.West, squareSize - 1);
+		for (Location loc : square) {
+			loc.getBlock().setTypeIdAndData(matId, (byte)matData, false);
 		}
-		if (isLit && height > 6) {
-			w.getBlockAt(cx + squareSize / 2, l.getBlockY(), cz + squareSize / 2).setTypeId(89);
-		}
-		
 	}
 
 	// Return the bounds of the chessboard - the innermost ring of the frame
@@ -260,19 +260,15 @@ public class BoardView implements PositionListener, PositionChangeListener {
 
 		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
 		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
-		
-		int tmp = 0;
-		if (x1 > x2) { tmp = x1; x1 = x2; x2 = tmp; }
-		if (z1 > z2) { tmp = z1; z1 = z2; z2 = tmp; }
-		
-		x1 -= squareSize / 2 + 1;
-		z1 -= squareSize / 2 + 1;
-		x2 += squareSize / 2 + 1;
-		z2 += squareSize / 2 + 1;
-		
+//		
+//		x1 -= squareSize / 2 + 1;
+//		z1 -= squareSize / 2 + 1;
+//		x2 += squareSize / 2 + 1;
+//		z2 += squareSize / 2 + 1;
+//		
 		World w = a1Square.getWorld();
 		int y = a1Square.getBlockY();
-		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2));
+		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, squareSize / 2 + 1);
 	}
 
 	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
@@ -318,7 +314,7 @@ public class BoardView implements PositionListener, PositionChangeListener {
 	@Override
 	public void squareChanged(int sqi, int stone) {
 //		System.out.println("square changed: " + sqi + " -> " + stone);
-		paintPieceAt(sqi, stone);
+		paintStoneAt(sqi, stone);
 	}
 
 	@Override
@@ -327,23 +323,23 @@ public class BoardView implements PositionListener, PositionChangeListener {
 
 	}
 
-	@Override
-	public void notifyMoveDone(ImmutablePosition position, short move) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void notifyMoveUndone(ImmutablePosition position) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void notifyPositionChanged(ImmutablePosition position) {
-		// TODO Auto-generated method stub
-
-	}
+//	@Override
+//	public void notifyMoveDone(ImmutablePosition position, short move) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void notifyMoveUndone(ImmutablePosition position) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	@Override
+//	public void notifyPositionChanged(ImmutablePosition position) {
+//		// TODO Auto-generated method stub
+//
+//	}
 
 	void setGame(Game game) {
 		this.game = game;		

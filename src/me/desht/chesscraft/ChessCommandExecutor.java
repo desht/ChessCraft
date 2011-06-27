@@ -82,11 +82,13 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 	
 	private void saveCommand(Player player, String[] args) {
-		plugin.persistence.saveAll();
+		plugin.persistence.save();
+		plugin.statusMessage(player, "Chess boards & games have been saved.");
 	}
 	
 	private void reloadCommand(Player player, String[] args) throws ChessException {
-		plugin.persistence.reloadAll();
+		plugin.persistence.reload();
+		plugin.statusMessage(player, "Chess boards & games have been reloaded.");
 	}
 
 	private void startCommand(Player player, String[] args) throws ChessException {
@@ -153,13 +155,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 			Game game = new Game(plugin, gameName, plugin.getBoardView(boardName), player);
 			plugin.addGame(gameName, game);
-			plugin.setCurrentGame(player, game);
+			plugin.setCurrentGame(player.getName(), game);
 			plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + boardName + "'.");
 		} else if (partialMatch(args, 1, "l")) {	// list
 			messageBuffer.clear();
 			for (Game game : plugin.listGames()) {
 				String name = game.getName();
-				String curGame = name.equals(plugin.getCurrentGame(player).getName()) ? "+ " : "  ";
+				String curGameMarker = "  ";
+				if (player != null)
+					curGameMarker = name.equals(plugin.getCurrentGame(player).getName()) ? "+ " : "  ";
 				String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
 				String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
 				String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
@@ -168,7 +172,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 				info.append(ChatColor.YELLOW + "[" + game.getState() + "]");
 				if (game.getInvited().length() > 0)
 					info.append(" invited: " + game.getInvited());
-				messageBuffer.add(curGame + name + info);
+				messageBuffer.add(curGameMarker + name + info);
 			}
 			pagedDisplay(player, 1);
 		} else if (args.length >= 3 && partialMatch(args, 1, "d")) { 	// delete
@@ -183,7 +187,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else if (args.length >= 3 && partialMatch(args, 1, "p")) {	// play (set current)
 			String gameName = args[2];
 			Game game = plugin.getGame(gameName);
-			plugin.setCurrentGame(player, game.getName());
+			plugin.setCurrentGame(player.getName(), game.getName());
 			plugin.statusMessage(player, "Game '" + gameName + "' is now your current game.");
 		} else if (partialMatch(args, 1, "x")) {	// temp debugging
 			Game game = plugin.getGame(args[2]);
@@ -262,7 +266,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 				plugin.statusMessage(player, "An invitation has been sent to " + args[1] + ".");
 			} else {
 				game.clearInvitation();
-				plugin.errorMessage(player, invitee + " is not online.");
+				plugin.errorMessage(player, args[1] + " is not online.");
 			}
 		} else {
 			game.inviteOpen(player);

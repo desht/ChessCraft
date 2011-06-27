@@ -1,6 +1,11 @@
 package me.desht.chesscraft;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,12 +52,13 @@ public class ChessCraft extends JavaPlugin {
 	final ChessPersistence persistence = new ChessPersistence(this);
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
-		put("test", true);
+		put("broadcast_results", true);
+		put("auto_delete_finished", 30);
 	}};
 	
 	@Override
 	public void onDisable() {
-		persistence.saveAll();
+		persistence.save();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!");
 	}
 
@@ -61,6 +67,10 @@ public class ChessCraft extends JavaPlugin {
 		description = this.getDescription();
 		
 		configInitialise();
+
+		if (!getDataFolder().exists())
+			setupDefaultStructure();
+	
 		setupPermissions();
 		getCommand("chess").setExecutor(commandExecutor);
 
@@ -73,11 +83,43 @@ public class ChessCraft extends JavaPlugin {
 		
 		library = new ChessPieceLibrary(this);
 		
-		if (!getDataFolder().exists()) getDataFolder().mkdir();
-	
-		persistence.reloadAll();
+
+		persistence.reload();
 		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
+	}
+	
+	private void setupDefaultStructure() {
+		try {
+			getDataFolder().mkdir();
+			new File(getDataFolder(), "archive").mkdir();
+			new File(getDataFolder(), "board_styles").mkdir();
+			new File(getDataFolder(), "piece_styles").mkdir();
+			
+			extractResource("default-board.yml", "board_styles/Standard.yml");
+			extractResource("default-pieces.yml", "piece_styles/Standard.yml");
+		} catch (FileNotFoundException e) {
+			log(Level.SEVERE, e.getMessage());
+		} catch (IOException e) {
+			log(Level.SEVERE, e.getMessage());
+		}
+	}
+	
+	private void extractResource(String from, String to) throws IOException {
+		InputStream in = this.getClass().getResourceAsStream("resources/" + from);
+		if (in == null) {
+			throw new IOException("can't extract resource " + from + " from plugin JAR");
+		}
+		File of = new File(getDataFolder(), to);
+		OutputStream out = new FileOutputStream(of);
+
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
 	}
 
 	private void setupPermissions() {
@@ -179,7 +221,10 @@ public class ChessCraft extends JavaPlugin {
 		chessGames.put(gameName, game);
 	}
 	
-	public void removeGame(String gameName) {
+	public void removeGame(String gameName) throws ChessException {
+		Game game = getGame(gameName);
+		setCurrentGame(game.getPlayerWhite(), (Game)null);
+		setCurrentGame(game.getPlayerBlack(), (Game)null);
 		chessGames.remove(gameName);
 	}
 	
@@ -200,18 +245,26 @@ public class ChessCraft extends JavaPlugin {
 		return chessGames.get(name);
 	}
 	
-	void setCurrentGame(Player player, String gameName) throws ChessException {
+	void setCurrentGame(String playerName, String gameName) throws ChessException {
 		Game game = getGame(gameName);
-		setCurrentGame(player, game);
+		setCurrentGame(playerName, game);
 	}
-	void setCurrentGame(Player player, Game game) {
-		currentGame.put(player.getName(), game);
+	void setCurrentGame(String playerName, Game game) {
+		currentGame.put(playerName, game);
 	}
 	
 	Game getCurrentGame(Player player) {
-		return currentGame.get(player.getName());
+		return player == null ? null : currentGame.get(player.getName());
 	}
 	
+	Map<String,String> getCurrentGames() {
+		Map<String,String> res = new HashMap<String,String>();
+		for (String s : currentGame.keySet()) {
+			res.put(s, currentGame.get(s).getName());
+		}
+		return res;
+	}
+
 	static String pieceToStr(int piece) {
 		switch (piece) {
 		case Chess.PAWN: return "pawn";

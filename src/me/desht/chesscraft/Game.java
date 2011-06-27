@@ -1,9 +1,11 @@
 package me.desht.chesscraft;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -14,6 +16,7 @@ import org.bukkit.entity.Player;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import chesspresso.pgn.PGN;
 import chesspresso.position.Position;
 
 public class Game {
@@ -23,13 +26,16 @@ public class Game {
 	private ChessCraft plugin;
 	private String name;
 	private Position position;
+	private chesspresso.game.Game cpGame;
 	private BoardView view;
 	private String playerWhite, playerBlack;
 	private int promo[] = { Chess.QUEEN, Chess.QUEEN };
 	private String invited;
 	private GameState state;
 	private int fromSquare;
+	private Date started;
 	private List<String> history;
+	private int delTask;
 	
 	Game(ChessCraft plugin, String name, BoardView view, Player player) throws ChessException {
 		this.plugin = plugin;
@@ -44,10 +50,27 @@ public class Game {
 		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		history = new ArrayList<String>();
+		started = new Date();
 		
 		position = Position.createInitialPosition();
-		position.addPositionChangeListener(view);
+//		position.addPositionChangeListener(view);
 		position.addPositionListener(view);
+		
+		setupChesspressoGame();
+	}
+	
+	private void setupChesspressoGame() {
+		cpGame = new chesspresso.game.Game();
+		
+		cpGame.setTag(PGN.TAG_EVENT, getName());
+		cpGame.setTag(PGN.TAG_SITE, "Somewhere in Minecraftia");
+		cpGame.setTag(PGN.TAG_EVENT_DATE, PGN.dateToPGNDate(started));
+		cpGame.setTag(PGN.TAG_ROUND, "1");
+		cpGame.setTag(PGN.TAG_WHITE, getPlayerWhite());
+		cpGame.setTag(PGN.TAG_BLACK, getPlayerBlack());
+		cpGame.setTag(PGN.TAG_RESULT, "*");
+		
+		cpGame.setTag(PGN.TAG_FEN, position.getFEN());
 	}
 	
 	Map<String,Object> freeze() {
@@ -61,6 +84,7 @@ public class Game {
 		result.put("invited", invited);
 		result.put("moves", history);
 		result.put("position", position.getFEN());
+		result.put("started", started.getTime());
 		
 		return result;
 	}
@@ -72,9 +96,11 @@ public class Game {
 		state = GameState.valueOf((String) map.get("state"));
 		invited = (String) map.get("invited");
 		history = (List<String>) map.get("moves");
+		started.setTime((Integer) map.get("started"));
 		position = new Position((String) map.get("position"));
-		position.addPositionChangeListener(view);
+//		position.addPositionChangeListener(view);
 		position.addPositionListener(view);
+		setupChesspressoGame();
 	}
 	
 	String getName() {
@@ -105,11 +131,11 @@ public class Game {
 		return state;
 	}
 
-	public int getFromSquare() {
+	int getFromSquare() {
 		return fromSquare;
 	}
 
-	public void setFromSquare(int fromSquare) {
+	void setFromSquare(int fromSquare) {
 		this.fromSquare = fromSquare;
 	}
 
@@ -171,27 +197,32 @@ public class Game {
 	}
 	
 	void start(Player p) throws ChessException {
+		if (state != GameState.SETTING_UP) 
+			throw new ChessException("This game has already been started!");
 		if (!isPlayerInGame(p))
 			throw new ChessException("Can't start a game you're not in!");
 		if (playerWhite.isEmpty())
 			throw new ChessException("There is no white player yet.");
 		if (playerBlack.isEmpty())
 			throw new ChessException("There is no black player yet.");
-		alert(playerWhite, " game started!  Your turn.");
-		alert(playerBlack, " game started!  White's turn.");
+		alert(playerWhite, "game started!  You are playing White.");
+		alert(playerBlack, "game started!  You are playing Black.");
 		state = GameState.RUNNING;
 	}
 	
 	void resign(Player p) throws ChessException {
 		if (!isPlayerInGame(p))
-			throw new ChessException("Can't start a game you're not in!");
+			throw new ChessException("Can't resign a game you're not in!");
 		state = GameState.FINISHED;
 		String winner;
 		String loser = p.getName();
-		if (loser.equalsIgnoreCase(playerWhite)) 
+		if (loser.equalsIgnoreCase(playerWhite)) {
 			winner = playerBlack;
-		else
+			cpGame.setTag(PGN.TAG_RESULT, "0-1");
+		} else {
 			winner = playerWhite;
+			cpGame.setTag(PGN.TAG_RESULT, "1-0");
+		}
 		announceResult(winner, loser, ResultType.Resigned);
 	}
 	
@@ -219,9 +250,11 @@ public class Game {
 			history.add(lastMove.getLAN());
 			if (position.isMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Checkmate);
+				cpGame.setTag(PGN.TAG_RESULT, position.getToPlay() == Chess.WHITE ? "0-1" : "1-0");
 				state = GameState.FINISHED;
 			} else if (position.isStaleMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Stalemate);
+				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 				state = GameState.FINISHED;
 			} else {
 				alert(getPlayerToMove(), getColour(prevToMove) + " played [" + lastMove.getLAN() + "].");
@@ -256,18 +289,35 @@ public class Game {
 				alert(p2, "You were checkmated by " + p1 + "!");
 				break;
 			case Stalemate:
-				alert(p1, "Game is drawn - stalemate!");
-				alert(p2, "Game is drawn - stalemate!");
+				alert("Game is drawn - stalemate!");
 				break;
 			case Resigned:
 				alert(p1, p2 + " has resigned - you win!");
 				alert(p2, "You have resigned. " + p1 + " wins!");
 				break;
 			case DrawAgreed:
-				alert(p1, "Game is drawn - draw agreed!");
-				alert(p1, "Game is drawn - draw agreed!");
+				alert("Game is drawn - draw agreed!");
 				break;
 			}
+		}
+		int autoDel = plugin.getConfiguration().getInt("auto_delete_finished", 0);
+		if (autoDel > 0) {
+			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+				public void run() {
+					alert("Game auto-deleted!");
+					getView().setGame(null);
+					getView().paintAll();
+					try {
+						plugin.removeGame(getName());
+					} catch (ChessException e) {
+						plugin.log(Level.WARNING, e.getMessage());
+					}
+				}
+			}, autoDel * 20);
+			
+			if (delTask != -1)
+				alert("This game will auto-delete in " + autoDel + " seconds.");
+			alert("Type '/chess archive' within " + autoDel + " seconds to save this game to PGN and delete it");
 		}
 	}
 	
@@ -328,6 +378,10 @@ public class Game {
 		Player p = Bukkit.getServer().getPlayer(playerName);
 		if (p != null)
 			alert(p, message);
+	}
+	void alert(String message) {
+		alert(playerWhite, message);
+		alert(playerBlack, message);
 	}
 	
 	String getPlayerToMove() {
