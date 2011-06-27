@@ -11,7 +11,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
+//import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -73,6 +73,8 @@ public class ChessCommandExecutor implements CommandExecutor {
     				saveCommand(player, args);
     			} else if (partialMatch(args[0], "rel")) {	// reload
     				reloadCommand(player, args);
+    			} else if (partialMatch(args[0], "t")) {	// tp
+    				teleportCommand(player, args);
     			}
     		} catch (IllegalArgumentException e) {
     			plugin.errorMessage(player, e.getMessage());
@@ -241,6 +243,51 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
+	private void teleportCommand(Player player, String[] args) throws ChessException {
+		if (args.length < 2) {
+			// back to where we were
+			BoardView bv = plugin.getBoardAt(player.getLocation());
+			Location prev = plugin.getLastPos(player);
+			if (bv != null && (prev == null || plugin.getBoardAt(prev) == bv)) {
+				// try to get the player out of this board safely
+				Location loc = bv.findSafeLocationOutside();
+				if (loc != null) {
+					doTeleport(player, loc);
+					return;
+				} else {
+					plugin.errorMessage(player, "Can't find a safe place to send you!");
+					return;
+				}
+			} else if (prev != null) {
+				// go back to previous location
+				doTeleport(player, prev);
+			} else {
+				plugin.errorMessage(player, "Not on a board");
+			}
+		} else {
+			// go to the named game
+			Game game = plugin.getGame(args[1]);
+			BoardView bv = game.getView();
+			Location a1 = bv.getA1Square().clone();
+			if (game.getPlayerWhite().equals(player.getName())) {
+				a1.setYaw(90.0f);
+				a1.add(1.0, 2.0, 1.0 - 4 * bv.getSquareSize());
+			} else if (game.getPlayerBlack().equals(player.getName())) {
+				a1.setYaw(270.0f);
+				a1.add(-1.0 - 8 * bv.getSquareSize(), 2.0, 1.0 - 4 * bv.getSquareSize());
+			} else {
+				a1.setYaw(0.0f);
+				a1.add(1.0 - 4 * bv.getSquareSize(), 2.0, 1.0);
+			}
+			doTeleport(player, a1);
+		}
+	}
+
+	private void doTeleport(Player player, Location loc) {
+		plugin.setLastPos(player, player.getLocation());
+		player.teleport(loc);
+	}
+
 	private void listGames(Player player) {
 		messageBuffer.clear();
 		for (Game game : plugin.listGames()) {
@@ -265,7 +312,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.clear();
 		for (BoardView bv: plugin.listBoardViews()) {
 			StringBuilder info = new StringBuilder();
-			info.append(formatLoc(bv.getA1Square()));
+			info.append(ChessCraft.formatLoc(bv.getA1Square()));
 //			info.append(", bstyle=" + bv.getBoardStyle());
 //			info.append(", pstyle=" + bv.getPieceStyle());
 			String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
@@ -288,7 +335,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void tryDeleteGame(Player player, String[] args) throws ChessException {
 		String gameName = args[2];
 		Game game = plugin.getGame(gameName);
-		game.alert("Game deleted by " + player.getName() + "!");
+		String deleter = player == null ? "CONSOLE" : player.getName();
+		game.alert("Game deleted by " + deleter + "!");
 		game.getView().setGame(null);
 		game.getView().paintAll();
 		plugin.removeGame(gameName);
@@ -299,18 +347,21 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Map<String, String>options = parseCommand(args, 3);
 
 		String name = args[2];
-		Location l = options.containsKey("loc") ? parseLocation(options.get("loc"), player) : player.getLocation();
+//		Location l = options.containsKey("loc") ? parseLocation(options.get("loc"), player) : player.getLocation();
 		String style = options.get("style");
+		plugin.statusMessage(player, "Left-click a block to create the board.  This block will become");
+		plugin.statusMessage(player, "the centre of the A1 square.  Left-click air to cancel.");
+		ChessPlayerListener.expectingClick(player, name, style);
 		
-		if (!plugin.checkBoardView(name)) {
-			// TODO: check it doesn't overlap any other board
-			BoardView view = new BoardView(name, plugin, l, style);
-			plugin.addBoardView(name, view);
-			view.paintAll();
-			plugin.statusMessage(player, "Board '" + name + "' has been created at " + formatLoc(view.getA1Square()) + ".");
-		} else {
-			plugin.errorMessage(player, "Board '" + name + "' already exists.");
-		}
+//		if (!plugin.checkBoardView(name)) {
+//			// TODO: check it doesn't overlap any other board
+//			BoardView view = new BoardView(name, plugin, l, style);
+//			plugin.addBoardView(name, view);
+//			view.paintAll();
+//			plugin.statusMessage(player, "Board '" + name + "' has been created at " + ChessCraft.formatLoc(view.getA1Square()) + ".");
+//		} else {
+//			plugin.errorMessage(player, "Board '" + name + "' already exists.");
+//		}
 	}
 
 	private void tryDeleteBoard(Player player, String[] args) throws ChessException {
@@ -393,24 +444,24 @@ public class ChessCommandExecutor implements CommandExecutor {
 //		}
 //	}
 	
-	private Location parseLocation(String arglist, Player player) {
-		String s = player == null ? ",worldname" : "";
-		String args[] = arglist.split(",");
-		try {
-			int x = Integer.parseInt(args[0]);
-			int y = Integer.parseInt(args[1]);
-			int z = Integer.parseInt(args[2]);
-			World w = (player == null) ?
-					plugin.getServer().getWorld(args[3]) :
-					player.getWorld();
-			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
-			return new Location(w, x, y, z);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
-		}
-	}
+//	private Location parseLocation(String arglist, Player player) {
+//		String s = player == null ? ",worldname" : "";
+//		String args[] = arglist.split(",");
+//		try {
+//			int x = Integer.parseInt(args[0]);
+//			int y = Integer.parseInt(args[1]);
+//			int z = Integer.parseInt(args[2]);
+//			World w = (player == null) ?
+//					plugin.getServer().getWorld(args[3]) :
+//					player.getWorld();
+//			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
+//			return new Location(w, x, y, z);
+//		} catch (ArrayIndexOutOfBoundsException e) {
+//			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
+//		} catch (NumberFormatException e) {
+//			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
+//		}
+//	}
 	
 	private Map<String, String> parseCommand(String[] args, int start) {
 		Map<String,String> res = new HashMap<String,String>();
@@ -429,14 +480,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 		}
 		return res;
-	}
-
-	private static String formatLoc(Location loc) {
-		String str = "<" +
-			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
-			loc.getWorld().getName()
-			+ ">";
-		return str;
 	}
 
 	// Generate a game name based on the player's name and a possible index number

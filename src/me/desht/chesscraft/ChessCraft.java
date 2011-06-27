@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -44,6 +45,7 @@ public class ChessCraft extends JavaPlugin {
 	private final Map<String,Game> chessGames = new HashMap<String,Game>();
 	private final Map<String,BoardView> chessBoards = new HashMap<String,BoardView>();
 	private final Map<String,Game> currentGame = new HashMap<String,Game>();
+	private final Map<String,Location> lastPos = new HashMap<String,Location>();
 	
 	private final ChessPlayerListener playerListener = new ChessPlayerListener(this);
 	private final ChessBlockListener blockListener = new ChessBlockListener(this);
@@ -89,6 +91,14 @@ public class ChessCraft extends JavaPlugin {
 		
 		persistence.reload();
 		
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {	
+			@Override
+			public void run() {
+				for (BoardView bv: listBoardViews()) {
+					bv.doLighting();
+				}
+			}
+		}, 100L, 200L);
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 	
@@ -227,8 +237,16 @@ public class ChessCraft extends JavaPlugin {
 	
 	public void removeGame(String gameName) throws ChessException {
 		Game game = getGame(gameName);
-		setCurrentGame(game.getPlayerWhite(), (Game)null);
-		setCurrentGame(game.getPlayerBlack(), (Game)null);
+
+		List<String>toRemove = new ArrayList<String>();
+		for (String p : currentGame.keySet()) {
+			if (currentGame.get(p) == game) {
+				toRemove.add(p);
+			}
+		}
+		for (String p: toRemove) {
+			currentGame.remove(p);
+		}
 		chessGames.remove(gameName);
 	}
 	
@@ -264,9 +282,19 @@ public class ChessCraft extends JavaPlugin {
 	Map<String,String> getCurrentGames() {
 		Map<String,String> res = new HashMap<String,String>();
 		for (String s : currentGame.keySet()) {
-			res.put(s, currentGame.get(s).getName());
+			Game game = currentGame.get(s);
+			if (game != null) 
+				res.put(s, game.getName());
 		}
 		return res;
+	}
+	
+	Location getLastPos(Player player) {
+		return lastPos.get(player.getName());
+	}
+	
+	void setLastPos(Player player, Location loc) {
+		lastPos.put(player.getName(), loc);
 	}
 
 	static String pieceToStr(int piece) {
@@ -290,12 +318,28 @@ public class ChessCraft extends JavaPlugin {
 		return new MaterialWithData(mat, data);
 	}
 	
+	static String formatLoc(Location loc) {
+		String str = "<" +
+			loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," +
+			loc.getWorld().getName()
+			+ ">";
+		return str;
+	}
+
 	String getFreeBoard() throws ChessException {
 		for (BoardView bv: listBoardViews()) {
 			if (bv.getGame() == null)
 				return bv.getName();
 		}
 		throw new ChessException("There are no free boards to create a game on.");
+	}
+	
+	BoardView getBoardAt(Location loc) {
+		for (BoardView bv: listBoardViews()) {
+			if (bv.isPartOfBoard(loc))
+				return bv;
+		}
+		return null;
 	}
 	
 }

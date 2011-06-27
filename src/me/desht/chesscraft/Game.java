@@ -235,7 +235,7 @@ public class Game {
 		if (state != GameState.RUNNING) {
 			throw new ChessException("Chess game '" + getName() + "': Game is not running!");
 		}
-		if (!p.getName().equalsIgnoreCase(getPlayerToMove())) {
+		if (!p.getName().equals(getPlayerToMove())) {
 			throw new ChessException("Chess game '" + getName() + "': It is not your move!");
 		}
 		

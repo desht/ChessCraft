@@ -1,5 +1,10 @@
 package me.desht.chesscraft;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
@@ -13,7 +18,8 @@ import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 
 public class ChessPlayerListener extends PlayerListener {
-	ChessCraft plugin;
+	private ChessCraft plugin;
+	private static final Map<String,List<String>> expecting = new HashMap<String,List<String>>();
 	
 	public ChessPlayerListener(ChessCraft plugin) {
 		this.plugin = plugin;
@@ -26,9 +32,9 @@ public class ChessPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		
 		try {
+			Block b = event.getClickedBlock();
+			if (b == null) return;
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Block b = event.getClickedBlock();
-				if (b == null) return;
 				Location loc = b.getLocation();
 				BoardView bv;
 				if ((bv = onChessBoard(loc)) != null) {
@@ -48,15 +54,40 @@ public class ChessPlayerListener extends PlayerListener {
 				} else {
 					// nothing?
 				}
+			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				if (expecting.get(player.getName()) != null) {
+					maybeCreateBoard(player, b);
+					return;
+				}
+			} else if (event.getAction() == Action.LEFT_CLICK_AIR) {
+				if (expecting.get(player.getName()) != null) {
+					expecting.remove(player.getName());
+					plugin.statusMessage(player, "Board creation cancelled.");
+				}
 			}
 		} catch (ChessException e) {
 			plugin.errorMessage(player, e.getMessage());
 		} catch (IllegalMoveException e) {
 			cancelMove(event);
-			plugin.errorMessage(player, e.getMessage() + " - move cancelled.");
+			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
 		}
 	}
 	
+	private void maybeCreateBoard(Player player, Block b) throws ChessException {
+		List<String> list = expecting.get(player.getName());
+		String name = list.get(0);
+		String style = list.get(1);
+		if (!plugin.checkBoardView(name)) {
+			BoardView view = new BoardView(name, plugin, b.getLocation(), style);
+			plugin.addBoardView(name, view);
+			view.paintAll();
+			plugin.statusMessage(player, "Board '" + name + "' has been created at " + ChessCraft.formatLoc(view.getA1Square()) + ".");
+		} else {
+			plugin.errorMessage(player, "Board '" + name + "' already exists.");
+		}
+		expecting.remove(player.getName());
+	}
+
 	private void cancelMove(PlayerInteractEvent event) {
 		BoardView bv = onChessBoard(event.getClickedBlock().getLocation());
 		if (bv == null) 
@@ -87,7 +118,7 @@ public class ChessPlayerListener extends PlayerListener {
 				if (sqi == game.getFromSquare()) {
 					game.setFromSquare(Chess.NO_SQUARE);
 					plugin.statusMessage(player, "Move cancelled.");
-				} else {
+				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					game.doMove(player, sqi);
 					plugin.statusMessage(player, "You played " + game.getPosition().getLastMove().getLAN() + ".");
 				}
@@ -113,5 +144,12 @@ public class ChessPlayerListener extends PlayerListener {
 			}
 		}
 		return null;
+	}
+	
+	static void expectingClick(Player p, String name, String style) {
+		List<String> list = new ArrayList<String>();
+		list.add(name);
+		list.add(style);
+		expecting.put(p.getName(), list);
 	}
 }

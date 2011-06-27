@@ -8,17 +8,12 @@ import java.util.logging.Level;
 
 import me.desht.chesscraft.Cuboid.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
-import net.minecraft.server.EnumSkyBlock;
-import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
-//import chesspresso.position.ImmutablePosition;
-//import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 
 public class BoardView implements PositionListener {
@@ -42,6 +37,7 @@ public class BoardView implements PositionListener {
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
 	private String boardStyle;
+	private long lastTime;
 	
 	BoardView(String bName, ChessCraft plugin, Location where, String bStyle) throws ChessException {
 		this.plugin = plugin;
@@ -55,6 +51,7 @@ public class BoardView implements PositionListener {
 		a1Square = calcBaseSquare(where);
 		validateIntersections();
 		stones = createStones(pieceStyle);
+		lastTime = -1;
 	}
 	
 	// Ensure this board doesn't intersect any other boards
@@ -151,13 +148,13 @@ public class BoardView implements PositionListener {
 		}
 	}
 	
-	// Given a board origin (the block above the centre of the A1 square),
+	// Given a board origin (the block at the centre of the A1 square),
 	// calculate the southwest corner of the A1 square (which is also the southwest
 	// corner of the whole board)
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
-		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY() - 1, where.getBlockZ() + zOff);
+		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
 
 		System.out.println("origin:   " + where);
 		System.out.println("a1square: " + res);
@@ -176,9 +173,10 @@ public class BoardView implements PositionListener {
 	}
 
 	void paintAll() {
+		wipe();
+		paintEnclosure();
 		paintBoard();
 		paintFrame();
-		paintEnclosure();
 		doLighting();
 	}
 	
@@ -286,18 +284,44 @@ public class BoardView implements PositionListener {
 		for (Location loc : square) {
 			loc.getBlock().setTypeIdAndData(matId, (byte)matData, false);
 		}
+		
+		
 	}
 
-	private void doLighting() {
+	void doLighting() {
 		if (!isLit)
 			return;
 		
-		CraftWorld cw = (CraftWorld)a1Square.getWorld();
-		WorldServer ws = cw.getHandle();
-		for (Location loc : getOuterBounds().expand(Direction.Up, getHeight())) {
-			ws.b(EnumSkyBlock.BLOCK, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 14);
+		long time = getA1Square().getWorld().getTime();
+		if (isBright(time) == isBright(lastTime))
+			return;
+		lastTime = time;
+
+		if (isBright(time)) {
+			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+				int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
+				int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
+				int col = Chess.sqiToCol(sqi);
+				int row = Chess.sqiToRow(sqi);
+				Location locNE = rowColToWorldNE(row, col);
+				locNE.getBlock().setTypeIdAndData(matId, (byte)matData, false);
+			}
+		} else {
+			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+				int col = Chess.sqiToCol(sqi);
+				int row = Chess.sqiToRow(sqi);
+				Location locNE = rowColToWorldNE(row, col);
+				locNE.getBlock().setTypeId(89);
+			}
 		}
-		System.out.println("lit up " + getOuterBounds().volume() + " blocks");
+	}
+	
+	private boolean isBright(long time) {
+		if (time > 12500 && time < 23500) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 	// Return the bounds of the chessboard - the innermost ring of the frame
@@ -321,15 +345,15 @@ public class BoardView implements PositionListener {
 	}
 
 	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
-	private Location rowColToWorldNE(int row, int col) {
+	Location rowColToWorldNE(int row, int col) {
 		return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
 	}
 	
-	private Location rowColToWorldCenter(int row, int col) {
+	Location rowColToWorldCenter(int row, int col) {
 		return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
 	}
 	
-	private Location rowColToWorld(int row, int col, int xOff, int zOff) {
+	Location rowColToWorld(int row, int col, int xOff, int zOff) {
 		Location a1 = a1Square;
 		xOff += row * squareSize;
 		zOff += col * squareSize;
@@ -432,5 +456,20 @@ public class BoardView implements PositionListener {
 			// TODO: restore to previous terrain, not air
 			l.getBlock().setTypeId(0);
 		}
+	}
+
+	Location findSafeLocationOutside() {
+		Location dest0 = getA1Square().clone();
+		
+		dest0.add(getFrameWidth() + 1, 0.0, getFrameWidth() + 1);
+		Location dest1 = dest0.clone().add(0.0, 1.0, 0.0);
+		
+		while (dest0.getBlock().getTypeId() != 0 && dest1.getBlock().getTypeId() != 0) {
+			dest0.add(0.0, 1.0, 0.0);
+			dest1.add(0.0, 1.0, 0.0);
+			if (dest1.getBlockY() > 127)
+				return null;
+		}
+		return dest0;
 	}
 }
