@@ -8,9 +8,12 @@ import java.util.logging.Level;
 
 import me.desht.chesscraft.Cuboid.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
+import net.minecraft.server.EnumSkyBlock;
+import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
@@ -176,6 +179,7 @@ public class BoardView implements PositionListener {
 		paintBoard();
 		paintFrame();
 		paintEnclosure();
+		doLighting();
 	}
 	
 	private void paintEnclosure() {
@@ -203,6 +207,7 @@ public class BoardView implements PositionListener {
 				w.getBlockAt(l).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
 			}
 		}
+		
 	}
 
 	private void paintFrame() {
@@ -277,11 +282,24 @@ public class BoardView implements PositionListener {
 		Cuboid square = new Cuboid(locNE, locNE);
 		square.expand(Direction.South, squareSize - 1);
 		square.expand(Direction.West, squareSize - 1);
+		
 		for (Location loc : square) {
 			loc.getBlock().setTypeIdAndData(matId, (byte)matData, false);
 		}
 	}
 
+	private void doLighting() {
+		if (!isLit)
+			return;
+		
+		CraftWorld cw = (CraftWorld)a1Square.getWorld();
+		WorldServer ws = cw.getHandle();
+		for (Location loc : getOuterBounds().expand(Direction.Up, getHeight())) {
+			ws.b(EnumSkyBlock.BLOCK, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 14);
+		}
+		System.out.println("lit up " + getOuterBounds().volume() + " blocks");
+	}
+	
 	// Return the bounds of the chessboard - the innermost ring of the frame
 	Cuboid getBounds() {
 		Location a1 = rowColToWorldCenter(0, 0);
@@ -289,12 +307,7 @@ public class BoardView implements PositionListener {
 
 		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
 		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
-//		
-//		x1 -= squareSize / 2 + 1;
-//		z1 -= squareSize / 2 + 1;
-//		x2 += squareSize / 2 + 1;
-//		z2 += squareSize / 2 + 1;
-//		
+
 		World w = a1Square.getWorld();
 		int y = a1Square.getBlockY();
 		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, squareSize / 2 + 1);
@@ -402,10 +415,7 @@ public class BoardView implements PositionListener {
 	
 	// true if the location is *anywhere* within the board, including frame & enclosure
 	boolean isPartOfBoard(Location loc) {
-		Cuboid bounds = getBounds();
-		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
-		bounds.expand(Direction.Up, getHeight() + 1);
-		return bounds.contains(loc);
+		return getOuterBounds().contains(loc);
 	}
 	
 	int getSquareAt(Location loc) {

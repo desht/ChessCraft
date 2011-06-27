@@ -54,6 +54,9 @@ public class ChessCraft extends JavaPlugin {
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("broadcast_results", true);
 		put("auto_delete_finished", 30);
+		put("no_building", true);
+		put("no_creatures", true);
+		put("no_explosions", true);
 	}};
 	
 	@Override
@@ -80,6 +83,7 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 //		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
 		
 		library = new ChessPieceLibrary(this);
 		

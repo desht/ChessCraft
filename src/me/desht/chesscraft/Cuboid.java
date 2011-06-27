@@ -118,6 +118,12 @@ public class Cuboid implements Iterable<Location> {
 		return contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
 	}
 	
+	public int volume() {
+		return ((upperSW.getBlockX() - lowerNE.getBlockX()) + 1)
+		* ((upperSW.getBlockY() - lowerNE.getBlockY()) + 1)
+		* ((upperSW.getBlockZ() - lowerNE.getBlockZ()) + 1);
+	}
+	
 	@Override
 	public Iterator<Location> iterator() {
 		return new CuboidIterator(lowerNE, upperSW);
