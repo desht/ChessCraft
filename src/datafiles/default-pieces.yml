@@ -1,0 +1,25 @@
+# Name for this set - should match the filename
+name: Standard
+
+# List of materials used in the set
+materials:
+  black:
+    O: 0
+    X: 41
+  white:
+    O: 0
+    X: 42
+
+# Piece definitions
+# This is a list of list of strings such that:
+# - definition[0] is the lowest layer on the Y-axis
+# - definition[0][0] is the northmost row on the lowest layer
+# - each string runs from west to east and consists of materials defined above
+#  
+pieces:
+  P: [ [ OXO, XXX, OXO ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ] ]
+  N: [ [ XXX, XXX, XXX ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ], [ OXO, OXO, OOO ], [ OOO, OXO, OOO ] ]
+  B: [ [ XXX, XXX, XXX ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ] ]
+  R: [ [ XXX, XXX, XXX ], [ XXX, XXX, XXX ], [ OXO, XXX, OXO ], [ XXX, XXX, XXX ], [ XOX, OOO, XOX ] ]
+  Q: [ [ XXX, XXX, XXX ], [ OXO, XXX, OXO ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ], [ OXO, XXX, OXO ], [ OOO, OXO, OOO ] ]
+  K: [ [ XXX, XXX, XXX ], [ OXO, XXX, OXO ], [ OXO, XXX, OXO ], [ OXO, XXX, OXO ], [ XXX, XXX, XXX ], [ XOX, OOO, XOX ] ]
