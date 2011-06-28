@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.chesscraft.ExpectResponse.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
@@ -347,21 +348,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Map<String, String>options = parseCommand(args, 3);
 
 		String name = args[2];
-//		Location l = options.containsKey("loc") ? parseLocation(options.get("loc"), player) : player.getLocation();
 		String style = options.get("style");
-		plugin.statusMessage(player, "Left-click a block to create the board.  This block will become");
-		plugin.statusMessage(player, "the centre of the A1 square.  Left-click air to cancel.");
-		ChessPlayerListener.expectingClick(player, name, style);
-		
-//		if (!plugin.checkBoardView(name)) {
-//			// TODO: check it doesn't overlap any other board
-//			BoardView view = new BoardView(name, plugin, l, style);
-//			plugin.addBoardView(name, view);
-//			view.paintAll();
-//			plugin.statusMessage(player, "Board '" + name + "' has been created at " + ChessCraft.formatLoc(view.getA1Square()) + ".");
-//		} else {
-//			plugin.errorMessage(player, "Board '" + name + "' already exists.");
-//		}
+		plugin.statusMessage(player, "Left-click a block: create board.  Right-click: cancel.");
+		plugin.statusMessage(player, "This block will become the centre of the board's A1 square.");
+//		ChessPlayerListener.expectingClick(player, name, style);
+		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name, style));
 	}
 
 	private void tryDeleteBoard(Player player, String[] args) throws ChessException {

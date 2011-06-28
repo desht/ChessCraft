@@ -23,7 +23,6 @@ public class ChessEntityListener extends EntityListener {
 		Location loc = event.getLocation();
 		for (BoardView bv : plugin.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
-				System.out.println("cancelled creature spawn at " + loc);
 				event.setCancelled(true);
 				return;
 			}

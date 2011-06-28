@@ -37,7 +37,7 @@ public class BoardView implements PositionListener {
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
 	private String boardStyle;
-	private long lastTime;
+	private byte lastLevel;
 	
 	BoardView(String bName, ChessCraft plugin, Location where, String bStyle) throws ChessException {
 		this.plugin = plugin;
@@ -51,7 +51,7 @@ public class BoardView implements PositionListener {
 		a1Square = calcBaseSquare(where);
 		validateIntersections();
 		stones = createStones(pieceStyle);
-		lastTime = -1;
+		lastLevel = -1;
 	}
 	
 	// Ensure this board doesn't intersect any other boards
@@ -291,13 +291,13 @@ public class BoardView implements PositionListener {
 	void doLighting() {
 		if (!isLit)
 			return;
-		
-		long time = getA1Square().getWorld().getTime();
-		if (isBright(time) == isBright(lastTime))
-			return;
-		lastTime = time;
 
-		if (isBright(time)) {
+		byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
+		if (isBright(level) == isBright(lastLevel) && lastLevel >= 0)
+			return;
+		lastLevel = level;
+		
+		if (isBright(level)) {
 			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 				int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
 				int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
@@ -316,8 +316,8 @@ public class BoardView implements PositionListener {
 		}
 	}
 	
-	private boolean isBright(long time) {
-		if (time > 12500 && time < 23500) {
+	private boolean isBright(byte level) {
+		if (level < 12) {
 			return false;
 		} else {
 			return true;

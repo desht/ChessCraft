@@ -52,6 +52,7 @@ public class ChessCraft extends JavaPlugin {
 	private final ChessEntityListener entityListener = new ChessEntityListener(this);
 	private final ChessCommandExecutor commandExecutor = new ChessCommandExecutor(this);
 	final ChessPersistence persistence = new ChessPersistence(this);
+	ExpectResponse expecter = new ExpectResponse();
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("broadcast_results", true);
