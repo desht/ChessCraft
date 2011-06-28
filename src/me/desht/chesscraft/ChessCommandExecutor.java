@@ -351,7 +351,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String style = options.get("style");
 		plugin.statusMessage(player, "Left-click a block: create board.  Right-click: cancel.");
 		plugin.statusMessage(player, "This block will become the centre of the board's A1 square.");
-//		ChessPlayerListener.expectingClick(player, name, style);
 		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name, style));
 	}
 
@@ -462,7 +461,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		for (int i = start; i < args.length; i++) {
 			Matcher matcher = pattern.matcher(args[i]);
 			if (matcher.find()) {
-				String opt = matcher.group();
+				String opt = matcher.group(1);
 				try {
 					res.put(opt, args[++i]);
 				} catch (ArrayIndexOutOfBoundsException e) {
