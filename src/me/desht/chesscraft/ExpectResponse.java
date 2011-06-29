@@ -17,6 +17,7 @@ class ExpectResponse {
 	
 	void expectingResponse(Player p, ExpectAction action, ExpectData data) {
 		exp.put(genKey(p, action), data);
+		data.setAction(action);
 	}
 	
 	boolean isExpecting(Player p, ExpectAction action) {

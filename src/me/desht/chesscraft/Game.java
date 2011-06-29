@@ -166,8 +166,12 @@ public class Game {
 	void setFromSquare(int fromSquare) {
 		this.fromSquare = fromSquare;
 	}
+	
+	String getOtherPlayer(String name) {
+		return name.equals(playerWhite) ? playerBlack : playerWhite;
+	}
 
-	void swapColours(Player player) {
+	void swapColours() {
 		String tmp = playerWhite;
 		playerWhite = playerBlack;
 		playerBlack = tmp;
@@ -254,6 +258,13 @@ public class Game {
 			result = Chess.RES_BLACK_WINS;
 		}
 		announceResult(winner, loser, ResultType.Resigned);
+	}
+	
+	void drawn() {
+		state = GameState.FINISHED;
+		result = Chess.RES_DRAW;
+		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
+		announceResult(playerWhite, playerBlack, ResultType.DrawAgreed);
 	}
 	
 	// Do a move for Player p to toSquare.  fromSquare is already set, either from 

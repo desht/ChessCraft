@@ -79,6 +79,12 @@ public class ChessCommandExecutor implements CommandExecutor {
     				teleportCommand(player, args);
     			} else if (partialMatch(args[0], "a")) {	// archive
     				archiveCommand(player, args);
+    			} else if (partialMatch(args[0], "o")) {	// offer
+    				offerCommand(player, args);
+    			} else if (partialMatch(args[0], "y")) {	// yes
+    				responseCommand(player, args);
+    			} else if (partialMatch(args[0], "n")) {	// no
+    				responseCommand(player, args);
     			}
     		} catch (IllegalArgumentException e) {
     			plugin.errorMessage(player, e.getMessage());
@@ -296,6 +302,39 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 		File written = game.writePGN(false);
 		plugin.statusMessage(player, "Wrote PGN archive to " + written.getName() + ".");
+	}
+
+	private void offerCommand(Player player, String[] args) {
+		Game game = plugin.getCurrentGame(player);
+		String other = game.getOtherPlayer(player.getName());
+		if (partialMatch(args, 1, "d")) {			// draw
+			plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse,
+					new ExpectYesNoOffer(plugin, game, player.getName(), other));
+			plugin.statusMessage(player, "You have offered a draw to " + other + ".");
+			game.alert(other, player.getName() + " has offered a draw.");
+			game.alert(other, "Type '/chess yes' to accept, or '/chess no' to decline.");
+		} else if (partialMatch(args, 1, "s")) { 	// swap sides
+			plugin.expecter.expectingResponse(player, ExpectAction.SwapResponse,
+					new ExpectYesNoOffer(plugin, game, player.getName(), other));
+			plugin.statusMessage(player, "You have offered to swap sides with " + other + ".");
+			game.alert(other, player.getName() + " has offered to swap sides.");
+			game.alert(other, "Type '/chess yes' to accept, or '/chess no' to decline.");
+		} else {
+			plugin.errorMessage(player, "Usage: /chess offer (draw|swap)");
+			return;
+		}
+	}
+
+	private void responseCommand(Player player, String[] args) throws ChessException {
+		boolean accepted = partialMatch(args, 0, "y") ? true : false;
+		
+		if (plugin.expecter.isExpecting(player, ExpectAction.DrawResponse)) {
+			ExpectYesNoOffer a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.DrawResponse);
+			a.setReponse(accepted);
+			plugin.expecter.handleAction(player, ExpectAction.DrawResponse);
+		} else if (plugin.expecter.isExpecting(player, ExpectAction.SwapResponse)) {
+			
+		}
 	}
 
 	private void doTeleport(Player player, Location loc) {
