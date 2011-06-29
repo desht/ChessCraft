@@ -197,7 +197,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		String move = combine(args, 1);
+		String move = combine(args, 1).replaceFirst(" ", "");
 		if (move.length() != 4) {
 			plugin.errorMessage(player, "Invalid move string '" + move + "'.");
 			return;
