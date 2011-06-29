@@ -38,6 +38,8 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 @SuppressWarnings("serial")
 public class ChessCraft extends JavaPlugin {
 	
+	enum Privilege { Basic, Admin };
+	
 	static PluginDescriptionFile description;
 	static final String directory = "plugins" + File.separator + "ChessCraft";
 	final Logger logger = Logger.getLogger("Minecraft");
@@ -179,13 +181,24 @@ public class ChessCraft extends JavaPlugin {
 			return player.isOp();
 		}
 	}
-	boolean isAllowedTo(Player player, String node, Boolean okNotOp) {
+	boolean isAllowedTo(Player player, String node, Privilege level) {
 		if (player == null) return true;
 		// if Permissions is in force, then it overrides op status
 		if (permissionHandler != null) {
 			return permissionHandler.has(player, node);
 		} else {
-			return okNotOp ? true : player.isOp();
+			return level == Privilege.Basic ? true : player.isOp();
+		}
+	}
+	
+	void requirePerms(Player player, String node, Privilege level) throws ChessException {
+		if (isAllowedTo(player, "chesscraft.admin"))
+			return;
+		if (isAllowedTo(player, "chesscraft.basic") && level == Privilege.Basic) 
+			return;
+		
+		if (!isAllowedTo(player, node, level)) {
+			throw new ChessException("You are not allowed to do that.");
 		}
 	}
 
