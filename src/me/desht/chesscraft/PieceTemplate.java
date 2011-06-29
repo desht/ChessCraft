@@ -22,8 +22,7 @@ public class PieceTemplate {
 				for (int z = 0; z < sizeZ; z++) {
 					String k = zRow.substring(z, z + 1);
 					if (!matMap.containsKey(k)) throw new ChessException("unknown character '" + k + "' found.");
-//					int id = matMap.get(k);
-					pieceArray[x][y][z] = ChessCraft.parseIdAndData(matMap.get(k));
+					pieceArray[x][y][z] = MaterialWithData.parseIdAndData(matMap.get(k));
 				}
 			}
 		}

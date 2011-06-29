@@ -137,10 +137,10 @@ public class BoardView implements PositionListener {
         	isLit      = (Boolean)styleMap.get("lit");
         	pieceStyle = (String)styleMap.get("piece_style");
         	
-        	blackSquareId = ChessCraft.parseIdAndData((String)styleMap.get("black_square"));
-        	whiteSquareId = ChessCraft.parseIdAndData((String)styleMap.get("white_square"));
-        	frameId       = ChessCraft.parseIdAndData((String)styleMap.get("frame"));
-        	enclosureId   = ChessCraft.parseIdAndData((String)styleMap.get("enclosure"));
+        	blackSquareId = MaterialWithData.parseIdAndData((String)styleMap.get("black_square"));
+        	whiteSquareId = MaterialWithData.parseIdAndData((String)styleMap.get("white_square"));
+        	frameId       = MaterialWithData.parseIdAndData((String)styleMap.get("frame"));
+        	enclosureId   = MaterialWithData.parseIdAndData((String)styleMap.get("enclosure"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
