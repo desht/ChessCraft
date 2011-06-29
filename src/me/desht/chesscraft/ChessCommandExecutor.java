@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +77,8 @@ public class ChessCommandExecutor implements CommandExecutor {
     				reloadCommand(player, args);
     			} else if (partialMatch(args[0], "t")) {	// tp
     				teleportCommand(player, args);
+    			} else if (partialMatch(args[0], "a")) {	// archive
+    				archiveCommand(player, args);
     			}
     		} catch (IllegalArgumentException e) {
     			plugin.errorMessage(player, e.getMessage());
@@ -283,6 +286,16 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 			doTeleport(player, a1);
 		}
+	}
+
+	private void archiveCommand(Player player, String[] args) throws ChessException {
+		Game game = plugin.getCurrentGame(player);
+		if (game == null) {
+			plugin.errorMessage(player, "No active game to write an archive for.");
+			return;
+		}
+		File written = game.writePGN(false);
+		plugin.statusMessage(player, "Wrote PGN archive to " + written.getName() + ".");
 	}
 
 	private void doTeleport(Player player, Location loc) {

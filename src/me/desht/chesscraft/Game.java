@@ -1,6 +1,10 @@
 package me.desht.chesscraft;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,15 +21,17 @@ import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
+import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
 
 public class Game {
 	enum ResultType {
 		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned
 	}
+	private static final String archiveDir = "pgn";
 	private ChessCraft plugin;
 	private String name;
-	private Position position;
+//	private Position position;
 	private chesspresso.game.Game cpGame;
 	private BoardView view;
 	private String playerWhite, playerBlack;
@@ -34,8 +40,9 @@ public class Game {
 	private GameState state;
 	private int fromSquare;
 	private Date started;
-	private List<String> history;
+	private List<Short> history;
 	private int delTask;
+	private int result;
 	
 	Game(ChessCraft plugin, String name, BoardView view, Player player) throws ChessException {
 		this.plugin = plugin;
@@ -49,44 +56,45 @@ public class Game {
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
 		invited = "";
-		history = new ArrayList<String>();
+		history = new ArrayList<Short>();
 		started = new Date();
-		
-		position = Position.createInitialPosition();
-//		position.addPositionChangeListener(view);
-		position.addPositionListener(view);
-		
+		result = Chess.RES_NOT_FINISHED;
+
 		setupChesspressoGame();
+
+		getPosition().addPositionListener(view);
 	}
 	
 	private void setupChesspressoGame() {
 		cpGame = new chesspresso.game.Game();
 		
+		// seven tag roster
 		cpGame.setTag(PGN.TAG_EVENT, getName());
-		cpGame.setTag(PGN.TAG_SITE, "Somewhere in Minecraftia");
-		cpGame.setTag(PGN.TAG_EVENT_DATE, PGN.dateToPGNDate(started));
-		cpGame.setTag(PGN.TAG_ROUND, "1");
+		cpGame.setTag(PGN.TAG_SITE, getView().getName() + " in Minecraftia");
+		cpGame.setTag(PGN.TAG_DATE, dateToPGNDate(started));
+		cpGame.setTag(PGN.TAG_ROUND, "?");
 		cpGame.setTag(PGN.TAG_WHITE, getPlayerWhite());
 		cpGame.setTag(PGN.TAG_BLACK, getPlayerBlack());
-		cpGame.setTag(PGN.TAG_RESULT, "*");
+		cpGame.setTag(PGN.TAG_RESULT, getPGNResult());
 		
-		cpGame.setTag(PGN.TAG_FEN, position.getFEN());
+		// extra tags
+		cpGame.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
 	}
 	
 	Map<String,Object> freeze() {
-		Map<String,Object> result = new HashMap<String,Object>();
+		Map<String,Object> map = new HashMap<String,Object>();
 		
-		result.put("name", name);
-		result.put("boardview", view.getName());
-		result.put("playerWhite", playerWhite);
-		result.put("playerBlack", playerBlack);
-		result.put("state", state.toString());
-		result.put("invited", invited);
-		result.put("moves", history);
-		result.put("position", position.getFEN());
-		result.put("started", started.getTime());
+		map.put("name", name);
+		map.put("boardview", view.getName());
+		map.put("playerWhite", playerWhite);
+		map.put("playerBlack", playerBlack);
+		map.put("state", state.toString());
+		map.put("invited", invited);
+		map.put("moves", history);
+		map.put("started", started.getTime());
+		map.put("result", result);
 		
-		return result;
+		return map;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -95,12 +103,28 @@ public class Game {
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
 		invited = (String) map.get("invited");
-		history = (List<String>) map.get("moves");
+		List<Integer> hTmp = (List<Integer>) map.get("moves");
+		history.clear();
+		for (int m : hTmp) { history.add((short) m); } 
 		started.setTime((Long) map.get("started"));
-		position = new Position((String) map.get("position"));
-//		position.addPositionChangeListener(view);
-		position.addPositionListener(view);
+		result = (Integer) map.get("result");
+
 		setupChesspressoGame();
+
+		// Replay the move history to restore the saved board position.
+		// We do this instead of just saving the position so that the chesspresso Game model
+		// includes a history of the moves, suitable for creating a PGN file.
+		try {
+			for (short move : history) {
+				getPosition().doMove(move);
+			}
+		} catch (IllegalMoveException e) {
+			// should only get here if the save file was corrupted - the history is a list 
+			// of moves which have already been validated before the game was saved
+			plugin.log(Level.WARNING, "can't restore move history for game " + getName() + " - move history corrupted?");
+		}
+
+		getPosition().addPositionListener(view);
 	}
 	
 	String getName() {
@@ -108,7 +132,7 @@ public class Game {
 	}
 	
 	Position getPosition() {
-		return position;
+		return cpGame.getPosition();
 	}
 
 	BoardView getView() {
@@ -133,6 +157,10 @@ public class Game {
 
 	int getFromSquare() {
 		return fromSquare;
+	}
+
+	Date getStarted() {
+		return started;
 	}
 
 	void setFromSquare(int fromSquare) {
@@ -219,9 +247,11 @@ public class Game {
 		if (loser.equalsIgnoreCase(playerWhite)) {
 			winner = playerBlack;
 			cpGame.setTag(PGN.TAG_RESULT, "0-1");
+			result = Chess.RES_WHITE_WINS;
 		} else {
 			winner = playerWhite;
 			cpGame.setTag(PGN.TAG_RESULT, "1-0");
+			result = Chess.RES_BLACK_WINS;
 		}
 		announceResult(winner, loser, ResultType.Resigned);
 	}
@@ -239,29 +269,41 @@ public class Game {
 			throw new ChessException("Chess game '" + getName() + "': It is not your move!");
 		}
 		
-		Boolean capturing = position.getPiece(toSquare) != Chess.NO_PIECE;
-		int prevToMove = position.getToPlay();
+		Boolean capturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
+		int prevToMove = getPosition().getToPlay();
 		short move = Move.getRegularMove(fromSquare, toSquare, capturing);
 		try {
 			short realMove = checkMove(move);
-			position.doMove(realMove);
-			Move lastMove = position.getLastMove();
+			getPosition().doMove(realMove);
+			Move lastMove = getPosition().getLastMove();
 			fromSquare = Chess.NO_SQUARE;
-			history.add(lastMove.getLAN());
-			if (position.isMate()) {
+			history.add(realMove);
+			if (getPosition().isMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Checkmate);
-				cpGame.setTag(PGN.TAG_RESULT, position.getToPlay() == Chess.WHITE ? "0-1" : "1-0");
+				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0");
+				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
 				state = GameState.FINISHED;
-			} else if (position.isStaleMate()) {
+			} else if (getPosition().isStaleMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Stalemate);
+				result = Chess.RES_DRAW;
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 				state = GameState.FINISHED;
 			} else {
 				alert(getPlayerToMove(), getColour(prevToMove) + " played [" + lastMove.getLAN() + "].");
-				alert(getPlayerToMove(), "It is your move (" + getColour(position.getToPlay()) + ").");
+				alert(getPlayerToMove(), "It is your move (" + getColour(getPosition().getToPlay()) + ").");
 			}
 		} catch (IllegalMoveException e) {
 			throw e;
+		}
+	}
+	
+	String getPGNResult() {
+		switch(result) {
+		case Chess.RES_NOT_FINISHED: return "*";
+		case Chess.RES_WHITE_WINS: return "1-0";
+		case Chess.RES_BLACK_WINS: return "0-1";
+		case Chess.RES_DRAW: return "1/2-1/2";
+		default: return "*";
 		}
 	}
 	
@@ -327,18 +369,18 @@ public class Game {
 		int from = Move.getFromSqi(move);
 		int to = Move.getToSqi(move);
 		
-		if (position.getPiece(from) == Chess.KING) {
+		if (getPosition().getPiece(from) == Chess.KING) {
 			// Castling?
 			if (from == Chess.E1 && to == Chess.G1 || from == Chess.E8 && to == Chess.G8)
-				move = Move.getShortCastle(position.getToPlay());
+				move = Move.getShortCastle(getPosition().getToPlay());
 			else if (from == Chess.E1 && to == Chess.B1 || from == Chess.E8 && to == Chess.B8)
-				move = Move.getLongCastle(position.getToPlay());
-		} else if (position.getPiece(from) == Chess.PAWN && Chess.sqiToRow(to) == 7) {
+				move = Move.getLongCastle(getPosition().getToPlay());
+		} else if (getPosition().getPiece(from) == Chess.PAWN && Chess.sqiToRow(to) == 7) {
 			// Promotion?
-			boolean capturing = position.getPiece(to) != Chess.NO_PIECE;
+			boolean capturing = getPosition().getPiece(to) != Chess.NO_PIECE;
 			// TODO: allow player to specify the promotion piece
-			move = Move.getPawnMove(from, to, capturing, promo[position.getToPlay()]);
-		} else if (position.getPiece(from) == Chess.PAWN && position.getPiece(to) == Chess.NO_PIECE) {
+			move = Move.getPawnMove(from, to, capturing, promo[getPosition().getToPlay()]);
+		} else if (getPosition().getPiece(from) == Chess.PAWN && getPosition().getPiece(to) == Chess.NO_PIECE) {
 			// En passant?
 			int toCol = Chess.sqiToCol(to);
 			int fromCol = Chess.sqiToCol(from);
@@ -347,7 +389,7 @@ public class Game {
 			}
 		}
 			
-		for (short aMove : position.getAllMoves()) {
+		for (short aMove : getPosition().getAllMoves()) {
 			if (move == aMove) return move;
 		}
 		throw new IllegalMoveException(move);
@@ -363,6 +405,18 @@ public class Game {
 		}
 	}
 
+	// return game result in PGN notation
+	String getResult() {
+		if (getState() != GameState.FINISHED)
+			return "*";
+		
+		if (getPosition().isMate()) {
+			return getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0";
+		} else {
+			return "1/2-1/2";
+		}
+	}
+	
 	static String getColour(int c) {
 		switch(c) {
 		case Chess.WHITE: return "White";
@@ -385,10 +439,10 @@ public class Game {
 	}
 	
 	String getPlayerToMove() {
-		return position.getToPlay() == Chess.WHITE ? playerWhite : playerBlack;
+		return getPosition().getToPlay() == Chess.WHITE ? playerWhite : playerBlack;
 	}
 	String getPlayerNotToMove() {
-		return position.getToPlay() == Chess.BLACK ? playerWhite : playerBlack;
+		return getPosition().getToPlay() == Chess.BLACK ? playerWhite : playerBlack;
 	}
 
 	Boolean isPlayerInGame(Player p) {
@@ -399,9 +453,49 @@ public class Game {
 		return p.getName().equalsIgnoreCase(getPlayerToMove());
 	}
 
-	public void show_all() {
-		short[] moves = position.getAllMoves();
-		String s = position.getMovesAsString(moves, false);
-		System.out.println(s);
+	File writePGN(boolean force) throws ChessException {
+		new File(plugin.getDataFolder(), archiveDir).mkdir();
+		
+		File f = makePGNName();
+		if (f.exists() && !force) {
+			throw new ChessException("Archive file " + f.getName() + " already exists - won't overwrite.");
+		}
+		
+		try {
+			PrintWriter pw = new PrintWriter(f);
+			PGNWriter w = new PGNWriter(pw);
+			w.write(cpGame.getModel());
+			pw.close();
+			return f;
+		} catch (FileNotFoundException e) {
+			throw new ChessException("can't write PGN archive " + f.getName() + ": " + e.getMessage());
+		}
 	}
+	
+	private File makePGNName() {
+		String baseName = getName() + "_" + dateToPGNDate(new Date());
+		
+		int n = 1;
+		File f;
+		do {
+			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn");
+			n++;
+		} while (f.exists());
+
+		return f;
+	}
+	
+	// the version in chesspresso.pgn.PGN gets the month wrong :(
+	private static String getRights(String s, int num)
+    {
+        return s.substring(s.length() - num);
+    }
+	private static String dateToPGNDate(Date date)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.YEAR) + "."
+             + getRights("00" + (cal.get(Calendar.MONTH) + 1), 2) + "."
+             + getRights("00" + cal.get(Calendar.DAY_OF_MONTH), 2);
+    }
 }
