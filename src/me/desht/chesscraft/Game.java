@@ -167,6 +167,10 @@ public class Game {
 		this.fromSquare = fromSquare;
 	}
 	
+	List<Short> getHistory() {
+		return history;
+	}
+	
 	String getOtherPlayer(String name) {
 		return name.equals(playerWhite) ? playerBlack : playerWhite;
 	}

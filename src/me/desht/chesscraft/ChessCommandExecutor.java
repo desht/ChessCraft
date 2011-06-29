@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
 
 public class ChessCommandExecutor implements CommandExecutor {
 
@@ -111,9 +112,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.requirePerms(player, "chesscraft.commands.list", Privilege.Basic);
 		
 		if (partialMatch(args, 1, "g")) {			// game
-			listGames(player);
+			if (args.length > 2) {
+				showGameDetail(player, args[2]);
+			} else {
+				listGames(player);
+			}
 		} else if (partialMatch(args, 1, "b")) {	// board
-			listBoards(player);
+			if (args.length > 2) {
+				showBoardDetail(player, args[2]);
+			} else {
+				listBoards(player);
+			}
 		} else {
 			plugin.errorMessage(player, "Usage: /chess list board");
 			plugin.errorMessage(player, "       /chess list game");
@@ -390,18 +399,72 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 		pagedDisplay(player, 1);
 	}
+	
+	private void showGameDetail(Player player, String gameName) throws ChessException {
+		Game game = plugin.getGame(gameName);
+		
+		String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
+		String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
+		
+		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA;
+		messageBuffer.clear();
+		messageBuffer.add(ChatColor.YELLOW + "Game " + gameName + ":");
+		messageBuffer.add(bullet + white + " (White) vs. " + black + " (Black) on board " + game.getView().getName());
+		messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
+		messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
+		if (game.getInvited().equals("*"))
+			messageBuffer.add(bullet + "Game has an open invitation");
+		else if (!game.getInvited().isEmpty()) 
+			messageBuffer.add(bullet + game.getInvited() + " has been invited.  Awaiting response.");
+		double dom = game.getPosition().getDomination();
+		String who = "no one";
+		if (dom < 0)
+			who = "black";
+		else
+			who = "white";
+		messageBuffer.add(bullet + "Board domination: " + Math.abs(dom) + " to " + who);
+		messageBuffer.add("Move history:");
+		List<Short> h = game.getHistory();
+		for (int i = 0; i < h.size(); i += 2) {
+			StringBuilder sb = new StringBuilder(String.format(ChatColor.WHITE + "%1$d. " + ChatColor.YELLOW, (i/2) + 1));
+			sb.append(Move.getString(h.get(i)));
+			if (i < h.size() - 1) {
+				sb.append("  " + Move.getString(h.get(i + 1)));
+			}
+			messageBuffer.add(sb.toString());
+		}
+		
+		pagedDisplay(player, 1);
+	}
+
+	private void showBoardDetail(Player player, String boardName) throws ChessException {
+		BoardView bv = plugin.getBoardView(boardName);
+		
+		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA;
+		String w = ChatColor.WHITE.toString();
+		Cuboid bounds = bv.getOuterBounds();
+		String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
+		
+		messageBuffer.clear();
+		messageBuffer.add(ChatColor.YELLOW + "Board " + boardName + ":");
+		messageBuffer.add(bullet + "Lower NE corner: " + w + ChessCraft.formatLoc(bounds.getLowerNE()));
+		messageBuffer.add(bullet + "Upper SW corner: " + w + ChessCraft.formatLoc(bounds.getUpperSW()));
+		messageBuffer.add(bullet + "Game: " + w + gameName);
+		messageBuffer.add(bullet + "Board Style: " + w + bv.getBoardStyle());
+		messageBuffer.add(bullet + "Piece Style: " + w + bv.getPieceStyle());
+		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize());
+		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth());
+		messageBuffer.add(bullet + "Height: " + w + bv.getHeight());
+		messageBuffer.add(bullet + "Lit: " + w + bv.getIsLit());
+		
+		pagedDisplay(player, 1);
+	}
 
 	private void listBoards(Player player) {
 		messageBuffer.clear();
 		for (BoardView bv: plugin.listBoardViews()) {
-			StringBuilder info = new StringBuilder();
-			info.append(ChessCraft.formatLoc(bv.getA1Square()));
-//			info.append(", bstyle=" + bv.getBoardStyle());
-//			info.append(", pstyle=" + bv.getPieceStyle());
 			String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-			info.append(", game=" + gameName);
-//			info.append(" square=" + bv.getSquareSize() + " frwidth=" + bv.getFrameWidth() + " height=" + (bv.getHeight() + 2) + " lit=" + bv.getIsLit());
-			messageBuffer.add(bv.getName() + ": " + info.toString());
+			messageBuffer.add(ChatColor.YELLOW + bv.getName() + ": " + ChatColor.AQUA + ChessCraft.formatLoc(bv.getA1Square()) + ", game=" + gameName);
 		}
 		pagedDisplay(player, 1);
 	}
