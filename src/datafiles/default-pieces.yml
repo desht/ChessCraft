@@ -2,13 +2,18 @@
 name: Standard
 
 # List of materials used in the set
+# Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block) 
+#  or material plus data (e.g. 35:0, wool:white)
+# If you use plain integers, they must be quoted, or the set will not load!
+# If you use material names, they must match the org.bukkit.Material definitions exactly
+#  - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
 materials:
   black:
-    O: 0
-    X: 41
+    O: air
+    X: gold_block
   white:
-    O: 0
-    X: 42
+    O: air
+    X: iron_block
 
 # Piece definitions
 # This is a list of list of strings such that:

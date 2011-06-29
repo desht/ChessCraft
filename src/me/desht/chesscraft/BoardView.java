@@ -202,7 +202,7 @@ public class BoardView implements PositionListener {
 		};
 		for (Cuboid wall : walls) {
 			for (Location l: wall) {
-				w.getBlockAt(l).setTypeIdAndData(enclosureId.material, enclosureId.data, false);
+				ChessCraft.setBlock(w.getBlockAt(l), enclosureId);
 			}
 		}
 		
@@ -229,7 +229,7 @@ public class BoardView implements PositionListener {
 		};
 		for (Cuboid part : frameParts) {
 			for (Location l: part) {
-				w.getBlockAt(l).setTypeIdAndData(frameId.material, frameId.data, false);
+				ChessCraft.setBlock(w.getBlockAt(l), frameId);
 			}
 		}
 	}
@@ -257,14 +257,17 @@ public class BoardView implements PositionListener {
 				}
 			}
 		} else {
+			MaterialWithData air = new MaterialWithData(0, (byte)-1);
 			ChessStone cStone = stones.get(stone);
 			int xOff = (squareSize - cStone.getSizeX()) / 2;
 			int zOff = (squareSize - cStone.getSizeZ()) / 2;
 			for (int x = 0; x < cStone.getSizeX(); x++) {
 				for (int y = 0; y < height; y++) {
 					for (int z = 0; z < cStone.getSizeZ(); z++) {
-						int mId = y >= cStone.getSizeY() ? 0 : cStone.getMaterial(x, y, z);
-						w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1, (l.getBlockZ() - zOff) - z).setTypeId(mId);
+//						int mId = y >= cStone.getSizeY() ? 0 : cStone.getMaterial(x, y, z);
+//						w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1, (l.getBlockZ() - zOff) - z).setTypeId(mId);
+						MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
+						ChessCraft.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1, (l.getBlockZ() - zOff) - z), mat);
 					}
 				}
 			}
@@ -275,17 +278,14 @@ public class BoardView implements PositionListener {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
 		Location locNE = rowColToWorldNE(row, col);
-		int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
-		int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
+		MaterialWithData m = new MaterialWithData(Chess.isWhiteSquare(sqi) ? whiteSquareId : blackSquareId);
 		Cuboid square = new Cuboid(locNE, locNE);
 		square.expand(Direction.South, squareSize - 1);
 		square.expand(Direction.West, squareSize - 1);
 		
 		for (Location loc : square) {
-			loc.getBlock().setTypeIdAndData(matId, (byte)matData, false);
+			ChessCraft.setBlock(loc.getBlock(), m);
 		}
-		
-		
 	}
 
 	void doLighting() {
@@ -298,13 +298,13 @@ public class BoardView implements PositionListener {
 		lastLevel = level;
 		
 		if (isBright(level)) {
+			MaterialWithData white = new MaterialWithData(whiteSquareId);
+			MaterialWithData black = new MaterialWithData(blackSquareId);
 			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-				int matId = Chess.isWhiteSquare(sqi) ? whiteSquareId.material : blackSquareId.material;
-				int matData = Chess.isWhiteSquare(sqi) ? whiteSquareId.data : blackSquareId.data;
 				int col = Chess.sqiToCol(sqi);
 				int row = Chess.sqiToRow(sqi);
 				Location locNE = rowColToWorldNE(row, col);
-				locNE.getBlock().setTypeIdAndData(matId, (byte)matData, false);
+				ChessCraft.setBlock(locNE.getBlock(), Chess.isWhiteSquare(sqi) ? white : black);
 			}
 		} else {
 			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {

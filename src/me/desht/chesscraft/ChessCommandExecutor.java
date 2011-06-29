@@ -93,6 +93,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void gameCommand(Player player, String[] args) throws ChessException {
 		if (args.length >= 2) {
 			plugin.setCurrentGame(player.getName(), args[1]);
+			plugin.statusMessage(player, "Your active game is now '" + args[1] + "'.");
 		} else {
 			plugin.errorMessage(player, "Usage: /chess game <game-name>");
 		}
@@ -101,7 +102,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void listCommands(Player player, String[] args) {
 		if (partialMatch(args, 1, "g")) {			// game
 			listGames(player);
-		} else if (partialMatch(args, 1, "b")) {
+		} else if (partialMatch(args, 1, "b")) {	// board
 			listBoards(player);
 		} else {
 			plugin.errorMessage(player, "Usage: /chess list board");
@@ -295,7 +296,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			String name = game.getName();
 			String curGameMarker = "  ";
 			if (player != null)
-				curGameMarker = name.equals(plugin.getCurrentGame(player).getName()) ? "+ " : "  ";
+				curGameMarker = game == plugin.getCurrentGame(player) ? "+ " : "  ";
 			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
 			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? ChatColor.RED +  "*" + ChatColor.WHITE : "";
 			String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();

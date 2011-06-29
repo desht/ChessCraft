@@ -18,7 +18,10 @@ import java.util.logging.Logger;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -312,11 +315,37 @@ public class ChessCraft extends JavaPlugin {
 
 	static MaterialWithData parseIdAndData(String string) {
 		String[] items = string.split(":");
-		int mat = Integer.parseInt(items[0]);
-		byte data = 0;
-		if (items.length >= 2)
+		int mat;
+		byte data;
+		
+		if (items[0].matches("^[0-9]+$")) {
+			mat = Integer.parseInt(items[0]);
+		} else {
+			Material m = Material.valueOf(items[0].toUpperCase());
+			if (m == null) throw new IllegalArgumentException("unknown material " + items[0]);
+			mat = m.getId();
+		}
+		if (items.length < 2) 
+			return new MaterialWithData(mat, (byte)-1);
+		
+		if (items[1].matches("^[0-9]+$")) {
 			data = Byte.parseByte(items[1]);
+		} else if (mat == 35) {	// wool
+			DyeColor d = DyeColor.valueOf(items[1].toUpperCase());
+			if (d == null) throw new IllegalArgumentException("unknown dye colour " + items[0]);
+			data = d.getData();
+		} else {
+			throw new IllegalArgumentException("invalid data specification " + items[1]);
+		}
 		return new MaterialWithData(mat, data);
+	}
+
+	static void setBlock(Block b, MaterialWithData mat) {
+		if (mat.data >= 0) {
+			b.setTypeIdAndData(mat.material, mat.data, false);
+		} else {
+			b.setTypeId(mat.material);
+		}
 	}
 	
 	static String formatLoc(Location loc) {

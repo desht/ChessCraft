@@ -6,5 +6,19 @@ commands:
   chess:
     description: Play Chess
     usage: |
-      /sms board <create|...>
-      /sms page <page-number>
+      /chess create board <name> [-style <style>]
+      /chess create game [<gamename>] [<boardname>]
+      /chess delete (board|game) <name>
+      /chess list (board|game> [<name>]
+      /chess play [<gamename>]
+      /chess invite <playername>
+      /chess join
+      /chess start
+      /chess move <move>
+      /chess resign
+      /chess offerdraw
+      /chess tp [<gamename>]
+      /chess redraw
+      /chess save
+      /chess reload
+      /chess page <page-number>

@@ -18,7 +18,7 @@ public class ChessStone extends PieceTemplate {
 	}
 
 	private void rotate(int rotation) {
-		int[][][] newArray = new int[sizeX][sizeY][sizeZ];
+		MaterialWithData[][][] newArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 		int maxX = sizeX - 1;
 		int maxZ = sizeZ - 1;
 		

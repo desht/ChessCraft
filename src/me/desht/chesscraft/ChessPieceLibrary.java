@@ -64,9 +64,9 @@ public class ChessPieceLibrary {
         	if (templates.get(setName) != null)
         		throw new ChessException("Duplicate chess set name " + setName + " detected");
         	
-        	Map<String, Map<String,Integer>> mm = (Map<String, Map<String,Integer>>) pieceMap.get("materials");
-        	Map<String, Integer> whiteMats = mm.get("white");
-        	Map<String, Integer> blackMats = mm.get("black");
+        	Map<String, Map<String,String>> mm = (Map<String, Map<String,String>>) pieceMap.get("materials");
+        	Map<String, String> whiteMats = mm.get("white");
+        	Map<String, String> blackMats = mm.get("black");
         	
         	Map<String, Object> mp = (Map<String,Object>) pieceMap.get("pieces");
         	Map<Integer,PieceTemplate> pieces = new HashMap<Integer,PieceTemplate>();
