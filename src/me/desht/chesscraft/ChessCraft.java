@@ -63,7 +63,10 @@ public class ChessCraft extends JavaPlugin {
 		put("no_building", true);
 		put("no_creatures", true);
 		put("no_explosions", true);
+		put("no_burning", true);
 	}};
+	
+	/*-----------------------------------------------------------------*/
 	
 	@Override
 	public void onDisable() {
@@ -87,7 +90,6 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
 		
@@ -105,6 +107,8 @@ public class ChessCraft extends JavaPlugin {
 		}, 100L, 200L);
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
+	
+	/*-----------------------------------------------------------------*/
 	
 	private void setupDefaultStructure() {
 		log(Level.INFO, "Performing first-time setup");
@@ -140,24 +144,8 @@ public class ChessCraft extends JavaPlugin {
         out.close();
 	}
 
-	private void setupPermissions() {
-		Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
-
-		if (permissionHandler == null) {
-			if (permissionsPlugin != null) {
-				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
-				log(Level.INFO, "Permissions detected");
-			} else {
-				log(Level.INFO, "Permissions not detected, using ops");
-			}
-		}
-	}
-
-	void log(Level level, String message) {
-		String logMsg = this.getDescription().getName() + ": " + message;
-		logger.log(level, logMsg);
-	}
-
+	/*-----------------------------------------------------------------*/
+	
 	private void configInitialise() {
 		Boolean saveNeeded = false;
 		Configuration config = getConfiguration();
@@ -170,14 +158,23 @@ public class ChessCraft extends JavaPlugin {
 		if (saveNeeded) config.save();
 	}
 	
-	boolean isAllowedTo(Player player, String node) {
-		if (player == null) return true;
-		// if Permissions is in force, then it overrides op status
-		if (permissionHandler != null) {
-			return permissionHandler.has(player, node);
-		} else {
-			return player.isOp();
+	/*-----------------------------------------------------------------*/
+	
+	private void setupPermissions() {
+		Plugin permissionsPlugin = this.getServer().getPluginManager().getPlugin("Permissions");
+	
+		if (permissionHandler == null) {
+			if (permissionsPlugin != null) {
+				permissionHandler = ((Permissions) permissionsPlugin).getHandler();
+				log(Level.INFO, "Permissions detected");
+			} else {
+				log(Level.INFO, "Permissions not detected, using ops");
+			}
 		}
+	}
+
+	boolean isAllowedTo(Player player, String node) {
+		return isAllowedTo(player, node, Privilege.Admin);
 	}
 	boolean isAllowedTo(Player player, String node, Privilege level) {
 		if (player == null) return true;
@@ -200,6 +197,13 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
+	/*-----------------------------------------------------------------*/
+
+	void log(Level level, String message) {
+		String logMsg = this.getDescription().getName() + ": " + message;
+		logger.log(level, logMsg);
+	}
+	
 	void errorMessage(Player player, String string) {
 		message(player, string, ChatColor.RED, Level.WARNING);
 	}
@@ -221,6 +225,8 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
+	/*-----------------------------------------------------------------*/
+	
 	void addBoardView(String name, BoardView view) {
 		chessBoards.put(name, view);
 	}
@@ -239,6 +245,7 @@ public class ChessCraft extends JavaPlugin {
 		return chessBoards.get(name);
 	}
 
+	
 	List<BoardView> listBoardViews() {
 		SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
 		List<BoardView> res = new ArrayList<BoardView>();
@@ -246,6 +253,45 @@ public class ChessCraft extends JavaPlugin {
 		return res;
 	}
 	
+	BoardView getFreeBoard() throws ChessException {
+		for (BoardView bv: listBoardViews()) {
+			if (bv.getGame() == null)
+				return bv;
+		}
+		throw new ChessException("There are no free boards to create a game on.");
+	}
+	
+	// match if loc is any part of the board including the frame & enclosure
+	BoardView partOfChessBoard(Location loc) {
+		for (BoardView bv: listBoardViews()) {
+			if (bv.isPartOfBoard(loc))
+				return bv;
+		}
+		return null;
+	}
+
+	// match if loc is above a board square but below the roof
+	BoardView aboveChessBoard(Location loc) {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.isAboveBoard(loc)) {
+				return bv;
+			}
+		}
+		return null;
+	}
+
+	// match if loc is part of a board square
+	BoardView onChessBoard(Location loc) {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.isOnBoard(loc)) {
+				return bv;
+			}
+		}
+		return null;
+	}
+
+	/*-----------------------------------------------------------------*/
+
 	public void addGame(String gameName, Game game) {
 		chessGames.put(gameName, game);
 	}
@@ -282,6 +328,8 @@ public class ChessCraft extends JavaPlugin {
 		return chessGames.get(name);
 	}
 	
+	/*-----------------------------------------------------------------*/
+	
 	void setCurrentGame(String playerName, String gameName) throws ChessException {
 		Game game = getGame(gameName);
 		setCurrentGame(playerName, game);
@@ -304,6 +352,8 @@ public class ChessCraft extends JavaPlugin {
 		return res;
 	}
 	
+	/*-----------------------------------------------------------------*/
+	
 	Location getLastPos(Player player) {
 		return lastPos.get(player.getName());
 	}
@@ -312,6 +362,8 @@ public class ChessCraft extends JavaPlugin {
 		lastPos.put(player.getName(), loc);
 	}
 
+	/*-----------------------------------------------------------------*/
+	
 	static String pieceToStr(int piece) {
 		switch (piece) {
 		case Chess.PAWN: return "pawn";
@@ -338,22 +390,6 @@ public class ChessCraft extends JavaPlugin {
 			loc.getWorld().getName()
 			+ ">";
 		return str;
-	}
-
-	String getFreeBoard() throws ChessException {
-		for (BoardView bv: listBoardViews()) {
-			if (bv.getGame() == null)
-				return bv.getName();
-		}
-		throw new ChessException("There are no free boards to create a game on.");
-	}
-	
-	BoardView getBoardAt(Location loc) {
-		for (BoardView bv: listBoardViews()) {
-			if (bv.isPartOfBoard(loc))
-				return bv;
-		}
-		return null;
 	}
 	
 }

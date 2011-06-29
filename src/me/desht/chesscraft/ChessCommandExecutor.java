@@ -280,9 +280,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		
 		if (args.length < 2) {
 			// back to where we were
-			BoardView bv = plugin.getBoardAt(player.getLocation());
+			BoardView bv = plugin.partOfChessBoard(player.getLocation());
 			Location prev = plugin.getLastPos(player);
-			if (bv != null && (prev == null || plugin.getBoardAt(prev) == bv)) {
+			if (bv != null && (prev == null || plugin.partOfChessBoard(prev) == bv)) {
 				// try to get the player out of this board safely
 				Location loc = bv.findSafeLocationOutside();
 				if (loc != null) {
@@ -407,12 +407,19 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
-		if (boardName == null) boardName = plugin.getFreeBoard();
-		if (gameName == null) gameName = makeGameName(player);
-		Game game = new Game(plugin, gameName, plugin.getBoardView(boardName), player);
+		BoardView bv;
+		if (boardName == null)
+			bv = plugin.getFreeBoard();
+		else
+			bv = plugin.getBoardView(boardName);
+		
+		if (gameName == null)
+			gameName = makeGameName(player);
+		
+		Game game = new Game(plugin, gameName, bv, player);
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
-		plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + boardName + "'.");
+		plugin.statusMessage(player, "Game '" + gameName + "' has been created on board '" + bv.getName() + "'.");
 	}
 
 	private void tryDeleteGame(Player player, String[] args) throws ChessException {

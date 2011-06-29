@@ -437,7 +437,7 @@ public class Game {
 	}
 	
 	void alert(Player player, String message) {
-		player.sendMessage(ChatColor.YELLOW + ":: Chess game '" + getName() + "': " + message);
+		player.sendMessage(ChatColor.GOLD + "::" + ChatColor.YELLOW + " Chess game '" + getName() + "': " + message);
 	}
 	void alert(String playerName, String message) {
 		Player p = Bukkit.getServer().getPlayer(playerName);

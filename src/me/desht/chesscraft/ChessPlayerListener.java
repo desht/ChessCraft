@@ -41,9 +41,9 @@ public class ChessPlayerListener extends PlayerListener {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
 					plugin.statusMessage(player, "Board creation cancelled.");
-				} else if ((bv = onChessBoard(loc)) != null) {
+				} else if ((bv = plugin.onChessBoard(loc)) != null) {
 					boardClicked(player, loc, bv);
-				} else if ((bv = aboveChessBoard(loc)) != null) {
+				} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
 					pieceClicked(player, loc, bv);
 				} else {
 					// nothing?
@@ -65,9 +65,9 @@ public class ChessPlayerListener extends PlayerListener {
 	}
 
 	private void cancelMove(PlayerInteractEvent event) {
-		BoardView bv = onChessBoard(event.getClickedBlock().getLocation());
+		BoardView bv = plugin.onChessBoard(event.getClickedBlock().getLocation());
 		if (bv == null) 
-			bv = aboveChessBoard(event.getClickedBlock().getLocation());
+			bv = plugin.aboveChessBoard(event.getClickedBlock().getLocation());
 		if (bv != null && bv.getGame() != null) {
 			bv.getGame().setFromSquare(Chess.NO_SQUARE);
 		}
@@ -117,24 +117,6 @@ public class ChessPlayerListener extends PlayerListener {
 		}
 	}
 
-	private BoardView aboveChessBoard(Location loc) {
-		for (BoardView bv : plugin.listBoardViews()) {
-			if (bv.isAboveBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	private BoardView onChessBoard(Location loc) {
-		for (BoardView bv : plugin.listBoardViews()) {
-			if (bv.isOnBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-	
 	static void expectingClick(Player p, String name, String style) {
 		List<String> list = new ArrayList<String>();
 		list.add(name);
