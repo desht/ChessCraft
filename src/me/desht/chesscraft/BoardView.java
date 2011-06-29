@@ -177,6 +177,7 @@ public class BoardView implements PositionListener {
 		paintEnclosure();
 		paintBoard();
 		paintFrame();
+		lastLevel = -1;	// force a lighting update
 		doLighting();
 	}
 	
@@ -264,8 +265,6 @@ public class BoardView implements PositionListener {
 			for (int x = 0; x < cStone.getSizeX(); x++) {
 				for (int y = 0; y < height; y++) {
 					for (int z = 0; z < cStone.getSizeZ(); z++) {
-//						int mId = y >= cStone.getSizeY() ? 0 : cStone.getMaterial(x, y, z);
-//						w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1, (l.getBlockZ() - zOff) - z).setTypeId(mId);
 						MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
 						ChessCraft.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1, (l.getBlockZ() - zOff) - z), mat);
 					}
@@ -324,7 +323,7 @@ public class BoardView implements PositionListener {
 		}
 	}
 	
-	// Return the bounds of the chessboard - the innermost ring of the frame
+	// Return the bounds of the chess board - the innermost ring of the frame
 	Cuboid getBounds() {
 		Location a1 = rowColToWorldCenter(0, 0);
 		Location h8 = rowColToWorldCenter(7, 7);
@@ -395,24 +394,6 @@ public class BoardView implements PositionListener {
 		// TODO Auto-generated method stub
 
 	}
-
-//	@Override
-//	public void notifyMoveDone(ImmutablePosition position, short move) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void notifyMoveUndone(ImmutablePosition position) {
-//		// TODO Auto-generated method stub
-//
-//	}
-//
-//	@Override
-//	public void notifyPositionChanged(ImmutablePosition position) {
-//		// TODO Auto-generated method stub
-//
-//	}
 
 	void setGame(Game game) {
 		this.game = game;		
