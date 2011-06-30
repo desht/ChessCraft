@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.Cuboid.Direction;
@@ -29,10 +30,10 @@ public class BoardView implements PositionListener {
 	private int frameWidth;
 	private int squareSize;
 	private int height;
-	private MaterialWithData blackSquareId;
-	private MaterialWithData whiteSquareId;
-	private MaterialWithData frameId;
-	private MaterialWithData enclosureId;
+	private MaterialWithData blackSquareMat;
+	private MaterialWithData whiteSquareMat;
+	private MaterialWithData frameMat;
+	private MaterialWithData enclosureMat;
 	private String pieceStyle;
 	private Boolean isLit;
 	private Map<Integer,ChessStone> stones;
@@ -51,9 +52,31 @@ public class BoardView implements PositionListener {
 		a1Square = calcBaseSquare(where);
 		validateIntersections();
 		stones = createStones(pieceStyle);
+		validateBoardParams();
 		lastLevel = -1;
 	}
 	
+	// Overall sanity checking on board/set parameters
+	private void validateBoardParams() throws ChessException {
+		if (squareSize < 2) 
+			throw new ChessException("Board's square size is too small (minimum 2)!");
+		if (height < 3)
+			throw new ChessException("Board does not have enough vertical space (minimum 3)!");
+		if (frameWidth < 2)
+			throw new ChessException("Frame width is too narrow (minimum 2)");
+		
+		int maxH = -1, maxV = -1;
+		for (Entry<Integer,ChessStone> entry : stones.entrySet()) {
+			maxH = Math.max(maxH, entry.getValue().sizeX);
+			maxH = Math.max(maxH, entry.getValue().sizeZ);
+			maxV = Math.max(maxV, entry.getValue().sizeY);
+		}
+		if (maxH >= squareSize)
+			throw new ChessException("Set '" + pieceStyle + "' is too wide for this board!"); 
+		if (maxV > height)
+			throw new ChessException("Set '" + pieceStyle + "' is too tall for this board!"); 
+	}
+
 	// Ensure this board doesn't intersect any other boards
 	private void validateIntersections() throws ChessException {
 		Cuboid bounds = getBounds();
@@ -117,6 +140,22 @@ public class BoardView implements PositionListener {
 	public Boolean getIsLit() {
 		return isLit;
 	}
+	
+	MaterialWithData getBlackSquareMat() {
+		return blackSquareMat;
+	}
+
+	MaterialWithData getWhiteSquareMat() {
+		return whiteSquareMat;
+	}
+
+	MaterialWithData getFrameMat() {
+		return frameMat;
+	}
+
+	MaterialWithData getEnclosureMat() {
+		return enclosureMat;
+	}
 
 	public Map<Integer, ChessStone> getStones() {
 		return stones;
@@ -137,10 +176,10 @@ public class BoardView implements PositionListener {
         	isLit      = (Boolean)styleMap.get("lit");
         	pieceStyle = (String)styleMap.get("piece_style");
         	
-        	blackSquareId = MaterialWithData.parseIdAndData((String)styleMap.get("black_square"));
-        	whiteSquareId = MaterialWithData.parseIdAndData((String)styleMap.get("white_square"));
-        	frameId       = MaterialWithData.parseIdAndData((String)styleMap.get("frame"));
-        	enclosureId   = MaterialWithData.parseIdAndData((String)styleMap.get("enclosure"));
+        	blackSquareMat = MaterialWithData.parseIdAndData((String)styleMap.get("black_square"));
+        	whiteSquareMat = MaterialWithData.parseIdAndData((String)styleMap.get("white_square"));
+        	frameMat       = MaterialWithData.parseIdAndData((String)styleMap.get("frame"));
+        	enclosureMat   = MaterialWithData.parseIdAndData((String)styleMap.get("enclosure"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
@@ -154,11 +193,7 @@ public class BoardView implements PositionListener {
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
-		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
-//
-//		System.out.println("origin:   " + where);
-//		System.out.println("a1square: " + res);
-		return res;
+		return new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
 	}
 
 	private Map<Integer, ChessStone> createStones(String pieceStyle) throws ChessException {
@@ -204,7 +239,7 @@ public class BoardView implements PositionListener {
 		};
 		for (Cuboid wall : walls) {
 			for (Location l: wall) {
-				ChessCraft.setBlock(w.getBlockAt(l), enclosureId);
+				ChessCraft.setBlock(w.getBlockAt(l), enclosureMat);
 			}
 		}
 		
@@ -229,7 +264,7 @@ public class BoardView implements PositionListener {
 		};
 		for (Cuboid part : frameParts) {
 			for (Location l: part) {
-				ChessCraft.setBlock(w.getBlockAt(l), frameId);
+				ChessCraft.setBlock(w.getBlockAt(l), frameMat);
 			}
 		}
 	}
@@ -276,7 +311,7 @@ public class BoardView implements PositionListener {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
 		Location locNE = rowColToWorldNE(row, col);
-		MaterialWithData m = new MaterialWithData(Chess.isWhiteSquare(sqi) ? whiteSquareId : blackSquareId);
+		MaterialWithData m = new MaterialWithData(Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
 		Cuboid square = new Cuboid(locNE, locNE);
 		square.expand(Direction.South, squareSize - 1);
 		square.expand(Direction.West, squareSize - 1);
@@ -296,8 +331,8 @@ public class BoardView implements PositionListener {
 		lastLevel = level;
 		
 		if (isBright(level)) {
-			MaterialWithData white = new MaterialWithData(whiteSquareId);
-			MaterialWithData black = new MaterialWithData(blackSquareId);
+			MaterialWithData white = new MaterialWithData(whiteSquareMat);
+			MaterialWithData black = new MaterialWithData(blackSquareMat);
 			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 				int col = Chess.sqiToCol(sqi);
 				int row = Chess.sqiToRow(sqi);
