@@ -30,7 +30,6 @@ import org.bukkit.util.config.Configuration;
 
 import chesspresso.Chess;
 
-import com.mysql.jdbc.log.Log;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 

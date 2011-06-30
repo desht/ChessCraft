@@ -13,7 +13,9 @@ import me.desht.chesscraft.ExpectResponse.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 //import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -452,14 +454,23 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "Game: " + w + gameName);
 		messageBuffer.add(bullet + "Board Style: " + w + bv.getBoardStyle());
 		messageBuffer.add(bullet + "Piece Style: " + w + bv.getPieceStyle());
-		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize());
-		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth());
+		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize() + 
+				" (" + matStr(bv.getWhiteSquareMat()) + "/" + matStr(bv.getBlackSquareMat()) + ")");
+		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + matStr(bv.getFrameMat()) + ")");
+		messageBuffer.add(bullet + "Enclosure: " + matStr(bv.getEnclosureMat()));
 		messageBuffer.add(bullet + "Height: " + w + bv.getHeight());
 		messageBuffer.add(bullet + "Lit: " + w + bv.getIsLit());
 		
 		pagedDisplay(player, 1);
 	}
 
+	private String matStr(MaterialWithData m) {
+		String s = Material.getMaterial(m.material).toString();
+		if (m.material == 35)	// wool
+			s = s + ":" + DyeColor.getByData(m.data).toString(); 
+		return s;
+	}
+	
 	private void listBoards(Player player) {
 		messageBuffer.clear();
 		for (BoardView bv: plugin.listBoardViews()) {
