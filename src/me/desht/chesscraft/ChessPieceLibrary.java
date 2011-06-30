@@ -1,12 +1,12 @@
 package me.desht.chesscraft;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
@@ -23,31 +23,22 @@ public class ChessPieceLibrary {
 		new HashMap<String,Map<Integer,PieceTemplate>>();
 	
 	ChessPieceLibrary(ChessCraft plugin) {
-		this.plugin = plugin;
-		
-		try {
-			loadChessSets();
-		} catch (FileNotFoundException e) {
-			plugin.log(Level.SEVERE, "Can't load piece libraries: " + e.getMessage());
-		}
+		this.plugin = plugin;	
 	}
 
-	private class PieceFilter implements FileFilter {
-		public boolean accept(File file) {
-			return file.getName().toLowerCase().endsWith(".yml");
-		}
+	boolean isChessSetLoaded(String setName) {
+		return templates.containsKey(setName);
 	}
 	
-	private void loadChessSets() throws FileNotFoundException {
-		File[] files = new File(libraryDir).listFiles(new PieceFilter());
-		if (files == null) throw new FileNotFoundException("can't open folder " + libraryDir);
-		for (File f : files) {
+	void loadChessSet(String setName) throws ChessException {
+		if (!setName.matches("\\.yml$")) 
+			setName = setName + ".yml";
+		File f = new File(libraryDir, setName);
+		try {
 			loadChessSet(f);
+		} catch (FileNotFoundException e) {
+			throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
 		}
-	}
-
-	boolean isSetLoaded(String setName) {
-		return templates.containsKey(setName);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -70,10 +61,9 @@ public class ChessPieceLibrary {
         	
         	Map<String, Object> mp = (Map<String,Object>) pieceMap.get("pieces");
         	Map<Integer,PieceTemplate> pieces = new HashMap<Integer,PieceTemplate>();
-        	for (String s : mp.keySet()) {
-        		List<List<String>> data = (List<List<String>>) mp.get(s);
-        		int piece = Chess.charToPiece(s.charAt(0));
-        		
+        	for (Entry<String,Object> e : mp.entrySet()) {
+        		List<List<String>> data = (List<List<String>>) e.getValue();
+        		int piece = Chess.charToPiece(e.getKey().charAt(0));
         		PieceTemplate ptw = new PieceTemplate(data, whiteMats);
         		pieces.put(Chess.pieceToStone(piece, Chess.WHITE), ptw);
         		
@@ -82,6 +72,8 @@ public class ChessPieceLibrary {
         	}
         	templates.put(setName, pieces);
         	plugin.log(Level.INFO, "loaded set " + setName + " OK.");
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			plugin.log(Level.SEVERE, "can't load chess set " + setName + ": " + e);
 		}
