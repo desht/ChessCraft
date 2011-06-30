@@ -69,8 +69,10 @@ public class ChessCommandExecutor implements CommandExecutor {
     				redrawCommand(player, args);
     			} else if (partialMatch(args[0], "m")) {	// move
     				moveCommand(player, args);
-    			} else if (partialMatch(args[0], "p")) {	// page
+    			} else if (partialMatch(args[0], "pa")) {	// page
     				pagedDisplay(player, args);
+    			} else if (partialMatch(args[0], "pr")) {	// promotion
+    				promoCommand(player, args);
     			} else if (partialMatch(args[0], "sa")) {	// save
     				saveCommand(player, args);
     			} else if (partialMatch(args[0], "rel")) {	// reload
@@ -372,6 +374,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 			plugin.expecter.handleAction(player, ExpectAction.DrawResponse);
 		} else if (plugin.expecter.isExpecting(player, ExpectAction.SwapResponse)) {
 			
+		}
+	}
+
+	private void promoCommand(Player player, String[] args) throws ChessException {
+		if (args.length >= 2) {
+			Game game = plugin.getCurrentGame(player);
+			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
+			game.setPromotionPiece(player, piece);
+			plugin.statusMessage(player, "Promotion piece for game '" + game.getName() + "' has been set to " + ChessCraft.pieceToStr(piece).toUpperCase());
 		}
 	}
 

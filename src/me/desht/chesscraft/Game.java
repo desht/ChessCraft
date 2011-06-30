@@ -35,7 +35,7 @@ public class Game {
 	private chesspresso.game.Game cpGame;
 	private BoardView view;
 	private String playerWhite, playerBlack;
-	private int promo[] = { Chess.QUEEN, Chess.QUEEN };
+	private int promotionPiece[] = { Chess.QUEEN, Chess.QUEEN };
 	private String invited;
 	private GameState state;
 	private int fromSquare;
@@ -264,6 +264,17 @@ public class Game {
 		announceResult(winner, loser, ResultType.Resigned);
 	}
 	
+	void setPromotionPiece(Player p, int piece) throws ChessException {
+		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT)
+			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
+		if (!isPlayerInGame(p))
+			throw new ChessException("Can't set promotion piece for a game you're not in!");
+		if (p.getName().equals(playerWhite))
+			promotionPiece[Chess.WHITE] = piece;
+		if (p.getName().equals(playerBlack))
+			promotionPiece[Chess.BLACK] = piece;	
+	}
+	
 	void drawn() {
 		state = GameState.FINISHED;
 		result = Chess.RES_DRAW;
@@ -394,7 +405,7 @@ public class Game {
 			// Promotion?
 			boolean capturing = getPosition().getPiece(to) != Chess.NO_PIECE;
 			// TODO: allow player to specify the promotion piece
-			move = Move.getPawnMove(from, to, capturing, promo[getPosition().getToPlay()]);
+			move = Move.getPawnMove(from, to, capturing, promotionPiece[getPosition().getToPlay()]);
 		} else if (getPosition().getPiece(from) == Chess.PAWN && getPosition().getPiece(to) == Chess.NO_PIECE) {
 			// En passant?
 			int toCol = Chess.sqiToCol(to);
