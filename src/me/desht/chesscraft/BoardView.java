@@ -155,15 +155,16 @@ public class BoardView implements PositionListener {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
 		Location res = new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
-
-		System.out.println("origin:   " + where);
-		System.out.println("a1square: " + res);
+//
+//		System.out.println("origin:   " + where);
+//		System.out.println("a1square: " + res);
 		return res;
 	}
 
 	private Map<Integer, ChessStone> createStones(String pieceStyle) throws ChessException {
-		if (!plugin.library.isSetLoaded(pieceStyle))
-			throw new ChessException("No such chess set " + pieceStyle);
+		if (!plugin.library.isChessSetLoaded(pieceStyle)) {
+			plugin.library.loadChessSet(pieceStyle);
+		}
 		Map<Integer,ChessStone> result = new HashMap<Integer,ChessStone>();
 		for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; stone++) {
 			if (stone != Chess.NO_STONE) 
@@ -219,9 +220,7 @@ public class BoardView implements PositionListener {
 		int z1 = bounds.getLowerNE().getBlockZ();
 		int x2 = bounds.getUpperSW().getBlockX();
 		int z2 = bounds.getUpperSW().getBlockZ();
-		
-		System.out.println("bounds: " + bounds);
-		
+
 		Cuboid[] frameParts = {
 				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)),	// east side
 				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)),	// west side

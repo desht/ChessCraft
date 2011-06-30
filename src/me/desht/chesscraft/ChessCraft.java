@@ -30,6 +30,7 @@ import org.bukkit.util.config.Configuration;
 
 import chesspresso.Chess;
 
+import com.mysql.jdbc.log.Log;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -38,7 +39,7 @@ public class ChessCraft extends JavaPlugin {
 	
 	enum Privilege { Basic, Admin };
 	
-	static PluginDescriptionFile description;
+	private PluginDescriptionFile description;
 	static final String directory = "plugins" + File.separator + "ChessCraft";
 	final Logger logger = Logger.getLogger("Minecraft");
 
@@ -113,10 +114,10 @@ public class ChessCraft extends JavaPlugin {
 	private void setupDefaultStructure() {
 		log(Level.INFO, "Performing first-time setup");
 		try {
-			getDataFolder().mkdir();
-			new File(getDataFolder(), "archive").mkdir();
-			new File(getDataFolder(), "board_styles").mkdir();
-			new File(getDataFolder(), "piece_styles").mkdir();
+			createDir(null);
+			createDir("archive");
+			createDir("board_styles");
+			createDir("piece_styles");
 			
 			extractResource("/datafiles/default-board.yml", "board_styles/Standard.yml");
 			extractResource("/datafiles/default-pieces.yml", "piece_styles/Standard.yml");
@@ -125,6 +126,14 @@ public class ChessCraft extends JavaPlugin {
 		} catch (IOException e) {
 			log(Level.SEVERE, e.getMessage());
 		}
+	}
+	
+	void createDir(String dir) {
+		File f = dir == null ? getDataFolder() : new File(getDataFolder(), dir);
+		if (f.isDirectory())
+			return;
+		if (!f.mkdir())
+			log(Level.WARNING, "Can't make directory " + f.getName());
 	}
 	
 	private void extractResource(String from, String to) throws IOException {

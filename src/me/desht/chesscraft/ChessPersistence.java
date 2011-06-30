@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
@@ -99,11 +100,11 @@ public class ChessPersistence {
 		
 		Map<String,String> cgMap = (Map<String,String>) conf.getProperty("current_games");
 		if (cgMap != null) {
-			for (String p : cgMap.keySet()) {
+			for (Entry<String,String>entry : cgMap.entrySet()) {
 				try {
-					plugin.setCurrentGame(p, cgMap.get(p));
+					plugin.setCurrentGame(entry.getKey(), entry.getValue());
 				} catch (ChessException e) {
-					plugin.log(Level.WARNING, "can't set current game for player " + p + ": " + e.getMessage());
+					plugin.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": " + e.getMessage());
 				}
 			}
 		}

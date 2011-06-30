@@ -469,7 +469,7 @@ public class Game {
 	}
 
 	File writePGN(boolean force) throws ChessException {
-		new File(plugin.getDataFolder(), archiveDir).mkdir();
+		plugin.createDir(archiveDir);
 		
 		File f = makePGNName();
 		if (f.exists() && !force) {

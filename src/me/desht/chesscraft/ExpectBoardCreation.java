@@ -23,7 +23,7 @@ public class ExpectBoardCreation extends ExpectData {
 	@Override
 	void doResponse(Player player) throws ChessException {
 		if (!plugin.checkBoardView(boardName)) {
-			System.out.println("name=" + boardName + " plugin=" + plugin + " loc=" + loc + " style=" + style);
+//			System.out.println("name=" + boardName + " plugin=" + plugin + " loc=" + loc + " style=" + style);
 			BoardView view = new BoardView(boardName, plugin, loc, style);
 			plugin.addBoardView(boardName, view);
 			view.paintAll();
