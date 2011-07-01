@@ -459,9 +459,12 @@ public class Game {
 		player.sendMessage(ChatColor.GOLD + "::" + ChatColor.YELLOW + " Chess game '" + getName() + "': " + message);
 	}
 	void alert(String playerName, String message) {
+		if (playerName.isEmpty())
+			return;
 		Player p = Bukkit.getServer().getPlayer(playerName);
-		if (p != null)
+		if (p != null) {
 			alert(p, message);
+		}
 	}
 	void alert(String message) {
 		alert(playerWhite, message);
