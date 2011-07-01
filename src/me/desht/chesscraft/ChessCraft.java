@@ -58,6 +58,8 @@ public class ChessCraft extends JavaPlugin {
 	ExpectResponse expecter = new ExpectResponse();
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
+		put("autosave", true);
+		put("lighting_interval", 10);
 		put("broadcast_results", true);
 		put("auto_delete_finished", 30);
 		put("no_building", true);
@@ -104,7 +106,7 @@ public class ChessCraft extends JavaPlugin {
 					bv.doLighting();
 				}
 			}
-		}, 100L, 200L);
+		}, 100L, 20L * getConfiguration().getInt("lighting_interval", 10));
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 	
@@ -371,6 +373,11 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
+	
+	void maybeSave() {
+		if (getConfiguration().getBoolean("autosave", true))
+			persistence.save();
+	}
 	
 	static String pieceToStr(int piece) {
 		switch (piece) {

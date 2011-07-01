@@ -138,8 +138,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		
 		if (partialMatch(args, 1, "g")) {			// game
 			tryDeleteGame(player, args);
+			plugin.maybeSave();
 		} else if (partialMatch(args, 1, "b")) {	// board
 			tryDeleteBoard(player, args);
+			plugin.maybeSave();
 		} else {
 			plugin.errorMessage(player, "Usage: /chess delete board <board-name>");
 			plugin.errorMessage(player, "       /chess delete game <game-name>");
@@ -152,9 +154,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 			String gameName  = args.length >= 3 ? args[2] : null;
 			String boardName = args.length >= 4 ? args[3] : null;
 			tryCreateGame(player, gameName, boardName);
+			plugin.maybeSave();
 		} else if (partialMatch(args, 1, "b")) {	// board
 			plugin.requirePerms(player, "chesscraft.commands.create.board", Privilege.Admin);
 			tryCreateBoard(player, args);
+			plugin.maybeSave();
 		} else {
 			plugin.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>] [-loc <world,x,y,z>]");
 			plugin.errorMessage(player, "       /chess create game [<game-name>] [<board-name>]");
