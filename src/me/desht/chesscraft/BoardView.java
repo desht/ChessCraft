@@ -339,6 +339,7 @@ public class BoardView implements PositionListener {
 				Location locNE = rowColToWorldNE(row, col);
 				ChessCraft.setBlock(locNE.getBlock(), Chess.isWhiteSquare(sqi) ? white : black);
 			}
+			setFrameLights(frameMat);
 		} else {
 			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
 				int col = Chess.sqiToCol(sqi);
@@ -346,9 +347,32 @@ public class BoardView implements PositionListener {
 				Location locNE = rowColToWorldNE(row, col);
 				locNE.getBlock().setTypeId(89);
 			}
+			setFrameLights(new MaterialWithData(89, (byte)-1));
 		}
 	}
 	
+	private void setFrameLights(MaterialWithData mat) {
+		Location l = getBounds().getLowerNE();
+		l.add(squareSize / 2 + 1, 0, 0);
+		int boardSize = squareSize * 8 + 1;
+		// east & west sides
+		for (int i = 0; i < 8; i++) {
+			ChessCraft.setBlock(l.getBlock(), mat);
+			l.add(0, 0, boardSize);
+			ChessCraft.setBlock(l.getBlock(), mat);
+			l.add(squareSize, 0, -boardSize);
+		}
+		// north & south sides
+		l = getBounds().getLowerNE();
+		l.add(0, 0, squareSize / 2 + 1);
+		for (int i = 0; i < 8; i++) {
+			ChessCraft.setBlock(l.getBlock(), mat);
+			l.add(boardSize, 0, 0);
+			ChessCraft.setBlock(l.getBlock(), mat);
+			l.add(-boardSize, 0, squareSize);
+		}
+	}
+
 	private boolean isBright(byte level) {
 		if (level < 12) {
 			return false;
