@@ -368,6 +368,10 @@ public class Game {
 				break;
 			}
 		}
+		setupAutoDeletion();
+	}
+
+	private void setupAutoDeletion() {
 		int autoDel = plugin.getConfiguration().getInt("auto_delete_finished", 0);
 		if (autoDel > 0) {
 			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -381,11 +385,11 @@ public class Game {
 						plugin.log(Level.WARNING, e.getMessage());
 					}
 				}
-			}, autoDel * 20);
+			}, autoDel * 20L);
 			
 			if (delTask != -1)
 				alert("This game will auto-delete in " + autoDel + " seconds.");
-			alert("Type '/chess archive' within " + autoDel + " seconds to save this game to PGN and delete it");
+			alert("Type '/chess archive' within " + autoDel + " seconds to save this game to PGN.");
 		}
 	}
 	
