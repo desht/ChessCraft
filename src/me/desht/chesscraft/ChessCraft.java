@@ -45,7 +45,6 @@ public class ChessCraft extends JavaPlugin {
 
 	PermissionHandler permissionHandler;
 	
-	ChessPieceLibrary library;
 	private final Map<String,Game> chessGames = new HashMap<String,Game>();
 	private final Map<String,BoardView> chessBoards = new HashMap<String,BoardView>();
 	private final Map<String,Game> currentGame = new HashMap<String,Game>();
@@ -55,8 +54,12 @@ public class ChessCraft extends JavaPlugin {
 	private final ChessBlockListener blockListener = new ChessBlockListener(this);
 	private final ChessEntityListener entityListener = new ChessEntityListener(this);
 	private final ChessCommandExecutor commandExecutor = new ChessCommandExecutor(this);
+	
+	final ChessPieceLibrary library = new ChessPieceLibrary(this);
 	final ChessPersistence persistence = new ChessPersistence(this);
-	ExpectResponse expecter = new ExpectResponse();
+	final ExpectResponse expecter = new ExpectResponse();
+	
+	private int lightingTaskId;
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("autosave", true);
@@ -73,6 +76,7 @@ public class ChessCraft extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!");
 	}
@@ -95,24 +99,14 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
-		
-		library = new ChessPieceLibrary(this);
-		
+				
 		persistence.reload();
 		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {	
-			@Override
-			public void run() {
-				for (BoardView bv: listBoardViews()) {
-					bv.doLighting();
-				}
-			}
-		}, 100L, 20L * getConfiguration().getInt("lighting_interval", 10));
+		setupLightingTask(5);
+		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
-	
-	/*-----------------------------------------------------------------*/
-	
+
 	private void setupDefaultStructure() {
 		log(Level.INFO, "Performing first-time setup");
 		try {
@@ -206,6 +200,13 @@ public class ChessCraft extends JavaPlugin {
 		} else {
 			getConfiguration().setProperty(key, val);
 		}
+		
+		// special hooks
+		if (key.equalsIgnoreCase("lighting_interval")) {
+			getServer().getScheduler().cancelTask(lightingTaskId);
+			setupLightingTask(0);
+		}
+		
 		statusMessage(player, key + " is now set to: " + val);
 		getConfiguration().save();
 	}
@@ -448,5 +449,15 @@ public class ChessCraft extends JavaPlugin {
 			+ ">";
 		return str;
 	}
-	
+
+	private void setupLightingTask(int initialDelay) {
+		lightingTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {	
+			@Override
+			public void run() {
+				for (BoardView bv: listBoardViews()) {
+					bv.doLighting();
+				}
+			}
+		}, 20L * initialDelay, 20L * getConfiguration().getInt("lighting_interval", 10));
+	}
 }
