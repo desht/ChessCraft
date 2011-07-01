@@ -16,9 +16,13 @@ commands:
       /chess start
       /chess move <move>
       /chess resign
-      /chess offerdraw
+      /chess offer (draw|swap)
+      /chess yes
+      /chess no
       /chess tp [<gamename>]
       /chess redraw
       /chess save
       /chess reload
       /chess page <page-number>
+      /chess setcfg <item> <value>
+      /chess getcfg [<item>]
