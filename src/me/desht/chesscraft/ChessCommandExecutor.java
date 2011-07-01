@@ -49,7 +49,7 @@ public class ChessCommandExecutor implements CommandExecutor {
     			return false;
     		}
     		try {
-    			if (partialMatch(args[0], "g")) {			// game
+    			if (partialMatch(args[0], "ga")) {			// game
     				gameCommand(player, args);
     			} else if (partialMatch(args[0], "c")) {	// create
     				createCommands(player, args);
@@ -87,6 +87,10 @@ public class ChessCommandExecutor implements CommandExecutor {
     				responseCommand(player, args);
     			} else if (partialMatch(args[0], "n")) {	// no
     				responseCommand(player, args);
+    			} else if (partialMatch(args[0], "set")) {	// setcfg
+    				setcfgCommand(player, args);
+    			} else if (partialMatch(args[0], "get")) {	// getcfg
+    				getcfgCommand(player, args);
     			}
     		} catch (IllegalArgumentException e) {
     			plugin.errorMessage(player, e.getMessage());
@@ -347,6 +351,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void offerCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.offer", Privilege.Basic);
+		
 		Game game = plugin.getCurrentGame(player);
 		String other = game.getOtherPlayer(player.getName());
 		if (partialMatch(args, 1, "d")) {			// draw
@@ -370,24 +376,57 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void responseCommand(Player player, String[] args) throws ChessException {
-		boolean accepted = partialMatch(args, 0, "y") ? true : false;
+		boolean isAccepted = partialMatch(args, 0, "y") ? true : false;
 		
 		if (plugin.expecter.isExpecting(player, ExpectAction.DrawResponse)) {
 			ExpectYesNoOffer a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.DrawResponse);
-			a.setReponse(accepted);
+			a.setReponse(isAccepted);
 			plugin.expecter.handleAction(player, ExpectAction.DrawResponse);
 		} else if (plugin.expecter.isExpecting(player, ExpectAction.SwapResponse)) {
-			
+			ExpectYesNoOffer a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.SwapResponse);
+			a.setReponse(isAccepted);
+			plugin.expecter.handleAction(player, ExpectAction.SwapResponse);
 		}
 	}
 
 	private void promoCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.promote", Privilege.Basic);
+		
 		if (args.length >= 2) {
 			Game game = plugin.getCurrentGame(player);
 			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
 			game.setPromotionPiece(player, piece);
 			plugin.statusMessage(player, "Promotion piece for game '" + game.getName() + "' has been set to " + ChessCraft.pieceToStr(piece).toUpperCase());
 		}
+	}
+
+	private void getcfgCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.getcfg", Privilege.Admin);
+		
+		messageBuffer.clear();
+		if (args.length < 2) {
+			for (String line : plugin.getConfigList()) {
+				messageBuffer.add(line);
+			}
+			pagedDisplay(player, 1);
+		} else {
+			String res = plugin.getConfiguration().getString(args[1]);
+			if (res != null) {
+				plugin.statusMessage(player, args[1] + " = '" + res + "'");
+			} else {
+				plugin.errorMessage(player, "No such config item " + args[1]);
+			}
+		}
+	}
+
+	private void setcfgCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.setcfg", Privilege.Admin);
+		
+		if (args.length < 3) {
+			plugin.errorMessage(player, "Usage: /chess setcfg <key> <value>");
+			return;
+		}
+		plugin.setConfigItem(player, args[1], combine(args, 2));
 	}
 
 	private void doTeleport(Player player, Location loc) throws ChessException {

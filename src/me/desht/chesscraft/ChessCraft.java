@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +167,47 @@ public class ChessCraft extends JavaPlugin {
 			}
 		}
 		if (saveNeeded) config.save();
+	}
+	
+	// return a sorted list of all config keys
+	List<String> getConfigList() {
+		ArrayList<String> res = new ArrayList<String>();
+		for (String k : configItems.keySet()) {
+			res.add(k + " = '" + getConfiguration().getString(k) + "'");
+		}
+		Collections.sort(res);
+		return res;
+	}
+	
+	void setConfigItem(Player player, String key, String val) {
+		if (configItems.get(key) == null) {
+			errorMessage(player, "No such config key: " + key);
+			errorMessage(player, "Use '/chess getcfg' to list all valid keys");
+			return;
+		}
+		if (configItems.get(key) instanceof Boolean) {
+			Boolean bVal = false;
+			if (val.equals("false") || val.equals("no")) {
+				bVal = false;
+			} else if (val.equals("true") || val.equals("yes")) {
+				bVal = true;
+			} else {
+				errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
+				return;
+			}
+			getConfiguration().setProperty(key, bVal);
+		} else if (configItems.get(key) instanceof Integer) {
+			try {
+				int nVal = Integer.parseInt(val);
+				getConfiguration().setProperty(key, nVal);
+			} catch (NumberFormatException e) {
+				errorMessage(player, "Invalid numeric value: " + val);
+			}
+		} else {
+			getConfiguration().setProperty(key, val);
+		}
+		statusMessage(player, key + " is now set to: " + val);
+		getConfiguration().save();
 	}
 	
 	/*-----------------------------------------------------------------*/
