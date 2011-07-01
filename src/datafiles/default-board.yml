@@ -6,6 +6,9 @@
 # If you use material names, they must match the org.bukkit.Material definitions exactly
 #  - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
 
+# Overall height of the board bounding box will be <height> + 2
+# Overall width/length of the board bounding box will be <square_size> * 8 + <frame_width> * 2
+
 # width/length of the board squares, in blocks
 square_size: 5
 # width in blocks of the frame surrounding the board
