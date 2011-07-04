@@ -482,7 +482,8 @@ public class Game {
 	}
 	void alert(String message) {
 		alert(playerWhite, message);
-		alert(playerBlack, message);
+		if (!playerWhite.equalsIgnoreCase(playerBlack))
+			alert(playerBlack, message);
 	}
 	
 	String getPlayerToMove() {
