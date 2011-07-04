@@ -27,18 +27,18 @@ public class ExpectYesNoOffer extends ExpectData {
 		switch(getAction()) {
 		case DrawResponse:
 			if (accepted) {
-				game.alert(offerer, "Your draw offer has been accepted by " + offeree);
+				game.alert(offerer, "Your draw offer has been accepted by &6" + offeree);
 				game.drawn();
 			} else {
-				game.alert(offerer, "Your draw offer has been declined by " + offeree);
+				game.alert(offerer, "Your draw offer has been declined by &6" + offeree);
 			}
 			break;
 		case SwapResponse:
 			if (accepted) {
-				game.alert(offerer, "Your swap offer has been accepted by " + offeree);
+				game.alert(offerer, "Your swap offer has been accepted by &6" + offeree);
 				game.swapColours();
 			} else {
-				game.alert(offerer, "Your swap offer has been declined by " + offeree);
+				game.alert(offerer, "Your swap offer has been declined by &6" + offeree);
 			}
 			break;
 		}
