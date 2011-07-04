@@ -93,6 +93,8 @@ public class Game {
 		map.put("moves", history);
 		map.put("started", started.getTime());
 		map.put("result", result);
+		map.put("promotionWhite", promotionPiece[Chess.WHITE]);
+		map.put("promotionBlack", promotionPiece[Chess.BLACK]);
 		
 		return map;
 	}
@@ -108,11 +110,13 @@ public class Game {
 		for (int m : hTmp) { history.add((short) m); } 
 		started.setTime((Long) map.get("started"));
 		result = (Integer) map.get("result");
+		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite");
+		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack");
 
 		setupChesspressoGame();
 
 		// Replay the move history to restore the saved board position.
-		// We do this instead of just saving the position so that the chesspresso Game model
+		// We do this instead of just saving the position so that the Chesspresso Game model
 		// includes a history of the moves, suitable for creating a PGN file.
 		try {
 			for (short move : history) {
@@ -188,7 +192,7 @@ public class Game {
 			throw new ChessException("Can only add players during game setup phase.");
 		}
 		if (!invited.equals("*") && !invited.equalsIgnoreCase(player.getName())) {
-			throw new ChessException("Player " + player.getName() + " doesn't have an invitation.");
+			throw new ChessException("You don't have an invitation for this game.");
 		}
 		String otherPlayer = null;
 		if (playerBlack.isEmpty()) {
@@ -210,12 +214,12 @@ public class Game {
 			throw new ChessException("Can't invite a player to a game you're not in!");
 		if (invited.equals(invitee.getName()))
 			return;
-		alert(invitee, "You have been invited to the chess game '" + getName() + "' by " + inviter.getName() + ".");
-		alert(invitee, "Type '/chess join' to join the game.");
+		alert(invitee, "You have been invited to this game by &6" + inviter.getName() + "&-.");
+		alert(invitee, "Type &f/chess join&- to join the game.");
 		if (!invited.isEmpty()) {
 			Player oldInvited = Bukkit.getServer().getPlayer(invited);
 			if (oldInvited != null)
-				alert(oldInvited, "Your invitation to chess game '" + getName() + "' has been withdrawn.");
+				alert(oldInvited, "Your invitation to chess game &6" + getName() + "&- has been withdrawn.");
 		}
 		invited = invitee.getName();
 	}
@@ -223,8 +227,8 @@ public class Game {
 	void inviteOpen(Player inviter) throws ChessException {
 		if (!isPlayerInGame(inviter))
 			throw new ChessException("Can't invite a player to a game you're not in!");
-		Bukkit.getServer().broadcastMessage(inviter.getName() + " has created an open invitation to a chess game.");
-		Bukkit.getServer().broadcastMessage("Type '/chess join " + getName() + "' to join.");
+		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: &6" + inviter.getName() + "&e has created an open invitation to a chess game.");
+		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: " + "Type &f/chess join " + getName() + "&e to join.");
 		invited = "*";
 	}
 		
@@ -241,8 +245,8 @@ public class Game {
 			throw new ChessException("There is no white player yet.");
 		if (playerBlack.isEmpty())
 			throw new ChessException("There is no black player yet.");
-		alert(playerWhite, "game started!  You are playing White.");
-		alert(playerBlack, "game started!  You are playing Black.");
+		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
+		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
 		state = GameState.RUNNING;
 	}
 	
@@ -315,12 +319,22 @@ public class Game {
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 				state = GameState.FINISHED;
 			} else {
-				alert(getPlayerToMove(), getColour(prevToMove) + " played [" + lastMove.getLAN() + "].");
-				alert(getPlayerToMove(), "It is your move (" + getColour(getPosition().getToPlay()) + ").");
+				String nextPlayer = getPlayerToMove();
+				if (isAIPlayer(nextPlayer)) {
+					// TODO: set AI to thinking above next move and add poll for move ready
+				} else {
+					alert(nextPlayer, "&f" + getColour(prevToMove) + "&- played [" + lastMove.getLAN() + "].");
+					alert(nextPlayer, "It is your move &f(" + getColour(getPosition().getToPlay()) + ")&-.");
+				}
 			}
 		} catch (IllegalMoveException e) {
 			throw e;
 		}
+	}
+	
+	boolean isAIPlayer(String name) {
+		// no support for AI players yet...
+		return false;
 	}
 	
 	String getPGNResult() {
@@ -340,28 +354,28 @@ public class Game {
 			String msg = "";
 			switch(rt) {
 			case Checkmate:
-				msg = p1 + " checkmated " + p2 + " in a game of Chess!"; break;
+				msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!"; break;
 			case Stalemate:
-				msg = p1 + " drew with " + p2 + " (stalemate) in a game of Chess!"; break;
+				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!"; break;
 			case DrawAgreed:
-				msg = p1 + " drew with " + p2 + " (draw agreed) in a game of Chess!"; break;
+				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!"; break;
 			case Resigned:
-				msg = p1 + " beat " + p2 + " (resigned) in a game of Chess!"; break;
+				msg ="&6" +  p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!"; break;
 			}
 			if (!msg.isEmpty())
-				Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: " + msg);
+				Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec(ChatColor.YELLOW + ":: " + msg));
 		} else {
 			switch(rt) {
 			case Checkmate:
-				alert(p1, "You checkmated " + p2 + "!");
-				alert(p2, "You were checkmated by " + p1 + "!");
+				alert(p1, "You checkmated &6" + p2 + "&-!");
+				alert(p2, "You were checkmated by &6" + p1 + "&-!");
 				break;
 			case Stalemate:
 				alert("Game is drawn - stalemate!");
 				break;
 			case Resigned:
-				alert(p1, p2 + " has resigned - you win!");
-				alert(p2, "You have resigned. " + p1 + " wins!");
+				alert(p1, "&6" + p2+ "&- has resigned - you win!");
+				alert(p2, "You have resigned. &6" + p1 + "&- wins!");
 				break;
 			case DrawAgreed:
 				alert("Game is drawn - draw agreed!");
@@ -389,7 +403,7 @@ public class Game {
 			
 			if (delTask != -1)
 				alert("This game will auto-delete in " + autoDel + " seconds.");
-			alert("Type '/chess archive' within " + autoDel + " seconds to save this game to PGN.");
+			alert("Type &f/chess archive&- within " + autoDel + " seconds to save this game to PGN.");
 		}
 	}
 	
@@ -398,6 +412,7 @@ public class Game {
 	private short checkMove(short move) throws IllegalMoveException {
 		int from = Move.getFromSqi(move);
 		int to = Move.getToSqi(move);
+		int toPlay = getPosition().getToPlay();
 		
 		if (getPosition().getPiece(from) == Chess.KING) {
 			// Castling?
@@ -405,11 +420,10 @@ public class Game {
 				move = Move.getShortCastle(getPosition().getToPlay());
 			else if (from == Chess.E1 && to == Chess.B1 || from == Chess.E8 && to == Chess.B8)
 				move = Move.getLongCastle(getPosition().getToPlay());
-		} else if (getPosition().getPiece(from) == Chess.PAWN && Chess.sqiToRow(to) == 7) {
+		} else if (getPosition().getPiece(from) == Chess.PAWN && Chess.sqiToRow(to) == 7 || Chess.sqiToRow(to) == 0) {
 			// Promotion?
 			boolean capturing = getPosition().getPiece(to) != Chess.NO_PIECE;
-			// TODO: allow player to specify the promotion piece
-			move = Move.getPawnMove(from, to, capturing, promotionPiece[getPosition().getToPlay()]);
+			move = Move.getPawnMove(from, to, capturing, promotionPiece[toPlay]);
 		} else if (getPosition().getPiece(from) == Chess.PAWN && getPosition().getPiece(to) == Chess.NO_PIECE) {
 			// En passant?
 			int toCol = Chess.sqiToCol(to);
@@ -456,10 +470,10 @@ public class Game {
 	}
 	
 	void alert(Player player, String message) {
-		player.sendMessage(ChatColor.GOLD + "::" + ChatColor.YELLOW + " Chess game '" + getName() + "': " + message);
+		plugin.alertMessage(player, "&6:: &-Chess game &6" + getName() + "&-: " + message);
 	}
 	void alert(String playerName, String message) {
-		if (playerName.isEmpty())
+		if (playerName.isEmpty() || isAIPlayer(playerName))
 			return;
 		Player p = Bukkit.getServer().getPlayer(playerName);
 		if (p != null) {

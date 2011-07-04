@@ -59,6 +59,8 @@ public class ChessCraft extends JavaPlugin {
 	final ChessPersistence persistence = new ChessPersistence(this);
 	final ExpectResponse expecter = new ExpectResponse();
 	
+	private static String prevColour = "";
+	
 	private int lightingTaskId;
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
@@ -258,21 +260,37 @@ public class ChessCraft extends JavaPlugin {
 	}
 	
 	void errorMessage(Player player, String string) {
+		prevColour = ChatColor.RED.toString();
 		message(player, string, ChatColor.RED, Level.WARNING);
 	}
 
 	void statusMessage(Player player, String string) {
+		prevColour = ChatColor.AQUA.toString();
 		message(player, string, ChatColor.AQUA, Level.INFO);
 	}
 	
 	void alertMessage(Player player, String string) {
 		if (player == null) return;
+		prevColour = ChatColor.YELLOW.toString();
 		message(player, string, ChatColor.YELLOW, Level.INFO);
+	}
+	
+	void generalMessage(Player player, String string) {
+		prevColour = ChatColor.WHITE.toString();
+		message(player, string, Level.INFO);
+	}
+	
+	private void message(Player player, String string, Level level) {
+		if (player != null) {
+			player.sendMessage(parseColourSpec(string));
+		} else {
+			log(level, string);
+		}
 	}
 	
 	private void message(Player player, String string, ChatColor colour, Level level) {
 		if (player != null) {
-			player.sendMessage(colour + string);
+			player.sendMessage(colour + parseColourSpec(string));
 		} else {
 			log(level, string);
 		}
@@ -391,8 +409,14 @@ public class ChessCraft extends JavaPlugin {
 		currentGame.put(playerName, game);
 	}
 	
-	Game getCurrentGame(Player player) {
-		return player == null ? null : currentGame.get(player.getName());
+	Game getCurrentGame(Player player) throws ChessException {
+		return getCurrentGame(player, false);
+	}
+	Game getCurrentGame(Player player, boolean verify) throws ChessException {
+		Game game = currentGame.get(player.getName());
+		if (verify && game == null)
+			throw new ChessException("No active game - set one with '/chess game <name>'");
+		return player == null ? null : game;
 	}
 	
 	Map<String,String> getCurrentGames() {
@@ -448,6 +472,11 @@ public class ChessCraft extends JavaPlugin {
 			loc.getWorld().getName()
 			+ ">";
 		return str;
+	}
+	
+	static String parseColourSpec(String spec) {
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
+		return res.replace("&-", prevColour).replace("&&", "&");
 	}
 
 	private void setupLightingTask(int initialDelay) {

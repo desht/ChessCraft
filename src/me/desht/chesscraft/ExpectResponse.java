@@ -16,7 +16,14 @@ class ExpectResponse {
 	}
 	
 	void expectingResponse(Player p, ExpectAction action, ExpectData data) {
-		exp.put(genKey(p, action), data);
+		expectingResponse(p, action, data, null);
+	}
+	void expectingResponse(Player p, ExpectAction action, ExpectData data, String expectee) {	
+		if (expectee != null) {
+			exp.put(genKey(expectee, action), data);
+		} else {
+			exp.put(genKey(p, action), data);
+		}
 		data.setAction(action);
 	}
 	
@@ -38,6 +45,9 @@ class ExpectResponse {
 	}
 	
 	private String genKey(Player p, ExpectAction action) {
-		return p + ":" + action.toString();
+		return p.getName() + ":" + action.toString();
+	}
+	private String genKey(String name, ExpectAction action) {
+		return name + ":" + action.toString();
 	}
 }

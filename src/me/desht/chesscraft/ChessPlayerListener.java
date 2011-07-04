@@ -58,6 +58,10 @@ public class ChessPlayerListener extends PlayerListener {
 			}
 		} catch (ChessException e) {
 			plugin.errorMessage(player, e.getMessage());
+			if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
+				plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
+				plugin.errorMessage(player, "Board creation cancelled.");
+			}
 		} catch (IllegalMoveException e) {
 			cancelMove(event);
 			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
@@ -86,9 +90,9 @@ public class ChessPlayerListener extends PlayerListener {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessCraft.pieceToStr(piece).toUpperCase();
-					plugin.statusMessage(player, "Selected your " + what + " at " + Chess.sqiToStr(sqi) + ".");
-					plugin.statusMessage(player, "- Right-click a square or another piece to move your " + what);
-					plugin.statusMessage(player, "- Right-click the " + what + " again to cancel.");
+					plugin.statusMessage(player, "Selected your &f" + what + "&- at &f" + Chess.sqiToStr(sqi) + "&-.");
+					plugin.statusMessage(player, "&5-&- Right-click a square or another piece to move your &f" + what);
+					plugin.statusMessage(player, "&5-&- Right-click the &f" + what + "&- again to cancel.");
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
@@ -111,9 +115,9 @@ public class ChessPlayerListener extends PlayerListener {
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player, sqi);
-			plugin.statusMessage(player, "You played " + game.getPosition().getLastMove().getLAN() + ".");
+			plugin.statusMessage(player, "You played &f[" + game.getPosition().getLastMove().getLAN() + "]&-.");
 		} else {
-			plugin.statusMessage(player, "Square [" + Chess.sqiToStr(sqi) + "], board '" + bv.getName() + "'");
+			plugin.statusMessage(player, "Square &6[" + Chess.sqiToStr(sqi) + "]&-, board &6" + bv.getName() + "&-");
 		}
 	}
 

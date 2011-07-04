@@ -383,15 +383,15 @@ public class BoardView implements PositionListener {
 	
 	// Return the bounds of the chess board - the innermost ring of the frame
 	Cuboid getBounds() {
-		Location a1 = rowColToWorldCenter(0, 0);
-		Location h8 = rowColToWorldCenter(7, 7);
+		Location a1 = rowColToWorldSW(0, 0);
+		Location h8 = rowColToWorldNE(7, 7);
 
 		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
 		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
 
 		World w = a1Square.getWorld();
 		int y = a1Square.getBlockY();
-		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, squareSize / 2 + 1);
+		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, 1);
 	}
 
 	Cuboid getOuterBounds() {
@@ -401,13 +401,13 @@ public class BoardView implements PositionListener {
 		return res;
 	}
 
-	// given a Chess row & col, get the location in world coords of that square's NE point (smallest X & Z)
+	// given a Chess row & col, get the location in world coords of that square's NE block (smallest X & Z)
 	Location rowColToWorldNE(int row, int col) {
 		return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
 	}
-	
-	Location rowColToWorldCenter(int row, int col) {
-		return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
+	// given a Chess row & col, get the location in world coords of that square's SW block (largest X & Z)
+	Location rowColToWorldSW(int row, int col) {
+		return rowColToWorld(row, col, 0 , 0);
 	}
 	
 	Location rowColToWorld(int row, int col, int xOff, int zOff) {
