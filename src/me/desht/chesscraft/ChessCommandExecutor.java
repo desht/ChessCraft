@@ -13,10 +13,7 @@ import me.desht.chesscraft.ExpectResponse.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
-import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-//import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
