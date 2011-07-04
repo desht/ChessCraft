@@ -186,6 +186,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void reloadCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.reload", Privilege.Admin);
 		
+		plugin.getConfiguration().load();
 		plugin.persistence.reload();
 		plugin.statusMessage(player, "Chess boards & games have been reloaded.");
 	}
@@ -510,22 +511,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "Board Style: " + w + bv.getBoardStyle());
 		messageBuffer.add(bullet + "Piece Style: " + w + bv.getPieceStyle());
 		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize() + 
-				" (" + matStr(bv.getWhiteSquareMat()) + "/" + matStr(bv.getBlackSquareMat()) + ")");
-		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + matStr(bv.getFrameMat()) + ")");
-		messageBuffer.add(bullet + "Enclosure: " + matStr(bv.getEnclosureMat()));
+				" (" + bv.getWhiteSquareMat() + "/" + bv.getBlackSquareMat() + ")");
+		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
+		messageBuffer.add(bullet + "Enclosure: " + w + bv.getEnclosureMat());
 		messageBuffer.add(bullet + "Height: " + w + bv.getHeight());
 		messageBuffer.add(bullet + "Lit: " + w + bv.getIsLit());
 		
 		pagedDisplay(player, 1);
 	}
 
-	private String matStr(MaterialWithData m) {
-		String s = Material.getMaterial(m.material).toString();
-		if (m.material == 35)	// wool
-			s = s + ":" + DyeColor.getByData(m.data).toString(); 
-		return s;
-	}
-	
 	private void listBoards(Player player) {
 		messageBuffer.clear();
 		for (BoardView bv: plugin.listBoardViews()) {

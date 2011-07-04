@@ -43,5 +43,13 @@ public class MaterialWithData {
 		}
 		return new MaterialWithData(mat, data);
 	}
+	
+	@Override
+	public String toString() {
+		String s = Material.getMaterial(material).toString();
+		if (material == 35)	// wool
+			s = s + ":" + DyeColor.getByData(data).toString(); 
+		return s;
+	}
 }
 
