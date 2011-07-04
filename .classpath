@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="var" path="LOCAL_JARS/bukkit-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/bukkit-0.0.1-SNAPSHOT.jar" sourcepath="/BUKKIT_SRC"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Permissions.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Chesspresso-lib.jar"/>
 	<classpathentry kind="output" path="bin"/>
