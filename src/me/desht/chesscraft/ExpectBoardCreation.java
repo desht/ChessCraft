@@ -23,11 +23,10 @@ public class ExpectBoardCreation extends ExpectData {
 	@Override
 	void doResponse(Player player) throws ChessException {
 		if (!plugin.checkBoardView(boardName)) {
-//			System.out.println("name=" + boardName + " plugin=" + plugin + " loc=" + loc + " style=" + style);
 			BoardView view = new BoardView(boardName, plugin, loc, style);
 			plugin.addBoardView(boardName, view);
 			view.paintAll();
-			plugin.statusMessage(player, "Board '" + boardName + "' has been created at " + ChessCraft.formatLoc(view.getA1Square()) + ".");
+			plugin.statusMessage(player, "Board &6" + boardName + "&- has been created at " + ChessCraft.formatLoc(view.getA1Square()) + ".");
 		} else {
 			plugin.errorMessage(player, "Board '" + boardName + "' already exists.");
 		}
