@@ -107,6 +107,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 	
 	private void fenCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.fen", Privilege.Admin);
+		
 		if (args.length < 2)
 			return;
 		Game game = plugin.getCurrentGame(player, true);
