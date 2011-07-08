@@ -88,6 +88,8 @@ public class ChessCommandExecutor implements CommandExecutor {
     				setcfgCommand(player, args);
     			} else if (partialMatch(args[0], "get")) {	// getcfg
     				getcfgCommand(player, args);
+    			} else if (partialMatch(args[0], "fen")) {	// fen
+    				fenCommand(player, args);
     			} else {
     				return false;
     			}
@@ -104,6 +106,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return true;
 	}
 	
+	private void fenCommand(Player player, String[] args) throws ChessException {
+		if (args.length < 2)
+			return;
+		Game game = plugin.getCurrentGame(player, true);
+		
+		game.setFen(combine(args, 1));
+		
+		plugin.statusMessage(player, "Game position for &6" + game.getName() + "&- has been updated.");
+		plugin.statusMessage(player, "&f" + Game.getColour(game.getPosition().getToPlay()) + "&- to play.");
+	}
+
 	private void gameCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.game", Privilege.Basic);
 		

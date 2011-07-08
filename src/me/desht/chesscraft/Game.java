@@ -420,7 +420,7 @@ public class Game {
 				move = Move.getShortCastle(getPosition().getToPlay());
 			else if (from == Chess.E1 && to == Chess.B1 || from == Chess.E8 && to == Chess.B8)
 				move = Move.getLongCastle(getPosition().getToPlay());
-		} else if (getPosition().getPiece(from) == Chess.PAWN && Chess.sqiToRow(to) == 7 || Chess.sqiToRow(to) == 0) {
+		} else if (getPosition().getPiece(from) == Chess.PAWN && (Chess.sqiToRow(to) == 7 || Chess.sqiToRow(to) == 0)) {
 			// Promotion?
 			boolean capturing = getPosition().getPiece(to) != Chess.NO_PIECE;
 			move = Move.getPawnMove(from, to, capturing, promotionPiece[toPlay]);
@@ -546,4 +546,8 @@ public class Game {
              + getRights("00" + (cal.get(Calendar.MONTH) + 1), 2) + "."
              + getRights("00" + cal.get(Calendar.DAY_OF_MONTH), 2);
     }
+
+	void setFen(String fen) {
+		getPosition().set(new Position(fen));
+	}
 }
