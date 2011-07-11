@@ -31,7 +31,6 @@ public class Game {
 	private static final String archiveDir = "pgn";
 	private ChessCraft plugin;
 	private String name;
-//	private Position position;
 	private chesspresso.game.Game cpGame;
 	private BoardView view;
 	private String playerWhite, playerBlack;
@@ -40,24 +39,28 @@ public class Game {
 	private GameState state;
 	private int fromSquare;
 	private Date started;
+	private Date lastCheck;
+	private int timeWhite, timeBlack;
 	private List<Short> history;
 	private int delTask;
 	private int result;
 	
-	Game(ChessCraft plugin, String name, BoardView view, Player player) throws ChessException {
+	Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
 		this.view = view;
 		this.name = name;
 		if (view.getGame() != null)
 			throw new ChessException("That board already has a game on it.");
 		view.setGame(this);
-		playerWhite = player == null ? "" : player.getName();
+		playerWhite = playerName == null ? "" : playerName;
 		playerBlack = "";
+		timeWhite = timeBlack = 0;
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		history = new ArrayList<Short>();
-		started = new Date();
+		started = new Date(); 
+		lastCheck = new Date();
 		result = Chess.RES_NOT_FINISHED;
 
 		setupChesspressoGame();
@@ -95,6 +98,8 @@ public class Game {
 		map.put("result", result);
 		map.put("promotionWhite", promotionPiece[Chess.WHITE]);
 		map.put("promotionBlack", promotionPiece[Chess.BLACK]);
+		map.put("timeWhite", timeWhite);
+		map.put("timeBlack", timeBlack);
 		
 		return map;
 	}
@@ -112,7 +117,10 @@ public class Game {
 		result = (Integer) map.get("result");
 		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite");
 		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack");
-
+		if (map.containsKey("timeWhite")) {
+			timeWhite = (Integer) map.get("timeWhite");
+			timeBlack = (Integer) map.get("timeBlack");
+		}
 		setupChesspressoGame();
 
 		// Replay the move history to restore the saved board position.
@@ -151,6 +159,14 @@ public class Game {
 		return playerBlack;
 	}
 
+	int getTimeWhite() {
+		return timeWhite;
+	}
+
+	int getTimeBlack() {
+		return timeBlack;
+	}
+
 	String getInvited() {
 		return invited;
 	}
@@ -179,7 +195,28 @@ public class Game {
 		return name.equals(playerWhite) ? playerBlack : playerWhite;
 	}
 
+	void clockTick() {
+		if (state != GameState.RUNNING)
+			return;
+
+		Date now = new Date();
+		long diff = now.getTime() - lastCheck.getTime();
+		lastCheck.setTime(now.getTime());
+		if (getPosition().getToPlay() == Chess.WHITE) {
+			timeWhite += diff;
+		} else {
+			timeBlack += diff;
+		}
+		
+		checkForAIResponse();
+	}
+	
+	private void checkForAIResponse() {
+		// TODO: STUB method for when we add AI
+	}
+
 	void swapColours() {
+		clockTick();
 		String tmp = playerWhite;
 		playerWhite = playerBlack;
 		playerBlack = tmp;
@@ -187,47 +224,45 @@ public class Game {
 		alert(playerBlack, "Side swap!  You are now playing Black.");
 	}
 	
-	void addPlayer(Player player) throws ChessException {
+	void addPlayer(String playerName) throws ChessException {
 		if (state != GameState.SETTING_UP) {
 			throw new ChessException("Can only add players during game setup phase.");
 		}
-		if (!invited.equals("*") && !invited.equalsIgnoreCase(player.getName())) {
+		if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
 			throw new ChessException("You don't have an invitation for this game.");
 		}
 		String otherPlayer = null;
 		if (playerBlack.isEmpty()) {
-			playerBlack = player.getName();
+			playerBlack = playerName;
 			otherPlayer = playerWhite;
 		} else if (playerWhite.isEmpty()) {
-			playerWhite = player.getName();
+			playerWhite = playerName;
 			otherPlayer = playerBlack;
 		} else {
 			throw new ChessException("This game already has two players.");
 		}
 		
-		alert(otherPlayer, player.getName() + " has joined your game.");
+		alert(otherPlayer, playerName + " has joined your game.");
 		clearInvitation();
 	}
 	
-	void invitePlayer(Player inviter, Player invitee) throws ChessException {
+	void invitePlayer(String inviter, String invitee) throws ChessException {
 		if (!isPlayerInGame(inviter))
 			throw new ChessException("Can't invite a player to a game you're not in!");
-		if (invited.equals(invitee.getName()))
+		if (invited.equals(invitee))
 			return;
-		alert(invitee, "You have been invited to this game by &6" + inviter.getName() + "&-.");
+		alert(invitee, "You have been invited to this game by &6" + inviter + "&-.");
 		alert(invitee, "Type &f/chess join&- to join the game.");
 		if (!invited.isEmpty()) {
-			Player oldInvited = Bukkit.getServer().getPlayer(invited);
-			if (oldInvited != null)
-				alert(oldInvited, "Your invitation to chess game &6" + getName() + "&- has been withdrawn.");
+			alert(invited, "Your invitation to chess game &6" + getName() + "&- has been withdrawn.");
 		}
-		invited = invitee.getName();
+		invited = invitee;
 	}
 	
-	void inviteOpen(Player inviter) throws ChessException {
-		if (!isPlayerInGame(inviter))
+	void inviteOpen(String inviterName) throws ChessException {
+		if (!isPlayerInGame(inviterName))
 			throw new ChessException("Can't invite a player to a game you're not in!");
-		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: &6" + inviter.getName() + "&e has created an open invitation to a chess game.");
+		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: &6" + inviterName + "&e has created an open invitation to a chess game.");
 		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: " + "Type &f/chess join " + getName() + "&e to join.");
 		invited = "*";
 	}
@@ -236,10 +271,10 @@ public class Game {
 		invited = "";
 	}
 	
-	void start(Player p) throws ChessException {
+	void start(String playerName) throws ChessException {
 		if (state != GameState.SETTING_UP) 
 			throw new ChessException("This game has already been started!");
-		if (!isPlayerInGame(p))
+		if (!isPlayerInGame(playerName))
 			throw new ChessException("Can't start a game you're not in!");
 		if (playerWhite.isEmpty())
 			throw new ChessException("There is no white player yet.");
@@ -250,12 +285,12 @@ public class Game {
 		state = GameState.RUNNING;
 	}
 	
-	void resign(Player p) throws ChessException {
-		if (!isPlayerInGame(p))
+	void resign(String playerName) throws ChessException {
+		if (!isPlayerInGame(playerName))
 			throw new ChessException("Can't resign a game you're not in!");
 		state = GameState.FINISHED;
 		String winner;
-		String loser = p.getName();
+		String loser = playerName;
 		if (loser.equalsIgnoreCase(playerWhite)) {
 			winner = playerBlack;
 			cpGame.setTag(PGN.TAG_RESULT, "0-1");
@@ -268,14 +303,14 @@ public class Game {
 		announceResult(winner, loser, ResultType.Resigned);
 	}
 	
-	void setPromotionPiece(Player p, int piece) throws ChessException {
+	void setPromotionPiece(String playerName, int piece) throws ChessException {
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT)
 			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
-		if (!isPlayerInGame(p))
+		if (!isPlayerInGame(playerName))
 			throw new ChessException("Can't set promotion piece for a game you're not in!");
-		if (p.getName().equals(playerWhite))
+		if (playerName.equals(playerWhite))
 			promotionPiece[Chess.WHITE] = piece;
-		if (p.getName().equals(playerBlack))
+		if (playerName.equals(playerBlack))
 			promotionPiece[Chess.BLACK] = piece;	
 	}
 	
@@ -286,16 +321,16 @@ public class Game {
 		announceResult(playerWhite, playerBlack, ResultType.DrawAgreed);
 	}
 	
-	// Do a move for Player p to toSquare.  fromSquare is already set, either from 
+	// Do a move for playerName to toSquare.  fromSquare is already set, either from 
 	// command-line, or from clicking a piece
-	void doMove(Player p, int toSquare) throws IllegalMoveException, ChessException {
+	void doMove(String playerName, int toSquare) throws IllegalMoveException, ChessException {
 		if (fromSquare == Chess.NO_SQUARE) {
 			return;
 		}
 		if (state != GameState.RUNNING) {
 			throw new ChessException("Chess game '" + getName() + "': Game is not running!");
 		}
-		if (!p.getName().equals(getPlayerToMove())) {
+		if (!playerName.equals(getPlayerToMove())) {
 			throw new ChessException("Chess game '" + getName() + "': It is not your move!");
 		}
 		
@@ -308,6 +343,7 @@ public class Game {
 			Move lastMove = getPosition().getLastMove();
 			fromSquare = Chess.NO_SQUARE;
 			history.add(realMove);
+			clockTick();
 			if (getPosition().isMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Checkmate);
 				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0");
@@ -469,15 +505,12 @@ public class Game {
 		}
 	}
 	
-	void alert(Player player, String message) {
-		plugin.alertMessage(player, "&6:: &-Chess game &6" + getName() + "&-: " + message);
-	}
 	void alert(String playerName, String message) {
 		if (playerName.isEmpty() || isAIPlayer(playerName))
 			return;
 		Player p = Bukkit.getServer().getPlayer(playerName);
 		if (p != null) {
-			alert(p, message);
+			plugin.alertMessage(p, "&6:: &-Chess game &6" + getName() + "&-: " + message);
 		}
 	}
 	void alert(String message) {
@@ -493,12 +526,12 @@ public class Game {
 		return getPosition().getToPlay() == Chess.BLACK ? playerWhite : playerBlack;
 	}
 
-	Boolean isPlayerInGame(Player p) {
-		return (p.getName().equalsIgnoreCase(playerWhite) || p.getName().equalsIgnoreCase(playerBlack));
+	Boolean isPlayerInGame(String playerName) {
+		return (playerName.equalsIgnoreCase(playerWhite) || playerName.equalsIgnoreCase(playerBlack));
 	}
 	
-	Boolean isPlayerToMove(Player p) {
-		return p.getName().equalsIgnoreCase(getPlayerToMove());
+	Boolean isPlayerToMove(String playerName) {
+		return playerName.equalsIgnoreCase(getPlayerToMove());
 	}
 
 	File writePGN(boolean force) throws ChessException {

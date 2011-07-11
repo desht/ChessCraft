@@ -208,10 +208,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.requirePerms(player, "chesscraft.commands.start", Privilege.Basic);
 		
 		if (args.length >= 2) {
-			plugin.getGame(args[1]).start(player);
+			plugin.getGame(args[1]).start(player.getName());
 		} else {
 			Game game = plugin.getCurrentGame(player, true);
-			game.start(player);
+			game.start(player.getName());
 		}
 	}
 
@@ -219,10 +219,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.requirePerms(player, "chesscraft.commands.resign", Privilege.Basic);
 		
 		if (args.length >= 2) {
-			plugin.getGame(args[1]).resign(player);
+			plugin.getGame(args[1]).resign(player.getName());
 		} else {
 			Game game = plugin.getCurrentGame(player, true);
-			game.resign(player);
+			game.resign(player.getName());
 		}
 	}
 
@@ -251,7 +251,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			return;
 		}
 		game.setFromSquare(from);
-		game.doMove(player, to);
+		game.doMove(player.getName(), to);
 	}
 
 	private void inviteCommand(Player player, String[] args) throws ChessException {
@@ -261,14 +261,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (args.length >= 2) {
 			Player invitee = plugin.getServer().getPlayer(args[1]);
 			if (invitee != null) {
-				game.invitePlayer(player, invitee);
+				game.invitePlayer(player.getName(), invitee.getName());
 				plugin.statusMessage(player, "An invitation has been sent to &6" + args[1] + "&-.");
 			} else {
 				game.clearInvitation();
 				plugin.errorMessage(player, args[1] + " is not online.");
 			}
 		} else {
-			game.inviteOpen(player);
+			game.inviteOpen(player.getName());
 		}
 	}
 
@@ -278,12 +278,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String gameName = null;
 		if (args.length >= 2) {
 			gameName = args[1];
-			plugin.getGame(gameName).addPlayer(player);
+			plugin.getGame(gameName).addPlayer(player.getName());
 		} else {
 			// find a game with an invitation for us
 			for (Game game : plugin.listGames()) {
 				if (game.getInvited().equalsIgnoreCase(player.getName())) {
-					game.addPlayer(player);
+					game.addPlayer(player.getName());
 					gameName = game.getName();
 					break;
 				}
@@ -417,7 +417,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (args.length >= 2) {
 			Game game = plugin.getCurrentGame(player, true);
 			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
-			game.setPromotionPiece(player, piece);
+			game.setPromotionPiece(player.getName(), piece);
 			plugin.statusMessage(player, "Promotion piece for game &6" + game.getName() + "&- has been set to " + ChessCraft.pieceToStr(piece).toUpperCase());
 		}
 	}
@@ -490,6 +490,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6" + game.getView().getName());
 		messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
 		messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
+		if (game.getState() == GameState.RUNNING) {
+			messageBuffer.add(bullet + "Clock: White: " + secondsToHMS(game.getTimeWhite()) + ", Black: " + secondsToHMS(game.getTimeBlack()));
+		}
 		if (game.getInvited().equals("*"))
 			messageBuffer.add(bullet + "Game has an open invitation");
 		else if (!game.getInvited().isEmpty()) 
@@ -506,6 +509,16 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 		
 		pagedDisplay(player, 1);
+	}
+	
+	private String secondsToHMS(int n) {
+		n /= 1000;
+		
+		int secs = n % 60;
+		int hrs = n / 3600;
+		int mins = (n - (hrs * 3600)) / 60;
+		
+		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs);
 	}
 
 	private void showBoardDetail(Player player, String boardName) throws ChessException {
@@ -553,7 +566,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (gameName == null)
 			gameName = makeGameName(player);
 		
-		Game game = new Game(plugin, gameName, bv, player);
+		Game game = new Game(plugin, gameName, bv, player.getName());
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
 		plugin.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");

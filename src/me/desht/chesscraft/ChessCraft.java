@@ -65,7 +65,7 @@ public class ChessCraft extends JavaPlugin {
 	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("autosave", true);
-		put("lighting_interval", 10);
+		put("tick_interval", 1);
 		put("broadcast_results", true);
 		put("auto_delete_finished", 30);
 		put("no_building", true);
@@ -79,6 +79,9 @@ public class ChessCraft extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		for (Game game : listGames()) {
+			game.clockTick();
+		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
 		logger.info(description.getName() + " version " + description.getVersion() + " is disabled!");
@@ -106,7 +109,7 @@ public class ChessCraft extends JavaPlugin {
 				
 		persistence.reload();
 		
-		setupLightingTask(5);
+		setupLightingTask(2);
 		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
@@ -488,7 +491,10 @@ public class ChessCraft extends JavaPlugin {
 				for (BoardView bv: listBoardViews()) {
 					bv.doLighting();
 				}
+				for (Game game: listGames()) {
+					game.clockTick();
+				}
 			}
-		}, 20L * initialDelay, 20L * getConfiguration().getInt("lighting_interval", 10));
+		}, 20L * initialDelay, 20L * getConfiguration().getInt("tick_interval", 1));
 	}
 }

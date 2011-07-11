@@ -131,7 +131,7 @@ public class ChessPlayerListener extends PlayerListener {
 		if (game == null || game.getState() != GameState.RUNNING)
 			return;
 		
-		if (game.isPlayerToMove(player)) {
+		if (game.isPlayerToMove(player.getName())) {
 			if (game.getFromSquare() == Chess.NO_SQUARE) {
 				int sqi = game.getView().getSquareAt(loc);
 				int colour = game.getPosition().getColor(sqi);
@@ -149,11 +149,11 @@ public class ChessPlayerListener extends PlayerListener {
 					game.setFromSquare(Chess.NO_SQUARE);
 					plugin.statusMessage(player, "Move cancelled.");
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
-					game.doMove(player, sqi);
+					game.doMove(player.getName(), sqi);
 					plugin.statusMessage(player, "You played " + game.getPosition().getLastMove().getLAN() + ".");
 				}
 			}
-		} else if (game.isPlayerInGame(player)) {
+		} else if (game.isPlayerInGame(player.getName())) {
 			plugin.errorMessage(player, "It is not your turn!");
 		}
 	}
@@ -163,7 +163,7 @@ public class ChessPlayerListener extends PlayerListener {
 		int sqi = bv.getSquareAt(loc);
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
-			game.doMove(player, sqi);
+			game.doMove(player.getName(), sqi);
 			plugin.statusMessage(player, "You played &f[" + game.getPosition().getLastMove().getLAN() + "]&-.");
 		} else {
 			plugin.statusMessage(player, "Square &6[" + Chess.sqiToStr(sqi) + "]&-, board &6" + bv.getName() + "&-");
