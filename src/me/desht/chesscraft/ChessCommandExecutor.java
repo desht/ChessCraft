@@ -117,6 +117,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		
 		plugin.statusMessage(player, "Game position for &6" + game.getName() + "&- has been updated.");
 		plugin.statusMessage(player, "&f" + Game.getColour(game.getPosition().getToPlay()) + "&- to play.");
+		plugin.statusMessage(player, "&4NOTE: &-move history invalidated, this game can no longer be saved.");
 	}
 
 	private void gameCommand(Player player, String[] args) throws ChessException {

@@ -72,6 +72,7 @@ public class ChessCraft extends JavaPlugin {
 		put("no_creatures", true);
 		put("no_explosions", true);
 		put("no_burning", true);
+		put("wand_item", "air");
 	}};
 	
 	/*-----------------------------------------------------------------*/
@@ -97,6 +98,7 @@ public class ChessCraft extends JavaPlugin {
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);

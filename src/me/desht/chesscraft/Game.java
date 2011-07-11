@@ -549,5 +549,7 @@ public class Game {
 
 	void setFen(String fen) {
 		getPosition().set(new Position(fen));
+		// manually overriding the position invalidates the move history
+		getHistory().clear();
 	}
 }

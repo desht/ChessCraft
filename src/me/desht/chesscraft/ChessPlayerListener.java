@@ -2,6 +2,7 @@ package me.desht.chesscraft;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,9 +10,12 @@ import me.desht.chesscraft.ExpectResponse.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerListener;
 
@@ -42,8 +46,10 @@ public class ChessPlayerListener extends PlayerListener {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
 					plugin.statusMessage(player, "Board creation cancelled.");
 				} else if ((bv = plugin.onChessBoard(loc)) != null) {
+					deprecationWarning(player);
 					boardClicked(player, loc, bv);
 				} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
+					deprecationWarning(player);
 					pieceClicked(player, loc, bv);
 				} else {
 					// nothing?
@@ -63,15 +69,58 @@ public class ChessPlayerListener extends PlayerListener {
 				plugin.errorMessage(player, "Board creation cancelled.");
 			}
 		} catch (IllegalMoveException e) {
-			cancelMove(event);
+			cancelMove(event.getClickedBlock().getLocation());
 			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
 		}
 	}
 
-	private void cancelMove(PlayerInteractEvent event) {
-		BoardView bv = plugin.onChessBoard(event.getClickedBlock().getLocation());
+	private void deprecationWarning(Player player) {
+		plugin.statusMessage(player, "&4WARNING: &-right-clicking is deprecated and will be removed soon.");
+		String wand = plugin.getConfiguration().getString("wand_item");
+		int wandId = new MaterialWithData(wand).material;
+		plugin.statusMessage(player, "Left-click while holding " + Material.getMaterial(wandId) + " to select & move.");
+	}
+
+	@Override
+	public void onPlayerAnimation(PlayerAnimationEvent event) {	
+		Player player = event.getPlayer();
+		
+		Block targetBlock = null;
+		
+		try {
+			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
+				String wand = plugin.getConfiguration().getString("wand_item");
+				int wandId = new MaterialWithData(wand).material;
+				if (player.getItemInHand().getTypeId() == wandId) {
+					HashSet<Byte> transparent = new HashSet<Byte>();
+					transparent.add((byte) 0);	// air
+					transparent.add((byte) 20);	// glass
+					targetBlock = player.getTargetBlock(transparent, 100);
+					Location loc = targetBlock.getLocation();
+					BoardView bv;
+					if ((bv = plugin.onChessBoard(loc)) != null) {
+						boardClicked(player, loc, bv);
+					} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
+						pieceClicked(player, loc, bv);
+					}
+				}
+			}
+		} catch (ChessException e) {
+			plugin.errorMessage(player, e.getMessage());
+		} catch (IllegalMoveException e) {
+			if (targetBlock != null) {
+				cancelMove(targetBlock.getLocation());
+			}
+			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
+		}
+		
+	}
+	
+	
+	private void cancelMove(Location loc) {
+		BoardView bv = plugin.onChessBoard(loc);
 		if (bv == null) 
-			bv = plugin.aboveChessBoard(event.getClickedBlock().getLocation());
+			bv = plugin.aboveChessBoard(loc);
 		if (bv != null && bv.getGame() != null) {
 			bv.getGame().setFromSquare(Chess.NO_SQUARE);
 		}
@@ -91,8 +140,8 @@ public class ChessPlayerListener extends PlayerListener {
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessCraft.pieceToStr(piece).toUpperCase();
 					plugin.statusMessage(player, "Selected your &f" + what + "&- at &f" + Chess.sqiToStr(sqi) + "&-.");
-					plugin.statusMessage(player, "&5-&- Right-click a square or another piece to move your &f" + what);
-					plugin.statusMessage(player, "&5-&- Right-click the &f" + what + "&- again to cancel.");
+					plugin.statusMessage(player, "&5-&- Left-click a square or another piece to move your &f" + what);
+					plugin.statusMessage(player, "&5-&- Left-click the &f" + what + "&- again to cancel.");
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
