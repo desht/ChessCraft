@@ -12,6 +12,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
@@ -60,6 +61,11 @@ public class ChessPlayerListener extends PlayerListener {
 					a.setLocation(b.getLocation());
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					return;
+				} else {
+					BoardView bv = plugin.partOfChessBoard(b.getLocation());
+					if (bv != null && b.getState() instanceof Sign) {
+						signClicked(player, b, bv);
+					} 
 				}
 			}
 		} catch (ChessException e) {
@@ -71,6 +77,27 @@ public class ChessPlayerListener extends PlayerListener {
 		} catch (IllegalMoveException e) {
 			cancelMove(event.getClickedBlock().getLocation());
 			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
+		}
+	}
+
+	private void signClicked(Player player, Block b, BoardView bv) throws ChessException {
+		Sign s = (Sign) b.getState();
+		if (s.getLine(1).endsWith("Create Game")) {
+			plugin.getCommandExecutor().tryCreateGame(player, null, bv.getName());
+		} else if (s.getLine(1).endsWith("Start Game")) {
+			if (bv.getGame() != null)
+				bv.getGame().start(player.getName());
+		} else if (s.getLine(1).endsWith("Resign")) {
+			if (bv.getGame() != null)
+				bv.getGame().resign(player.getName());
+		} else if (s.getLine(1).endsWith("Offer Draw")) {
+			if (bv.getGame() != null)
+				plugin.getCommandExecutor().tryOfferDraw(player, bv.getGame());
+		} else if (s.getLine(1).endsWith("Show Info")) {
+			if (bv.getGame() != null)
+				plugin.getCommandExecutor().showGameDetail(player, bv.getGame().getName());
+		} else if (s.getLine(1).endsWith("Teleport Out")) {
+			plugin.getCommandExecutor().tryTeleportOut(player);
 		}
 	}
 
@@ -102,6 +129,12 @@ public class ChessPlayerListener extends PlayerListener {
 						boardClicked(player, loc, bv);
 					} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
 						pieceClicked(player, loc, bv);
+					} else if ((bv = plugin.partOfChessBoard(loc)) != null) {
+						if (bv.isControlPanel(loc)) {
+							Location corner = bv.getBounds().getUpperSW();
+							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(), corner.getY() + 1, corner.getZ() - 2.5);
+							player.teleport(loc2);
+						}
 					}
 				}
 			}

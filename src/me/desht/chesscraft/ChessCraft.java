@@ -497,4 +497,20 @@ public class ChessCraft extends JavaPlugin {
 			}
 		}, 20L * initialDelay, 20L * getConfiguration().getInt("tick_interval", 1));
 	}
+	
+	// Generate a game name based on the player's name and a possible index number
+	String makeGameName(Player player) {
+		String base = player.getName();
+		String res;
+		int n = 1;
+		do {
+			res = base + "-" + n++;
+		} while (checkGame(res));
+		
+		return res;
+	}
+
+	ChessCommandExecutor getCommandExecutor() {
+		return commandExecutor;
+	}
 }

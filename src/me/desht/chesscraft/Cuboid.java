@@ -22,6 +22,11 @@ public class Cuboid implements Iterable<Location> {
 		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()), Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
 	}
 	
+	Cuboid(Location l1) {
+		lowerNE = new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+		upperSW = new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+	}
+	
 	public Location getLowerNE() {
 		return lowerNE;
 	}

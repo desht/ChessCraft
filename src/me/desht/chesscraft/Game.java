@@ -26,7 +26,7 @@ import chesspresso.position.Position;
 
 public class Game {
 	enum ResultType {
-		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned
+		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned, FiftyMoveRule
 	}
 	private static final String archiveDir = "pgn";
 	private ChessCraft plugin;
@@ -204,8 +204,10 @@ public class Game {
 		lastCheck.setTime(now.getTime());
 		if (getPosition().getToPlay() == Chess.WHITE) {
 			timeWhite += diff;
+			getView().updateClock(Chess.WHITE, timeWhite);
 		} else {
 			timeBlack += diff;
+			getView().updateClock(Chess.BLACK, timeBlack);
 		}
 		
 		checkForAIResponse();
@@ -286,6 +288,8 @@ public class Game {
 	}
 	
 	void resign(String playerName) throws ChessException {
+		if (state != GameState.RUNNING)
+			throw new ChessException("The game has not yet started.");
 		if (!isPlayerInGame(playerName))
 			throw new ChessException("Can't resign a game you're not in!");
 		state = GameState.FINISHED;
@@ -354,6 +358,11 @@ public class Game {
 				result = Chess.RES_DRAW;
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 				state = GameState.FINISHED;
+			} else if (getPosition().getHalfMoveClock() >= 50) {
+				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.FiftyMoveRule);
+				result = Chess.RES_DRAW;
+				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
+				state = GameState.FINISHED;
 			} else {
 				String nextPlayer = getPlayerToMove();
 				if (isAIPlayer(nextPlayer)) {
@@ -393,6 +402,8 @@ public class Game {
 				msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!"; break;
 			case Stalemate:
 				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!"; break;
+			case FiftyMoveRule:
+				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!"; break;
 			case DrawAgreed:
 				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!"; break;
 			case Resigned:
@@ -584,5 +595,15 @@ public class Game {
 		getPosition().set(new Position(fen));
 		// manually overriding the position invalidates the move history
 		getHistory().clear();
+	}
+	
+	static String secondsToHMS(int n) {
+		n /= 1000;
+		
+		int secs = n % 60;
+		int hrs = n / 3600;
+		int mins = (n - (hrs * 3600)) / 60;
+		
+		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs);
 	}
 }
