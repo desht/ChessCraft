@@ -130,12 +130,12 @@ public class ChessPlayerListener extends PlayerListener {
 		for (Game game : plugin.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.playerRejoined(who);
-				game.alert(who + " is back in the game!");
+				game.alert(game.getOtherPlayer(who), who + " is back in the game!");
 				games = games + " " + game.getName();
 			}
 		}
-		
-		plugin.alertMessage(event.getPlayer(), "Your current chess games: " + games);
+		if (!games.isEmpty())
+			plugin.alertMessage(event.getPlayer(), "Your current chess games: " + games);
 	}
 	
 	@Override
