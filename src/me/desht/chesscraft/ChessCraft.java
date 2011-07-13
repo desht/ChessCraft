@@ -118,9 +118,26 @@ public class ChessCraft extends JavaPlugin {
 		
 		setupLightingTask(2);
 		
+		// if upgrading from 0.1, control panels may need to be drawn on the boards
+		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+			@Override
+			public void run() {
+				checkControlPanelCreation();
+			}
+		})==-1) {
+			log(Level.WARNING, "Couldn't schedule startup tasks - multiworld support might not work.");
+			checkControlPanelCreation();	
+		}
+		
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
+	private void checkControlPanelCreation() {
+		for (BoardView bv : listBoardViews()) {
+			bv.checkControlPanel();
+		}
+	}
+	
 	private void setupDefaultStructure() {
 		log(Level.INFO, "Performing first-time setup");
 		try {

@@ -307,6 +307,7 @@ public class BoardView implements PositionListener {
 		for (Location l : controlPanel) {
 			ChessCraft.setBlock(w.getBlockAt(l), frameMat);
 		}
+		toPlayChanged(Chess.WHITE);
 		MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte)0x2);
 		ChessCraft.setBlock(halfMoveClockSign.getBlock(), eastFacingWallSign);
 		halfMoveClockChanged(game == null ? 0 : game.getPosition().getHalfMoveClock());
@@ -336,6 +337,14 @@ public class BoardView implements PositionListener {
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Teleport Out", eastFacingWallSign);
 	}
 	
+	// Check if the control panel is present and draw it if necessary
+	// (will be missing if upgrading from v0.1)
+	void checkControlPanel() {
+		if (controlPanel.getUpperSW().getBlock().getTypeId() != frameMat.material) {
+			paintControlPanel();
+		}
+	}
+
 	private void makeSign(Block block, int index, String string, MaterialWithData m) {
 		ChessCraft.setBlock(block, m);
 		if (block.getState() instanceof Sign) {
