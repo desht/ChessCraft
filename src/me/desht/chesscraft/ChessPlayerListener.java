@@ -82,26 +82,27 @@ public class ChessPlayerListener extends PlayerListener {
 
 	private void signClicked(Player player, Block b, BoardView bv) throws ChessException {
 		Sign s = (Sign) b.getState();
+		Game game = bv.getGame();
 		if (s.getLine(1).endsWith("Create Game")) {
 			plugin.getCommandExecutor().tryCreateGame(player, null, bv.getName());
 		} else if (s.getLine(1).endsWith("Start Game")) {
-			if (bv.getGame() != null)
-				bv.getGame().start(player.getName());
+			if (game != null)
+				game.start(player.getName());
 		} else if (s.getLine(1).endsWith("Resign")) {
-			if (bv.getGame() != null)
-				bv.getGame().resign(player.getName());
+			if (game != null)
+				game.resign(player.getName());
 		} else if (s.getLine(1).endsWith("Offer Draw")) {
-			if (bv.getGame() != null)
-				plugin.getCommandExecutor().tryOfferDraw(player, bv.getGame());
+			if (game != null)
+				plugin.getCommandExecutor().tryOfferDraw(player,game);
 		} else if (s.getLine(1).endsWith("Show Info")) {
-			if (bv.getGame() != null)
-				plugin.getCommandExecutor().showGameDetail(player, bv.getGame().getName());
+			if (game != null)
+				plugin.getCommandExecutor().showGameDetail(player, game.getName());
 		} else if (s.getLine(1).endsWith("Invite Player")) {
-			if (bv.getGame() != null && bv.getGame().getState() == GameState.SETTING_UP)
+			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
 				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
 		} else if (s.getLine(1).endsWith("Invite ANYONE")) {
-			if (bv.getGame() != null && bv.getGame().getState() == GameState.SETTING_UP)
-				bv.getGame().inviteOpen(player.getName());
+			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
+				game.inviteOpen(player.getName());
 		} else if (s.getLine(1).endsWith("Teleport Out")) {
 			plugin.getCommandExecutor().tryTeleportOut(player);
 		}

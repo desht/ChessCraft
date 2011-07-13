@@ -597,7 +597,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
 		plugin.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
-		plugin.statusMessage(player, "Now do &f/chess invite <playername>&- to invite someone,");
+		plugin.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
 		plugin.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
 	}
 
@@ -608,6 +608,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Game game = plugin.getGame(gameName);
 		String deleter = player == null ? "CONSOLE" : player.getName();
 		game.alert("Game deleted by " + deleter + "!");
+		game.cancelAutoDelete();
 		game.getView().setGame(null);
 		game.getView().paintAll();
 		plugin.removeGame(gameName);

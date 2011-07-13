@@ -62,6 +62,7 @@ public class Game {
 		started = new Date(); 
 		lastCheck = new Date();
 		result = Chess.RES_NOT_FINISHED;
+		delTask = -1;
 
 		setupChesspressoGame();
 
@@ -459,6 +460,12 @@ public class Game {
 				alert("This game will auto-delete in " + autoDel + " seconds.");
 			alert("Type &f/chess archive&- within " + autoDel + " seconds to save this game to PGN.");
 		}
+	}
+	
+	void cancelAutoDelete() {
+		if (delTask == -1) return;
+		Bukkit.getServer().getScheduler().cancelTask(delTask);
+		delTask = -1;
 	}
 	
 	// Check if the move is really allowed
