@@ -14,6 +14,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -278,12 +279,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 			gameName = args[1];
 			plugin.getGame(gameName).addPlayer(player.getName());
 		} else {
-			// find a game with an invitation for us
+			// find a game (or games) with an invitation for us
 			for (Game game : plugin.listGames()) {
 				if (game.getInvited().equalsIgnoreCase(player.getName())) {
 					game.addPlayer(player.getName());
 					gameName = game.getName();
-					break;
 				}
 			}
 			if (gameName == null)
@@ -295,6 +295,13 @@ public class ChessCommandExecutor implements CommandExecutor {
 		int playingAs = game.playingAs(player.getName());
 		plugin.statusMessage(player, "You have joined the chess game &6" + gameName + "&-.");
 		plugin.statusMessage(player, "You will be playing as &f" + Game.getColour(playingAs) + "&-.");
+		
+		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
+			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerWhite()), game);
+			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerBlack()), game);
+		} else {
+			plugin.statusMessage(player, "You can teleport to your game with &f/chess tp " + game.getName());
+		}
 	}
 
 	private void redrawCommand(Player player, String[] args) throws ChessException {
@@ -318,22 +325,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			// go to the named game
 			Game game = plugin.getGame(args[1]);
-			BoardView bv = game.getView();
-			Location loc;
-			if (game.getPlayerWhite().equals(player.getName())) {
-				loc = bv.getBounds().getUpperSW();
-				loc.setYaw(90.0f);
-				loc.add(0.0, 2.0, -(1.0 + 4.5 * bv.getSquareSize()));
-			} else if (game.getPlayerBlack().equals(player.getName())) {
-				loc = bv.getBounds().getLowerNE();
-				loc.setYaw(270.0f);
-				loc.add(0.0, 2.0, -1.0 + 4.5 * bv.getSquareSize());
-			} else {
-				loc = bv.getBounds().getLowerNE();
-				loc.setYaw(0.0f);
-				loc.add(-4.5 * bv.getSquareSize(), 2.0, 0.0);
-			}
-			doTeleport(player, loc);
+			tryTeleportToGame(player, game);
 		}
 	}
 
@@ -420,6 +412,34 @@ public class ChessCommandExecutor implements CommandExecutor {
 		
 		plugin.setLastPos(player, player.getLocation());
 		player.teleport(loc);
+	}
+
+	void tryTeleportToGame(Player player, Game game) throws ChessException {
+		if (player == null)
+			return;
+		BoardView bv = game.getView();
+		if (bv.isPartOfBoard(player.getLocation()))
+			return;
+		
+		Location loc;
+		if (game.getPlayerWhite().equals(player.getName())) {
+			loc = bv.getBounds().getUpperSW().clone();
+			loc.setYaw(90.0f);
+			loc.add(0.0, 2.0, -(1.0 + 4.5 * bv.getSquareSize()));
+		} else if (game.getPlayerBlack().equals(player.getName())) {
+			loc = bv.getBounds().getLowerNE().clone();
+			loc.setYaw(270.0f);
+			loc.add(0.0, 2.0, -1.0 + 4.5 * bv.getSquareSize());
+		} else {
+			loc = bv.getBounds().getLowerNE().clone();
+			loc.setYaw(0.0f);
+			loc.add(-4.5 * bv.getSquareSize(), 2.0, 0.0);
+		}
+		System.out.println("go to " + loc);
+		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getFace(BlockFace.UP).getTypeId() != 0) {
+			throw new ChessException("Teleport destination obstructed!");
+		}
+		doTeleport(player, loc);
 	}
 
 	void tryTeleportOut(Player player) throws ChessException {
@@ -577,6 +597,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
 		plugin.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
+		plugin.statusMessage(player, "Now do &f/chess invite <playername>&- to invite someone,");
+		plugin.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
 	}
 
 	void tryDeleteGame(Player player, String[] args) throws ChessException {

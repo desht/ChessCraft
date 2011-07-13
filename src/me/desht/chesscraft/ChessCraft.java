@@ -73,6 +73,7 @@ public class ChessCraft extends JavaPlugin {
 		put("no_explosions", true);
 		put("no_burning", true);
 		put("wand_item", "air");
+		put("auto_teleport_on_join", true);
 	}};
 	
 	/*-----------------------------------------------------------------*/

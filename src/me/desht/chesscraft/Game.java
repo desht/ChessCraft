@@ -264,8 +264,8 @@ public class Game {
 	void inviteOpen(String inviterName) throws ChessException {
 		if (!isPlayerInGame(inviterName))
 			throw new ChessException("Can't invite a player to a game you're not in!");
-		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: &6" + inviterName + "&e has created an open invitation to a chess game.");
-		Bukkit.getServer().broadcastMessage(ChatColor.YELLOW + ":: " + "Type &f/chess join " + getName() + "&e to join.");
+		Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec("&e:: &6" + inviterName + "&e has created an open invitation to a chess game."));
+		Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
 		invited = "*";
 	}
 		
