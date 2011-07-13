@@ -395,7 +395,8 @@ public class Game {
 				if (isAIPlayer(nextPlayer)) {
 					// TODO: set AI to thinking above next move and add poll for move ready
 				} else {
-					alert(nextPlayer, "&f" + getColour(prevToMove) + "&- played [" + lastMove.getLAN() + "].");
+					String checkNotify = getPosition().isCheck() ? " &5+++CHECK+++" : "";
+					alert(nextPlayer, "&f" + getColour(prevToMove) + "&- played [" + lastMove.getLAN() + "]." + checkNotify);
 					alert(nextPlayer, "It is your move &f(" + getColour(getPosition().getToPlay()) + ")&-.");
 				}
 			}
