@@ -18,7 +18,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
@@ -80,41 +82,6 @@ public class ChessPlayerListener extends PlayerListener {
 		}
 	}
 
-	private void signClicked(Player player, Block b, BoardView bv) throws ChessException {
-		Sign s = (Sign) b.getState();
-		Game game = bv.getGame();
-		if (s.getLine(1).endsWith("Create Game")) {
-			plugin.getCommandExecutor().tryCreateGame(player, null, bv.getName());
-		} else if (s.getLine(1).endsWith("Start Game")) {
-			if (game != null)
-				game.start(player.getName());
-		} else if (s.getLine(1).endsWith("Resign")) {
-			if (game != null)
-				game.resign(player.getName());
-		} else if (s.getLine(1).endsWith("Offer Draw")) {
-			if (game != null)
-				plugin.getCommandExecutor().tryOfferDraw(player,game);
-		} else if (s.getLine(1).endsWith("Show Info")) {
-			if (game != null)
-				plugin.getCommandExecutor().showGameDetail(player, game.getName());
-		} else if (s.getLine(1).endsWith("Invite Player")) {
-			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
-				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
-		} else if (s.getLine(1).endsWith("Invite ANYONE")) {
-			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
-				game.inviteOpen(player.getName());
-		} else if (s.getLine(1).endsWith("Teleport Out")) {
-			plugin.getCommandExecutor().tryTeleportOut(player);
-		}
-	}
-
-	private void deprecationWarning(Player player) {
-		plugin.statusMessage(player, "&4WARNING: &-right-clicking is deprecated and will be removed soon.");
-		String wand = plugin.getConfiguration().getString("wand_item");
-		int wandId = new MaterialWithData(wand).material;
-		plugin.statusMessage(player, "Left-click while holding " + Material.getMaterial(wandId) + " to select & move.");
-	}
-
 	@Override
 	public void onPlayerAnimation(PlayerAnimationEvent event) {	
 		Player player = event.getPlayer();
@@ -156,7 +123,72 @@ public class ChessPlayerListener extends PlayerListener {
 		
 	}
 	
+	@Override
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		String games = "";
+		String who = event.getPlayer().getName();
+		for (Game game : plugin.listGames()) {
+			if (game.isPlayerInGame(who)) {
+				plugin.playerRejoined(who);
+				game.alert(who + " is back in the game!");
+				games = games + " " + game.getName();
+			}
+		}
+		
+		plugin.alertMessage(event.getPlayer(), "Your current chess games: " + games);
+	}
 	
+	@Override
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		String who = event.getPlayer().getName();
+		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
+		for (Game game : plugin.listGames()) {
+			if (game.isPlayerInGame(who)) {
+				plugin.playerLeft(who);
+				if (timeout > 0) {
+					game.alert(who + " quit.  If they don't rejoin within");
+					game.alert(timeout + " seconds, you can type &f/chess win&-");
+					game.alert("to win by default.");
+				}
+			}
+		}
+	}
+	
+	private void signClicked(Player player, Block b, BoardView bv) throws ChessException {
+		Sign s = (Sign) b.getState();
+		Game game = bv.getGame();
+		if (s.getLine(1).endsWith("Create Game")) {
+			plugin.getCommandExecutor().tryCreateGame(player, null, bv.getName());
+		} else if (s.getLine(1).endsWith("Start Game")) {
+			if (game != null)
+				game.start(player.getName());
+		} else if (s.getLine(1).endsWith("Resign")) {
+			if (game != null)
+				game.resign(player.getName());
+		} else if (s.getLine(1).endsWith("Offer Draw")) {
+			if (game != null)
+				plugin.getCommandExecutor().tryOfferDraw(player,game);
+		} else if (s.getLine(1).endsWith("Show Info")) {
+			if (game != null)
+				plugin.getCommandExecutor().showGameDetail(player, game.getName());
+		} else if (s.getLine(1).endsWith("Invite Player")) {
+			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
+				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
+		} else if (s.getLine(1).endsWith("Invite ANYONE")) {
+			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
+				game.inviteOpen(player.getName());
+		} else if (s.getLine(1).endsWith("Teleport Out")) {
+			plugin.getCommandExecutor().tryTeleportOut(player);
+		}
+	}
+
+	private void deprecationWarning(Player player) {
+		plugin.statusMessage(player, "&4WARNING: &-right-clicking is deprecated and will be removed soon.");
+		String wand = plugin.getConfiguration().getString("wand_item");
+		int wandId = new MaterialWithData(wand).material;
+		plugin.statusMessage(player, "Left-click while holding " + Material.getMaterial(wandId) + " to select & move.");
+	}
+
 	private void cancelMove(Location loc) {
 		BoardView bv = plugin.onChessBoard(loc);
 		if (bv == null) 

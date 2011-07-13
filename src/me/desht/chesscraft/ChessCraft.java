@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,8 @@ public class ChessCraft extends JavaPlugin {
 	
 	private int lightingTaskId;
 	
+	private Map<String,Long> loggedOutAt = new HashMap<String, Long>();
+	
 	private static final Map<String, Object> configItems = new HashMap<String, Object>() {{
 		put("autosave", true);
 		put("tick_interval", 1);
@@ -74,6 +77,7 @@ public class ChessCraft extends JavaPlugin {
 		put("no_burning", true);
 		put("wand_item", "air");
 		put("auto_teleport_on_join", true);
+		put("timeout_forfeit", 60);
 	}};
 	
 	/*-----------------------------------------------------------------*/
@@ -103,6 +107,8 @@ public class ChessCraft extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
@@ -513,5 +519,17 @@ public class ChessCraft extends JavaPlugin {
 
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;
+	}
+
+	void playerLeft(String who) {
+		loggedOutAt.put(who, new Date().getTime());
+	}
+
+	void playerRejoined(String who) {
+		loggedOutAt.remove(who);
+	}
+	
+	long getPlayerLeftAt(String who) {
+		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
 	}
 }

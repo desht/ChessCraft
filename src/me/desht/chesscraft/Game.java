@@ -26,7 +26,7 @@ import chesspresso.position.Position;
 
 public class Game {
 	enum ResultType {
-		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned, FiftyMoveRule
+		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned, FiftyMoveRule, Forfeited
 	}
 	private static final String archiveDir = "pgn";
 	private ChessCraft plugin;
@@ -247,6 +247,9 @@ public class Game {
 		
 		alert(otherPlayer, playerName + " has joined your game.");
 		clearInvitation();
+		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
+			alert("Start the game by typing &f/game start&-.");
+		}
 	}
 	
 	void invitePlayer(String inviterName, String inviteeName) throws ChessException {
@@ -306,15 +309,31 @@ public class Game {
 		if (loser.equalsIgnoreCase(playerWhite)) {
 			winner = playerBlack;
 			cpGame.setTag(PGN.TAG_RESULT, "0-1");
-			result = Chess.RES_WHITE_WINS;
+			result = Chess.RES_BLACK_WINS;
 		} else {
 			winner = playerWhite;
 			cpGame.setTag(PGN.TAG_RESULT, "1-0");
-			result = Chess.RES_BLACK_WINS;
+			result = Chess.RES_WHITE_WINS;
 		}
 		announceResult(winner, loser, ResultType.Resigned);
 	}
 	
+	void winByDefault(String playerName) {
+		state = GameState.FINISHED;
+		String winner = playerName;
+		String loser;
+		if (winner.equalsIgnoreCase(playerWhite)) {
+			loser = playerBlack;
+			cpGame.setTag(PGN.TAG_RESULT, "1-0");
+			result = Chess.RES_WHITE_WINS;
+		} else {
+			loser = playerWhite;
+			cpGame.setTag(PGN.TAG_RESULT, "0-1");
+			result = Chess.RES_BLACK_WINS;
+		}
+		announceResult(winner, loser, ResultType.Forfeited);
+	}
+
 	void setPromotionPiece(String playerName, int piece) throws ChessException {
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT)
 			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
@@ -403,39 +422,27 @@ public class Game {
 	// Announce the result of the game to the server
 	// p1 is the winner, p2 is the loser (unless it's a draw)
 	void announceResult(String p1, String p2, ResultType rt) {
+		String msg = "";
+		switch(rt) {
+		case Checkmate:
+			msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!"; break;
+		case Stalemate:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!"; break;
+		case FiftyMoveRule:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!"; break;
+		case DrawAgreed:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!"; break;
+		case Resigned:
+			msg ="&6" +  p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!"; break;
+		case Forfeited:
+			msg ="&6" +  p1 + "&e beat &6" + p2 + "&e (forfeited) in a game of Chess!"; break;
+		}
 		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) {
-			String msg = "";
-			switch(rt) {
-			case Checkmate:
-				msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!"; break;
-			case Stalemate:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!"; break;
-			case FiftyMoveRule:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!"; break;
-			case DrawAgreed:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!"; break;
-			case Resigned:
-				msg ="&6" +  p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!"; break;
-			}
 			if (!msg.isEmpty())
 				Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec(ChatColor.YELLOW + ":: " + msg));
 		} else {
-			switch(rt) {
-			case Checkmate:
-				alert(p1, "You checkmated &6" + p2 + "&-!");
-				alert(p2, "You were checkmated by &6" + p1 + "&-!");
-				break;
-			case Stalemate:
-				alert("Game is drawn - stalemate!");
-				break;
-			case Resigned:
-				alert(p1, "&6" + p2+ "&- has resigned - you win!");
-				alert(p2, "You have resigned. &6" + p1 + "&- wins!");
-				break;
-			case DrawAgreed:
-				alert("Game is drawn - draw agreed!");
-				break;
-			}
+			if (!msg.isEmpty())
+				alert(msg);
 		}
 		setupAutoDeletion();
 	}
@@ -457,8 +464,8 @@ public class Game {
 			}, autoDel * 20L);
 			
 			if (delTask != -1)
-				alert("This game will auto-delete in " + autoDel + " seconds.");
-			alert("Type &f/chess archive&- within " + autoDel + " seconds to save this game to PGN.");
+				alert("Game will auto-delete in " + autoDel + " seconds.");
+			alert("Type &f/chess archive&- to archive to PGN file.");
 		}
 	}
 	
@@ -535,7 +542,7 @@ public class Game {
 			return;
 		Player p = Bukkit.getServer().getPlayer(playerName);
 		if (p != null) {
-			plugin.alertMessage(p, "&6:: &-Chess game &6" + getName() + "&-: " + message);
+			plugin.alertMessage(p, "&6:: &-Game &6" + getName() + "&-: " + message);
 		}
 	}
 	void alert(String message) {

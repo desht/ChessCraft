@@ -2,6 +2,7 @@ package me.desht.chesscraft;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +92,8 @@ public class ChessCommandExecutor implements CommandExecutor {
     				getcfgCommand(player, args);
     			} else if (partialMatch(args[0], "fen")) {	// fen
     				fenCommand(player, args);
+    			} else if (partialMatch(args[0], "w")) {	// win
+    				claimVictoryCommand(player, args);
     			} else {
     				return false;
     			}
@@ -107,6 +110,26 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return true;
 	}
 	
+	private void claimVictoryCommand(Player player, String[] args) throws ChessException {
+		Game game = plugin.getCurrentGame(player, true);
+		
+		String other = game.getOtherPlayer(player.getName());
+		if (other.isEmpty())
+			return;
+		
+		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
+		long leftAt = plugin.getPlayerLeftAt(other);
+		if (leftAt == 0)
+			return;
+		long now = new Date().getTime();
+		long elapsed = (now - leftAt) / 1000;
+		if (elapsed >= timeout) {
+			game.winByDefault(player.getName());
+		} else {
+			plugin.statusMessage(player, "You need to wait " + (timeout - elapsed) + " seconds more.");
+		}
+	}
+
 	private void fenCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.fen", Privilege.Admin);
 		
