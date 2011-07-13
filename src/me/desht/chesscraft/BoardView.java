@@ -321,14 +321,18 @@ public class BoardView implements PositionListener {
 		signCursor.shift(Direction.East, 1).shift(Direction.North, 1);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Create Game", eastFacingWallSign);
 		signCursor.shift(Direction.North, 1);
+		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Invite Player", eastFacingWallSign);
+		signCursor.shift(Direction.North, 1);
+		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Invite ANYONE", eastFacingWallSign);
+		signCursor.shift(Direction.North, 1);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Start Game", eastFacingWallSign);
 		signCursor.shift(Direction.North, 1);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Offer Draw", eastFacingWallSign);
 		signCursor.shift(Direction.North, 1);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Resign", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
+		signCursor.shift(Direction.North, 1).shift(Direction.Down, 1);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Show Info", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
+		signCursor.shift(Direction.South, 7);
 		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Teleport Out", eastFacingWallSign);
 	}
 	

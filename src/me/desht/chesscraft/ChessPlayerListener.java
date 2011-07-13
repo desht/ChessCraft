@@ -96,6 +96,12 @@ public class ChessPlayerListener extends PlayerListener {
 		} else if (s.getLine(1).endsWith("Show Info")) {
 			if (bv.getGame() != null)
 				plugin.getCommandExecutor().showGameDetail(player, bv.getGame().getName());
+		} else if (s.getLine(1).endsWith("Invite Player")) {
+			if (bv.getGame() != null && bv.getGame().getState() == GameState.SETTING_UP)
+				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
+		} else if (s.getLine(1).endsWith("Invite ANYONE")) {
+			if (bv.getGame() != null && bv.getGame().getState() == GameState.SETTING_UP)
+				bv.getGame().inviteOpen(player.getName());
 		} else if (s.getLine(1).endsWith("Teleport Out")) {
 			plugin.getCommandExecutor().tryTeleportOut(player);
 		}

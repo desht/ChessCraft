@@ -248,25 +248,32 @@ public class Game {
 		clearInvitation();
 	}
 	
-	void invitePlayer(String inviter, String invitee) throws ChessException {
-		if (!isPlayerInGame(inviter))
-			throw new ChessException("Can't invite a player to a game you're not in!");
-		if (invited.equals(invitee))
+	void invitePlayer(String inviterName, String inviteeName) throws ChessException {
+		inviteSanityCheck(inviterName);
+		if (invited.equals(inviteeName))
 			return;
-		alert(invitee, "You have been invited to this game by &6" + inviter + "&-.");
-		alert(invitee, "Type &f/chess join&- to join the game.");
+		alert(inviteeName, "You have been invited to this game by &6" + inviterName + "&-.");
+		alert(inviteeName, "Type &f/chess join&- to join the game.");
 		if (!invited.isEmpty()) {
-			alert(invited, "Your invitation to chess game &6" + getName() + "&- has been withdrawn.");
+			alert(invited, "Your invitation has been withdrawn.");
 		}
-		invited = invitee;
+		invited = inviteeName;
 	}
 	
 	void inviteOpen(String inviterName) throws ChessException {
-		if (!isPlayerInGame(inviterName))
-			throw new ChessException("Can't invite a player to a game you're not in!");
+		inviteSanityCheck(inviterName);
 		Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec("&e:: &6" + inviterName + "&e has created an open invitation to a chess game."));
 		Bukkit.getServer().broadcastMessage(ChessCraft.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
 		invited = "*";
+	}
+
+	private void inviteSanityCheck(String inviterName) throws ChessException {
+		if (getState() != GameState.SETTING_UP)
+			throw new ChessException("This game has already been started!");
+		if (!isPlayerInGame(inviterName))
+			throw new ChessException("Can't invite a player to a game you're not in!");
+		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) 
+			throw new ChessException("This game already has two players!");
 	}
 		
 	void clearInvitation() {
