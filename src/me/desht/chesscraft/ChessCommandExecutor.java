@@ -463,6 +463,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			throw new ChessException("Teleport destination obstructed!");
 		}
 		doTeleport(player, loc);
+		plugin.setCurrentGame(player.getName(), game);
 	}
 
 	void tryTeleportOut(Player player) throws ChessException {
