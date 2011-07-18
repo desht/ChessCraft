@@ -479,26 +479,27 @@ public class Game {
 	// Check if the move is really allowed
 	// Also account for special cases: castling, en passant, pawn promotion
 	private short checkMove(short move) throws IllegalMoveException {
-		int from = Move.getFromSqi(move);
-		int to = Move.getToSqi(move);
-		int toPlay = getPosition().getToPlay();
+		int sqiFrom = Move.getFromSqi(move);
+		int sqiTo   = Move.getToSqi(move);
+		int toPlay  = getPosition().getToPlay();
 		
-		if (getPosition().getPiece(from) == Chess.KING) {
+		if (getPosition().getPiece(sqiFrom) == Chess.KING) {
 			// Castling?
-			if (from == Chess.E1 && to == Chess.G1 || from == Chess.E8 && to == Chess.G8)
-				move = Move.getShortCastle(getPosition().getToPlay());
-			else if (from == Chess.E1 && to == Chess.B1 || from == Chess.E8 && to == Chess.B8)
-				move = Move.getLongCastle(getPosition().getToPlay());
-		} else if (getPosition().getPiece(from) == Chess.PAWN && (Chess.sqiToRow(to) == 7 || Chess.sqiToRow(to) == 0)) {
+			if (sqiFrom == Chess.E1 && sqiTo == Chess.G1 || sqiFrom == Chess.E8 && sqiTo == Chess.G8)
+				move = Move.getShortCastle(toPlay);
+			else if (sqiFrom == Chess.E1 && sqiTo == Chess.C1 || sqiFrom == Chess.E8 && sqiTo == Chess.C8)
+				move = Move.getLongCastle(toPlay);
+		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN && (Chess.sqiToRow(sqiTo) == 7 || Chess.sqiToRow(sqiTo) == 0)) {
 			// Promotion?
-			boolean capturing = getPosition().getPiece(to) != Chess.NO_PIECE;
-			move = Move.getPawnMove(from, to, capturing, promotionPiece[toPlay]);
-		} else if (getPosition().getPiece(from) == Chess.PAWN && getPosition().getPiece(to) == Chess.NO_PIECE) {
+			boolean capturing = getPosition().getPiece(sqiTo) != Chess.NO_PIECE;
+			move = Move.getPawnMove(sqiFrom, sqiTo, capturing, promotionPiece[toPlay]);
+		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN && getPosition().getPiece(sqiTo) == Chess.NO_PIECE) {
 			// En passant?
-			int toCol = Chess.sqiToCol(to);
-			int fromCol = Chess.sqiToCol(from);
-			if (Chess.sqiToRow(from) == 4 && Chess.sqiToRow(to) == 5 && (toCol == fromCol - 1 || toCol == fromCol + 1)) {
-				move = Move.getEPMove(from, to);
+			int toCol = Chess.sqiToCol(sqiTo);
+			int fromCol = Chess.sqiToCol(sqiFrom);
+			if ((toCol == fromCol - 1 || toCol == fromCol + 1) &&
+					(Chess.sqiToRow(sqiFrom) == 4 && Chess.sqiToRow(sqiTo) == 5 || Chess.sqiToRow(sqiFrom) == 3 && Chess.sqiToRow(sqiTo) == 2)) {
+				move = Move.getEPMove(sqiFrom, sqiTo);
 			}
 		}
 			
