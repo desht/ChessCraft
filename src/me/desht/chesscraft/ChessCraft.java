@@ -32,6 +32,7 @@ import org.bukkit.util.config.Configuration;
 
 import chesspresso.Chess;
 
+import com.iConomy.*;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -47,6 +48,7 @@ public class ChessCraft extends JavaPlugin {
 
 	private PermissionHandler permissionHandler;
 	private WorldEditPlugin worldEditPlugin;
+	iConomy iConomy = null;
 	
 	private final Map<String,Game> chessGames = new HashMap<String,Game>();
 	private final Map<String,BoardView> chessBoards = new HashMap<String,BoardView>();
@@ -116,7 +118,9 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
-				
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLUGIN_DISABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
+
 		persistence.reload();
 		
 		setupRepeatingTask(2);
