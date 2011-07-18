@@ -56,6 +56,9 @@ public class TerrainBackup {
 	}
 	
 	void saveTerrain() {
+		if (wep == null) 
+			return;
+		
 		try {
 			editSession.enableQueue();
 			clipboard.saveSchematic(saveFile);
@@ -68,6 +71,9 @@ public class TerrainBackup {
 	}
 	
 	void reloadTerrain() {
+		if (wep == null) 
+			return;
+		
 		try {
 			editSession.enableQueue();
 			localSession.setClipboard(CuboidClipboard.loadSchematic(saveFile));
