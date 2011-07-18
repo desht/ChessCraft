@@ -1,0 +1,40 @@
+# Name for this set - should match the filename
+name: twist
+
+# List of materials used in the set
+# Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block) 
+# or material plus data (e.g. 35:0, wool:white)
+# If you use plain integers, they must be quoted, or the set will not load!
+# If you use material names, they must match the org.bukkit.Material definitions exactly
+# - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
+materials:
+  black:
+    O: air
+    X: obsidian
+    Y: '57'
+    Z: '41'
+    G: '20'
+    W: '9'
+    L: '11'
+  white:
+    O: air
+    X: iron_block
+    Y: '57'
+    Z: '41'
+    G: '20'
+    W: '9'
+    L: '11'
+
+# Piece definitions
+# This is a list of list of strings such that:
+# - definition[0] is the lowest layer on the Y-axis
+# - definition[0][0] is the northmost row on the lowest layer
+# - each string runs from west to east and consists of materials defined above
+# 
+pieces:
+  P: [ [ XOX, XXX, XOX ], [ OOO, OXO, OOO ], [ OOO, OXO, OOO ] ]
+  N: [ [ XOX, OOO, XOX ], [ OOO, OXO, OXO ], [ OOO, OXO, OOO ], [ OXO, OXO, OOO ] ]
+  B: [ [ OXO, XXX, XXX ], [ OXO, XXX, XXX ], [ OOO, OXO, OXO ], [ OOO, OXO, OXO ], [ OOO, OOO, OXO ] ]
+  R: [ [ XOX, OXO, XOX ], [ XOX, OXO, XOX ], [ XXX, XXX, XXX ], [ XOX, OOO, XOX ] ]
+  Q: [ [ XXX, XXX, XXX ], [ OOO, OXO, OOO ], [ XOX, OXO, OOO ], [ OOO, OXO, OOO ], [ OGO, GWG, OGO ], [ OOO, OYO, OOO ] ]
+  K: [ [ XXX, XOX, XXX ], [ XOX, OOO, XOX ], [ XXX, XOX, XXX ], [ OOO, OXO, OOO ], [ OGO, GLG, OGO ], [ OOO, OZO, OOO ] ]
