@@ -48,9 +48,10 @@ public class BoardView implements PositionListener {
 	private Location whiteClockSign;
 	private Location blackClockSign;
 	
-	BoardView(String bName, ChessCraft plugin, Location where, String bStyle) throws ChessException {
+	BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
 		this.plugin = plugin;
 		boardStyle = bStyle;
+		pieceStyle = pStyle;
 
 		name = bName;
 		game = null;	// indicates board not used by any game yet
@@ -183,7 +184,8 @@ public class BoardView implements PositionListener {
         	frameWidth = (Integer)styleMap.get("frame_width");
         	height     = (Integer)styleMap.get("height");
         	isLit      = (Boolean)styleMap.get("lit");
-        	pieceStyle = (String)styleMap.get("piece_style");
+        	if (pieceStyle == null) 
+        		pieceStyle = (String)styleMap.get("piece_style");
         	
         	blackSquareMat = MaterialWithData.parseIdAndData((String)styleMap.get("black_square"));
         	whiteSquareMat = MaterialWithData.parseIdAndData((String)styleMap.get("white_square"));
@@ -576,7 +578,7 @@ public class BoardView implements PositionListener {
 	
 	// true if the location is above the board AND within the board's height range
 	boolean isAboveBoard(Location loc) {
-		return isOnBoard(loc, 1, height - 1);
+		return isOnBoard(loc, 1, height);
 	}
 	
 	// true if the location is *anywhere* within the board, including frame & enclosure
@@ -589,7 +591,7 @@ public class BoardView implements PositionListener {
 	}
 
 	int getSquareAt(Location loc) {
-		if (!isOnBoard(loc, 0, height - 1))
+		if (!isOnBoard(loc, 0, height))
 			return Chess.NO_SQUARE;
 		int row = (a1Square.getBlockX() - loc.getBlockX()) / squareSize;
 		int col = (a1Square.getBlockZ() - loc.getBlockZ()) / squareSize;		

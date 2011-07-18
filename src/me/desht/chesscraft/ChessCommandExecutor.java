@@ -650,9 +650,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 			throw new ChessException("Usage: /chess create board <name> [<options>]");
 		}
 		String style = options.get("style");
+		String pieceStyle = options.get("pstyle");
 		plugin.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
 		plugin.statusMessage(player, "This block will become the centre of the board's A1 square.");
-		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name, style));
+		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name, style, pieceStyle));
 	}
 
 	void tryDeleteBoard(Player player, String[] args) throws ChessException {
