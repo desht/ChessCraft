@@ -458,7 +458,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 			loc.setYaw(0.0f);
 			loc.add(-4.5 * bv.getSquareSize(), 2.0, 0.0);
 		}
-		System.out.println("go to " + loc);
 		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getFace(BlockFace.UP).getTypeId() != 0) {
 			throw new ChessException("Teleport destination obstructed!");
 		}
