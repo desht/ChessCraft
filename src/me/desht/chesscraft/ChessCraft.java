@@ -170,7 +170,6 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	private void setupDefaultStructure() {
-		log(Level.INFO, "Performing first-time setup");
 		try {
 			createDir(null);
 			createDir("archive");
