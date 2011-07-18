@@ -6,7 +6,7 @@ commands:
   chess:
     description: Play Chess
     usage: |
-      /chess create board <name> [-style <style>]
+      /chess create board <name> [-style <style>] [-pstyle <style>]
       /chess create game [<gamename>] [<boardname>]
       /chess delete (board|game) <name>
       /chess list (board|game> [<name>]
