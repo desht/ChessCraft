@@ -98,6 +98,7 @@ public class ChessCraft extends JavaPlugin {
 
 		if (!getDataFolder().exists())
 			setupDefaultStructure();
+		addExtraResources();
 		
 		configInitialise();
 
@@ -116,7 +117,7 @@ public class ChessCraft extends JavaPlugin {
 				
 		persistence.reload();
 		
-		setupLightingTask(2);
+		setupRepeatingTask(2);
 		
 		// if upgrading from 0.1, control panels may need to be drawn on the boards
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
@@ -138,6 +139,20 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 	
+	private void setupRepeatingTask(int initialDelay) {
+		lightingTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {	
+			@Override
+			public void run() {
+				for (BoardView bv: listBoardViews()) {
+					bv.doLighting();
+				}
+				for (Game game: listGames()) {
+					game.clockTick();
+				}
+			}
+		}, 20L * initialDelay, 20L * getConfiguration().getInt("tick_interval", 1));
+	}
+
 	private void setupDefaultStructure() {
 		log(Level.INFO, "Performing first-time setup");
 		try {
@@ -146,10 +161,18 @@ public class ChessCraft extends JavaPlugin {
 			createDir("board_styles");
 			createDir("piece_styles");
 			
-			extractResource("/datafiles/default-board.yml", "board_styles/Standard.yml");
-			extractResource("/datafiles/default-pieces.yml", "piece_styles/Standard.yml");
+			extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
+			extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");
 		} catch (FileNotFoundException e) {
 			log(Level.SEVERE, e.getMessage());
+		} catch (IOException e) {
+			log(Level.SEVERE, e.getMessage());
+		}
+	}
+	
+	private void addExtraResources() {
+		try {
+			extractResource("/datafiles/piece_styles/twist.yml", "piece_styles/twist.yml");
 		} catch (IOException e) {
 			log(Level.SEVERE, e.getMessage());
 		}
@@ -164,13 +187,15 @@ public class ChessCraft extends JavaPlugin {
 	}
 	
 	private void extractResource(String from, String to) throws IOException {
-		InputStream in = this.getClass().getResourceAsStream(from);
-		if (in == null) {
-			throw new IOException("can't extract resource " + from + " from plugin JAR");
-		}
 		File of = new File(getDataFolder(), to);
+		if (of.exists())
+			return;
 		OutputStream out = new FileOutputStream(of);
-
+		
+		InputStream in = this.getClass().getResourceAsStream(from);
+		if (in == null)
+			throw new IOException("can't extract resource " + from + " from plugin JAR");
+		
         byte[] buf = new byte[1024];
         int len;
         while ((len = in.read(buf)) > 0) {
@@ -235,7 +260,7 @@ public class ChessCraft extends JavaPlugin {
 		// special hooks
 		if (key.equalsIgnoreCase("lighting_interval")) {
 			getServer().getScheduler().cancelTask(lightingTaskId);
-			setupLightingTask(0);
+			setupRepeatingTask(0);
 		}
 		
 		statusMessage(player, key + " is now set to: " + val);
@@ -508,20 +533,6 @@ public class ChessCraft extends JavaPlugin {
 		return res.replace("&-", prevColour).replace("&&", "&");
 	}
 
-	private void setupLightingTask(int initialDelay) {
-		lightingTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {	
-			@Override
-			public void run() {
-				for (BoardView bv: listBoardViews()) {
-					bv.doLighting();
-				}
-				for (Game game: listGames()) {
-					game.clockTick();
-				}
-			}
-		}, 20L * initialDelay, 20L * getConfiguration().getInt("tick_interval", 1));
-	}
-	
 	// Generate a game name based on the player's name and a possible index number
 	String makeGameName(Player player) {
 		String base = player.getName();
