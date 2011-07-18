@@ -379,15 +379,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void responseCommand(Player player, String[] args) throws ChessException {
 		boolean isAccepted = partialMatch(args, 0, "y") ? true : false;
 		
-		if (plugin.expecter.isExpecting(player, ExpectAction.DrawResponse)) {
-			ExpectYesNoOffer a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.DrawResponse);
-			a.setReponse(isAccepted);
-			plugin.expecter.handleAction(player, ExpectAction.DrawResponse);
-		} else if (plugin.expecter.isExpecting(player, ExpectAction.SwapResponse)) {
-			ExpectYesNoOffer a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.SwapResponse);
-			a.setReponse(isAccepted);
-			plugin.expecter.handleAction(player, ExpectAction.SwapResponse);
-		}
+		doResponse(player, isAccepted);
 	}
 
 	private void promoCommand(Player player, String[] args) throws ChessException {
@@ -497,6 +489,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			plugin.statusMessage(player, "You have offered to swap sides with &6" + other + "&-.");
 			game.alert(other, "&6" + player.getName() + "&- has offered to swap sides.");
 			game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
+			game.getView().getControlPanel().repaintSignButtons();
 		}
 	}
 
@@ -512,6 +505,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		plugin.statusMessage(player, "You have offered a draw to &6" + other + "&-.");
 		game.alert(other, "&6" + player.getName() + "&- has offered a draw.");
 		game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
+		game.getView().getControlPanel().repaintSignButtons();
 	}
 
 	void listGames(Player player) throws ChessException {
@@ -619,6 +613,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Game game = new Game(plugin, gameName, bv, player.getName());
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
+		bv.getControlPanel().repaintSignButtons();
+		
 		plugin.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
 		plugin.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
 		plugin.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
@@ -671,6 +667,31 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
+	void nextPromotionPiece(Player player, int colour, Game game) throws ChessException {
+		if (colour == Chess.WHITE && !player.getName().equals(game.getPlayerWhite()))
+			return;
+		if (colour == Chess.BLACK && !player.getName().equals(game.getPlayerBlack()))
+			return;
+		game.setPromotionPiece(player.getName(), game.getNextPromotionPiece(colour));
+	}
+
+	void doResponse(Player player, boolean isAccepted) throws ChessException {
+		ExpectYesNoOffer a = null;
+		if (plugin.expecter.isExpecting(player, ExpectAction.DrawResponse)) {
+			a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.DrawResponse);
+			a.setReponse(isAccepted);
+			plugin.expecter.handleAction(player, ExpectAction.DrawResponse);
+		} else if (plugin.expecter.isExpecting(player, ExpectAction.SwapResponse)) {
+			a = (ExpectYesNoOffer) plugin.expecter.getAction(player, ExpectAction.SwapResponse);
+			a.setReponse(isAccepted);
+			plugin.expecter.handleAction(player, ExpectAction.SwapResponse);
+		}
+		
+		if (a != null) {
+			a.getGame().getView().getControlPanel().repaintSignButtons();
+		}	
+	}
+
 	private void pagedDisplay(Player player, String[] args) {
 		int pageNum = 1;
 		if (args.length < 2) return;
@@ -698,7 +719,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			// just dump the whole message buffer to the console
 			for (String s: messageBuffer) {
-				plugin.statusMessage(null, ChatColor.stripColor(s));
+				plugin.statusMessage(null, ChatColor.stripColor(ChessCraft.parseColourSpec(s)));
 			}
 		}
 	}

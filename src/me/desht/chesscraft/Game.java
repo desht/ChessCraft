@@ -175,6 +175,11 @@ public class Game {
 	GameState getState() {
 		return state;
 	}
+	
+	void setState(GameState state) {
+		this.state = state;
+		getView().getControlPanel().repaintSignButtons();
+	}
 
 	int getFromSquare() {
 		return fromSquare;
@@ -205,10 +210,10 @@ public class Game {
 		lastCheck.setTime(now.getTime());
 		if (getPosition().getToPlay() == Chess.WHITE) {
 			timeWhite += diff;
-			getView().updateClock(Chess.WHITE, timeWhite);
+			getView().getControlPanel().updateClock(Chess.WHITE, timeWhite);
 		} else {
 			timeBlack += diff;
-			getView().updateClock(Chess.BLACK, timeBlack);
+			getView().getControlPanel().updateClock(Chess.BLACK, timeBlack);
 		}
 		
 		checkForAIResponse();
@@ -244,6 +249,7 @@ public class Game {
 		} else {
 			throw new ChessException("This game already has two players.");
 		}
+		getView().getControlPanel().repaintSignButtons();
 		
 		alert(otherPlayer, playerName + " has joined your game.");
 		clearInvitation();
@@ -295,7 +301,7 @@ public class Game {
 			throw new ChessException("There is no black player yet.");
 		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
 		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
-		state = GameState.RUNNING;
+		setState(GameState.RUNNING);
 	}
 	
 	void resign(String playerName) throws ChessException {
@@ -303,7 +309,7 @@ public class Game {
 			throw new ChessException("The game has not yet started.");
 		if (!isPlayerInGame(playerName))
 			throw new ChessException("Can't resign a game you're not in!");
-		state = GameState.FINISHED;
+		setState(GameState.FINISHED);
 		String winner;
 		String loser = playerName;
 		if (loser.equalsIgnoreCase(playerWhite)) {
@@ -319,7 +325,7 @@ public class Game {
 	}
 	
 	void winByDefault(String playerName) {
-		state = GameState.FINISHED;
+		setState(GameState.FINISHED);
 		String winner = playerName;
 		String loser;
 		if (winner.equalsIgnoreCase(playerWhite)) {
@@ -334,6 +340,10 @@ public class Game {
 		announceResult(winner, loser, ResultType.Forfeited);
 	}
 
+	int getPromotionPiece(int colour) {
+		return promotionPiece[colour];
+	}
+	
 	void setPromotionPiece(String playerName, int piece) throws ChessException {
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT)
 			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
@@ -346,7 +356,7 @@ public class Game {
 	}
 	
 	void drawn() {
-		state = GameState.FINISHED;
+		setState(GameState.FINISHED);
 		result = Chess.RES_DRAW;
 		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 		announceResult(playerWhite, playerBlack, ResultType.DrawAgreed);
@@ -379,17 +389,17 @@ public class Game {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Checkmate);
 				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0");
 				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
-				state = GameState.FINISHED;
+				setState(GameState.FINISHED);
 			} else if (getPosition().isStaleMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.Stalemate);
 				result = Chess.RES_DRAW;
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
-				state = GameState.FINISHED;
+				setState(GameState.FINISHED);
 			} else if (getPosition().getHalfMoveClock() >= 50) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), ResultType.FiftyMoveRule);
 				result = Chess.RES_DRAW;
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
-				state = GameState.FINISHED;
+				setState(GameState.FINISHED);
 			} else {
 				String nextPlayer = getPlayerToMove();
 				if (isAIPlayer(nextPlayer)) {
@@ -628,5 +638,15 @@ public class Game {
 		int mins = (n - (hrs * 3600)) / 60;
 		
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs);
+	}
+
+	int getNextPromotionPiece(int colour) {
+		switch(promotionPiece[colour]) {
+		case Chess.QUEEN: return Chess.KNIGHT;
+		case Chess.KNIGHT: return Chess.BISHOP;
+		case Chess.BISHOP: return Chess.ROOK;
+		case Chess.ROOK: return Chess.QUEEN;
+		default: return Chess.QUEEN;
+		}
 	}
 }

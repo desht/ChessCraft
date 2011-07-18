@@ -159,6 +159,7 @@ public class ChessPersistence {
 			try {
 				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"), (String) boardMap.get("pieceStyle"));
 				plugin.addBoardView(bvName, bv);
+				bv.getControlPanel().repaintSignButtons();
 				nLoaded++;
 			} catch (Exception e) {
 				plugin.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -177,6 +178,7 @@ public class ChessPersistence {
 				Game game = new Game(plugin, gameName, bv, null);
 				game.thaw(gameMap);
 				plugin.addGame(gameName, game);
+				game.getView().getControlPanel().repaintSignButtons();
 				nLoaded++;
 			} catch (Exception e) {
 				plugin.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage());

@@ -10,7 +10,6 @@ import me.desht.chesscraft.ExpectResponse.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -43,17 +42,9 @@ public class ChessPlayerListener extends PlayerListener {
 			Block b = event.getClickedBlock();
 			if (b == null) return;
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				Location loc = b.getLocation();
-				BoardView bv;
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
 					plugin.statusMessage(player, "Board creation cancelled.");
-				} else if ((bv = plugin.onChessBoard(loc)) != null) {
-					deprecationWarning(player);
-					boardClicked(player, loc, bv);
-				} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
-					deprecationWarning(player);
-					pieceClicked(player, loc, bv);
 				} else {
 					// nothing?
 				}
@@ -66,7 +57,7 @@ public class ChessPlayerListener extends PlayerListener {
 				} else {
 					BoardView bv = plugin.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
-						signClicked(player, b, bv);
+						bv.getControlPanel().signClicked(player, b, bv);
 					} 
 				}
 			}
@@ -76,9 +67,6 @@ public class ChessPlayerListener extends PlayerListener {
 				plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
 				plugin.errorMessage(player, "Board creation cancelled.");
 			}
-		} catch (IllegalMoveException e) {
-			cancelMove(event.getClickedBlock().getLocation());
-			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
 		}
 	}
 
@@ -152,41 +140,6 @@ public class ChessPlayerListener extends PlayerListener {
 				}
 			}
 		}
-	}
-	
-	private void signClicked(Player player, Block b, BoardView bv) throws ChessException {
-		Sign s = (Sign) b.getState();
-		Game game = bv.getGame();
-		if (s.getLine(1).endsWith("Create Game")) {
-			plugin.getCommandExecutor().tryCreateGame(player, null, bv.getName());
-		} else if (s.getLine(1).endsWith("Start Game")) {
-			if (game != null)
-				game.start(player.getName());
-		} else if (s.getLine(1).endsWith("Resign")) {
-			if (game != null)
-				game.resign(player.getName());
-		} else if (s.getLine(1).endsWith("Offer Draw")) {
-			if (game != null)
-				plugin.getCommandExecutor().tryOfferDraw(player,game);
-		} else if (s.getLine(1).endsWith("Show Info")) {
-			if (game != null)
-				plugin.getCommandExecutor().showGameDetail(player, game.getName());
-		} else if (s.getLine(1).endsWith("Invite Player")) {
-			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
-				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
-		} else if (s.getLine(1).endsWith("Invite ANYONE")) {
-			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
-				game.inviteOpen(player.getName());
-		} else if (s.getLine(1).endsWith("Teleport Out")) {
-			plugin.getCommandExecutor().tryTeleportOut(player);
-		}
-	}
-
-	private void deprecationWarning(Player player) {
-		plugin.statusMessage(player, "&4WARNING: &-right-clicking is deprecated and will be removed soon.");
-		String wand = plugin.getConfiguration().getString("wand_item");
-		int wandId = new MaterialWithData(wand).material;
-		plugin.statusMessage(player, "Left-click while holding " + Material.getMaterial(wandId) + " to select & move.");
 	}
 
 	private void cancelMove(Location loc) {

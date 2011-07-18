@@ -12,8 +12,6 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
@@ -44,12 +42,7 @@ public class BoardView implements PositionListener {
 	private Map<Integer,ChessStone> stones;
 	private String boardStyle;
 	private byte lastLevel;
-	private Cuboid controlPanel;
-	private Cuboid toMoveIndicator;
-	private Location halfMoveClockSign;
-	private Location plyCountSign;
-	private Location whiteClockSign;
-	private Location blackClockSign;
+	private ControlPanel controlPanel;
 	
 	BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
 		this.plugin = plugin;
@@ -65,7 +58,7 @@ public class BoardView implements PositionListener {
 		validateIntersections();
 		stones = createStones(pieceStyle);
 		validateBoardParams();
-		calculateControlPanelLocation();
+		controlPanel = new ControlPanel(plugin, this);
 		lastLevel = -1;
 	}
 	
@@ -154,6 +147,10 @@ public class BoardView implements PositionListener {
 		return isLit;
 	}
 	
+	ControlPanel getControlPanel() {
+		return controlPanel;
+	}
+
 	MaterialWithData getBlackSquareMat() {
 		return blackSquareMat;
 	}
@@ -169,10 +166,6 @@ public class BoardView implements PositionListener {
 	MaterialWithData getEnclosureMat() {
 		return enclosureMat;
 	}
-
-//	Map<Integer, ChessStone> getStones() {
-//		return stones;
-//	}
 
 	@SuppressWarnings("unchecked")
 	void loadStyle(String style) throws ChessException {
@@ -227,7 +220,7 @@ public class BoardView implements PositionListener {
 		paintEnclosure();
 		paintBoard();
 		paintFrame();
-		paintControlPanel();
+		controlPanel.repaint();
 		lastLevel = -1;	// force a lighting update
 		doLighting();
 	}
@@ -284,78 +277,12 @@ public class BoardView implements PositionListener {
 		}
 	}
 
-	private void calculateControlPanelLocation() {
-		Cuboid bounds = getBounds();
-		int x = bounds.getUpperSW().getBlockX() - (4 * squareSize - 3);
-		int y = a1Square.getBlockY() + 1;
-		int z = bounds.getUpperSW().getBlockZ() + 1;
-		
-		controlPanel = new Cuboid(new Location(a1Square.getWorld(), x, y, z));
-		controlPanel.expand(Direction.North, 7).expand(Direction.Up, 2);
-
-		toMoveIndicator = new Cuboid(controlPanel.getUpperSW());
-		toMoveIndicator.shift(Direction.Down, 1).shift(Direction.North, 3).expand(Direction.North, 1);
-
-		Cuboid signCursor = new Cuboid(controlPanel.getUpperSW());
-		signCursor.shift(Direction.East, 1).shift(Direction.Down, 1).shift(Direction.North, 1);
-		halfMoveClockSign = signCursor.getUpperSW().clone();
-		signCursor.shift(Direction.North, 1);
-		whiteClockSign = signCursor.getUpperSW().clone();
-		signCursor.shift(Direction.North, 3);
-		blackClockSign = signCursor.getUpperSW().clone();
-		signCursor.shift(Direction.North, 1);
-		plyCountSign = signCursor.getUpperSW().clone();
-	}
-
-	private void paintControlPanel() {		
-		World w = a1Square.getWorld();
-		for (Location l : controlPanel) {
-			ChessCraft.setBlock(w.getBlockAt(l), frameMat);
-		}
-		toPlayChanged(Chess.WHITE);
-		MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte)0x2);
-		ChessCraft.setBlock(halfMoveClockSign.getBlock(), eastFacingWallSign);
-		halfMoveClockChanged(game == null ? 0 : game.getPosition().getHalfMoveClock());
-		ChessCraft.setBlock(plyCountSign.getBlock(), eastFacingWallSign);
-		plyNumberChanged(game == null ? 0 : game.getPosition().getPlyNumber());
-		ChessCraft.setBlock(whiteClockSign.getBlock(), eastFacingWallSign);
-		ChessCraft.setBlock(blackClockSign.getBlock(), eastFacingWallSign);
-		updateClock(Chess.WHITE, game == null ? 0 : game.getTimeWhite());
-		updateClock(Chess.BLACK, game == null ? 0 : game.getTimeBlack());
-		
-		Cuboid signCursor = new Cuboid(controlPanel.getUpperSW());
-		signCursor.shift(Direction.East, 1).shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Create Game", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Invite Player", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Invite ANYONE", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Start Game", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Offer Draw", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Resign", eastFacingWallSign);
-		signCursor.shift(Direction.North, 1).shift(Direction.Down, 1);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Show Info", eastFacingWallSign);
-		signCursor.shift(Direction.South, 7);
-		makeSign(signCursor.getUpperSW().getBlock(), 1, "&1Teleport Out", eastFacingWallSign);
-	}
 	
 	// Check if the control panel is present and draw it if necessary
 	// (will be missing if upgrading from v0.1)
 	void checkControlPanel() {
-		if (controlPanel.getUpperSW().getBlock().getTypeId() != frameMat.material) {
-			paintControlPanel();
-		}
-	}
-
-	private void makeSign(Block block, int index, String string, MaterialWithData m) {
-		ChessCraft.setBlock(block, m);
-		if (block.getState() instanceof Sign) {
-			Sign s = (Sign) block.getState();
-			s.setLine(index, ChessCraft.parseColourSpec(string));
-			s.update();
+		if (controlPanel.getPanelBlocks().getUpperSW().getBlock().getTypeId() != frameMat.material) {
+			controlPanel.repaint();
 		}
 	}
 
@@ -515,22 +442,12 @@ public class BoardView implements PositionListener {
 
 	@Override
 	public void halfMoveClockChanged(int halfMoveClock) {
-		if (halfMoveClockSign.getBlock().getState() instanceof Sign) {
-			Sign s = (Sign) halfMoveClockSign.getBlock().getState();
-			s.setLine(1, "Halfmove Clock");
-			s.setLine(2, ChessCraft.parseColourSpec("&4" + halfMoveClock));
-			s.update();
-		}
+		controlPanel.updateHalfMoveClock(halfMoveClock);
 	}
 
 	@Override
 	public void plyNumberChanged(int plyNumber) {
-		if (plyCountSign.getBlock().getState() instanceof Sign) {
-			Sign s = (Sign) plyCountSign.getBlock().getState();
-			s.setLine(1, "Ply Number");
-			s.setLine(2, ChessCraft.parseColourSpec("&4" + plyNumber));
-			s.update();
-		}
+		controlPanel.updatePlyCount(plyNumber);
 	}
 
 	@Override
@@ -554,11 +471,9 @@ public class BoardView implements PositionListener {
 		} else if (toPlay == Chess.NOBODY) {
 			mat = frameMat;
 		} else {
-			return;
+			return;  // should never get here
 		}
-		for (Location l : toMoveIndicator) {
-			ChessCraft.setBlock(l.getBlock(), mat);
-		}
+		controlPanel.updateToMoveIndicator(mat);
 	}
 
 	void setGame(Game game) {
@@ -590,7 +505,7 @@ public class BoardView implements PositionListener {
 	}
 	
 	boolean isControlPanel(Location loc) {
-		return controlPanel.contains(loc);	
+		return controlPanel.getPanelBlocks().contains(loc);	
 	}
 
 	int getSquareAt(Location loc) {
@@ -629,20 +544,5 @@ public class BoardView implements PositionListener {
 				return null;
 		}
 		return dest0;
-	}
-
-	void updateClock(int colour, int t) {
-		Location l;
-		if (colour == Chess.WHITE) {
-			l = whiteClockSign;
-		} else {
-			l = blackClockSign;
-		}
-		if (l.getBlock().getState() instanceof Sign) {
-			Sign s = (Sign) l.getBlock().getState();
-			s.setLine(1, Game.getColour(colour));
-			s.setLine(2, ChessCraft.parseColourSpec("&4" + Game.secondsToHMS(t)));
-			s.update();
-		}
 	}
 }

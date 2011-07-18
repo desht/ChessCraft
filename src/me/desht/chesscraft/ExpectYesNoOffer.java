@@ -22,6 +22,10 @@ public class ExpectYesNoOffer extends ExpectData {
 		this.accepted = accepted;
 	}
 	
+	Game getGame() {
+		return game;
+	}
+	
 	@Override
 	void doResponse(Player player) throws ChessException {
 		switch(getAction()) {

@@ -522,12 +522,12 @@ public class ChessCraft extends JavaPlugin {
 	
 	static String pieceToStr(int piece) {
 		switch (piece) {
-		case Chess.PAWN: return "pawn";
-		case Chess.ROOK: return "rook";
-		case Chess.KNIGHT: return "knight";
-		case Chess.BISHOP: return "bishop";
-		case Chess.KING: return "king";
-		case Chess.QUEEN: return "queen";
+		case Chess.PAWN: return "Pawn";
+		case Chess.ROOK: return "Rook";
+		case Chess.KNIGHT: return "Knight";
+		case Chess.BISHOP: return "Bishop";
+		case Chess.KING: return "King";
+		case Chess.QUEEN: return "Queen";
 		default: return "(unknown)";
 		}
 	}
