@@ -14,7 +14,10 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
+
+import com.sk89q.worldedit.FilenameException;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
@@ -598,11 +601,18 @@ public class BoardView implements PositionListener {
 		return Chess.coorToSqi(col, row);
 	}
 
-	// Wipe the board's contents - generally called just before the board is deleted 
 	void wipe() {
 		for (Location l : getOuterBounds()) {
-			// TODO: restore to previous terrain, not air
 			l.getBlock().setTypeId(0);
+		}
+	}
+	
+	void restoreTerrain(Player player) {
+		try {
+			TerrainBackup tb = new TerrainBackup(plugin, player, this);
+			tb.reloadTerrain();
+		} catch (FilenameException e) {
+			plugin.log(Level.WARNING, e.getMessage());
 		}
 	}
 

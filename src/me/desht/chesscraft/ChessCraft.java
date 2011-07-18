@@ -34,6 +34,7 @@ import chesspresso.Chess;
 
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 @SuppressWarnings("serial")
 public class ChessCraft extends JavaPlugin {
@@ -44,7 +45,8 @@ public class ChessCraft extends JavaPlugin {
 	static final String directory = "plugins" + File.separator + "ChessCraft";
 	final Logger logger = Logger.getLogger("Minecraft");
 
-	PermissionHandler permissionHandler;
+	private PermissionHandler permissionHandler;
+	private WorldEditPlugin worldEditPlugin;
 	
 	private final Map<String,Game> chessGames = new HashMap<String,Game>();
 	private final Map<String,BoardView> chessBoards = new HashMap<String,BoardView>();
@@ -96,12 +98,12 @@ public class ChessCraft extends JavaPlugin {
 	public void onEnable() {
 		description = this.getDescription();
 
-		if (!getDataFolder().exists())
-			setupDefaultStructure();
+		setupDefaultStructure();
 		addExtraResources();
 		
 		configInitialise();
 
+		setupWorldEdit();
 		setupPermissions();
 		getCommand("chess").setExecutor(commandExecutor);
 
@@ -133,6 +135,20 @@ public class ChessCraft extends JavaPlugin {
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!" );
 	}
 
+	private void setupWorldEdit() {
+		Plugin p = this.getServer().getPluginManager().getPlugin("WorldEdit");
+		if (p != null && p instanceof WorldEditPlugin) {
+			worldEditPlugin = (WorldEditPlugin) p;
+			log(Level.INFO, "WorldEdit plugin detected - chess board terrain saving enabled.");		
+		} else {
+			log(Level.INFO, "WorldEdit plugin not detected - chess board terrain saving disabled.");
+		}
+	}
+	
+	WorldEditPlugin getWorldEdit() {
+		return worldEditPlugin;
+	}
+
 	private void checkControlPanelCreation() {
 		for (BoardView bv : listBoardViews()) {
 			bv.checkControlPanel();
@@ -160,6 +176,7 @@ public class ChessCraft extends JavaPlugin {
 			createDir("archive");
 			createDir("board_styles");
 			createDir("piece_styles");
+			createDir("schematics");
 			
 			extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
 			extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");

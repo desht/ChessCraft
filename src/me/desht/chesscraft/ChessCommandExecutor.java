@@ -662,7 +662,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			String name = args[2];
 			BoardView view = plugin.getBoardView(name);
 			if (view.getGame() == null) {
-				view.wipe();
+				view.restoreTerrain(player);
 				plugin.removeBoardView(name);
 				plugin.statusMessage(player, "Deleted board &6" + name + "&-.");
 			} else {
