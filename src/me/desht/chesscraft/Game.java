@@ -17,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import com.iConomy.*;
+
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -45,6 +47,7 @@ public class Game {
 	private List<Short> history;
 	private int delTask;
 	private int result;
+	private float stake;
 
 	Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
@@ -64,6 +67,7 @@ public class Game {
 		lastCheck = new Date();
 		result = Chess.RES_NOT_FINISHED;
 		delTask = -1;
+		stake = 0.0f;
 
 		setupChesspressoGame();
 
@@ -312,6 +316,11 @@ public class Game {
 			throw new ChessException("There is no black player yet.");
 		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
 		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
+		if (plugin.iConomy != null && stake >= 0.0f) {
+			iConomy.getAccount(playerWhite).getHoldings().subtract(stake);
+			iConomy.getAccount(playerBlack).getHoldings().subtract(stake);
+			alert("You have paid a stake of " + iConomy.format(stake) + ".");
+		}
 		setState(GameState.RUNNING);
 	}
 
@@ -480,7 +489,20 @@ public class Game {
 			if (!msg.isEmpty())
 				alert(msg);
 		}
+		handlePayout(rt, p1);
 		setupAutoDeletion();
+	}
+
+	private void handlePayout(ResultType rt, String playerName) {
+		if (plugin.iConomy == null)
+			return;
+		if (stake <= 0.0f)
+			return;
+		
+		if (rt == ResultType.Checkmate || rt == ResultType.Resigned)  {
+			iConomy.getAccount(playerName).getHoldings().add(stake * 2);
+			alert(playerName, "You have won " + iConomy.format(stake * 2) + "!");
+		}
 	}
 
 	private void setupAutoDeletion() {
