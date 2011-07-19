@@ -11,17 +11,17 @@ public class SignButton {
 	private String text;
 	private MaterialWithData mat;
 	private String name;
-	
-	private final static ChatColor enabledCol  = ChatColor.DARK_BLUE;
+
+	private final static ChatColor enabledCol = ChatColor.DARK_BLUE;
 	private final static ChatColor disabledCol = ChatColor.DARK_GRAY;
-	
+
 	SignButton(String name, Location loc, String text, MaterialWithData mat, boolean enabled) {
 		this.name = name;
 		this.text = text;
 		this.location = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 		this.enabled = enabled;
 		this.mat = mat;
-		
+
 		repaint();
 	}
 

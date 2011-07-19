@@ -17,21 +17,19 @@ import chesspresso.Chess;
 
 public class ChessPieceLibrary {
 	ChessCraft plugin;
-	private static final String libraryDir =
-		ChessCraft.directory + File.separator + "piece_styles";
-	private final Map<String,Map<Integer,PieceTemplate>> templates =
-		new HashMap<String,Map<Integer,PieceTemplate>>();
-	
+	private static final String libraryDir = ChessCraft.directory + File.separator + "piece_styles";
+	private final Map<String, Map<Integer, PieceTemplate>> templates = new HashMap<String, Map<Integer, PieceTemplate>>();
+
 	ChessPieceLibrary(ChessCraft plugin) {
-		this.plugin = plugin;	
+		this.plugin = plugin;
 	}
 
 	boolean isChessSetLoaded(String setName) {
 		return templates.containsKey(setName);
 	}
-	
+
 	void loadChessSet(String setName) throws ChessException {
-		if (!setName.matches("\\.yml$")) 
+		if (!setName.matches("\\.yml$"))
 			setName = setName + ".yml";
 		File f = new File(libraryDir, setName);
 		try {
@@ -40,38 +38,37 @@ public class ChessPieceLibrary {
 			throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void loadChessSet(File f) throws FileNotFoundException {
 
 		String setName = null;
 		Yaml yaml = new Yaml();
 
-		try {        	
-        	Map<String,Object> pieceMap = 
-        		(Map<String,Object>) yaml.load(new FileInputStream(f));
+		try {
+			Map<String, Object> pieceMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
 
-        	setName = (String) pieceMap.get("name");
-        	if (templates.get(setName) != null)
-        		throw new ChessException("Duplicate chess set name " + setName + " detected");
-        	
-        	Map<String, Map<String,String>> mm = (Map<String, Map<String,String>>) pieceMap.get("materials");
-        	Map<String, String> whiteMats = mm.get("white");
-        	Map<String, String> blackMats = mm.get("black");
-        	
-        	Map<String, Object> mp = (Map<String,Object>) pieceMap.get("pieces");
-        	Map<Integer,PieceTemplate> pieces = new HashMap<Integer,PieceTemplate>();
-        	for (Entry<String,Object> e : mp.entrySet()) {
-        		List<List<String>> data = (List<List<String>>) e.getValue();
-        		int piece = Chess.charToPiece(e.getKey().charAt(0));
-        		PieceTemplate ptw = new PieceTemplate(data, whiteMats);
-        		pieces.put(Chess.pieceToStone(piece, Chess.WHITE), ptw);
-        		
-        		PieceTemplate ptb = new PieceTemplate(data, blackMats);
-        		pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
-        	}
-        	templates.put(setName, pieces);
-        	plugin.log(Level.INFO, "loaded set " + setName + " OK.");
+			setName = (String) pieceMap.get("name");
+			if (templates.get(setName) != null)
+				throw new ChessException("Duplicate chess set name " + setName + " detected");
+
+			Map<String, Map<String, String>> mm = (Map<String, Map<String, String>>) pieceMap.get("materials");
+			Map<String, String> whiteMats = mm.get("white");
+			Map<String, String> blackMats = mm.get("black");
+
+			Map<String, Object> mp = (Map<String, Object>) pieceMap.get("pieces");
+			Map<Integer, PieceTemplate> pieces = new HashMap<Integer, PieceTemplate>();
+			for (Entry<String, Object> e : mp.entrySet()) {
+				List<List<String>> data = (List<List<String>>) e.getValue();
+				int piece = Chess.charToPiece(e.getKey().charAt(0));
+				PieceTemplate ptw = new PieceTemplate(data, whiteMats);
+				pieces.put(Chess.pieceToStone(piece, Chess.WHITE), ptw);
+
+				PieceTemplate ptb = new PieceTemplate(data, blackMats);
+				pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
+			}
+			templates.put(setName, pieces);
+			plugin.log(Level.INFO, "loaded set " + setName + " OK.");
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -89,5 +86,5 @@ public class ChessPieceLibrary {
 		ChessStone result = new ChessStone(stone, tmpl);
 		return result;
 	}
-	
+
 }

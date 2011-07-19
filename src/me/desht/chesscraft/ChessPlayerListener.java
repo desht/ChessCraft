@@ -26,21 +26,23 @@ import chesspresso.move.IllegalMoveException;
 
 public class ChessPlayerListener extends PlayerListener {
 	private ChessCraft plugin;
-	private static final Map<String,List<String>> expecting = new HashMap<String,List<String>>();
-	
+	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
+
 	public ChessPlayerListener(ChessCraft plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	@Override
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled()) return;
-			
+		if (event.isCancelled())
+			return;
+
 		Player player = event.getPlayer();
-		
+
 		try {
 			Block b = event.getClickedBlock();
-			if (b == null) return;
+			if (b == null)
+				return;
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
@@ -50,7 +52,8 @@ public class ChessPlayerListener extends PlayerListener {
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player, ExpectAction.BoardCreation);
+					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player,
+							ExpectAction.BoardCreation);
 					a.setLocation(b.getLocation());
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					return;
@@ -58,7 +61,7 @@ public class ChessPlayerListener extends PlayerListener {
 					BoardView bv = plugin.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
 						bv.getControlPanel().signClicked(player, b, bv);
-					} 
+					}
 				}
 			}
 		} catch (ChessException e) {
@@ -71,19 +74,19 @@ public class ChessPlayerListener extends PlayerListener {
 	}
 
 	@Override
-	public void onPlayerAnimation(PlayerAnimationEvent event) {	
+	public void onPlayerAnimation(PlayerAnimationEvent event) {
 		Player player = event.getPlayer();
-		
+
 		Block targetBlock = null;
-		
+
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
 				String wand = plugin.getConfiguration().getString("wand_item");
 				int wandId = new MaterialWithData(wand).material;
 				if (player.getItemInHand().getTypeId() == wandId) {
 					HashSet<Byte> transparent = new HashSet<Byte>();
-					transparent.add((byte) 0);	// air
-					transparent.add((byte) 20);	// glass
+					transparent.add((byte) 0); // air
+					transparent.add((byte) 20); // glass
 					targetBlock = player.getTargetBlock(transparent, 100);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
@@ -94,7 +97,8 @@ public class ChessPlayerListener extends PlayerListener {
 					} else if ((bv = plugin.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
 							Location corner = bv.getBounds().getUpperSW();
-							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(), corner.getY() + 1, corner.getZ() - 2.5);
+							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(),
+									corner.getY() + 1, corner.getZ() - 2.5);
 							player.teleport(loc2);
 						}
 					}
@@ -108,9 +112,9 @@ public class ChessPlayerListener extends PlayerListener {
 			}
 			plugin.errorMessage(player, e.getMessage() + ".  Move cancelled.");
 		}
-		
+
 	}
-	
+
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		String games = "";
@@ -125,7 +129,7 @@ public class ChessPlayerListener extends PlayerListener {
 		if (!games.isEmpty())
 			plugin.alertMessage(event.getPlayer(), "Your current chess games: " + games);
 	}
-	
+
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
@@ -144,7 +148,7 @@ public class ChessPlayerListener extends PlayerListener {
 
 	private void cancelMove(Location loc) {
 		BoardView bv = plugin.onChessBoard(loc);
-		if (bv == null) 
+		if (bv == null)
 			bv = plugin.aboveChessBoard(loc);
 		if (bv != null && bv.getGame() != null) {
 			bv.getGame().setFromSquare(Chess.NO_SQUARE);
@@ -155,7 +159,7 @@ public class ChessPlayerListener extends PlayerListener {
 		Game game = bv.getGame();
 		if (game == null || game.getState() != GameState.RUNNING)
 			return;
-		
+
 		if (game.isPlayerToMove(player.getName())) {
 			if (game.getFromSquare() == Chess.NO_SQUARE) {
 				int sqi = game.getView().getSquareAt(loc);
@@ -182,9 +186,8 @@ public class ChessPlayerListener extends PlayerListener {
 			plugin.errorMessage(player, "It is not your turn!");
 		}
 	}
-	
-	private void boardClicked(Player player, Location loc, BoardView bv)
-			throws IllegalMoveException, ChessException {
+
+	private void boardClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
 		int sqi = bv.getSquareAt(loc);
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {

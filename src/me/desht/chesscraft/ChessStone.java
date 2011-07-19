@@ -4,7 +4,7 @@ import chesspresso.Chess;
 
 public class ChessStone extends PieceTemplate {
 	int stone;
-	
+
 	public int getStone() {
 		return stone;
 	}
@@ -12,7 +12,7 @@ public class ChessStone extends PieceTemplate {
 	ChessStone(int stone, PieceTemplate t) {
 		super(t);
 		this.stone = stone;
-		
+
 		if (Chess.stoneHasColor(stone, Chess.BLACK))
 			rotate(180);
 	}
@@ -21,7 +21,7 @@ public class ChessStone extends PieceTemplate {
 		MaterialWithData[][][] newArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 		int maxX = sizeX - 1;
 		int maxZ = sizeZ - 1;
-		
+
 		switch (rotation % 360) {
 		case 0:
 			return;

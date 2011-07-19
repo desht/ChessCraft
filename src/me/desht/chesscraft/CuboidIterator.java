@@ -8,7 +8,7 @@ public class CuboidIterator implements Iterator<Location> {
 	private Location base;
 	private int x, y, z;
 	private int sizeX, sizeY, sizeZ;
-	
+
 	public CuboidIterator(Location l1, Location l2) {
 		base = l1.clone();
 		sizeX = Math.abs(l2.getBlockX() - l1.getBlockX()) + 1;
@@ -16,7 +16,7 @@ public class CuboidIterator implements Iterator<Location> {
 		sizeZ = Math.abs(l2.getBlockZ() - l1.getBlockZ()) + 1;
 		x = y = z = 0;
 	}
-	
+
 	@Override
 	public boolean hasNext() {
 		return x < sizeX && y < sizeY && z < sizeZ;

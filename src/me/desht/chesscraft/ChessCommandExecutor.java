@@ -30,93 +30,92 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private ChessCraft plugin;
 	private final List<String> messageBuffer = new ArrayList<String>();
 	private static int pageSize = 16;
-	
+
 	public ChessCommandExecutor(ChessCraft plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label,
-			String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		Player player = null;
 		if (sender instanceof Player) {
 			player = (Player) sender;
 		}
-		
-    	if (label.equalsIgnoreCase("chess")) {
-    		if (args.length == 0) {
-    			return false;
-    		}
-    		try {
-    			if (partialMatch(args[0], "ga")) {			// game
-    				gameCommand(player, args);
-    			} else if (partialMatch(args[0], "c")) {	// create
-    				createCommands(player, args);
-    			} else if (partialMatch(args[0], "d")) {	// delete
-    				deleteCommands(player, args);
-    			} else if (partialMatch(args[0], "l")) {	// list
-    				listCommands(player, args);
-    			} else if (partialMatch(args[0], "i")) {	// invite
-    				inviteCommand(player, args);
-    			} else if (partialMatch(args[0], "j")) {	// join
-    				joinCommand(player, args);
-    			} else if (partialMatch(args[0], "st")) {	// start
-    				startCommand(player, args);
-    			} else if (partialMatch(args[0], "res")) {	// resign
-    				resignCommand(player, args);
-    			} else if (partialMatch(args[0], "red")) {	// redraw
-    				redrawCommand(player, args);
-    			} else if (partialMatch(args[0], "m")) {	// move
-    				moveCommand(player, args);
-    			} else if (partialMatch(args[0], "pa")) {	// page
-    				pagedDisplay(player, args);
-    			} else if (partialMatch(args[0], "pr")) {	// promotion
-    				promoCommand(player, args);
-    			} else if (partialMatch(args[0], "sa")) {	// save
-    				saveCommand(player, args);
-    			} else if (partialMatch(args[0], "rel")) {	// reload
-    				reloadCommand(player, args);
-    			} else if (partialMatch(args[0], "t")) {	// tp
-    				teleportCommand(player, args);
-    			} else if (partialMatch(args[0], "a")) {	// archive
-    				archiveCommand(player, args);
-    			} else if (partialMatch(args[0], "o")) {	// offer
-    				offerCommand(player, args);
-    			} else if (partialMatch(args[0], "y")) {	// yes
-    				responseCommand(player, args);
-    			} else if (partialMatch(args[0], "n")) {	// no
-    				responseCommand(player, args);
-    			} else if (partialMatch(args[0], "set")) {	// setcfg
-    				setcfgCommand(player, args);
-    			} else if (partialMatch(args[0], "get")) {	// getcfg
-    				getcfgCommand(player, args);
-    			} else if (partialMatch(args[0], "fen")) {	// fen
-    				fenCommand(player, args);
-    			} else if (partialMatch(args[0], "w")) {	// win
-    				claimVictoryCommand(player, args);
-    			} else {
-    				return false;
-    			}
-    		} catch (IllegalArgumentException e) {
-    			plugin.errorMessage(player, e.getMessage());
-    		} catch (ChessException e) {
-    			plugin.errorMessage(player, e.getMessage());
-    		} catch (IllegalMoveException e ) {
-    			plugin.errorMessage(player, e.getMessage());
-    		}
-    	} else {
-    		return false;
-    	}
+
+		if (label.equalsIgnoreCase("chess")) {
+			if (args.length == 0) {
+				return false;
+			}
+			try {
+				if (partialMatch(args[0], "ga")) { // game
+					gameCommand(player, args);
+				} else if (partialMatch(args[0], "c")) { // create
+					createCommands(player, args);
+				} else if (partialMatch(args[0], "d")) { // delete
+					deleteCommands(player, args);
+				} else if (partialMatch(args[0], "l")) { // list
+					listCommands(player, args);
+				} else if (partialMatch(args[0], "i")) { // invite
+					inviteCommand(player, args);
+				} else if (partialMatch(args[0], "j")) { // join
+					joinCommand(player, args);
+				} else if (partialMatch(args[0], "st")) { // start
+					startCommand(player, args);
+				} else if (partialMatch(args[0], "res")) { // resign
+					resignCommand(player, args);
+				} else if (partialMatch(args[0], "red")) { // redraw
+					redrawCommand(player, args);
+				} else if (partialMatch(args[0], "m")) { // move
+					moveCommand(player, args);
+				} else if (partialMatch(args[0], "pa")) { // page
+					pagedDisplay(player, args);
+				} else if (partialMatch(args[0], "pr")) { // promotion
+					promoCommand(player, args);
+				} else if (partialMatch(args[0], "sa")) { // save
+					saveCommand(player, args);
+				} else if (partialMatch(args[0], "rel")) { // reload
+					reloadCommand(player, args);
+				} else if (partialMatch(args[0], "t")) { // tp
+					teleportCommand(player, args);
+				} else if (partialMatch(args[0], "a")) { // archive
+					archiveCommand(player, args);
+				} else if (partialMatch(args[0], "o")) { // offer
+					offerCommand(player, args);
+				} else if (partialMatch(args[0], "y")) { // yes
+					responseCommand(player, args);
+				} else if (partialMatch(args[0], "n")) { // no
+					responseCommand(player, args);
+				} else if (partialMatch(args[0], "set")) { // setcfg
+					setcfgCommand(player, args);
+				} else if (partialMatch(args[0], "get")) { // getcfg
+					getcfgCommand(player, args);
+				} else if (partialMatch(args[0], "fen")) { // fen
+					fenCommand(player, args);
+				} else if (partialMatch(args[0], "w")) { // win
+					claimVictoryCommand(player, args);
+				} else {
+					return false;
+				}
+			} catch (IllegalArgumentException e) {
+				plugin.errorMessage(player, e.getMessage());
+			} catch (ChessException e) {
+				plugin.errorMessage(player, e.getMessage());
+			} catch (IllegalMoveException e) {
+				plugin.errorMessage(player, e.getMessage());
+			}
+		} else {
+			return false;
+		}
 		return true;
 	}
-	
+
 	private void claimVictoryCommand(Player player, String[] args) throws ChessException {
 		Game game = plugin.getCurrentGame(player, true);
-		
+
 		String other = game.getOtherPlayer(player.getName());
 		if (other.isEmpty())
 			return;
-		
+
 		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
 		long leftAt = plugin.getPlayerLeftAt(other);
 		if (leftAt == 0)
@@ -132,13 +131,13 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void fenCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.fen", Privilege.Admin);
-		
+
 		if (args.length < 2)
 			return;
 		Game game = plugin.getCurrentGame(player, true);
-		
+
 		game.setFen(combine(args, 1));
-		
+
 		plugin.statusMessage(player, "Game position for &6" + game.getName() + "&- has been updated.");
 		plugin.statusMessage(player, "&f" + Game.getColour(game.getPosition().getToPlay()) + "&- to play.");
 		plugin.statusMessage(player, "&4NOTE: &-move history invalidated, this game can no longer be saved.");
@@ -146,7 +145,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void gameCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.game", Privilege.Basic);
-		
+
 		if (args.length >= 2) {
 			plugin.setCurrentGame(player.getName(), args[1]);
 			plugin.statusMessage(player, "Your active game is now '" + args[1] + "'.");
@@ -162,14 +161,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void listCommands(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.list", Privilege.Basic);
-		
-		if (partialMatch(args, 1, "g")) {			// game
+
+		if (partialMatch(args, 1, "g")) { // game
 			if (args.length > 2) {
 				showGameDetail(player, args[2]);
 			} else {
 				listGames(player);
 			}
-		} else if (partialMatch(args, 1, "b")) {	// board
+		} else if (partialMatch(args, 1, "b")) { // board
 			if (args.length > 2) {
 				showBoardDetail(player, args[2]);
 			} else {
@@ -183,11 +182,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void deleteCommands(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.delete", Privilege.Admin);
-		
-		if (partialMatch(args, 1, "g")) {			// game
+
+		if (partialMatch(args, 1, "g")) { // game
 			tryDeleteGame(player, args);
 			plugin.maybeSave();
-		} else if (partialMatch(args, 1, "b")) {	// board
+		} else if (partialMatch(args, 1, "b")) { // board
 			tryDeleteBoard(player, args);
 			plugin.maybeSave();
 		} else {
@@ -197,12 +196,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void createCommands(Player player, String[] args) throws ChessException {
-		if (partialMatch(args, 1, "g")) {			// game
-			String gameName  = args.length >= 3 ? args[2] : null;
+		if (partialMatch(args, 1, "g")) { // game
+			String gameName = args.length >= 3 ? args[2] : null;
 			String boardName = args.length >= 4 ? args[3] : null;
 			tryCreateGame(player, gameName, boardName);
 			plugin.maybeSave();
-		} else if (partialMatch(args, 1, "b")) {	// board
+		} else if (partialMatch(args, 1, "b")) { // board
 			tryCreateBoard(player, args);
 			plugin.maybeSave();
 		} else {
@@ -213,14 +212,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void saveCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.save", Privilege.Admin);
-		
+
 		plugin.persistence.save();
 		plugin.statusMessage(player, "Chess boards & games have been saved.");
 	}
-	
+
 	private void reloadCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.reload", Privilege.Admin);
-		
+
 		plugin.getConfiguration().load();
 		plugin.persistence.reload();
 		plugin.statusMessage(player, "Chess boards & games have been reloaded.");
@@ -228,7 +227,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void startCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.start", Privilege.Basic);
-		
+
 		if (args.length >= 2) {
 			plugin.getGame(args[1]).start(player.getName());
 		} else {
@@ -239,7 +238,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void resignCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.resign", Privilege.Basic);
-		
+
 		if (args.length >= 2) {
 			plugin.getGame(args[1]).resign(player.getName());
 		} else {
@@ -250,9 +249,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void moveCommand(Player player, String[] args) throws IllegalMoveException, ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.move", Privilege.Basic);
-		
+
 		if (args.length < 2) {
-			plugin.errorMessage(player, "Usage: /chess move <from> <to>" + ChatColor.DARK_PURPLE + " (standard algebraic notation)");
+			plugin.errorMessage(player, "Usage: /chess move <from> <to>" + ChatColor.DARK_PURPLE
+					+ " (standard algebraic notation)");
 			return;
 		}
 		Game game = plugin.getCurrentGame(player, true);
@@ -278,7 +278,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void inviteCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.invite", Privilege.Basic);
-		
+
 		Game game = plugin.getCurrentGame(player, true);
 		if (args.length >= 2) {
 			Player invitee = plugin.getServer().getPlayer(args[1]);
@@ -296,7 +296,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void joinCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.join", Privilege.Basic);
-		
+
 		String gameName = null;
 		if (args.length >= 2) {
 			gameName = args[1];
@@ -312,13 +312,13 @@ public class ChessCommandExecutor implements CommandExecutor {
 			if (gameName == null)
 				throw new ChessException("You don't have any pending invitations right now.");
 		}
-		
+
 		Game game = plugin.getGame(gameName);
 		plugin.setCurrentGame(player.getName(), game);
 		int playingAs = game.playingAs(player.getName());
 		plugin.statusMessage(player, "You have joined the chess game &6" + gameName + "&-.");
 		plugin.statusMessage(player, "You will be playing as &f" + Game.getColour(playingAs) + "&-.");
-		
+
 		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
 			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerWhite()), game);
 			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerBlack()), game);
@@ -329,7 +329,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void redrawCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.redraw", Privilege.Admin);
-		
+
 		if (args.length >= 2) {
 			plugin.getBoardView(args[1]).paintAll();
 		} else {
@@ -341,7 +341,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void teleportCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.tp", Privilege.Basic);
-		
+
 		if (args.length < 2) {
 			// back to where we were
 			tryTeleportOut(player);
@@ -354,7 +354,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void archiveCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.archive", Privilege.Basic);
-		
+
 		Game game = plugin.getCurrentGame(player, true);
 		File written = game.writePGN(false);
 		plugin.statusMessage(player, "Wrote PGN archive to " + written.getName() + ".");
@@ -362,13 +362,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void offerCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.offer", Privilege.Basic);
-		
+
 		Game game = plugin.getCurrentGame(player, true);
-		
-		
-		if (partialMatch(args, 1, "d")) {			// draw
+
+		if (partialMatch(args, 1, "d")) { // draw
 			tryOfferDraw(player, game);
-		} else if (partialMatch(args, 1, "s")) { 	// swap sides
+		} else if (partialMatch(args, 1, "s")) { // swap sides
 			tryOfferSwap(player, game);
 		} else {
 			plugin.errorMessage(player, "Usage: /chess offer (draw|swap)");
@@ -378,24 +377,25 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void responseCommand(Player player, String[] args) throws ChessException {
 		boolean isAccepted = partialMatch(args, 0, "y") ? true : false;
-		
+
 		doResponse(player, isAccepted);
 	}
 
 	private void promoCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.promote", Privilege.Basic);
-		
+
 		if (args.length >= 2) {
 			Game game = plugin.getCurrentGame(player, true);
 			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
 			game.setPromotionPiece(player.getName(), piece);
-			plugin.statusMessage(player, "Promotion piece for game &6" + game.getName() + "&- has been set to " + ChessCraft.pieceToStr(piece).toUpperCase());
+			plugin.statusMessage(player, "Promotion piece for game &6" + game.getName() + "&- has been set to "
+					+ ChessCraft.pieceToStr(piece).toUpperCase());
 		}
 	}
 
 	private void getcfgCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.getcfg", Privilege.Admin);
-		
+
 		messageBuffer.clear();
 		if (args.length < 2) {
 			for (String line : plugin.getConfigList()) {
@@ -414,7 +414,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void setcfgCommand(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.setcfg", Privilege.Admin);
-		
+
 		if (args.length < 3) {
 			plugin.errorMessage(player, "Usage: /chess setcfg <key> <value>");
 			return;
@@ -424,7 +424,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void doTeleport(Player player, Location loc) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.tp", Privilege.Basic);
-		
+
 		plugin.setLastPos(player, player.getLocation());
 		player.teleport(loc);
 	}
@@ -435,7 +435,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		BoardView bv = game.getView();
 		if (bv.isPartOfBoard(player.getLocation()))
 			return;
-		
+
 		Location loc;
 		if (game.getPlayerWhite().equals(player.getName())) {
 			loc = bv.getBounds().getUpperSW().clone();
@@ -484,8 +484,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 			game.swapColours();
 		} else {
 			plugin.requirePerms(player, "chesscraft.commands.offer.swap", Privilege.Basic);
-			plugin.expecter.expectingResponse(player, ExpectAction.SwapResponse,
-					new ExpectYesNoOffer(plugin, game, player.getName(), other), other);
+			plugin.expecter.expectingResponse(player, ExpectAction.SwapResponse, new ExpectYesNoOffer(plugin, game,
+					player.getName(), other), other);
 			plugin.statusMessage(player, "You have offered to swap sides with &6" + other + "&-.");
 			game.alert(other, "&6" + player.getName() + "&- has offered to swap sides.");
 			game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
@@ -493,15 +493,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	void tryOfferDraw(Player player, Game game)	throws ChessException {
+	void tryOfferDraw(Player player, Game game) throws ChessException {
 		String other = game.getOtherPlayer(player.getName());
 		if (!player.getName().equals(game.getPlayerToMove()))
 			throw new ChessException("You can only offer a draw on your turn.");
-		if (game.getState() != GameState.RUNNING) 
+		if (game.getState() != GameState.RUNNING)
 			throw new ChessException("The game must be running to offer a draw!");
 		plugin.requirePerms(player, "chesscraft.commands.offer.draw", Privilege.Basic);
-		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse,
-				new ExpectYesNoOffer(plugin, game, player.getName(), other), other);
+		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse, new ExpectYesNoOffer(plugin, game, player
+				.getName(), other), other);
 		plugin.statusMessage(player, "You have offered a draw to &6" + other + "&-.");
 		game.alert(other, "&6" + player.getName() + "&- has offered a draw.");
 		game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
@@ -527,50 +527,50 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 		pagedDisplay(player, 1);
 	}
-	
+
 	void showGameDetail(Player player, String gameName) throws ChessException {
 		Game game = plugin.getGame(gameName);
-		
+
 		String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
 		String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
-		
+
 		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA;
 		messageBuffer.clear();
 		messageBuffer.add("&eGame " + gameName + " [" + game.getState() + "] :");
-		messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6" + game.getView().getName());
+		messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
+				+ game.getView().getName());
 		messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
 		messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
 		if (game.getState() == GameState.RUNNING) {
-			messageBuffer.add(bullet +
-					"Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) +
-					", Black: " + Game.secondsToHMS(game.getTimeBlack()));
+			messageBuffer.add(bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
+					+ Game.secondsToHMS(game.getTimeBlack()));
 		}
 		if (game.getInvited().equals("*"))
 			messageBuffer.add(bullet + "Game has an open invitation");
-		else if (!game.getInvited().isEmpty()) 
+		else if (!game.getInvited().isEmpty())
 			messageBuffer.add(bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
 		messageBuffer.add("&eMove history:");
 		List<Short> h = game.getHistory();
 		for (int i = 0; i < h.size(); i += 2) {
-			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i/2) + 1));
+			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1));
 			sb.append(Move.getString(h.get(i)));
 			if (i < h.size() - 1) {
 				sb.append("  " + Move.getString(h.get(i + 1)));
 			}
 			messageBuffer.add(sb.toString());
 		}
-		
+
 		pagedDisplay(player, 1);
 	}
-	
+
 	void showBoardDetail(Player player, String boardName) throws ChessException {
 		BoardView bv = plugin.getBoardView(boardName);
-		
+
 		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA;
 		String w = ChatColor.WHITE.toString();
 		Cuboid bounds = bv.getOuterBounds();
 		String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-		
+
 		messageBuffer.clear();
 		messageBuffer.add(ChatColor.YELLOW + "Board " + boardName + ":");
 		messageBuffer.add(bullet + "Lower NE corner: " + w + ChessCraft.formatLoc(bounds.getLowerNE()));
@@ -578,43 +578,43 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "Game: " + w + gameName);
 		messageBuffer.add(bullet + "Board Style: " + w + bv.getBoardStyle());
 		messageBuffer.add(bullet + "Piece Style: " + w + bv.getPieceStyle());
-		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize() + 
-				" (" + bv.getWhiteSquareMat() + "/" + bv.getBlackSquareMat() + ")");
+		messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
+				+ bv.getBlackSquareMat() + ")");
 		messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
 		messageBuffer.add(bullet + "Enclosure: " + w + bv.getEnclosureMat());
 		messageBuffer.add(bullet + "Height: " + w + bv.getHeight());
 		messageBuffer.add(bullet + "Lit: " + w + bv.getIsLit());
-		
+
 		pagedDisplay(player, 1);
 	}
 
 	void listBoards(Player player) {
 		messageBuffer.clear();
-		for (BoardView bv: plugin.listBoardViews()) {
+		for (BoardView bv : plugin.listBoardViews()) {
 			String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-			messageBuffer.add("&6" + bv.getName() + ": &-loc=&f" + ChessCraft.formatLoc(bv.getA1Square()) + 
-					"&-, style=&6" + bv.getBoardStyle() + "&-, game=&6" + gameName);
+			messageBuffer.add("&6" + bv.getName() + ": &-loc=&f" + ChessCraft.formatLoc(bv.getA1Square())
+					+ "&-, style=&6" + bv.getBoardStyle() + "&-, game=&6" + gameName);
 		}
 		pagedDisplay(player, 1);
 	}
 
 	void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.create.game", Privilege.Basic);
-		
+
 		BoardView bv;
 		if (boardName == null)
 			bv = plugin.getFreeBoard();
 		else
 			bv = plugin.getBoardView(boardName);
-		
+
 		if (gameName == null)
 			gameName = plugin.makeGameName(player);
-		
+
 		Game game = new Game(plugin, gameName, bv, player.getName());
 		plugin.addGame(gameName, game);
 		plugin.setCurrentGame(player.getName(), game);
 		bv.getControlPanel().repaintSignButtons();
-		
+
 		plugin.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
 		plugin.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
 		plugin.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
@@ -622,7 +622,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	void tryDeleteGame(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.delete.game", Privilege.Admin);
-		
+
 		String gameName = args[2];
 		Game game = plugin.getGame(gameName);
 		String deleter = player == null ? "CONSOLE" : player.getName();
@@ -636,8 +636,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	void tryCreateBoard(Player player, String[] args) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.create.board", Privilege.Admin);
-		
-		Map<String, String>options = parseCommand(args, 3);
+
+		Map<String, String> options = parseCommand(args, 3);
 
 		String name = null;
 		if (args.length >= 3) {
@@ -649,7 +649,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String pieceStyle = options.get("pstyle");
 		plugin.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
 		plugin.statusMessage(player, "This block will become the centre of the board's A1 square.");
-		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name, style, pieceStyle));
+		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name,
+				style, pieceStyle));
 	}
 
 	void tryDeleteBoard(Player player, String[] args) throws ChessException {
@@ -662,7 +663,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 				plugin.removeBoardView(name);
 				plugin.statusMessage(player, "Deleted board &6" + name + "&-.");
 			} else {
-				plugin.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '" + view.getGame().getName() + "'.");
+				plugin.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '"
+						+ view.getGame().getName() + "'.");
 			}
 		}
 	}
@@ -686,15 +688,16 @@ public class ChessCommandExecutor implements CommandExecutor {
 			a.setReponse(isAccepted);
 			plugin.expecter.handleAction(player, ExpectAction.SwapResponse);
 		}
-		
+
 		if (a != null) {
 			a.getGame().getView().getControlPanel().repaintSignButtons();
-		}	
+		}
 	}
 
 	private void pagedDisplay(Player player, String[] args) {
 		int pageNum = 1;
-		if (args.length < 2) return;
+		if (args.length < 2)
+			return;
 		try {
 			pageNum = Integer.parseInt(args[1]);
 			pagedDisplay(player, pageNum);
@@ -702,15 +705,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 			plugin.errorMessage(player, "invalid argument '" + args[1] + "'");
 		}
 	}
-	
+
 	private void pagedDisplay(Player player, int pageNum) {
 		if (player != null) {
 			// pretty paged display
 			int nMessages = messageBuffer.size();
-			plugin.statusMessage(player, ChatColor.GREEN + "" +  nMessages +
-					" lines (page " + pageNum + "/" + ((nMessages-1) / pageSize + 1) + ")");
+			plugin.statusMessage(player, ChatColor.GREEN + "" + nMessages + " lines (page " + pageNum + "/"
+					+ ((nMessages - 1) / pageSize + 1) + ")");
 			plugin.statusMessage(player, ChatColor.GREEN + "---------------");
-			for (int i = (pageNum -1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
+			for (int i = (pageNum - 1) * pageSize; i < nMessages && i < pageNum * pageSize; i++) {
 				plugin.statusMessage(player, messageBuffer.get(i));
 			}
 			plugin.statusMessage(player, ChatColor.GREEN + "---------------");
@@ -718,15 +721,16 @@ public class ChessCommandExecutor implements CommandExecutor {
 			plugin.statusMessage(player, ChatColor.GREEN + footer);
 		} else {
 			// just dump the whole message buffer to the console
-			for (String s: messageBuffer) {
+			for (String s : messageBuffer) {
 				plugin.statusMessage(null, ChatColor.stripColor(ChessCraft.parseColourSpec(s)));
 			}
 		}
 	}
-	
+
 	private static String combine(String[] args, int idx) {
 		return combine(args, idx, args.length - 1);
 	}
+
 	private static String combine(String[] args, int idx1, int idx2) {
 		StringBuilder result = new StringBuilder();
 		for (int i = idx1; i <= idx2; i++) {
@@ -739,49 +743,54 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private static boolean partialMatch(String[] args, int index, String match) {
-		if (index >= args.length) return false;
+		if (index >= args.length)
+			return false;
 		return partialMatch(args[index], match);
 	}
-	
+
 	private static Boolean partialMatch(String str, String match) {
 		int l = match.length();
-		if (str.length() < l) return false;
+		if (str.length() < l)
+			return false;
 		return str.substring(0, l).equalsIgnoreCase(match);
 	}
 
-//	private boolean onConsole(Player player) {
-//		if (player == null) {
-//			plugin.errorMessage(player, "This command cannot be run from the console.");
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-	
-//	private Location parseLocation(String arglist, Player player) {
-//		String s = player == null ? ",worldname" : "";
-//		String args[] = arglist.split(",");
-//		try {
-//			int x = Integer.parseInt(args[0]);
-//			int y = Integer.parseInt(args[1]);
-//			int z = Integer.parseInt(args[2]);
-//			World w = (player == null) ?
-//					plugin.getServer().getWorld(args[3]) :
-//					player.getWorld();
-//			if (w == null) throw new IllegalArgumentException("Unknown world: " + args[3]);
-//			return new Location(w, x, y, z);
-//		} catch (ArrayIndexOutOfBoundsException e) {
-//			throw new IllegalArgumentException("You must specify all of x,y,z" + s + ".");
-//		} catch (NumberFormatException e) {
-//			throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
-//		}
-//	}
-	
+	// private boolean onConsole(Player player) {
+	// if (player == null) {
+	// plugin.errorMessage(player,
+	// "This command cannot be run from the console.");
+	// return true;
+	// } else {
+	// return false;
+	// }
+	// }
+
+	// private Location parseLocation(String arglist, Player player) {
+	// String s = player == null ? ",worldname" : "";
+	// String args[] = arglist.split(",");
+	// try {
+	// int x = Integer.parseInt(args[0]);
+	// int y = Integer.parseInt(args[1]);
+	// int z = Integer.parseInt(args[2]);
+	// World w = (player == null) ?
+	// plugin.getServer().getWorld(args[3]) :
+	// player.getWorld();
+	// if (w == null) throw new IllegalArgumentException("Unknown world: " +
+	// args[3]);
+	// return new Location(w, x, y, z);
+	// } catch (ArrayIndexOutOfBoundsException e) {
+	// throw new IllegalArgumentException("You must specify all of x,y,z" + s +
+	// ".");
+	// } catch (NumberFormatException e) {
+	// throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
+	// }
+	// }
+
 	private Map<String, String> parseCommand(String[] args, int start) {
-		Map<String,String> res = new HashMap<String,String>();
-		
+		Map<String, String> res = new HashMap<String, String>();
+
 		Pattern pattern = Pattern.compile("^-(.+)");
-	
+
 		for (int i = start; i < args.length; i++) {
 			Matcher matcher = pattern.matcher(args[i]);
 			if (matcher.find()) {
@@ -796,5 +805,4 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return res;
 	}
 
-	
 }

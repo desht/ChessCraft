@@ -8,18 +8,18 @@ import org.bukkit.event.entity.EntityListener;
 
 public class ChessEntityListener extends EntityListener {
 	ChessCraft plugin;
-	
+
 	public ChessEntityListener(ChessCraft plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 		if (event.isCancelled())
 			return;
 		if (!plugin.getConfiguration().getBoolean("no_creatures", false))
 			return;
-		
+
 		Location loc = event.getLocation();
 		for (BoardView bv : plugin.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
@@ -28,14 +28,14 @@ public class ChessEntityListener extends EntityListener {
 			}
 		}
 	}
-	
+
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled())
 			return;
 		if (!plugin.getConfiguration().getBoolean("no_explosions", false))
 			return;
-		
+
 		for (Block b : event.blockList()) {
 			for (BoardView bv : plugin.listBoardViews()) {
 				if (bv.isPartOfBoard(b.getLocation())) {
@@ -45,5 +45,5 @@ public class ChessEntityListener extends EntityListener {
 			}
 		}
 	}
-	
+
 }

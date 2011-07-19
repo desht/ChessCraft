@@ -22,51 +22,51 @@ import org.bukkit.util.config.Configuration;
 public class ChessPersistence {
 	private ChessCraft plugin;
 	private static final String persistFile = "persist.yml";
-	
+
 	ChessPersistence(ChessCraft plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	void save() {
 		savePersistedData();
 	}
-	
+
 	void reload() {
 		loadPersistedData();
 	}
 
 	static List<Object> makeBlockList(Location l) {
-	    List<Object> list = new ArrayList<Object>();
-	    list.add(l.getWorld().getName());
-	    list.add(l.getBlockX());
-	    list.add(l.getBlockY());
-	    list.add(l.getBlockZ());
-	
-	    return list;
-	}
-	
-	static World findWorld(String worldName) {
-	    World w = Bukkit.getServer().getWorld(worldName);
-	
-	    if (w != null) {
-	    	return w;
-	    } else {
-	    	throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
-	    }
+		List<Object> list = new ArrayList<Object>();
+		list.add(l.getWorld().getName());
+		list.add(l.getBlockX());
+		list.add(l.getBlockY());
+		list.add(l.getBlockZ());
+
+		return list;
 	}
 
-	private void savePersistedData() {		
+	static World findWorld(String worldName) {
+		World w = Bukkit.getServer().getWorld(worldName);
+
+		if (w != null) {
+			return w;
+		} else {
+			throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
+		}
+	}
+
+	private void savePersistedData() {
 		Configuration conf = new Configuration(new File(plugin.getDataFolder(), persistFile));
 
 		conf.setProperty("current_games", plugin.getCurrentGames());
 
-		List<Map<String,Object>> boards = new ArrayList<Map<String,Object>>();
+		List<Map<String, Object>> boards = new ArrayList<Map<String, Object>>();
 		for (BoardView bv : plugin.listBoardViews()) {
 			boards.add(bv.freeze());
 		}
 		conf.setProperty("boards", boards);
-		
-		List<Map<String,Object>> games = new ArrayList<Map<String,Object>>();
+
+		List<Map<String, Object>> games = new ArrayList<Map<String, Object>>();
 		for (Game game : plugin.listGames()) {
 			games.add(game.freeze());
 		}
@@ -80,31 +80,32 @@ public class ChessPersistence {
 		File f = new File(plugin.getDataFolder(), persistFile);
 		Configuration conf = new Configuration(f);
 		conf.load();
-		
+
 		int nWantedBoards = 0, nLoadedBoards = 0;
-		int nWantedGames  = 0, nLoadedGames  = 0;
-		
-		List<Map<String,Object>> boards = (List<Map<String,Object>>) conf.getProperty("boards");
+		int nWantedGames = 0, nLoadedGames = 0;
+
+		List<Map<String, Object>> boards = (List<Map<String, Object>>) conf.getProperty("boards");
 		if (boards != null) {
 			nWantedBoards = boards.size();
 			nLoadedBoards = loadBoards(boards);
 		}
-		List<Map<String,Object>> games = (List<Map<String,Object>>) conf.getProperty("games");
+		List<Map<String, Object>> games = (List<Map<String, Object>>) conf.getProperty("games");
 		if (games != null) {
 			nWantedGames = games.size();
 			nLoadedGames = loadGames(games);
 		}
 
-		if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) 
+		if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames)
 			makeBackup(f);
-		
-		Map<String,String> cgMap = (Map<String,String>) conf.getProperty("current_games");
+
+		Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
 		if (cgMap != null) {
-			for (Entry<String,String>entry : cgMap.entrySet()) {
+			for (Entry<String, String> entry : cgMap.entrySet()) {
 				try {
 					plugin.setCurrentGame(entry.getKey(), entry.getValue());
 				} catch (ChessException e) {
-					plugin.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": " + e.getMessage());
+					plugin.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
+							+ e.getMessage());
 				}
 			}
 		}
@@ -114,8 +115,8 @@ public class ChessPersistence {
 		try {
 			File backup = getBackupFileName(original.getParentFile(), persistFile);
 
-			plugin.log(Level.INFO, "An error occurred while loading the saved data, so a backup copy of "
-					+ original + " is being created. The backup can be found at " + backup.getPath());
+			plugin.log(Level.INFO, "An error occurred while loading the saved data, so a backup copy of " + original
+					+ " is being created. The backup can be found at " + backup.getPath());
 			copy(original, backup);
 		} catch (IOException e) {
 			plugin.log(Level.SEVERE, "Error while trying to write backup file: " + e);
@@ -123,41 +124,43 @@ public class ChessPersistence {
 	}
 
 	static File getBackupFileName(File parentFile, String template) {
-        String ext = ".BACKUP.";
-        File backup;
-        int idx = 0;
+		String ext = ".BACKUP.";
+		File backup;
+		int idx = 0;
 
-        do {
-            backup = new File(parentFile, template + ext + idx);
-            idx++;
-        } while (backup.exists());
-        return backup;
-    }
-	
-	static void copy(File src, File dst) throws IOException {
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dst);
-
-        // Transfer bytes from in to out
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
-        }
-        in.close();
-        out.close();
+		do {
+			backup = new File(parentFile, template + ext + idx);
+			idx++;
+		} while (backup.exists());
+		return backup;
 	}
-	
+
+	static void copy(File src, File dst) throws IOException {
+		InputStream in = new FileInputStream(src);
+		OutputStream out = new FileOutputStream(dst);
+
+		// Transfer bytes from in to out
+		byte[] buf = new byte[1024];
+		int len;
+		while ((len = in.read(buf)) > 0) {
+			out.write(buf, 0, len);
+		}
+		in.close();
+		out.close();
+	}
+
 	@SuppressWarnings("unchecked")
-	private	int loadBoards(List<Map<String,Object>> boardList) {
-		int nLoaded = 0;		
-		for (Map<String,Object> boardMap: boardList) {
+	private int loadBoards(List<Map<String, Object>> boardList) {
+		int nLoaded = 0;
+		for (Map<String, Object> boardMap : boardList) {
 			String bvName = (String) boardMap.get("name");
-			List<Object>origin = (List<Object>) boardMap.get("origin");
+			List<Object> origin = (List<Object>) boardMap.get("origin");
 			World w = findWorld((String) origin.get(0));
-			Location originLoc = new Location(w, (Integer)origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
+			Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin
+					.get(3));
 			try {
-				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"), (String) boardMap.get("pieceStyle"));
+				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
+						(String) boardMap.get("pieceStyle"));
 				plugin.addBoardView(bvName, bv);
 				bv.getControlPanel().repaintSignButtons();
 				nLoaded++;
@@ -169,10 +172,10 @@ public class ChessPersistence {
 		return nLoaded;
 	}
 
-	private int loadGames(List<Map<String,Object>> gameList) {
+	private int loadGames(List<Map<String, Object>> gameList) {
 		int nLoaded = 0;
-		for (Map<String,Object> gameMap : gameList) {
-			String gameName = (String)gameMap.get("name");
+		for (Map<String, Object> gameMap : gameList) {
+			String gameName = (String) gameMap.get("name");
 			try {
 				BoardView bv = plugin.getBoardView((String) gameMap.get("boardview"));
 				Game game = new Game(plugin, gameName, bv, null);
@@ -187,5 +190,5 @@ public class ChessPersistence {
 		plugin.log(Level.INFO, "loaded " + nLoaded + " saved games.");
 		return nLoaded;
 	}
-	
+
 }

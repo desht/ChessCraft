@@ -15,28 +15,28 @@ public class ChessServerListener extends ServerListener {
 	ChessServerListener(ChessCraft plugin) {
 		this.plugin = plugin;
 	}
-	
+
 	@Override
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (plugin.iConomy != null) {
-            if (event.getPlugin().getDescription().getName().equals("iConomy")) {
-                plugin.iConomy = null;
-                plugin.log(Level.INFO, "un-hooked from iConomy");
-            }
-        }
-    }
+	public void onPluginDisable(PluginDisableEvent event) {
+		if (plugin.iConomy != null) {
+			if (event.getPlugin().getDescription().getName().equals("iConomy")) {
+				plugin.iConomy = null;
+				plugin.log(Level.INFO, "un-hooked from iConomy");
+			}
+		}
+	}
 
-    @Override
-    public void onPluginEnable(PluginEnableEvent event) {
-        if (plugin.iConomy == null) {
-            Plugin iConomy = plugin.getServer().getPluginManager().getPlugin("iConomy");
+	@Override
+	public void onPluginEnable(PluginEnableEvent event) {
+		if (plugin.iConomy == null) {
+			Plugin iConomy = plugin.getServer().getPluginManager().getPlugin("iConomy");
 
-            if (iConomy != null) {
-                if (iConomy.isEnabled() && iConomy.getClass().getName().equals("com.iConomy.iConomy")) {
-                    plugin.iConomy = (iConomy)iConomy;
-                    plugin.log(Level.INFO, "hooked into iConomy");
-                }
-            }
-        }
-    }
+			if (iConomy != null) {
+				if (iConomy.isEnabled() && iConomy.getClass().getName().equals("com.iConomy.iConomy")) {
+					plugin.iConomy = (iConomy) iConomy;
+					plugin.log(Level.INFO, "hooked into iConomy");
+				}
+			}
+		}
+	}
 }
