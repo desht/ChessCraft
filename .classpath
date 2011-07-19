@@ -5,5 +5,7 @@
 	<classpathentry kind="var" path="LOCAL_JARS/bukkit-0.0.1-SNAPSHOT.jar" sourcepath="/BUKKIT_SRC"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Permissions.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Chesspresso-lib.jar" sourcepath="/CHESSPRESSO_SRC"/>
+	<classpathentry kind="var" path="LOCAL_JARS/WorldEdit.jar" sourcepath="/WORLEDIT_SRC"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iConomy.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
