@@ -29,6 +29,7 @@ public class TerrainBackup {
 	private LocalPlayer localPlayer;
 	private CuboidClipboard clipboard;
 	private File saveFile;
+	private Vector min, max;
 
 	TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
 		this.plugin = plugin;
@@ -41,26 +42,26 @@ public class TerrainBackup {
 
 		Cuboid bounds = view.getOuterBounds();
 		Location l1 = bounds.getUpperSW();
-		Location l2 = bounds.getLowerNE();		
-		Vector max = new Vector(l1.getBlockX(), l1.getBlockY(), l1.getBlockZ());
-		Vector min = new Vector(l2.getBlockX(), l2.getBlockY(), l2.getBlockZ());
+		Location l2 = bounds.getLowerNE();
+		max = new Vector(l1.getBlockX(), l1.getBlockY(), l1.getBlockZ());
+		min = new Vector(l2.getBlockX(), l2.getBlockY(), l2.getBlockZ());
 
-		clipboard = new CuboidClipboard(max.subtract(min).add(new Vector(1,1,1)), min);
 		localPlayer = wep.wrapPlayer(player);
 		localSession = we.getSession(localPlayer);
 		editSession = localSession.createEditSession(localPlayer);
-		clipboard.copy(editSession);
 
 		File dir = new File(plugin.getDataFolder(), schematicDir);
-		saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[] {"schematic"});
+		saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[] { "schematic" });
 	}
 
 	void saveTerrain() {
-		if (wep == null) 
+		if (wep == null)
 			return;
 
 		try {
 			editSession.enableQueue();
+			clipboard = new CuboidClipboard(max.subtract(min).add(new Vector(1, 1, 1)), min);
+			clipboard.copy(editSession);
 			clipboard.saveSchematic(saveFile);
 			editSession.flushQueue();
 		} catch (DataException e) {
@@ -71,7 +72,7 @@ public class TerrainBackup {
 	}
 
 	void reloadTerrain() {
-		if (wep == null) 
+		if (wep == null)
 			return;
 
 		try {
@@ -81,6 +82,7 @@ public class TerrainBackup {
 			localSession.getClipboard().place(editSession, pos, false);
 			editSession.flushQueue();
 			we.flushBlockBag(localPlayer, editSession);
+			saveFile.delete();
 		} catch (DataException e) {
 			plugin.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
 		} catch (IOException e) {
