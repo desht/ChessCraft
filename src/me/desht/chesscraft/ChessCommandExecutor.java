@@ -491,8 +491,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 			plugin.statusMessage(player, "You have offered to swap sides with &6" + other + "&-.");
 			game.alert(other, "&6" + player.getName() + "&- has offered to swap sides.");
 			game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
-			game.getView().getControlPanel().repaintSignButtons();
 		}
+		game.getView().getControlPanel().repaintSignButtons();
 	}
 
 	void tryOfferDraw(Player player, Game game) throws ChessException {
