@@ -179,11 +179,9 @@ public class ControlPanel {
 		if (name.equals("create-game")) {
 			plugin.getCommandExecutor().tryCreateGame(player, null, view.getName());
 		} else if (name.equals("start")) {
-			if (game != null)
-				game.start(player.getName());
+			plugin.getCommandExecutor().tryStartGame(player, game);
 		} else if (name.equals("resign")) {
-			if (game != null)
-				game.resign(player.getName());
+			plugin.getCommandExecutor().tryResignGame(player, game);
 		} else if (name.equals("offer-draw")) {
 			if (game != null)
 				plugin.getCommandExecutor().tryOfferDraw(player, game);
@@ -196,8 +194,8 @@ public class ControlPanel {
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
 				plugin.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
 		} else if (name.equals("invite-anyone")) {
-			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()))
-				game.inviteOpen(player.getName());
+			if (game != null)
+				plugin.getCommandExecutor().tryInvitePlayer(player, game, null);
 		} else if (name.equals("teleport")) {
 			plugin.getCommandExecutor().tryTeleportOut(player);
 		} else if (name.equals("white-promote")) {
