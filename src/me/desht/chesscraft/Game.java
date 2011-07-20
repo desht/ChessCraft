@@ -781,9 +781,9 @@ public class Game {
 	private boolean canAffordToPlay(String playerName) {
 		if (plugin.iConomy == null)
 			return true;
-		if (stake <= 0.0f)
+		if (stake <= 0.0)
 			return true;
-		return iConomy.getAccount(playerWhite).getHoldings().hasEnough(stake);
+		return iConomy.getAccount(playerName).getHoldings().hasEnough(stake);
 	}
 	
 	/*--------------------------------------------------------------------------------*/
