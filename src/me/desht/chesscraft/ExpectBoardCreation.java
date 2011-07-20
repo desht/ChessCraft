@@ -33,6 +33,7 @@ public class ExpectBoardCreation extends ExpectData {
 			try {
 				TerrainBackup tb = new TerrainBackup(plugin, player, view);
 				tb.saveTerrain();
+                                view.cleanwipe();
 			} catch (FilenameException e) {
 				plugin.log(Level.WARNING, e.getMessage());
 			}
