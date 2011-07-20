@@ -117,6 +117,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		Game game = Game.getCurrentGame(player, true);
 		
+		game.ensureGameState(GameState.RUNNING);
+		
 		String other = game.getOtherPlayer(player.getName());
 		if (other.isEmpty())
 			return;
