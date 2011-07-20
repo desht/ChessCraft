@@ -21,6 +21,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.iConomy.iConomy;
+
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -540,6 +542,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
 				+ game.getView().getName());
 		messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
+		if (plugin.iConomy != null && game.getStake() > 0.0f) {
+			messageBuffer.add(bullet + "Stake: " + iConomy.format(game.getStake()));
+		}
 		messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
 		if (game.getState() == GameState.RUNNING) {
 			messageBuffer.add(bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
