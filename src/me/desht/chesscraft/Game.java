@@ -341,7 +341,8 @@ public class Game {
 		if (plugin.iConomy != null && stake > 0.0f) {
 			iConomy.getAccount(playerWhite).getHoldings().subtract(stake);
 			iConomy.getAccount(playerBlack).getHoldings().subtract(stake);
-			alert("You have paid a stake of " + iConomy.format(stake) + ".");
+			float s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
+			alert("You have paid a stake of " + iConomy.format(s2) + ".");
 		}
 		setState(GameState.RUNNING);
 	}
@@ -514,19 +515,26 @@ public class Game {
 			if (!msg.isEmpty())
 				alert(msg);
 		}
-		handlePayout(rt, p1);
+		handlePayout(rt, p1, p2);
 		setupAutoDeletion();
 	}
 
-	private void handlePayout(ResultType rt, String playerName) {
+	private void handlePayout(ResultType rt, String p1, String p2) {
 		if (plugin.iConomy == null)
 			return;
 		if (stake <= 0.0f)
 			return;
 
 		if (rt == ResultType.Checkmate || rt == ResultType.Resigned) {
-			iConomy.getAccount(playerName).getHoldings().add(stake * 2);
-			alert(playerName, "You have won " + iConomy.format(stake * 2) + "!");
+			// one player won
+			iConomy.getAccount(p1).getHoldings().add(stake * 2);
+			alert(p1, "You have won " + iConomy.format(stake * 2) + "!");
+			alert(p2, "You lost your stake of " + iConomy.format(stake) + "!");
+		} else {
+			// a draw
+			iConomy.getAccount(p1).getHoldings().add(stake);
+			iConomy.getAccount(p2).getHoldings().add(stake);
+			alert("You get your stake of " + iConomy.format(stake) + " back.");
 		}
 	}
 
