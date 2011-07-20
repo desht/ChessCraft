@@ -235,19 +235,19 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void startCommand(Player player, String[] args) throws ChessException {
+		notFromConsole(player);
 		if (args.length >= 2) {
 			tryStartGame(player, Game.getGame(args[1]));
 		} else {
-			notFromConsole(player);
 			tryStartGame(player, Game.getCurrentGame(player));
 		}
 	}
 
 	private void resignCommand(Player player, String[] args) throws ChessException {
+		notFromConsole(player);
 		if (args.length >= 2) {
 			tryResignGame(player, Game.getGame(args[1]));
 		} else {
-			notFromConsole(player);
 			tryResignGame(player, Game.getCurrentGame(player, true));
 		}
 	}
