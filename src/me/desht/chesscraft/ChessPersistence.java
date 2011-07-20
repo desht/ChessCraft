@@ -32,6 +32,11 @@ public class ChessPersistence {
 	}
 
 	void reload() {
+		for (Game game : Game.listGames())
+			game.delete();
+		for (BoardView view : BoardView.listBoardViews())
+			view.delete();
+		
 		loadPersistedData();
 	}
 

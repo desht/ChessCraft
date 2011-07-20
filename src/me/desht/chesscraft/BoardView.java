@@ -530,6 +530,15 @@ public class BoardView implements PositionListener {
 		return Chess.coorToSqi(col, row);
 	}
 
+	void delete(boolean deleteBlocks, Player p) {
+		if (deleteBlocks)
+			restoreTerrain(p);
+		BoardView.removeBoardView(getName());
+	}
+	void delete() {
+		delete(false, null);
+	}
+	
 	void wipe() {
 		for (Location l : getOuterBounds()) {
 			l.getBlock().setTypeId(0);
@@ -542,6 +551,8 @@ public class BoardView implements PositionListener {
 			tb.reloadTerrain();
 		} catch (FilenameException e) {
 			plugin.log(Level.WARNING, e.getMessage());
+			// can't restore the terrain, so just replace with air
+			wipe();
 		}
 	}
 
