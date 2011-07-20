@@ -106,6 +106,7 @@ public class Game {
 		map.put("promotionBlack", promotionPiece[Chess.BLACK]);
 		map.put("timeWhite", timeWhite);
 		map.put("timeBlack", timeBlack);
+		map.put("stake", stake);
 
 		return map;
 	}
@@ -129,6 +130,10 @@ public class Game {
 			timeWhite = (Integer) map.get("timeWhite");
 			timeBlack = (Integer) map.get("timeBlack");
 		}
+		if (map.containsKey("stake")) {
+			Double s = (Double) map.get("stake");
+			stake = s.floatValue();
+		}
 		setupChesspressoGame();
 
 		// Replay the move history to restore the saved board position.
@@ -141,8 +146,7 @@ public class Game {
 			}
 		} catch (IllegalMoveException e) {
 			// should only get here if the save file was corrupted - the history
-			// is a list
-			// of moves which have already been validated before the game was
+			// is a list of moves which was already validated before the game was
 			// saved
 			plugin
 					.log(Level.WARNING, "can't restore move history for game " + getName()
@@ -211,6 +215,14 @@ public class Game {
 
 	String getOtherPlayer(String name) {
 		return name.equals(playerWhite) ? playerBlack : playerWhite;
+	}
+
+	float getStake() {
+		return stake;
+	}
+
+	void setStake(float stake) {
+		this.stake = stake;
 	}
 
 	void clockTick() {
@@ -285,10 +297,11 @@ public class Game {
 	void inviteOpen(String inviterName) throws ChessException {
 		inviteSanityCheck(inviterName);
 		Bukkit.getServer().broadcastMessage(
-				ChessCraft.parseColourSpec("&e:: &6" + inviterName
-						+ "&e has created an open invitation to a chess game."));
+											ChessCraft.parseColourSpec("&e:: &6" + inviterName
+													+ "&e has created an open invitation to a chess game."));
 		Bukkit.getServer().broadcastMessage(
-				ChessCraft.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
+											ChessCraft.parseColourSpec("&e:: " + "Type &f/chess join " + getName()
+													+ "&e to join."));
 		invited = "*";
 	}
 
@@ -314,6 +327,10 @@ public class Game {
 			throw new ChessException("There is no white player yet.");
 		if (playerBlack.isEmpty())
 			throw new ChessException("There is no black player yet.");
+		if (!canAffordToPlay(playerWhite))
+			throw new ChessException("White can't afford to play! (need " + iConomy.format(stake) + ")");
+		if (!canAffordToPlay(playerBlack))
+			throw new ChessException("Black can't afford to play! (need " + iConomy.format(stake) + ")");
 		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
 		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
 		if (plugin.iConomy != null && stake >= 0.0f) {
@@ -498,8 +515,8 @@ public class Game {
 			return;
 		if (stake <= 0.0f)
 			return;
-		
-		if (rt == ResultType.Checkmate || rt == ResultType.Resigned)  {
+
+		if (rt == ResultType.Checkmate || rt == ResultType.Resigned) {
 			iConomy.getAccount(playerName).getHoldings().add(stake * 2);
 			alert(playerName, "You have won " + iConomy.format(stake * 2) + "!");
 		}
@@ -707,5 +724,13 @@ public class Game {
 		default:
 			return Chess.QUEEN;
 		}
+	}
+
+	private boolean canAffordToPlay(String playerName) {
+		if (plugin.iConomy == null)
+			return true;
+		if (stake <= 0.0f)
+			return true;
+		return iConomy.getAccount(playerWhite).getHoldings().hasEnough(stake);
 	}
 }
