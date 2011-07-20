@@ -35,6 +35,7 @@ public class ExpectYesNoOffer extends ExpectData {
 				game.drawn();
 			} else {
 				game.alert(offerer, "Your draw offer has been declined by &6" + offeree);
+				plugin.statusMessage(player, "You have declined the draw offer.");
 			}
 			break;
 		case SwapResponse:
@@ -43,6 +44,7 @@ public class ExpectYesNoOffer extends ExpectData {
 				game.swapColours();
 			} else {
 				game.alert(offerer, "Your swap offer has been declined by &6" + offeree);
+				plugin.statusMessage(player, "You have declined the swap offer.");
 			}
 			break;
 		}

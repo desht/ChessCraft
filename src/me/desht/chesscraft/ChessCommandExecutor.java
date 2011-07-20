@@ -480,6 +480,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 	void tryOfferSwap(Player player, Game game) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.offer.swap", Privilege.Basic);
 		
+		game.ensurePlayerInGame(player.getName());
+		
 		String other = game.getOtherPlayer(player.getName());
 		if (other.isEmpty()) {
 			// no other player yet - just swap
@@ -498,12 +500,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 	void tryOfferDraw(Player player, Game game) throws ChessException {
 		plugin.requirePerms(player, "chesscraft.commands.offer.draw", Privilege.Basic);
 		
+		game.ensurePlayerInGame(player.getName());
+		game.ensurePlayerToMove(player.getName());
+		game.ensureGameState(GameState.RUNNING);
+		
 		String other = game.getOtherPlayer(player.getName());
-		if (!player.getName().equals(game.getPlayerToMove()))
-			throw new ChessException("You can only offer a draw on your turn.");
-		if (game.getState() != GameState.RUNNING)
-			throw new ChessException("The game must be running to offer a draw!");
-		plugin.requirePerms(player, "chesscraft.commands.offer.draw", Privilege.Basic);
 		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse, new ExpectYesNoOffer(plugin, game, player
 				.getName(), other), other);
 		plugin.statusMessage(player, "You have offered a draw to &6" + other + "&-.");

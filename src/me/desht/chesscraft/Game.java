@@ -262,9 +262,8 @@ public class Game {
 	}
 
 	void addPlayer(String playerName) throws ChessException {
-		if (state != GameState.SETTING_UP) {
-			throw new ChessException("Can only add players during game setup phase.");
-		}
+		ensureGameState(GameState.SETTING_UP);
+		
 		if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
 			throw new ChessException("You don't have an invitation for this game.");
 		}
@@ -314,10 +313,9 @@ public class Game {
 	}
 
 	private void inviteSanityCheck(String inviterName) throws ChessException {
-		if (getState() != GameState.SETTING_UP)
-			throw new ChessException("This game has already been started!");
-		if (!isPlayerInGame(inviterName))
-			throw new ChessException("Can't invite a player to a game you're not in!");
+		ensurePlayerInGame(inviterName);
+		ensureGameState(GameState.SETTING_UP);
+		
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty())
 			throw new ChessException("This game already has two players!");
 	}
@@ -327,10 +325,9 @@ public class Game {
 	}
 
 	void start(String playerName) throws ChessException {
-		if (state != GameState.SETTING_UP)
-			throw new ChessException("This game has already been started!");
-		if (!isPlayerInGame(playerName))
-			throw new ChessException("Can't start a game you're not in!");
+		ensurePlayerInGame(playerName);
+		ensureGameState(GameState.SETTING_UP);
+		
 		if (playerWhite.isEmpty())
 			throw new ChessException("There is no white player yet.");
 		if (playerBlack.isEmpty())
@@ -352,8 +349,10 @@ public class Game {
 	void resign(String playerName) throws ChessException {
 		if (state != GameState.RUNNING)
 			throw new ChessException("The game has not yet started.");
-		if (!isPlayerInGame(playerName))
-			throw new ChessException("Can't resign a game you're not in!");
+		
+		ensurePlayerInGame(playerName);
+		ensurePlayerToMove(playerName);
+		
 		setState(GameState.FINISHED);
 		String winner;
 		String loser = playerName;
@@ -369,7 +368,9 @@ public class Game {
 		announceResult(winner, loser, ResultType.Resigned);
 	}
 
-	void winByDefault(String playerName) {
+	void winByDefault(String playerName) throws ChessException {
+		ensurePlayerInGame(playerName);
+		
 		setState(GameState.FINISHED);
 		String winner = playerName;
 		String loser;
@@ -390,17 +391,19 @@ public class Game {
 	}
 
 	void setPromotionPiece(String playerName, int piece) throws ChessException {
+		ensurePlayerInGame(playerName);
+		
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT)
 			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
-		if (!isPlayerInGame(playerName))
-			throw new ChessException("Can't set promotion piece for a game you're not in!");
 		if (playerName.equals(playerWhite))
 			promotionPiece[Chess.WHITE] = piece;
 		if (playerName.equals(playerBlack))
 			promotionPiece[Chess.BLACK] = piece;
 	}
 
-	void drawn() {
+	void drawn() throws ChessException {
+		ensureGameState(GameState.RUNNING);
+		
 		setState(GameState.FINISHED);
 		result = Chess.RES_DRAW;
 		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
@@ -414,12 +417,9 @@ public class Game {
 		if (fromSquare == Chess.NO_SQUARE) {
 			return;
 		}
-		if (state != GameState.RUNNING) {
-			throw new ChessException("Chess game '" + getName() + "': Game is not running!");
-		}
-		if (!playerName.equals(getPlayerToMove())) {
-			throw new ChessException("Chess game '" + getName() + "': It is not your move!");
-		}
+		
+		ensureGameState(GameState.RUNNING);
+		ensurePlayerToMove(playerName);
 
 		Boolean capturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		int prevToMove = getPosition().getToPlay();
@@ -738,6 +738,21 @@ public class Game {
 		}
 	}
 
+	void ensurePlayerInGame(String playerName) throws ChessException {
+		if (!playerName.equals(playerWhite) && !playerName.equals(playerBlack))
+			throw new ChessException("You are not in this game!");
+	}
+
+	void ensurePlayerToMove(String playerName) throws ChessException {
+		if (!playerName.equals(getPlayerToMove()))
+			throw new ChessException("It is not your turn.");
+	}
+	
+	void ensureGameState(GameState state) throws ChessException {
+		if (getState() != state)
+			throw new ChessException("Game should be in state " + state);
+	}
+
 	private boolean canAffordToPlay(String playerName) {
 		if (plugin.iConomy == null)
 			return true;
@@ -835,5 +850,4 @@ public class Game {
 
 		return res;
 	}
-
 }
