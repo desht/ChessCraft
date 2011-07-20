@@ -53,7 +53,7 @@ public class ChessPlayerListener extends PlayerListener {
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player,
-							ExpectAction.BoardCreation);
+																							ExpectAction.BoardCreation);
 					a.setLocation(b.getLocation());
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					return;
@@ -137,10 +137,9 @@ public class ChessPlayerListener extends PlayerListener {
 		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.playerLeft(who);
-				if (timeout > 0) {
-					game.alert(who + " quit.  If they don't rejoin within");
-					game.alert(timeout + " seconds, you can type &f/chess win&-");
-					game.alert("to win by default.");
+				if (timeout > 0 && game.getState() == GameState.RUNNING) {
+					game.alert(who + " quit.  If they don't rejoin within " + timeout
+							+ " seconds, you can type &f/chess win&- to win by default.");
 				}
 			}
 		}
