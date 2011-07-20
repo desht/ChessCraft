@@ -82,6 +82,7 @@ public class ChessCraft extends JavaPlugin {
 			put("wand_item", "air");
 			put("auto_teleport_on_join", true);
 			put("timeout_forfeit", 60);
+			put("timeout_auto_delete", 180);
 		}
 	};
 
@@ -170,6 +171,7 @@ public class ChessCraft extends JavaPlugin {
 				}
 				for (Game game : Game.listGames()) {
 					game.clockTick();
+					game.checkForAutoDelete();
 				}
 			}
 		}, 20L * initialDelay, 20L * getConfiguration().getInt("tick_interval", 1));

@@ -412,19 +412,16 @@ public class Game {
 	}
 
 	// Do a move for playerName to toSquare. fromSquare is already set, either
-	// from
-	// command-line, or from clicking a piece
+	// from	command-line, or from clicking a piece
 	void doMove(String playerName, int toSquare) throws IllegalMoveException, ChessException {
-		if (fromSquare == Chess.NO_SQUARE) {
-			return;
-		}
-		
 		ensureGameState(GameState.RUNNING);
 		ensurePlayerToMove(playerName);
-
-		Boolean capturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
+		if (fromSquare == Chess.NO_SQUARE)
+			return;
+		
+		Boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		int prevToMove = getPosition().getToPlay();
-		short move = Move.getRegularMove(fromSquare, toSquare, capturing);
+		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		try {
 			short realMove = checkMove(move);
 			getPosition().doMove(realMove);
@@ -448,6 +445,7 @@ public class Game {
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 				setState(GameState.FINISHED);
 			} else {
+				// the game continues...
 				String nextPlayer = getPlayerToMove();
 				if (isAIPlayer(nextPlayer)) {
 					// TODO: set AI to thinking above next move and add poll for
@@ -857,5 +855,18 @@ public class Game {
 		} while (Game.checkGame(res));
 
 		return res;
+	}
+
+	void checkForAutoDelete() {
+		if (getState() == GameState.SETTING_UP) {
+			long now = System.currentTimeMillis();
+			long elapsed = (now - started.getTime()) / 1000;
+			int timeout =  plugin.getConfiguration().getInt("timeout_auto_delete", 180);
+			if (elapsed > timeout) {
+				alert("Game auto-deleted (not started within " + timeout + " seconds)");
+				plugin.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
+				delete();
+			}
+		}
 	}
 }
