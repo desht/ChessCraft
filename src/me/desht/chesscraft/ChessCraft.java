@@ -445,19 +445,6 @@ public class ChessCraft extends JavaPlugin {
 		return res.replace("&-", prevColour).replace("&&", "&");
 	}
 
-//	// Generate a game name based on the player's name and a possible index
-//	// number
-//	String makeGameName(Player player) {
-//		String base = player.getName();
-//		String res;
-//		int n = 1;
-//		do {
-//			res = base + "-" + n++;
-//		} while (Game.checkGame(res));
-//
-//		return res;
-//	}
-
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;
 	}

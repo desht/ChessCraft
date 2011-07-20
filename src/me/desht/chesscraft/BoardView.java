@@ -25,7 +25,7 @@ import chesspresso.Chess;
 import chesspresso.position.PositionListener;
 
 public class BoardView implements PositionListener {
-	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();	
+	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private static final String styleDir = ChessCraft.directory + File.separator + "board_styles";
 
 	private ChessCraft plugin;
@@ -64,7 +64,7 @@ public class BoardView implements PositionListener {
 		validateBoardParams();
 		controlPanel = new ControlPanel(plugin, this);
 		lastLevel = -1;
-		
+
 		BoardView.addBoardView(name, this);
 	}
 
@@ -201,8 +201,7 @@ public class BoardView implements PositionListener {
 
 	// Given a board origin (the block at the centre of the A1 square),
 	// calculate the southwest corner of the A1 square (which is also the
-	// southwest
-	// corner of the whole board)
+	// southwest corner of the whole board)
 	private Location calcBaseSquare(Location where) {
 		int xOff = squareSize / 2;
 		int zOff = squareSize / 2;
@@ -245,7 +244,8 @@ public class BoardView implements PositionListener {
 			y2 = 127;
 		World w = a1Square.getWorld();
 
-		Cuboid walls[] = { new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)), // west
+		Cuboid walls[] = {
+				new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)), // west
 				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x2, y2, z1)), // east
 				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x1, y2, z2)), // north
 				new Cuboid(new Location(w, x2, y1, z1), new Location(w, x2, y2, z2)), // south
@@ -256,7 +256,6 @@ public class BoardView implements PositionListener {
 				ChessCraft.setBlock(w.getBlockAt(l), enclosureMat);
 			}
 		}
-
 	}
 
 	private void paintFrame() {
@@ -270,14 +269,11 @@ public class BoardView implements PositionListener {
 		int x2 = bounds.getUpperSW().getBlockX();
 		int z2 = bounds.getUpperSW().getBlockZ();
 
-		Cuboid[] frameParts = { new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)), // east
-																													// side
+		Cuboid[] frameParts = {
+				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)), // east
 				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)), // west
-																									// side
 				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)), // north
-																									// side
 				new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)), // south
-																									// side
 		};
 		for (Cuboid part : frameParts) {
 			for (Location l : part) {
@@ -535,10 +531,11 @@ public class BoardView implements PositionListener {
 			restoreTerrain(p);
 		BoardView.removeBoardView(getName());
 	}
+
 	void delete() {
 		delete(false, null);
 	}
-	
+
 	void wipe() {
 		for (Location l : getOuterBounds()) {
 			l.getBlock().setTypeId(0);
@@ -570,9 +567,9 @@ public class BoardView implements PositionListener {
 		}
 		return dest0;
 	}
-	
+
 	/*------------------------------------------------------------------------------_*/
-	
+
 	static void addBoardView(String name, BoardView view) {
 		chessBoards.put(name, view);
 	}
@@ -580,7 +577,7 @@ public class BoardView implements PositionListener {
 	static void removeBoardView(String name) {
 		chessBoards.remove(name);
 	}
-	
+
 	static void removeAllBoardViews() {
 		chessBoards.clear();
 	}
@@ -604,10 +601,11 @@ public class BoardView implements PositionListener {
 			}
 			return res;
 		} else {
-			return new ArrayList<BoardView>(chessBoards.values());	
+			return new ArrayList<BoardView>(chessBoards.values());
 		}
-		
+
 	}
+
 	static List<BoardView> listBoardViews() {
 		return listBoardViews(false);
 	}
