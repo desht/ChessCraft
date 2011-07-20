@@ -84,6 +84,9 @@ public class ChessCraft extends JavaPlugin {
 			put("auto_teleport_on_join", true);
 			put("timeout_forfeit", 60);
 			put("timeout_auto_delete", 180);
+			put("stake.default", 0.0);
+			put("stake.smallIncrement", 1.0);
+			put("stake.largeIncrement", 10.0);
 		}
 	};
 
@@ -276,6 +279,13 @@ public class ChessCraft extends JavaPlugin {
 		} else if (configItems.get(key) instanceof Integer) {
 			try {
 				int nVal = Integer.parseInt(val);
+				getConfiguration().setProperty(key, nVal);
+			} catch (NumberFormatException e) {
+				errorMessage(player, "Invalid numeric value: " + val);
+			}
+		} else if (configItems.get(key) instanceof Double) {
+			try {
+				double nVal = Double.parseDouble(val);
 				getConfiguration().setProperty(key, nVal);
 			} catch (NumberFormatException e) {
 				errorMessage(player, "Invalid numeric value: " + val);

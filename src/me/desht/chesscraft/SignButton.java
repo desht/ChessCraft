@@ -59,6 +59,10 @@ public class SignButton {
 				if (lines[i].equals("="))
 					continue;
 				String col = enabled ? enabledCol.toString() : disabledCol.toString();
+				if (lines[i].matches("^&[0-9a-f]"))
+					col = "";
+				if (!enabled)
+					lines[i] = lines[i].replaceFirst("^&[0-9a-f]", "");
 				s.setLine(i, ChessCraft.parseColourSpec(col + lines[i]));
 			}
 			s.update();

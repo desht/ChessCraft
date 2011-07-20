@@ -48,7 +48,10 @@ public class ChessPlayerListener extends PlayerListener {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
 					plugin.statusMessage(player, "Board creation cancelled.");
 				} else {
-					// nothing?
+					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
+					if (bv != null && b.getState() instanceof Sign) {
+						bv.getControlPanel().signClicked(player, b, bv, event.getAction());
+					}
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
@@ -60,7 +63,7 @@ public class ChessPlayerListener extends PlayerListener {
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
-						bv.getControlPanel().signClicked(player, b, bv);
+						bv.getControlPanel().signClicked(player, b, bv, event.getAction());
 					}
 				}
 			}

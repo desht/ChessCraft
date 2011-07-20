@@ -61,8 +61,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 					inviteCommand(player, args);
 				} else if (partialMatch(args[0], "j")) { // join
 					joinCommand(player, args);
-				} else if (partialMatch(args[0], "st")) { // start
+				} else if (partialMatch(args[0], "star")) { // start
 					startCommand(player, args);
+				} else if (partialMatch(args[0], "stak")) { // stake
+					stakeCommand(player, args);
 				} else if (partialMatch(args[0], "res")) { // resign
 					resignCommand(player, args);
 				} else if (partialMatch(args[0], "red")) { // redraw
@@ -393,6 +395,30 @@ public class ChessCommandExecutor implements CommandExecutor {
 			game.setPromotionPiece(player.getName(), piece);
 			plugin.statusMessage(player, "Promotion piece for game &6" + game.getName() + "&- has been set to "
 					+ ChessCraft.pieceToStr(piece).toUpperCase());
+			game.getView().getControlPanel().repaintSignButtons();
+		} else {
+			plugin.errorMessage(player, "Usage: /chess promote <Q|N|B|R>");
+		}
+	}
+
+	private void stakeCommand(Player player, String[] args) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.stake", Privilege.Basic);
+		notFromConsole(player);
+		
+		if (args.length >= 2) {
+			try {
+				Game game = Game.getCurrentGame(player);
+				double amount = Double.parseDouble(args[1]);
+				if (amount <= 0.0) 
+					throw new ChessException("Negative stakes are not permitted!");
+				game.setStake(amount);
+				game.getView().getControlPanel().repaintSignButtons();
+				plugin.statusMessage(player, "Stake for this game is now " + iConomy.format(amount));
+			} catch (NumberFormatException e) {
+				throw new ChessException("Invalid numeric value: " + args[1]);
+			}
+		} else {
+			plugin.errorMessage(player, "Usage: /chess stake <stake-amount>");
 		}
 	}
 
@@ -551,7 +577,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
 				+ game.getView().getName());
 		messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
-		if (plugin.iConomy != null && game.getStake() > 0.0f) {
+		if (plugin.iConomy != null) {
 			messageBuffer.add(bullet + "Stake: " + iConomy.format(game.getStake()));
 		}
 		messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
@@ -742,6 +768,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		File written = game.writePGN(false);
 		plugin.statusMessage(player, "Wrote PGN archive to " + written.getName() + ".");
+	}
+
+	void tryChangeStake(Player player, Game game, double stakeIncr) throws ChessException {
+		plugin.requirePerms(player, "chesscraft.commands.stake", Privilege.Basic);
+		
+		double newStake = game.getStake() + stakeIncr;
+		if (newStake < 0.0)
+			return;
+		game.setStake(newStake);
 	}
 
 	private void pagedDisplay(Player player, String[] args) {

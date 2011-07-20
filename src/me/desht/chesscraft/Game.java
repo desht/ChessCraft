@@ -52,7 +52,7 @@ public class Game {
 	private List<Short> history;
 	private int delTask;
 	private int result;
-	private float stake;
+	private double stake;
 
 	Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
@@ -72,7 +72,7 @@ public class Game {
 		lastCheck = new Date();
 		result = Chess.RES_NOT_FINISHED;
 		delTask = -1;
-		stake = 0.0f;
+		stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
 
 		setupChesspressoGame();
 
@@ -136,8 +136,7 @@ public class Game {
 			timeBlack = (Integer) map.get("timeBlack");
 		}
 		if (map.containsKey("stake")) {
-			Double s = (Double) map.get("stake");
-			stake = s.floatValue();
+			stake = (Double) map.get("stake");
 		}
 		setupChesspressoGame();
 
@@ -222,12 +221,17 @@ public class Game {
 		return name.equals(playerWhite) ? playerBlack : playerWhite;
 	}
 
-	float getStake() {
+	double getStake() {
 		return stake;
 	}
 
-	void setStake(float stake) {
-		this.stake = stake;
+	void setStake(double newStake) throws ChessException {
+		ensureGameState(GameState.SETTING_UP);
+		
+		if (!playerWhite.isEmpty() && !playerBlack.isEmpty())
+			throw new ChessException("Stake cannot be changed once both players have joined.");
+		
+		this.stake = newStake;
 	}
 
 	void clockTick() {
@@ -341,7 +345,7 @@ public class Game {
 		if (plugin.iConomy != null && stake > 0.0f) {
 			iConomy.getAccount(playerWhite).getHoldings().subtract(stake);
 			iConomy.getAccount(playerBlack).getHoldings().subtract(stake);
-			float s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
+			double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
 			alert("You have paid a stake of " + iConomy.format(s2) + ".");
 		}
 		setState(GameState.RUNNING);
@@ -744,6 +748,21 @@ public class Game {
 		}
 	}
 
+	void checkForAutoDelete() {
+		if (getState() == GameState.SETTING_UP) {
+			long now = System.currentTimeMillis();
+			long elapsed = (now - started.getTime()) / 1000;
+			int timeout =  plugin.getConfiguration().getInt("timeout_auto_delete", 180);
+			if (timeout <= 0)
+				return;
+			if (elapsed > timeout) {
+				alert("Game auto-deleted (not started within " + timeout + " seconds)");
+				plugin.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
+				delete();
+			}
+		}
+	}
+
 	void ensurePlayerInGame(String playerName) throws ChessException {
 		if (!playerName.equals(playerWhite) && !playerName.equals(playerBlack))
 			throw new ChessException("You are not in this game!");
@@ -844,8 +863,6 @@ public class Game {
 		return res;
 	}
 	
-	// Generate a game name based on the player's name and a possible index
-	// number
 	static String makeGameName(Player player) {
 		String base = player.getName();
 		String res;
@@ -855,18 +872,5 @@ public class Game {
 		} while (Game.checkGame(res));
 
 		return res;
-	}
-
-	void checkForAutoDelete() {
-		if (getState() == GameState.SETTING_UP) {
-			long now = System.currentTimeMillis();
-			long elapsed = (now - started.getTime()) / 1000;
-			int timeout =  plugin.getConfiguration().getInt("timeout_auto_delete", 180);
-			if (elapsed > timeout) {
-				alert("Game auto-deleted (not started within " + timeout + " seconds)");
-				plugin.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
-				delete();
-			}
-		}
 	}
 }

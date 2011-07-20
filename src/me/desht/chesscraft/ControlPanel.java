@@ -12,6 +12,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
+
+import com.iConomy.iConomy;
 
 import chesspresso.Chess;
 
@@ -87,6 +90,9 @@ public class ControlPanel {
 
 		createSignButton(0, 2, "board-info", ";Board;Info", eastFacingWallSign, true);
 		createSignButton(0, 1, "teleport", ";Teleport;Out", eastFacingWallSign, true);
+		if (plugin.iConomy != null) {
+			createSignButton(7, 1, "stake", getStakeStr(game), eastFacingWallSign, game != null);
+		}
 
 		createSignButton(1, 2, "create-game", ";Create;Game", eastFacingWallSign, game == null);
 		createSignButton(2, 2, "invite-player", ";Invite;Player", eastFacingWallSign, settingUp
@@ -98,10 +104,10 @@ public class ControlPanel {
 		createSignButton(6, 2, "resign", ";Resign", eastFacingWallSign, running);
 		createSignButton(7, 2, "game-info", ";Game;Info", eastFacingWallSign, game != null);
 
-		createSignButton(1, 1, "white-promote", "White Pawn;Promotion;;" + getPromoStr(game, Chess.WHITE),
-				eastFacingWallSign, hasWhite);
-		createSignButton(6, 1, "black-promote", "Black Pawn;Promotion;;" + getPromoStr(game, Chess.BLACK),
-				eastFacingWallSign, hasBlack);
+		createSignButton(1, 1, "white-promote", "White Pawn;Promotion;;&4" + getPromoStr(game, Chess.WHITE),
+							eastFacingWallSign, hasWhite);
+		createSignButton(6, 1, "black-promote", "Black Pawn;Promotion;;&4" + getPromoStr(game, Chess.BLACK),
+							eastFacingWallSign, hasBlack);
 
 		Player pw = game == null ? null : plugin.getServer().getPlayer(game.getPlayerWhite());
 		String offerw = getOfferText(pw);
@@ -163,7 +169,7 @@ public class ControlPanel {
 		return panelBlocks;
 	}
 
-	void signClicked(Player player, Block block, BoardView view) throws ChessException {
+	void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		Game game = view.getGame();
 		SignButton button = buttonLocs.get(block.getLocation());
 		if (button == null) {
@@ -200,17 +206,42 @@ public class ControlPanel {
 			plugin.getCommandExecutor().tryTeleportOut(player);
 		} else if (name.equals("white-promote")) {
 			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.WHITE, game);
-			view.getControlPanel().updateSignButtonText("white-promote", "=;=;;" + getPromoStr(game, Chess.WHITE));
+			view.getControlPanel().updateSignButtonText("white-promote", "=;=;;&4" + getPromoStr(game, Chess.WHITE));
 		} else if (name.equals("black-promote")) {
 			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.BLACK, game);
-			view.getControlPanel().updateSignButtonText("black-promote", "=;=;;" + getPromoStr(game, Chess.BLACK));
+			view.getControlPanel().updateSignButtonText("black-promote", "=;=;;&4" + getPromoStr(game, Chess.BLACK));
 		} else if (name.equals("white-yes") || name.equals("black-yes")) {
 			plugin.getCommandExecutor().doResponse(player, true);
 		} else if (name.equals("white-no") || name.equals("black-no")) {
 			plugin.getCommandExecutor().doResponse(player, false);
+		} else if (name.equals("stake") && plugin.iConomy != null) {
+			double stakeIncr;
+			if (player.isSneaking()) 
+				stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0);
+			else
+				stakeIncr = plugin.getConfiguration().getDouble("stake.largeIncrement", 1.0);
+			if (action == Action.RIGHT_CLICK_BLOCK)
+				stakeIncr = -stakeIncr;
+			if (game == null || (!game.getPlayerWhite().isEmpty() && !game.getPlayerBlack().isEmpty()))
+				return;
+			plugin.getCommandExecutor().tryChangeStake(player, game, stakeIncr);
+			view.getControlPanel().updateSignButtonText("stake", getStakeStr(game));
 		}
 	}
 
+	private String getStakeStr(Game game) {
+		if (game == null) {
+			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
+			String stakeStr = iConomy.format(stake).replaceFirst(" ", ";");
+			return "Stake;;" + stakeStr;
+		} else {
+			double stake = game.getStake();
+			String stakeStr = iConomy.format(stake).replaceFirst(" ", ";&4");
+			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0";
+			return col + "Stake;;&4" + stakeStr;
+		}
+	}
+	
 	private String getPromoStr(Game game, int colour) {
 		if (game == null)
 			return "?";
