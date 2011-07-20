@@ -75,13 +75,18 @@ public class ChessEntityListener extends EntityListener {
 		} else if (event.getCause() == DamageCause.SUFFOCATION) {
 			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
 			if (bv != null) {
+				final int MAX_DIST = 100;
 				// player must have had a chess piece placed on them
 				Player p = (Player) event.getEntity();
 				Location loc = p.getLocation().clone();
 				int n = 0;
 				do { 
-					loc.add(-1, 0, 0);
-				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0 && n < 100);
+					loc.add(0, 0, -1); // east
+				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0 && n < MAX_DIST);
+				if (n >= MAX_DIST) {
+					plugin.errorMessage(p, "Can't find a safe place to displace you - going to spawn");
+					p.teleport(p.getWorld().getSpawnLocation());
+				}
 				p.teleport(loc);
 				event.setCancelled(true);
 				System.out.println("moved to loc " + loc);
