@@ -2,6 +2,7 @@ package me.desht.chesscraft;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -82,7 +83,8 @@ public class TerrainBackup {
 			localSession.getClipboard().place(editSession, pos, false);
 			editSession.flushQueue();
 			we.flushBlockBag(localPlayer, editSession);
-			saveFile.delete();
+			if (!saveFile.delete())
+				plugin.log(Level.WARNING, "Could not delete " + saveFile);
 		} catch (DataException e) {
 			plugin.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
 		} catch (IOException e) {

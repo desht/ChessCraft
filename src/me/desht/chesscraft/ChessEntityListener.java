@@ -89,7 +89,6 @@ public class ChessEntityListener extends EntityListener {
 				}
 				p.teleport(loc);
 				event.setCancelled(true);
-				System.out.println("moved to loc " + loc);
 			}
 		}
 		

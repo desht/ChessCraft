@@ -120,16 +120,16 @@ public class ChessPlayerListener extends PlayerListener {
 
 	@Override
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		String games = "";
+		StringBuilder games = new StringBuilder();
 		String who = event.getPlayer().getName();
 		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.playerRejoined(who);
 				game.alert(game.getOtherPlayer(who), who + " is back in the game!");
-				games = games + " " + game.getName();
+				games.append(" " + game.getName());
 			}
 		}
-		if (!games.isEmpty())
+		if (games.length() > 0)
 			plugin.alertMessage(event.getPlayer(), "Your current chess games: " + games);
 	}
 

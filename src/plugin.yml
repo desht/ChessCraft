@@ -1,7 +1,7 @@
 name: ChessCraft
 main: me.desht.chesscraft.ChessCraft
-version: 0.2.2
-softdepend: [ Permissions ]
+version: 0.3pre
+softdepend: [ Permissions, WorldEdit, iConomy ]
 commands:
   chess:
     description: Play Chess

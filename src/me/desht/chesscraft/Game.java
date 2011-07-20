@@ -847,10 +847,12 @@ public class Game {
 	}
 
 	static Game getCurrentGame(Player player, boolean verify) throws ChessException {
+		if (player == null)
+			return null;
 		Game game = currentGame.get(player.getName());
 		if (verify && game == null)
 			throw new ChessException("No active game - set one with '/chess game <name>'");
-		return player == null ? null : game;
+		return game;
 	}
 
 	static Map<String, String> getCurrentGames() {
