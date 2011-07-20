@@ -288,6 +288,9 @@ public class Game {
 	}
 
 	void invitePlayer(String inviterName, String inviteeName) throws ChessException {
+		if (plugin.getServer().getPlayer(inviteeName) == null)
+			throw new ChessException("Player " + inviteeName + " is not online.");
+		
 		inviteSanityCheck(inviterName);
 		if (invited.equals(inviteeName))
 			return;
