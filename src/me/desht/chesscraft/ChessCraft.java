@@ -79,6 +79,7 @@ public class ChessCraft extends JavaPlugin {
 			put("no_creatures", true);
 			put("no_explosions", true);
 			put("no_burning", true);
+			put("no_pvp", true);
 			put("wand_item", "air");
 			put("auto_teleport_on_join", true);
 			put("timeout_forfeit", 60);
@@ -119,6 +120,7 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLUGIN_ENABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
 		pm.registerEvent(Event.Type.PLUGIN_DISABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
