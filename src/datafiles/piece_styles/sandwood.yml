@@ -1,0 +1,32 @@
+# Name for this set - should match the filename
+name: sandwood
+
+# List of materials used in the set
+# Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block) 
+# or material plus data (e.g. 35:0, wool:white)
+# If you use plain integers, they must be quoted, or the set will not load!
+# If you use material names, they must match the org.bukkit.Material definitions exactly
+# - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
+materials:
+  black:
+    G: '41'
+    O: '0'
+    N: wood
+  white:
+    G: '57'
+    O: air
+    N: sandstone
+
+# Piece definitions
+# This is a list of list of strings such that:
+# - definition[0] is the lowest layer on the Y-axis
+# - definition[0][0] is the northmost row on the lowest layer
+# - each string runs from west to east and consists of materials defined above
+# 
+pieces:
+  P: [ [ OGO, GGG, OGO ], [ OOO, ONO, OOO ] ]
+  N: [ [ GOG, ONO, GOG ], [ OOO, ONO, ONO ], [ ONO, ONO, OOO ] ]
+  B: [ [ GGG, GGG, GGG ], [ ONO, NNN, ONO ], [ OOO, ONO, ONO ], [ OOO, OOO, ONO ] ]
+  R: [ [ GGG, GGG, GGG ], [ ONO, NNN, ONO ], [ NNN, ONO, NNN ], [ NON, OOO, NON ] ]
+  Q: [ [ GGG, GGG, GGG ], [ ONO, NNN, ONO ], [ NON, ONO, NON ], [ NON, ONO, NON ], [ ONO, NNN, ONO ], [ OOO, OGO, OOO ] ]
+  K: [ [ GGG, GGG, GGG ], [ ONO, NNN, ONO ], [ OOO, ONO, OOO ], [ ONO, NNN, ONO ], [ GOG, OOO, GOG ], [ OOO, OGO, OOO ] ]
