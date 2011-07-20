@@ -107,7 +107,6 @@ public class ChessCraft extends JavaPlugin {
 		description = this.getDescription();
 
 		setupDefaultStructure();
-		addExtraResources();
 
 		configInitialise();
 
@@ -191,17 +190,15 @@ public class ChessCraft extends JavaPlugin {
 			createDir("schematics");
 
 			extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
+			extractResource("/datafiles/board_styles/Open.yml", "board_styles/Open.yml");
+			extractResource("/datafiles/board_styles/woodsand.yml", "board_styles/woodsand.yml");
+			
 			extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");
+			extractResource("/datafiles/piece_styles/twist.yml", "piece_styles/twist.yml");
+			extractResource("/datafiles/piece_styles/sandwood.yml", "piece_styles/sandwood.yml");
+			
 		} catch (FileNotFoundException e) {
 			log(Level.SEVERE, e.getMessage());
-		} catch (IOException e) {
-			log(Level.SEVERE, e.getMessage());
-		}
-	}
-
-	private void addExtraResources() {
-		try {
-			extractResource("/datafiles/piece_styles/twist.yml", "piece_styles/twist.yml");
 		} catch (IOException e) {
 			log(Level.SEVERE, e.getMessage());
 		}
