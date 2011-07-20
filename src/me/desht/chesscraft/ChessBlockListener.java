@@ -22,7 +22,7 @@ public class ChessBlockListener extends BlockListener {
 
 		Location loc = event.getBlock().getLocation();
 
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
 				event.setCancelled(true);
 				return;
@@ -39,7 +39,7 @@ public class ChessBlockListener extends BlockListener {
 
 		Location loc = event.getBlock().getLocation();
 
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
 				event.setCancelled(true);
 				return;
@@ -56,7 +56,7 @@ public class ChessBlockListener extends BlockListener {
 
 		Location loc = event.getBlock().getLocation();
 
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
 				event.setCancelled(true);
 				return;

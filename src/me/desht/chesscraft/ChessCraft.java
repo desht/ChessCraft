@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,9 +50,8 @@ public class ChessCraft extends JavaPlugin {
 	private WorldEditPlugin worldEditPlugin;
 	iConomy iConomy = null;
 
-	private final Map<String, Game> chessGames = new HashMap<String, Game>();
-	private final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
-	private final Map<String, Game> currentGame = new HashMap<String, Game>();
+//	private final Map<String, Game> chessGames = new HashMap<String, Game>();
+//	private final Map<String, Game> currentGame = new HashMap<String, Game>();
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 
 	private final ChessPlayerListener playerListener = new ChessPlayerListener(this);
@@ -92,7 +89,7 @@ public class ChessCraft extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		for (Game game : listGames()) {
+		for (Game game : Game.listGames()) {
 			game.clockTick();
 		}
 		getServer().getScheduler().cancelTasks(this);
@@ -159,7 +156,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	private void checkControlPanelCreation() {
-		for (BoardView bv : listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			bv.checkControlPanel();
 		}
 	}
@@ -168,10 +165,10 @@ public class ChessCraft extends JavaPlugin {
 		lightingTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
-				for (BoardView bv : listBoardViews()) {
+				for (BoardView bv : BoardView.listBoardViews()) {
 					bv.doLighting();
 				}
-				for (Game game : listGames()) {
+				for (Game game : Game.listGames()) {
 					game.clockTick();
 				}
 			}
@@ -381,144 +378,6 @@ public class ChessCraft extends JavaPlugin {
 
 	/*-----------------------------------------------------------------*/
 
-	void addBoardView(String name, BoardView view) {
-		chessBoards.put(name, view);
-	}
-
-	void removeBoardView(String name) {
-		chessBoards.remove(name);
-	}
-
-	Boolean checkBoardView(String name) {
-		return chessBoards.containsKey(name);
-	}
-
-	BoardView getBoardView(String name) throws ChessException {
-		if (!chessBoards.containsKey(name))
-			throw new ChessException("No such board '" + name + "'");
-		return chessBoards.get(name);
-	}
-
-	List<BoardView> listBoardViews() {
-		SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
-		List<BoardView> res = new ArrayList<BoardView>();
-		for (String name : sorted) {
-			res.add(chessBoards.get(name));
-		}
-		return res;
-	}
-
-	BoardView getFreeBoard() throws ChessException {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.getGame() == null)
-				return bv;
-		}
-		throw new ChessException("There are no free boards to create a game on.");
-	}
-
-	// match if loc is any part of the board including the frame & enclosure
-	BoardView partOfChessBoard(Location loc) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isPartOfBoard(loc))
-				return bv;
-		}
-		return null;
-	}
-
-	// match if loc is above a board square but below the roof
-	BoardView aboveChessBoard(Location loc) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isAboveBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	// match if loc is part of a board square
-	BoardView onChessBoard(Location loc) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isOnBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	/*-----------------------------------------------------------------*/
-
-	public void addGame(String gameName, Game game) {
-		chessGames.put(gameName, game);
-	}
-
-	public void removeGame(String gameName) throws ChessException {
-		Game game = getGame(gameName);
-
-		List<String> toRemove = new ArrayList<String>();
-		for (String p : currentGame.keySet()) {
-			if (currentGame.get(p) == game) {
-				toRemove.add(p);
-			}
-		}
-		for (String p : toRemove) {
-			currentGame.remove(p);
-		}
-		chessGames.remove(gameName);
-	}
-
-	boolean checkGame(String name) {
-		return chessGames.containsKey(name);
-	}
-
-	List<Game> listGames() {
-		SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
-		List<Game> res = new ArrayList<Game>();
-		for (String name : sorted) {
-			res.add(chessGames.get(name));
-		}
-		return res;
-	}
-
-	Game getGame(String name) throws ChessException {
-		if (!chessGames.containsKey(name))
-			throw new ChessException("No such game '" + name + "'");
-		return chessGames.get(name);
-	}
-
-	/*-----------------------------------------------------------------*/
-
-	void setCurrentGame(String playerName, String gameName) throws ChessException {
-		Game game = getGame(gameName);
-		setCurrentGame(playerName, game);
-	}
-
-	void setCurrentGame(String playerName, Game game) {
-		currentGame.put(playerName, game);
-	}
-
-	Game getCurrentGame(Player player) throws ChessException {
-		return getCurrentGame(player, false);
-	}
-
-	Game getCurrentGame(Player player, boolean verify) throws ChessException {
-		Game game = currentGame.get(player.getName());
-		if (verify && game == null)
-			throw new ChessException("No active game - set one with '/chess game <name>'");
-		return player == null ? null : game;
-	}
-
-	Map<String, String> getCurrentGames() {
-		Map<String, String> res = new HashMap<String, String>();
-		for (String s : currentGame.keySet()) {
-			Game game = currentGame.get(s);
-			if (game != null)
-				res.put(s, game.getName());
-		}
-		return res;
-	}
-
-	/*-----------------------------------------------------------------*/
-
 	Location getLastPos(Player player) {
 		return lastPos.get(player.getName());
 	}
@@ -572,18 +431,18 @@ public class ChessCraft extends JavaPlugin {
 		return res.replace("&-", prevColour).replace("&&", "&");
 	}
 
-	// Generate a game name based on the player's name and a possible index
-	// number
-	String makeGameName(Player player) {
-		String base = player.getName();
-		String res;
-		int n = 1;
-		do {
-			res = base + "-" + n++;
-		} while (checkGame(res));
-
-		return res;
-	}
+//	// Generate a game name based on the player's name and a possible index
+//	// number
+//	String makeGameName(Player player) {
+//		String base = player.getName();
+//		String res;
+//		int n = 1;
+//		do {
+//			res = base + "-" + n++;
+//		} while (Game.checkGame(res));
+//
+//		return res;
+//	}
 
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;

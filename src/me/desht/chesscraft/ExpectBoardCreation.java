@@ -28,9 +28,8 @@ public class ExpectBoardCreation extends ExpectData {
 
 	@Override
 	void doResponse(Player player) throws ChessException {
-		if (!plugin.checkBoardView(boardName)) {
+		if (!BoardView.checkBoardView(boardName)) {
 			BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
-			plugin.addBoardView(boardName, view);
 			try {
 				TerrainBackup tb = new TerrainBackup(plugin, player, view);
 				tb.saveTerrain();

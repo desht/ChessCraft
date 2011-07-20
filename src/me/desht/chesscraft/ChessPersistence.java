@@ -58,16 +58,16 @@ public class ChessPersistence {
 	private void savePersistedData() {
 		Configuration conf = new Configuration(new File(plugin.getDataFolder(), persistFile));
 
-		conf.setProperty("current_games", plugin.getCurrentGames());
+		conf.setProperty("current_games", Game.getCurrentGames());
 
 		List<Map<String, Object>> boards = new ArrayList<Map<String, Object>>();
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			boards.add(bv.freeze());
 		}
 		conf.setProperty("boards", boards);
 
 		List<Map<String, Object>> games = new ArrayList<Map<String, Object>>();
-		for (Game game : plugin.listGames()) {
+		for (Game game : Game.listGames()) {
 			games.add(game.freeze());
 		}
 		conf.setProperty("games", games);
@@ -102,7 +102,7 @@ public class ChessPersistence {
 		if (cgMap != null) {
 			for (Entry<String, String> entry : cgMap.entrySet()) {
 				try {
-					plugin.setCurrentGame(entry.getKey(), entry.getValue());
+					Game.setCurrentGame(entry.getKey(), entry.getValue());
 				} catch (ChessException e) {
 					plugin.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
 							+ e.getMessage());
@@ -161,7 +161,6 @@ public class ChessPersistence {
 			try {
 				BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
 						(String) boardMap.get("pieceStyle"));
-				plugin.addBoardView(bvName, bv);
 				bv.getControlPanel().repaintSignButtons();
 				nLoaded++;
 			} catch (Exception e) {
@@ -177,10 +176,10 @@ public class ChessPersistence {
 		for (Map<String, Object> gameMap : gameList) {
 			String gameName = (String) gameMap.get("name");
 			try {
-				BoardView bv = plugin.getBoardView((String) gameMap.get("boardview"));
+				BoardView bv = BoardView.getBoardView((String) gameMap.get("boardview"));
 				Game game = new Game(plugin, gameName, bv, null);
 				game.thaw(gameMap);
-				plugin.addGame(gameName, game);
+				Game.addGame(gameName, game);
 				game.getView().getControlPanel().repaintSignButtons();
 				nLoaded++;
 			} catch (Exception e) {

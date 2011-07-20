@@ -58,7 +58,7 @@ public class ChessPlayerListener extends PlayerListener {
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					return;
 				} else {
-					BoardView bv = plugin.partOfChessBoard(b.getLocation());
+					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
 						bv.getControlPanel().signClicked(player, b, bv);
 					}
@@ -90,11 +90,11 @@ public class ChessPlayerListener extends PlayerListener {
 					targetBlock = player.getTargetBlock(transparent, 100);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
-					if ((bv = plugin.onChessBoard(loc)) != null) {
+					if ((bv = BoardView.onChessBoard(loc)) != null) {
 						boardClicked(player, loc, bv);
-					} else if ((bv = plugin.aboveChessBoard(loc)) != null) {
+					} else if ((bv = BoardView.aboveChessBoard(loc)) != null) {
 						pieceClicked(player, loc, bv);
-					} else if ((bv = plugin.partOfChessBoard(loc)) != null) {
+					} else if ((bv = BoardView.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
 							Location corner = bv.getBounds().getUpperSW();
 							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(),
@@ -119,7 +119,7 @@ public class ChessPlayerListener extends PlayerListener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		String games = "";
 		String who = event.getPlayer().getName();
-		for (Game game : plugin.listGames()) {
+		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.playerRejoined(who);
 				game.alert(game.getOtherPlayer(who), who + " is back in the game!");
@@ -134,7 +134,7 @@ public class ChessPlayerListener extends PlayerListener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
 		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
-		for (Game game : plugin.listGames()) {
+		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.playerLeft(who);
 				if (timeout > 0) {
@@ -147,9 +147,9 @@ public class ChessPlayerListener extends PlayerListener {
 	}
 
 	private void cancelMove(Location loc) {
-		BoardView bv = plugin.onChessBoard(loc);
+		BoardView bv = BoardView.onChessBoard(loc);
 		if (bv == null)
-			bv = plugin.aboveChessBoard(loc);
+			bv = BoardView.aboveChessBoard(loc);
 		if (bv != null && bv.getGame() != null) {
 			bv.getGame().setFromSquare(Chess.NO_SQUARE);
 		}

@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
@@ -27,6 +29,9 @@ import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
 
 public class Game {
+	private static final Map<String, Game> chessGames = new HashMap<String, Game>();
+	private static final Map<String, Game> currentGame = new HashMap<String, Game>();
+	
 	enum ResultType {
 		Checkmate, Stalemate, DrawAgreed, Resigned, Abandoned, FiftyMoveRule, Forfeited
 	}
@@ -333,7 +338,7 @@ public class Game {
 			throw new ChessException("Black can't afford to play! (need " + iConomy.format(stake) + ")");
 		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
 		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
-		if (plugin.iConomy != null && stake >= 0.0f) {
+		if (plugin.iConomy != null && stake > 0.0f) {
 			iConomy.getAccount(playerWhite).getHoldings().subtract(stake);
 			iConomy.getAccount(playerBlack).getHoldings().subtract(stake);
 			alert("You have paid a stake of " + iConomy.format(stake) + ".");
@@ -528,14 +533,7 @@ public class Game {
 			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				public void run() {
 					alert("Game auto-deleted!");
-					getView().setGame(null);
-					getView().paintAll();
-					try {
-						plugin.removeGame(getName());
-					} catch (ChessException e) {
-						plugin.log(Level.WARNING, e.getMessage());
-					}
-				}
+					delete();				}
 			}, autoDel * 20L);
 
 			if (delTask != -1)
@@ -551,6 +549,17 @@ public class Game {
 		delTask = -1;
 	}
 
+	void delete() {
+		cancelAutoDelete();
+		getView().setGame(null);
+		getView().paintAll();
+		try {
+			Game.removeGame(getName());
+		} catch (ChessException e) {
+			plugin.log(Level.WARNING, e.getMessage());
+		}
+	}
+	
 	// Check if the move is really allowed
 	// Also account for special cases: castling, en passant, pawn promotion
 	private short checkMove(short move) throws IllegalMoveException {
@@ -733,4 +742,95 @@ public class Game {
 			return true;
 		return iConomy.getAccount(playerWhite).getHoldings().hasEnough(stake);
 	}
+	
+	/*--------------------------------------------------------------------------------*/
+	
+	static void addGame(String gameName, Game game) {
+		chessGames.put(gameName, game);
+	}
+
+	static void removeGame(String gameName) throws ChessException {
+		Game game = getGame(gameName);
+
+		List<String> toRemove = new ArrayList<String>();
+		for (String p : currentGame.keySet()) {
+			if (currentGame.get(p) == game) {
+				toRemove.add(p);
+			}
+		}
+		for (String p : toRemove) {
+			currentGame.remove(p);
+		}
+		chessGames.remove(gameName);
+	}
+
+	static boolean checkGame(String name) {
+		return chessGames.containsKey(name);
+	}
+
+	static List<Game> listGames(boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
+			List<Game> res = new ArrayList<Game>();
+			for (String name : sorted) {
+				res.add(chessGames.get(name));
+			}
+			return res;
+		} else {
+			return new ArrayList<Game>(chessGames.values());
+		}
+	}
+	static List<Game> listGames() {
+		return listGames(false);
+	}
+
+	static Game getGame(String name) throws ChessException {
+		if (!chessGames.containsKey(name))
+			throw new ChessException("No such game '" + name + "'");
+		return chessGames.get(name);
+	}
+	
+	static void setCurrentGame(String playerName, String gameName) throws ChessException {
+		Game game = getGame(gameName);
+		setCurrentGame(playerName, game);
+	}
+
+	static void setCurrentGame(String playerName, Game game) {
+		currentGame.put(playerName, game);
+	}
+
+	static Game getCurrentGame(Player player) throws ChessException {
+		return getCurrentGame(player, false);
+	}
+
+	static Game getCurrentGame(Player player, boolean verify) throws ChessException {
+		Game game = currentGame.get(player.getName());
+		if (verify && game == null)
+			throw new ChessException("No active game - set one with '/chess game <name>'");
+		return player == null ? null : game;
+	}
+
+	static Map<String, String> getCurrentGames() {
+		Map<String, String> res = new HashMap<String, String>();
+		for (String s : currentGame.keySet()) {
+			Game game = currentGame.get(s);
+			if (game != null)
+				res.put(s, game.getName());
+		}
+		return res;
+	}
+	
+	// Generate a game name based on the player's name and a possible index
+	// number
+	static String makeGameName(Player player) {
+		String base = player.getName();
+		String res;
+		int n = 1;
+		do {
+			res = base + "-" + n++;
+		} while (Game.checkGame(res));
+
+		return res;
+	}
+
 }

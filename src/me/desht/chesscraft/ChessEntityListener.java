@@ -21,7 +21,7 @@ public class ChessEntityListener extends EntityListener {
 			return;
 
 		Location loc = event.getLocation();
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
 				event.setCancelled(true);
 				return;
@@ -37,7 +37,7 @@ public class ChessEntityListener extends EntityListener {
 			return;
 
 		for (Block b : event.blockList()) {
-			for (BoardView bv : plugin.listBoardViews()) {
+			for (BoardView bv : BoardView.listBoardViews()) {
 				if (bv.isPartOfBoard(b.getLocation())) {
 					event.setCancelled(true);
 					return;

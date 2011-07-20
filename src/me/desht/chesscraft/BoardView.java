@@ -2,8 +2,12 @@ package me.desht.chesscraft;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -21,7 +25,7 @@ import chesspresso.Chess;
 import chesspresso.position.PositionListener;
 
 public class BoardView implements PositionListener {
-
+	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();	
 	private static final String styleDir = ChessCraft.directory + File.separator + "board_styles";
 
 	private ChessCraft plugin;
@@ -60,6 +64,8 @@ public class BoardView implements PositionListener {
 		validateBoardParams();
 		controlPanel = new ControlPanel(plugin, this);
 		lastLevel = -1;
+		
+		BoardView.addBoardView(name, this);
 	}
 
 	// Overall sanity checking on board/set parameters
@@ -89,7 +95,7 @@ public class BoardView implements PositionListener {
 		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
 		bounds.expand(Direction.Up, getHeight() + 1);
 
-		for (BoardView bv : plugin.listBoardViews()) {
+		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.getA1Square().getWorld() != getA1Square().getWorld())
 				continue;
 			for (Location l : bounds.corners()) {
@@ -553,4 +559,83 @@ public class BoardView implements PositionListener {
 		}
 		return dest0;
 	}
+	
+	/*------------------------------------------------------------------------------_*/
+	
+	static void addBoardView(String name, BoardView view) {
+		chessBoards.put(name, view);
+	}
+
+	static void removeBoardView(String name) {
+		chessBoards.remove(name);
+	}
+	
+	static void removeAllBoardViews() {
+		chessBoards.clear();
+	}
+
+	static Boolean checkBoardView(String name) {
+		return chessBoards.containsKey(name);
+	}
+
+	static BoardView getBoardView(String name) throws ChessException {
+		if (!chessBoards.containsKey(name))
+			throw new ChessException("No such board '" + name + "'");
+		return chessBoards.get(name);
+	}
+
+	static List<BoardView> listBoardViews(boolean isSorted) {
+		if (isSorted) {
+			SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
+			List<BoardView> res = new ArrayList<BoardView>();
+			for (String name : sorted) {
+				res.add(chessBoards.get(name));
+			}
+			return res;
+		} else {
+			return new ArrayList<BoardView>(chessBoards.values());	
+		}
+		
+	}
+	static List<BoardView> listBoardViews() {
+		return listBoardViews(false);
+	}
+
+	static BoardView getFreeBoard() throws ChessException {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.getGame() == null)
+				return bv;
+		}
+		throw new ChessException("There are no free boards to create a game on.");
+	}
+
+	// match if loc is any part of the board including the frame & enclosure
+	static BoardView partOfChessBoard(Location loc) {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.isPartOfBoard(loc))
+				return bv;
+		}
+		return null;
+	}
+
+	// match if loc is above a board square but below the roof
+	static BoardView aboveChessBoard(Location loc) {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.isAboveBoard(loc)) {
+				return bv;
+			}
+		}
+		return null;
+	}
+
+	// match if loc is part of a board square
+	static BoardView onChessBoard(Location loc) {
+		for (BoardView bv : listBoardViews()) {
+			if (bv.isOnBoard(loc)) {
+				return bv;
+			}
+		}
+		return null;
+	}
+
 }
