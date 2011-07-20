@@ -2,12 +2,14 @@ package me.desht.chesscraft;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class ChessEntityListener extends EntityListener {
 	ChessCraft plugin;
@@ -53,25 +55,36 @@ public class ChessEntityListener extends EntityListener {
 	public void onEntityDamage(EntityDamageEvent event)	{
 		if (event.isCancelled())
 			return;
-		if (!plugin.getConfiguration().getBoolean("no_pvp", false))
-			return;
 		if (!(event.getEntity() instanceof Player))
 			return;
 		
-		System.out.println("entity damage");
-		
 		if (event instanceof EntityDamageByEntityEvent) {
+			if (!plugin.getConfiguration().getBoolean("no_pvp", false))
+				return;
 			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
 			if (dbeEvent.getDamager() instanceof Player) {
 				Location attackerLoc = dbeEvent.getDamager().getLocation();
 				Location defenderLoc = event.getEntity().getLocation();
 				for (BoardView bv : BoardView.listBoardViews()) {
 					if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-						System.out.println("PVP action prevented!");
 						event.setCancelled(true);
 						return;
 					}
 				}
+			}
+		} else if (event.getCause() == DamageCause.SUFFOCATION) {
+			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
+			if (bv != null) {
+				// player must have had a chess piece placed on them
+				Player p = (Player) event.getEntity();
+				Location loc = p.getLocation().clone();
+				int n = 0;
+				do { 
+					loc.add(-1, 0, 0);
+				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0 && n < 100);
+				p.teleport(loc);
+				event.setCancelled(true);
+				System.out.println("moved to loc " + loc);
 			}
 		}
 		
