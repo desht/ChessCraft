@@ -65,7 +65,7 @@ public class ChessCraft extends JavaPlugin {
 
 	private static String prevColour = "";
 
-	private int lightingTaskId;
+	private int tickTaskId;
 
 	private Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 
@@ -162,7 +162,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	private void setupRepeatingTask(int initialDelay) {
-		lightingTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+		tickTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				for (BoardView bv : BoardView.listBoardViews()) {
@@ -281,8 +281,8 @@ public class ChessCraft extends JavaPlugin {
 		}
 
 		// special hooks
-		if (key.equalsIgnoreCase("lighting_interval")) {
-			getServer().getScheduler().cancelTask(lightingTaskId);
+		if (key.equalsIgnoreCase("tick_interval")) {
+			getServer().getScheduler().cancelTask(tickTaskId);
 			setupRepeatingTask(0);
 		}
 
