@@ -335,6 +335,7 @@ public class BoardView implements PositionListener {
 			ChessStone cStone = stones.get(stone);
 			int xOff = (squareSize - cStone.getSizeX()) / 2;
 			int zOff = (squareSize - cStone.getSizeZ()) / 2;
+			boolean secondPassNeeded = false;
 			for (int x = 0; x < cStone.getSizeX(); x++) {
 				for (int y = 0; y < height; y++) {
 					for (int z = 0; z < cStone.getSizeZ(); z++) {
@@ -342,16 +343,20 @@ public class BoardView implements PositionListener {
 						if (!shouldPlaceLast(mat.material))
 							ChessCraft.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
 							                                 (l.getBlockZ() - zOff)- z), mat);
+						else
+							secondPassNeeded = true;
 					}
 				}
 			}
-			for (int x = 0; x < cStone.getSizeX(); x++) {
-				for (int y = 0; y < height; y++) {
-					for (int z = 0; z < cStone.getSizeZ(); z++) {
-						MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
-						if (shouldPlaceLast(mat.material))
-							ChessCraft.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
-							                                 (l.getBlockZ() - zOff) - z), mat);
+			if (secondPassNeeded) {
+				for (int x = 0; x < cStone.getSizeX(); x++) {
+					for (int y = 0; y < height; y++) {
+						for (int z = 0; z < cStone.getSizeZ(); z++) {
+							MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
+							if (shouldPlaceLast(mat.material))
+								ChessCraft.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
+								                                 (l.getBlockZ() - zOff) - z), mat);
+						}
 					}
 				}
 			}
