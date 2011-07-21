@@ -148,8 +148,7 @@ public class Cuboid implements Iterable<Location> {
 	}
 
 	public int volume() {
-		return ((upperSW.getBlockX() - lowerNE.getBlockX()) + 1) * ((upperSW.getBlockY() - lowerNE.getBlockY()) + 1)
-				* ((upperSW.getBlockZ() - lowerNE.getBlockZ()) + 1);
+		return getSizeX() * getSizeY() * getSizeZ();
 	}
 
 	@Override
@@ -159,5 +158,17 @@ public class Cuboid implements Iterable<Location> {
 
 	public String toString() {
 		return lowerNE.toString() + " -> " + upperSW.toString();
+	}
+
+	int getSizeX() {
+		return (upperSW.getBlockX() - lowerNE.getBlockX()) + 1;
+	}
+
+	int getSizeY() {
+		return (upperSW.getBlockY() - lowerNE.getBlockY()) + 1;
+	}
+	
+	int getSizeZ() {
+		return (upperSW.getBlockZ() - lowerNE.getBlockZ()) + 1;
 	}
 }
