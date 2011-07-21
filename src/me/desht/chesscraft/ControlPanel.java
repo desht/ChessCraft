@@ -57,7 +57,7 @@ public class ControlPanel {
 	void repaint() {
 		World w = view.getA1Square().getWorld();
 		for (Location l : panelBlocks) {
-			ChessCraft.setBlock(w.getBlockAt(l), view.getFrameMat());
+			ChessCraft.setBlock(w.getBlockAt(l), view.getControlPanelMat());
 		}
 		view.toPlayChanged(Chess.WHITE);
 
