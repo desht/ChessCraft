@@ -23,6 +23,9 @@ import com.sk89q.worldedit.FilenameException;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.inventory.Inventory;
 
 public class BoardView implements PositionListener {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
@@ -305,6 +308,19 @@ public class BoardView implements PositionListener {
 
 		World w = a1Square.getWorld();
 		if (stone == Chess.NO_STONE) {
+
+                        // first remove blocks that might pop off & leave a drop
+                        Block b = null;
+			for (int x = 0; x < squareSize; x++) {
+				for (int y = 1; y <= height; y++) {
+					for (int z = 0; z < squareSize; z++) {
+                                            b = w.getBlockAt(l.getBlockX() - x, l.getBlockY() + y, l.getBlockZ() - z);
+                                            if(shouldPlaceLast(b.getTypeId())){
+                                                b.setTypeId(0);
+                                            }
+                                        }
+                                }
+                        }
 			for (int x = 0; x < squareSize; x++) {
 				for (int y = 1; y <= height; y++) {
 					for (int z = 0; z < squareSize; z++) {
@@ -536,10 +552,131 @@ public class BoardView implements PositionListener {
 		delete(false, null);
 	}
 
+        /**
+         * Checks whether a block can be passed through.
+         * (copied from WorldEdit ... after i'd made another, lol)
+         * @param id
+         * @return
+         */
+        public static boolean canPassThrough(int id) {
+            return id == 0 // Air
+                    || id == 8 // Water
+                    || id == 9 // Water
+                    || id == 6 // Saplings
+                    || id == 27 // Powered rails
+                    || id == 28 // Detector rails
+                    || id == 30 // Web <- someone will hate me for this
+                    || id == 31 // Long grass
+                    || id == 32 // Shrub
+                    || id == 37 // Yellow flower
+                    || id == 38 // Red flower
+                    || id == 39 // Brown mushroom
+                    || id == 40 // Red mush room
+                    || id == 50 // Torch
+                    || id == 51 // Fire
+                    || id == 55 // Redstone wire
+                    || id == 59 // Crops
+                    || id == 63 // Sign post
+                    || id == 65 // Ladder
+                    || id == 66 // Minecart tracks
+                    || id == 68 // Wall sign
+                    || id == 69 // Lever
+                    || id == 70 // Stone pressure plate
+                    || id == 72 // Wooden pressure plate
+                    || id == 75 // Redstone torch (off)
+                    || id == 76 // Redstone torch (on)
+                    || id == 77 // Stone button
+                    || id == 78 // Snow
+                    || id == 83 // Reed
+                    || id == 90 // Portal
+                    || id == 93 // Diode (off)
+                    || id == 94; // Diode (on)
+        }
+
+        
+        /**
+         * Returns true if the block is a container block.
+         * (copied from WorldEdit)
+         * @param id
+         * @return
+         */
+        public static boolean isContainerBlock(int id) {
+            return id == 23 // Dispenser
+                    || id == 61 // Furnace
+                    || id == 62 // Furnace
+                    || id == 54; // Chest
+        }
+        
+        /**
+         * Checks to see whether a block should be placed last.
+         * (also copied from WorldEdit)
+         * (paintings are not blocks, and are not included...)
+         * @param id
+         * @return
+         */
+        public static boolean shouldPlaceLast(int id) {
+            return id == 6 // Saplings
+                    || id == 26 // Beds
+                    || id == 27 // Powered rails
+                    || id == 28 // Detector rails
+                    || id == 31 // Long grass
+                    || id == 32 // Shrub
+                    || id == 37 // Yellow flower
+                    || id == 38 // Red flower
+                    || id == 39 // Brown mushroom
+                    || id == 40 // Red mush room
+                    || id == 50 // Torch
+                    || id == 51 // Fire
+                    || id == 55 // Redstone wire
+                    || id == 59 // Crops
+                    || id == 63 // Sign post
+                    || id == 64 // Wooden door
+                    || id == 65 // Ladder
+                    || id == 66 // Minecart tracks
+                    || id == 68 // Wall sign
+                    || id == 69 // Lever
+                    || id == 70 // Stone pressure plate
+                    || id == 71 // Iron door
+                    || id == 72 // Wooden pressure plate
+                    || id == 75 // Redstone torch (off)
+                    || id == 76 // Redstone torch (on)
+                    || id == 77 // Stone button
+                    || id == 78 // Snow
+                    || id == 81 // Cactus
+                    || id == 83 // Reed
+                    || id == 90 // Portal
+                    || id == 92 // Cake
+                    || id == 93 // Repeater (off)
+                    || id == 94 // Repeater (on)
+                    || id == 96; // Trap door
+        }
+
+        /**
+         * delete blocks in bounds, but don't allow items to drop
+         * (paintings are not blocks, and are not included...)
+         * also does not scan the faces of the region for drops when the region is cleared
+         */
 	void wipe() {
-		for (Location l : getOuterBounds()) {
-			l.getBlock().setTypeId(0);
-		}
+            Block b = null;
+            // first remove blocks that might pop off & leave a drop
+            for (Location l : getOuterBounds()) {
+                b = l.getBlock();
+                if(shouldPlaceLast(b.getTypeId())){
+                    b.setTypeId(0);
+                }// also check if this is a container
+                else if(isContainerBlock(b.getTypeId())){
+                    BlockState state = b.getState();
+                    if (state instanceof org.bukkit.block.ContainerBlock) {
+                        org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock)state;
+                        Inventory inven = chest.getInventory();
+                        inven.clear();
+                    }
+                }
+            }
+            // now wipe all (remaining) blocks
+            for (Location l : getOuterBounds()) {
+                    l.getBlock().setTypeId(0);
+            }
 	}
 
 	void restoreTerrain(Player player) {
