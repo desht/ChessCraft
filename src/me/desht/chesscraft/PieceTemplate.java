@@ -29,6 +29,15 @@ public class PieceTemplate {
 		}
 	}
 
+	// create a blank template
+	PieceTemplate(int sizeX, int sizeY, int sizeZ) {
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
+		this.sizeZ = sizeZ;
+
+		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+	}
+	
 	// copy constructor
 	PieceTemplate(PieceTemplate t) {
 		sizeX = t.getSizeX();
@@ -45,19 +54,28 @@ public class PieceTemplate {
 	}
 
 	int getSizeX() {
-		return pieceArray.length;
+		return pieceArray[0][0].length;
 	}
 
 	int getSizeY() {
-		return pieceArray[0].length;
+		return pieceArray.length;
 	}
 
 	int getSizeZ() {
-		return pieceArray[0][0].length;
+		return pieceArray[0].length;
 	}
 
 	MaterialWithData getMaterial(int x, int y, int z) {
 		return pieceArray[x][y][z];
 	}
+	
+	void setMaterial(int x, int y, int z, MaterialWithData mwd) {
+		pieceArray[x][y][z] = mwd;
+	}
+
+//	@Override
+//	public String toString() {
+//		
+//	}
 
 }
