@@ -697,14 +697,10 @@ public class BoardView implements PositionListener {
 	}
 
 	void restoreTerrain(Player player) {
-		try {
-			TerrainBackup tb = new TerrainBackup(plugin, player, this);
-			tb.reloadTerrain();
-		} catch (FilenameException e) {
-			plugin.log(Level.WARNING, e.getMessage());
-			// can't restore the terrain, so just replace with air
-			wipe();
-		}
+                // if can't restore the terrain, so just replace with air
+                wipe();
+                TerrainBackup tb = new TerrainBackup(plugin, player, this);
+                tb.reloadTerrain();
 	}
 
 	Location findSafeLocationOutside() {

@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -32,7 +33,7 @@ public class TerrainBackup {
 	private File saveFile;
 	private Vector min, max;
 
-	TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
+	TerrainBackup(ChessCraft plugin, Player player, BoardView view) /*throws FilenameException*/ {
 		this.plugin = plugin;
 		this.player = player;
 
@@ -52,7 +53,12 @@ public class TerrainBackup {
 		editSession = localSession.createEditSession(localPlayer);
 
 		File dir = new File(plugin.getDataFolder(), schematicDir);
-		saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[] { "schematic" });
+                
+                try {
+                    saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[]{"schematic"});
+                } catch (FilenameException ex) {
+                    plugin.log(Level.WARNING, ex.getMessage());
+                }
 	}
 
 	void saveTerrain() {

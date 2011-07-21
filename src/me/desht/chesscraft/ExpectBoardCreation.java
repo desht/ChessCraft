@@ -30,12 +30,10 @@ public class ExpectBoardCreation extends ExpectData {
 	void doResponse(Player player) throws ChessException {
 		if (!BoardView.checkBoardView(boardName)) {
 			BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
-			try {
-				TerrainBackup tb = new TerrainBackup(plugin, player, view);
-				tb.saveTerrain();
-			} catch (FilenameException e) {
-				plugin.log(Level.WARNING, e.getMessage());
-			}
+
+                        TerrainBackup tb = new TerrainBackup(plugin, player, view);
+                        tb.saveTerrain();
+
 			view.paintAll();
 			plugin.statusMessage(player, "Board &6" + boardName + "&- has been created at "
 					+ ChessCraft.formatLoc(view.getA1Square()) + ".");
