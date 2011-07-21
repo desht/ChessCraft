@@ -78,6 +78,8 @@ public class MaterialWithData {
 		String s = Material.getMaterial(material).toString();
 		if (material == 35) // wool
 			s = s + ":" + DyeColor.getByData(data).toString();
+		else
+			s = s + ":" + data;
 		return s;
 	}
 	
