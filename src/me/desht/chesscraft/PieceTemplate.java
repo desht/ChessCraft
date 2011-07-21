@@ -1,5 +1,7 @@
 package me.desht.chesscraft;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -7,13 +9,15 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 public class PieceTemplate {
 	protected MaterialWithData[][][] pieceArray;
-	protected int sizeX, sizeY, sizeZ;
+	protected final int sizeX, sizeY, sizeZ;
+	List<List<String>> pieceData = null;
+	Map<String, String> pieceMaterials = null;
 
 	PieceTemplate(List<List<String>> data, Map<String, String> matMap) throws ChessException {
 		sizeY = data.size();
 		sizeZ = data.get(0).size();
 		sizeX = data.get(0).get(0).length();
-
+		
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 		for (int y = 0; y < sizeY; y++) {
 			List<String> yRow = data.get(y);
@@ -44,25 +48,26 @@ public class PieceTemplate {
 		sizeY = t.getSizeY();
 		sizeZ = t.getSizeZ();
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
-		for (int i = 0; i < pieceArray.length; i++) {
-			for (int j = 0; j < pieceArray[i].length; j++) {
-				for (int k = 0; k < pieceArray[i][j].length; k++) {
-					pieceArray[i][j][k] = new MaterialWithData(t.getMaterial(i, j, k));
+		
+		for (int x = 0; x < sizeX; x++) {
+			for (int y = 0; y < sizeY; y++) {
+				for (int z = 0; z < sizeZ; z++) {
+					pieceArray[x][y][z] = new MaterialWithData(t.getMaterial(x, y, z));
 				}
 			}
 		}
 	}
 
 	int getSizeX() {
-		return pieceArray[0][0].length;
-	}
-
-	int getSizeY() {
 		return pieceArray.length;
 	}
 
-	int getSizeZ() {
+	int getSizeY() {
 		return pieceArray[0].length;
+	}
+
+	int getSizeZ() {
+		return pieceArray[0][0].length;
 	}
 
 	MaterialWithData getMaterial(int x, int y, int z) {
@@ -73,9 +78,41 @@ public class PieceTemplate {
 		pieceArray[x][y][z] = mwd;
 	}
 
-//	@Override
-//	public String toString() {
-//		
-//	}
+	List<List<String>> getData() {
+		if (pieceData == null)
+			scan();
+		return pieceData;
+	}
+	
+	Map<String, String> getMaterialMap() {
+		if (pieceMaterials == null)
+			scan();
+		return pieceMaterials;
+	}
 
+	// (Re)generate the piece data array and material map
+	private void scan() {
+		pieceData = new ArrayList<List<String>>(sizeY);
+		pieceMaterials = new HashMap<String, String>();
+		
+		Map<MaterialWithData, Character> matToStr = new HashMap<MaterialWithData, Character>();
+		int i = 65; // ASCII 'A'
+		
+		for (int y = 0; y < sizeY; y++) {
+			pieceData.add(new ArrayList<String>(sizeX));
+			for (int x = 0; x < sizeX; x++) {
+				StringBuilder sb = new StringBuilder();
+				for (int z = 0; z < sizeZ; z++) {
+					MaterialWithData m = getMaterial(x, y, z);
+					if (!matToStr.containsKey(m)) {
+						Character c = (char) i;
+						matToStr.put(m, c);
+						pieceMaterials.put(c.toString(), m.toString());
+					}
+					sb.append(matToStr.get(m));
+				}
+				pieceData.get(y).add(sb.toString());
+			}
+		}
+	}
 }
