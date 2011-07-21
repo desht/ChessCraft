@@ -308,6 +308,19 @@ public class BoardView implements PositionListener {
 
 		World w = a1Square.getWorld();
 		if (stone == Chess.NO_STONE) {
+
+                        // first remove blocks that might pop off & leave a drop
+                        Block b = null;
+			for (int x = 0; x < squareSize; x++) {
+				for (int y = 1; y <= height; y++) {
+					for (int z = 0; z < squareSize; z++) {
+                                            b = w.getBlockAt(l.getBlockX() - x, l.getBlockY() + y, l.getBlockZ() - z);
+                                            if(shouldPlaceLast(b.getTypeId())){
+                                                b.setTypeId(0);
+                                            }
+                                        }
+                                }
+                        }
 			for (int x = 0; x < squareSize; x++) {
 				for (int y = 1; y <= height; y++) {
 					for (int z = 0; z < squareSize; z++) {
@@ -643,33 +656,27 @@ public class BoardView implements PositionListener {
          * (paintings are not blocks, and are not included...)
          * also does not scan the faces of the region for drops when the region is cleared
          */
-        void cleanwipe(){
+	void wipe() {
             Block b = null;
             // first remove blocks that might pop off & leave a drop
-		for (Location l : getOuterBounds()) {
-                    b = l.getBlock();
-                    if(shouldPlaceLast(b.getTypeId())){
-                        b.setTypeId(0);
-                    }// also check if this is a container
-                    else if(isContainerBlock(b.getTypeId())){
-                        BlockState state = b.getState();
-                        if (state instanceof org.bukkit.block.ContainerBlock) {
-                            org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock)state;
-                            Inventory inven = chest.getInventory();
-                            inven.clear();
-                        }
+            for (Location l : getOuterBounds()) {
+                b = l.getBlock();
+                if(shouldPlaceLast(b.getTypeId())){
+                    b.setTypeId(0);
+                }// also check if this is a container
+                else if(isContainerBlock(b.getTypeId())){
+                    BlockState state = b.getState();
+                    if (state instanceof org.bukkit.block.ContainerBlock) {
+                        org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock)state;
+                        Inventory inven = chest.getInventory();
+                        inven.clear();
                     }
-		}
-                // now wipe all (remaining) blocks
-		for (Location l : getOuterBounds()) {
-			l.getBlock().setTypeId(0);
-		}
-        }
-
-	void wipe() {
-		for (Location l : getOuterBounds()) {
-			l.getBlock().setTypeId(0);
-		}
+                }
+            }
+            // now wipe all (remaining) blocks
+            for (Location l : getOuterBounds()) {
+                    l.getBlock().setTypeId(0);
+            }
 	}
 
 	void restoreTerrain(Player player) {
