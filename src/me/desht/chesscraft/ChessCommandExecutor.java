@@ -555,9 +555,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 			String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
 			String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
 			StringBuilder info = new StringBuilder(": &f" + curMoveW + white + " (W) v " + curMoveB + black + " (B) ");
-			info.append("&e[" + game.getState() + "]");
+			info.append("&e[").append(game.getState()).append("]");
 			if (game.getInvited().length() > 0)
-				info.append(" invited: &6" + game.getInvited());
+				info.append(" invited: &6").append(game.getInvited());
 			messageBuffer.add(curGameMarker + name + info);
 		}
 		pagedDisplay(player, 1);
@@ -595,7 +595,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1));
 			sb.append(Move.getString(h.get(i)));
 			if (i < h.size() - 1) {
-				sb.append("  " + Move.getString(h.get(i + 1)));
+				sb.append("  ").append(Move.getString(h.get(i + 1)));
 			}
 			messageBuffer.add(sb.toString());
 		}

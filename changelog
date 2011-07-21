@@ -1,0 +1,45 @@
+v0.3 (not released)
+now does terrain saving when a board is created
+control panel itens are grey when inactive
+can setup iConomy stakes - amount each player bets on winning (winner recieves double)
+WorldEdit can instead be put in ChessCraft plugin folder or lib folder
+moves players out of the way of moving chess pieces
+games now auto-delete if not started 
+
+
+v0.2.2 (18 Jul 2011)
+Fixed a problem with en passant moves for Black
+Fixed a problem with queen's side castling (was checking for King move to B file instead of C file - /facepalm)
+Included twist.yml piece style by @ppp
+When creating boards, you can now also add a '-pstyle <style>' option to override the board's default piece style. Should reduce the need to create new board definitions just to try out a different piece style.
+
+
+v0.2.1 (13 Jul 2011):
+Now only tells you if you are actually in one or more games at login
+
+
+v0.2 (13 Jul 2011)
+Piece selection/moving has changed: now pieces are selected & moved by waving a wand item 
+- (new config item wand_item, default is empty hand) with left-click. 
+- Much more usable, since it can be done from a distance - less running about the board needed. 
+- Right-click still works but is deprecated and will print a warning every time it's used. 
+- - Right-click will be removed in the next release.
+Control panel on the side of each board with chess clock
+- to-play indicator
+- halfmove clock display
+- ply count display
+- and a set of buttons to make a lot of the /chess commands easier to use (e.g. you can now create a game on the board with one click).
+More visible notification if you've been placed in check.
+When you join a game, you can now be automatically teleported to it (new config itemauto_teleport_on_join, default true).
+If a player logs out, their opponent may claim victory by default after a configurable delay (new config item forfeit_timeout, default 60 seconds).
+Board lighting is now checked once per second by default, not once per 10 seconds. The same task also updates chess clocks on each board.
+Implemented the 50-move rule (game is drawn if no pawn moves & no captures in the last 50 moves - see the halfmove clock on the control panel).
+Various minor tweaks & bug fixes.
+
+
+v0.1.1 (8 Jul 2011)
+Fixed a logic error which was mistakenly treating any move into row 1 as a pawn promotion move.
+
+
+v0.1 (4 Jul 2011)
+Initial release
