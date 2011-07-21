@@ -80,4 +80,8 @@ public class MaterialWithData {
 			s = s + ":" + DyeColor.getByData(data).toString();
 		return s;
 	}
+	
+	public boolean equals(MaterialWithData other) {
+		return material == other.material && data == other.data;
+	}
 }
