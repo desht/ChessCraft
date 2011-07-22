@@ -61,14 +61,11 @@ public class BoardView implements PositionListener {
 		origin = where;
 		a1Square = calcBaseSquare(where);
 		validateIntersections();
-		System.out.println("intersections validated");
 		stones = createStones(pieceStyle);
-		System.out.println("stones created");
 		validateBoardParams();
 		controlPanel = new ControlPanel(plugin, this);
 		lastLevel = -1;
 
-		System.out.println("board created");
 		BoardView.addBoardView(name, this);
 	}
 
@@ -192,10 +189,10 @@ public class BoardView implements PositionListener {
 			if (pieceStyle == null)
 				pieceStyle = (String) styleMap.get("piece_style");
 
-			blackSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("black_square"));
-			whiteSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("white_square"));
-			frameMat = MaterialWithData.parseIdAndData((String) styleMap.get("frame"));
-			enclosureMat = MaterialWithData.parseIdAndData((String) styleMap.get("enclosure"));
+			blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
+			whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
+			frameMat = new MaterialWithData((String) styleMap.get("frame"));
+			enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
