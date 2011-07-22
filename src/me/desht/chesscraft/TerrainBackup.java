@@ -32,7 +32,7 @@ public class TerrainBackup {
 	private File saveFile;
 	private Vector min, max;
 
-	TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
+	private TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
 		this.plugin = plugin;
 		this.player = player;
 
@@ -55,7 +55,7 @@ public class TerrainBackup {
 		saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[] { "schematic" });
 	}
 
-	void saveTerrain() {
+	private void saveTerrain() {
 		if (wep == null)
 			return;
 
@@ -72,7 +72,7 @@ public class TerrainBackup {
 		}
 	}
 
-	void reloadTerrain() {
+	private void reloadTerrain() {
 		if (wep == null)
 			return;
 
@@ -96,4 +96,25 @@ public class TerrainBackup {
 		}
 	}
 
+	static void save(ChessCraft plugin, Player player, BoardView view) {
+		if (plugin.getWorldEdit() != null) {
+			try {
+				TerrainBackup tb = new TerrainBackup(plugin, player, view);
+				tb.saveTerrain();
+			} catch (FilenameException e) {
+				plugin.log(Level.WARNING, e.getMessage());
+			}
+		}
+	}
+	
+	static void reload(ChessCraft plugin, Player player, BoardView view) {
+		try {
+			TerrainBackup tb = new TerrainBackup(plugin, player, view);
+			tb.reloadTerrain();
+		} catch (FilenameException e) {
+			plugin.log(Level.WARNING, e.getMessage());
+			// can't restore the terrain, so just replace with air
+			view.wipe();
+		}
+	}
 }

@@ -19,8 +19,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
-import com.sk89q.worldedit.FilenameException;
-
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
 import org.bukkit.block.Block;
@@ -697,12 +695,9 @@ public class BoardView implements PositionListener {
 	}
 
 	void restoreTerrain(Player player) {
-		try {
-			TerrainBackup tb = new TerrainBackup(plugin, player, this);
-			tb.reloadTerrain();
-		} catch (FilenameException e) {
-			plugin.log(Level.WARNING, e.getMessage());
-			// can't restore the terrain, so just replace with air
+		if (plugin.getWorldEdit() != null) {
+			TerrainBackup.reload(plugin, player, this);
+		} else {
 			wipe();
 		}
 	}
