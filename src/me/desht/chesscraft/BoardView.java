@@ -40,6 +40,7 @@ public class BoardView implements PositionListener {
 	private MaterialWithData blackSquareMat;
 	private MaterialWithData whiteSquareMat;
 	private MaterialWithData frameMat;
+	private MaterialWithData controlPanelMat;
 	private MaterialWithData enclosureMat;
 	private String pieceStyle;
 	private Boolean isLit;
@@ -170,6 +171,10 @@ public class BoardView implements PositionListener {
 		return frameMat;
 	}
 
+	MaterialWithData getControlPanelMat() {
+		return controlPanelMat == null ? frameMat : controlPanelMat;
+	}
+        
 	MaterialWithData getEnclosureMat() {
 		return enclosureMat;
 	}
@@ -189,10 +194,13 @@ public class BoardView implements PositionListener {
 			if (pieceStyle == null)
 				pieceStyle = (String) styleMap.get("piece_style");
 
-			blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
-			whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
-			frameMat = new MaterialWithData((String) styleMap.get("frame"));
-			enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
+			blackSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("black_square"));
+			whiteSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("white_square"));
+			frameMat = MaterialWithData.parseIdAndData((String) styleMap.get("frame"));
+                        if(styleMap.get("panel") != null){
+                            controlPanelMat = MaterialWithData.parseIdAndData((String) styleMap.get("panel"));
+                        }
+			enclosureMat = MaterialWithData.parseIdAndData((String) styleMap.get("enclosure"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
@@ -285,7 +293,7 @@ public class BoardView implements PositionListener {
 	// Check if the control panel is present and draw it if necessary
 	// (will be missing if upgrading from v0.1)
 	void checkControlPanel() {
-		if (controlPanel.getPanelBlocks().getUpperSW().getBlock().getTypeId() != frameMat.material) {
+		if (controlPanel.getPanelBlocks().getUpperSW().getBlock().getTypeId() != getControlPanelMat().material) {
 			controlPanel.repaint();
 		}
 	}

@@ -5,6 +5,7 @@ can setup iConomy stakes - amount each player bets on winning (winner recieves d
 WorldEdit can instead be put in ChessCraft plugin folder or lib folder
 moves players out of the way of moving chess pieces
 games now auto-delete if not started 
+added an optional "panel" material definition in the board definition: control panel can be different than the frame
 
 
 v0.2.2 (18 Jul 2011)
