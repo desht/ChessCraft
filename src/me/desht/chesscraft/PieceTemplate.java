@@ -105,7 +105,7 @@ public class PieceTemplate {
 				for (int z = 0; z < sizeZ; z++) {
 					MaterialWithData m = getMaterial(x, y, z);
 					if (!matToStr.containsKey(m)) {
-						Character c = (char) i;
+						Character c = (char) i++;
 						matToStr.put(m, c);
 						pieceMaterials.put(c.toString(), m.toString());
 					}
