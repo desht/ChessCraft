@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -18,6 +19,11 @@ public class PieceTemplate {
 		sizeZ = data.get(0).size();
 		sizeX = data.get(0).get(0).length();
 		
+		Map<String, MaterialWithData> mats = new HashMap<String, MaterialWithData>();
+		for (Entry<String, String> entry : matMap.entrySet()) {
+			mats.put(entry.getKey(), new MaterialWithData(entry.getValue()));
+		}
+		
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 		for (int y = 0; y < sizeY; y++) {
 			List<String> yRow = data.get(y);
@@ -27,7 +33,7 @@ public class PieceTemplate {
 					String k = zRow.substring(z, z + 1);
 					if (!matMap.containsKey(k))
 						throw new ChessException("unknown character '" + k + "' found.");
-					pieceArray[x][y][z] = MaterialWithData.parseIdAndData(matMap.get(k));
+					pieceArray[x][y][z] = mats.get(k);
 				}
 			}
 		}
