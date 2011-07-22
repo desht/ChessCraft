@@ -52,78 +52,84 @@ public class ChessEntityListener extends EntityListener {
 			}
 		}
 	}
-	
+
 	@Override
-	public void onEntityDamage(EntityDamageEvent event)	{
+	public void onEntityDamage(EntityDamageEvent event) {
 		if (event.isCancelled())
 			return;
 		if (!(event.getEntity() instanceof Player))
 			return;
-                
-		if (event instanceof EntityDamageByEntityEvent){
+
+		if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
-                        if(dbeEvent.getDamager() instanceof Player
-                                && !plugin.getConfiguration().getBoolean("no_pvp", false))
+			if (dbeEvent.getDamager() instanceof Player
+					&& !plugin.getConfiguration().getBoolean("no_pvp", false))
 				return;
 
-                        Location attackerLoc = dbeEvent.getDamager().getLocation();
-                        Location defenderLoc = event.getEntity().getLocation();
-                        for (BoardView bv : BoardView.listBoardViews()) {
-                                if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-                                        event.setCancelled(true);
-                                        if(!(dbeEvent.getDamager() instanceof Player)
-                                                && dbeEvent.getDamager() instanceof LivingEntity)
-                                        dbeEvent.getDamager().remove();
-                                        return;
-                                }
-                        }
+			Location attackerLoc = dbeEvent.getDamager().getLocation();
+			Location defenderLoc = event.getEntity().getLocation();
+			for (BoardView bv : BoardView.listBoardViews()) {
+				if (bv.isPartOfBoard(defenderLoc)
+						|| bv.isPartOfBoard(attackerLoc)) {
+					event.setCancelled(true);
+					if (!(dbeEvent.getDamager() instanceof Player)
+							&& dbeEvent.getDamager() instanceof LivingEntity)
+						dbeEvent.getDamager().remove();
+					return;
+				}
+			}
 
-                  } else if (event instanceof EntityDamageByProjectileEvent){
+		} else if (event instanceof EntityDamageByProjectileEvent) {
 			EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
-                        if(dbeEvent.getDamager() instanceof Player
-                                && !plugin.getConfiguration().getBoolean("no_pvp", false))
+			if (dbeEvent.getDamager() instanceof Player
+					&& !plugin.getConfiguration().getBoolean("no_pvp", false))
 				return;
 
-                        Location attackerLoc = dbeEvent.getDamager().getLocation();
-                        Location defenderLoc = event.getEntity().getLocation();
-                        for (BoardView bv : BoardView.listBoardViews()) {
-                                if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-                                        event.setCancelled(true);
-                                        if(!(dbeEvent.getDamager() instanceof Player)
-                                                && dbeEvent.getDamager() instanceof LivingEntity)
-                                        dbeEvent.getDamager().remove();
-                                        return;
-                                }
-                        }
+			Location attackerLoc = dbeEvent.getDamager().getLocation();
+			Location defenderLoc = event.getEntity().getLocation();
+			for (BoardView bv : BoardView.listBoardViews()) {
+				if (bv.isPartOfBoard(defenderLoc)
+						|| bv.isPartOfBoard(attackerLoc)) {
+					event.setCancelled(true);
+					if (!(dbeEvent.getDamager() instanceof Player)
+							&& dbeEvent.getDamager() instanceof LivingEntity)
+						dbeEvent.getDamager().remove();
+					return;
+				}
+			}
 
-                  } else if (event.getCause() == DamageCause.SUFFOCATION) {
-			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
+		} else if (event.getCause() == DamageCause.SUFFOCATION) {
+			BoardView bv = BoardView.partOfChessBoard(event.getEntity()
+					.getLocation());
 			if (bv != null) {
 				final int MAX_DIST = 100;
 				// player must have had a chess piece placed on them
 				Player p = (Player) event.getEntity();
 				Location loc = p.getLocation().clone();
 				int n = 0;
-				do { 
+				do {
 					loc.add(0, 0, -1); // east
-				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0 && n < MAX_DIST);
+				} while (loc.getBlock().getTypeId() != 0
+						&& loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
+						&& n < MAX_DIST);
 				if (n >= MAX_DIST) {
-					plugin.errorMessage(p, "Can't find a safe place to displace you - going to spawn");
+					plugin.errorMessage(p,
+							"Can't find a safe place to displace you - going to spawn");
 					p.teleport(p.getWorld().getSpawnLocation());
 				}
 				p.teleport(loc);
 				event.setCancelled(true);
 			}
-		}else{
-                    // any other damage to a player while on a board
-                    // eg. falling off of a piece or viewing platform,
-                    // catus/lava/fire on pieces, etc..
-                    BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
-                    if (bv != null) {
-                        event.setCancelled(true);
-                    }
-                }
-		
+		} else {
+			// any other damage to a player while on a board
+			// eg. falling off of a piece or viewing platform,
+			// catus/lava/fire on pieces, etc..
+			BoardView bv = BoardView.partOfChessBoard(event.getEntity()
+					.getLocation());
+			if (bv != null) {
+				event.setCancelled(true);
+			}
+		}
 
 	}
 

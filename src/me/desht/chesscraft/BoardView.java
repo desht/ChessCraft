@@ -194,13 +194,13 @@ public class BoardView implements PositionListener {
 			if (pieceStyle == null)
 				pieceStyle = (String) styleMap.get("piece_style");
 
-			blackSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("black_square"));
-			whiteSquareMat = MaterialWithData.parseIdAndData((String) styleMap.get("white_square"));
-			frameMat = MaterialWithData.parseIdAndData((String) styleMap.get("frame"));
-                        if(styleMap.get("panel") != null){
-                            controlPanelMat = MaterialWithData.parseIdAndData((String) styleMap.get("panel"));
-                        }
-			enclosureMat = MaterialWithData.parseIdAndData((String) styleMap.get("enclosure"));
+			blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
+			whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
+			frameMat = new MaterialWithData((String) styleMap.get("frame"));
+			if(styleMap.get("panel") != null){
+				controlPanelMat = new MaterialWithData((String) styleMap.get("panel"));
+			}
+			enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			plugin.log(Level.SEVERE, "can't load board style " + style + ": " + e);
