@@ -1,11 +1,16 @@
 package me.desht.chesscraft;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -14,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -41,6 +48,11 @@ public class ChessCraft extends JavaPlugin {
 	enum Privilege {
 		Basic, Admin
 	};
+	
+	private static final String chesspressoDownload =
+			"http://sourceforge.net/projects/chesspresso/files/chesspresso-lib/0.9.2/Chesspresso-lib-0.9.2.zip/download";
+	private static final String chesspressoLibName = "Chesspresso-lib.jar";
+	private static final String chesspressoZipName = "Chesspresso-lib-0.9.2/Chesspresso-lib.jar";
 
 	private PluginDescriptionFile description;
 	static final String directory = "plugins" + File.separator + "ChessCraft";
@@ -50,19 +62,27 @@ public class ChessCraft extends JavaPlugin {
 	private WorldEditPlugin worldEditPlugin;
 	iConomy iConomy = null;
 
-//	private final Map<String, Game> chessGames = new HashMap<String, Game>();
-//	private final Map<String, Game> currentGame = new HashMap<String, Game>();
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 
-	private final ChessPlayerListener playerListener = new ChessPlayerListener(this);
-	private final ChessBlockListener blockListener = new ChessBlockListener(this);
-	private final ChessEntityListener entityListener = new ChessEntityListener(this);
-	private final ChessCommandExecutor commandExecutor = new ChessCommandExecutor(this);
+//	private final ChessPlayerListener playerListener = new ChessPlayerListener(this);
+//	private final ChessBlockListener blockListener = new ChessBlockListener(this);
+//	private final ChessEntityListener entityListener = new ChessEntityListener(this);
+//	private final ChessCommandExecutor commandExecutor = new ChessCommandExecutor(this);
+//
+//	final ChessPieceLibrary library = new ChessPieceLibrary(this);
+//	final ChessPersistence persistence = new ChessPersistence(this);
+//	final ExpectResponse expecter = new ExpectResponse();
 
-	final ChessPieceLibrary library = new ChessPieceLibrary(this);
-	final ChessPersistence persistence = new ChessPersistence(this);
-	final ExpectResponse expecter = new ExpectResponse();
 
+	private ChessPlayerListener playerListener;
+	private ChessBlockListener blockListener;
+	private ChessEntityListener entityListener;
+	private ChessCommandExecutor commandExecutor;
+
+	ChessPieceLibrary library;
+	ChessPersistence persistence;
+	ExpectResponse expecter;
+	
 	private static String prevColour = "";
 
 	private int tickTaskId;
@@ -103,12 +123,27 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	@Override
+	public void onLoad() {
+		checkForChesspresso();
+	}
+	
+	
+	@Override
 	public void onEnable() {
 		description = this.getDescription();
 
 		setupDefaultStructure();
 
 		configInitialise();
+		
+		playerListener = new ChessPlayerListener(this);
+		blockListener = new ChessBlockListener(this);
+		entityListener = new ChessEntityListener(this);
+		commandExecutor = new ChessCommandExecutor(this);
+
+		library = new ChessPieceLibrary(this);
+		persistence = new ChessPersistence(this);
+		expecter = new ExpectResponse();
 
 		setupWorldEdit();
 		setupPermissions();
@@ -144,6 +179,65 @@ public class ChessCraft extends JavaPlugin {
 		}
 
 		logger.info(description.getName() + " version " + description.getVersion() + " is enabled!");
+	}
+
+	private void checkForChesspresso() {
+		File chesspressoFile = new File("lib", chesspressoLibName);
+		if (chesspressoFile.exists())
+			return;
+
+		log(Level.INFO, "Downloading Chesspresso lib from " + chesspressoDownload + " ...");
+		 
+		File tmpFile = null;
+		try {
+			tmpFile = File.createTempFile("chesspresso" + Long.toString(System.currentTimeMillis()), ".zip");
+			URL cpUrl = new URL(chesspressoDownload);
+			URLConnection ucon = cpUrl.openConnection();
+			InputStream is = ucon.getInputStream();
+			OutputStream os = new BufferedOutputStream(new FileOutputStream(tmpFile));
+			byte[] buf = new byte[1024];
+			int nRead = 0;
+			while ((nRead = is.read(buf)) != -1) {
+				os.write(buf, 0, nRead);
+			}
+			is.close();
+			os.close();
+			log(Level.INFO, "Chesspresso download succeeded, extracting to " + chesspressoFile.getAbsolutePath() + " ...");
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(tmpFile));
+			ZipEntry entry;
+			boolean extracted = false;
+			while ((entry = zis.getNextEntry()) != null) {
+				if (entry.getName().equals(chesspressoZipName)) {
+					os = new BufferedOutputStream(new FileOutputStream(chesspressoFile));
+					while ((nRead = zis.read(buf)) != -1) {
+						os.write(buf, 0, nRead);
+					}
+					zis.closeEntry();
+					extracted = true;
+					break;
+				}
+			}
+			zis.close();
+			os.close();
+			if (extracted) {
+				log(Level.INFO, chesspressoFile.getAbsolutePath() + " extracted succesfully!");
+				ClassLoader loader = URLClassLoader.newInstance(
+					    new URL[] { chesspressoFile.toURI().toURL() },
+					    getClass().getClassLoader()
+					);
+				Class.forName("chesspresso.Chess", true, loader);
+			} else {
+				throw new IOException("Could not extract "  + chesspressoFile + " (didn't find in ZIP)");
+			}
+		} catch (IOException e) {
+			log(Level.SEVERE, "Could not download Chesspresso library automatically: " + e.getMessage());
+			log(Level.SEVERE, "You will need to obtain a copy manually and install it at " + chesspressoFile.getAbsolutePath());
+		} catch (ClassNotFoundException e) {
+			log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
+		} finally {
+			if (tmpFile != null)
+				tmpFile.delete();
+		}
 	}
 
 	private void setupWorldEdit() {
