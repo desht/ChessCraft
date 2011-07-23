@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
@@ -12,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityTargetEvent;
 
 public class ChessEntityListener extends EntityListener {
 	ChessCraft plugin;
@@ -36,6 +38,23 @@ public class ChessEntityListener extends EntityListener {
 		}
 	}
 
+        @Override
+        public void onEntityTarget(EntityTargetEvent event) {
+		if (event.isCancelled()
+                        || !(event.getTarget() instanceof Player)
+                        || !plugin.getConfiguration().getBoolean("no_creatures", false))
+			return;
+                BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
+                if(bv != null){
+                    event.setCancelled(true);
+                    // don't remove tame (pet) wolves
+                    if(!(event.getEntity() instanceof Wolf
+                            && ((Wolf)event.getEntity()).isTamed())){
+                        event.getEntity().remove();
+                    }
+                }
+        }
+        
 	@Override
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled())
@@ -57,30 +76,31 @@ public class ChessEntityListener extends EntityListener {
 	public void onEntityDamage(EntityDamageEvent event) {
 		if (event.isCancelled())
 			return;
-		if (!(event.getEntity() instanceof Player))
-			return;
-
-		if (event instanceof EntityDamageByEntityEvent) {
-			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
+                if (event instanceof EntityDamageByProjectileEvent) {
+			EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
 			if (dbeEvent.getDamager() instanceof Player
 					&& !plugin.getConfiguration().getBoolean("no_pvp", false))
 				return;
 
 			Location attackerLoc = dbeEvent.getDamager().getLocation();
 			Location defenderLoc = event.getEntity().getLocation();
-			for (BoardView bv : BoardView.listBoardViews()) {
-				if (bv.isPartOfBoard(defenderLoc)
-						|| bv.isPartOfBoard(attackerLoc)) {
-					event.setCancelled(true);
-					if (!(dbeEvent.getDamager() instanceof Player)
-							&& dbeEvent.getDamager() instanceof LivingEntity)
-						dbeEvent.getDamager().remove();
-					return;
-				}
-			}
+                        for (BoardView bv : BoardView.listBoardViews()) {
+                                if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
+                                        event.setCancelled(true); // don't allow players to attack from safty of chessboard
+                                        if ((event.getEntity() instanceof Player) && // victim is a player
+                                            !(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
+                                                        && dbeEvent.getDamager() instanceof LivingEntity)
+                                                dbeEvent.getDamager().remove(); // remove monster
+                                        return;
+                                }
+                        }
 
-		} else if (event instanceof EntityDamageByProjectileEvent) {
-			EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
+		}
+		if (!(event.getEntity() instanceof Player))
+			return;
+
+		if (event instanceof EntityDamageByEntityEvent) {
+			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
 			if (dbeEvent.getDamager() instanceof Player
 					&& !plugin.getConfiguration().getBoolean("no_pvp", false))
 				return;
