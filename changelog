@@ -1,11 +1,13 @@
 v0.3 (not released)
 now does terrain saving when a board is created
-control panel itens are grey when inactive
+control panel items are grey when inactive
 can setup iConomy stakes - amount each player bets on winning (winner recieves double)
 WorldEdit can instead be put in ChessCraft plugin folder or lib folder
 moves players out of the way of moving chess pieces
 games now auto-delete if not started 
+pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
+now automatically downloads Chesspresso-lib.jar if not found
 
 
 v0.2.2 (18 Jul 2011)

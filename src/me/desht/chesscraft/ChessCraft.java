@@ -1,16 +1,11 @@
 package me.desht.chesscraft;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -38,6 +31,7 @@ import org.bukkit.util.config.Configuration;
 import chesspresso.Chess;
 
 import com.iConomy.*;
+import com.jascotty2.net.InstallDependency;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -183,61 +177,31 @@ public class ChessCraft extends JavaPlugin {
 
 	private void checkForChesspresso() {
 		File chesspressoFile = new File("lib", chesspressoLibName);
-		if (chesspressoFile.exists())
-			return;
+		if (!chesspressoFile.exists()){
 
 		log(Level.INFO, "Downloading Chesspresso lib from " + chesspressoDownload + " ...");
-		 
-		File tmpFile = null;
-		try {
-			tmpFile = File.createTempFile("chesspresso" + Long.toString(System.currentTimeMillis()), ".zip");
-			URL cpUrl = new URL(chesspressoDownload);
-			URLConnection ucon = cpUrl.openConnection();
-			InputStream is = ucon.getInputStream();
-			OutputStream os = new BufferedOutputStream(new FileOutputStream(tmpFile));
-			byte[] buf = new byte[1024];
-			int nRead = 0;
-			while ((nRead = is.read(buf)) != -1) {
-				os.write(buf, 0, nRead);
-			}
-			is.close();
-			os.close();
-			log(Level.INFO, "Chesspresso download succeeded, extracting to " + chesspressoFile.getAbsolutePath() + " ...");
-			ZipInputStream zis = new ZipInputStream(new FileInputStream(tmpFile));
-			ZipEntry entry;
-			boolean extracted = false;
-			while ((entry = zis.getNextEntry()) != null) {
-				if (entry.getName().equals(chesspressoZipName)) {
-					os = new BufferedOutputStream(new FileOutputStream(chesspressoFile));
-					while ((nRead = zis.read(buf)) != -1) {
-						os.write(buf, 0, nRead);
-					}
-					zis.closeEntry();
-					extracted = true;
-					break;
-				}
-			}
-			zis.close();
-			os.close();
-			if (extracted) {
-				log(Level.INFO, chesspressoFile.getAbsolutePath() + " extracted succesfully!");
-				ClassLoader loader = URLClassLoader.newInstance(
-					    new URL[] { chesspressoFile.toURI().toURL() },
-					    getClass().getClassLoader()
-					);
-				Class.forName("chesspresso.Chess", true, loader);
-			} else {
-				throw new IOException("Could not extract "  + chesspressoFile + " (didn't find in ZIP)");
-			}
-		} catch (IOException e) {
-			log(Level.SEVERE, "Could not download Chesspresso library automatically: " + e.getMessage());
-			log(Level.SEVERE, "You will need to obtain a copy manually and install it at " + chesspressoFile.getAbsolutePath());
-		} catch (ClassNotFoundException e) {
-			log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
-		} finally {
-			if (tmpFile != null)
-				tmpFile.delete();
-		}
+
+                if (!InstallDependency.install(chesspressoFile.getAbsolutePath(),
+                        chesspressoZipName,
+                        chesspressoDownload)) {
+                    log(Level.SEVERE, "Could not download Chesspresso library automatically.. ");
+                    log(Level.SEVERE, "You will need to obtain a copy manually and install it at " + chesspressoFile.getAbsolutePath());
+                    super.setEnabled(false);
+                    return;
+                }
+            }
+//            try {
+//                Class.forName("chesspresso.Chess").newInstance();
+//            } catch (ClassNotFoundException e) {
+//                log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
+//            } catch (Exception ex) {
+//                log(Level.SEVERE, "Chesspresso Loading Error", ex);
+//            }
+//             catch (InstantiationException ex) {
+//                Logger.getLogger(ChessCraft.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (IllegalAccessException ex) {
+//                Logger.getLogger(ChessCraft.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 	}
 
 	private void setupWorldEdit() {
@@ -441,6 +405,11 @@ public class ChessCraft extends JavaPlugin {
 	void log(Level level, String message) {
 		String logMsg = this.getDescription().getName() + ": " + message;
 		logger.log(level, logMsg);
+	}
+
+	void log(Level level, String message, Exception err) {
+		String logMsg = this.getDescription().getName() + ": " + message;
+		logger.log(level, logMsg, err);
 	}
 
 	void errorMessage(Player player, String string) {
