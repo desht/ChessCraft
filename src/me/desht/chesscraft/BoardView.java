@@ -303,15 +303,6 @@ public class BoardView implements PositionListener {
         }
     }
 
-    // Check if the control panel is present and draw it if necessary
-    // (will be missing if upgrading from v0.1)
-    public void checkControlPanel() {
-        if (controlPanel.getPanelBlocks().getUpperSW().getBlock().getTypeId() 
-                != getControlPanelMat().getMaterial()) {
-            controlPanel.repaint();
-        }
-    }
-
     private void paintBoard() {
         for (int i = 0; i < Chess.NUM_OF_SQUARES; ++i) {
             paintSquareAt(i);
@@ -619,10 +610,9 @@ public class BoardView implements PositionListener {
     }
 
     public void restoreTerrain(Player player) {
+        wipe();
         if (plugin.getWorldEdit() != null) {
             TerrainBackup.reload(plugin, player, this);
-        } else {
-            wipe();
         }
     }
 

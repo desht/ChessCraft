@@ -96,14 +96,10 @@ public class TerrainBackup {
             if (!saveFile.delete()) {
                 ChessCraft.log(Level.WARNING, "Could not delete " + saveFile);
             }
-        } catch (DataException e) {
+        } catch (Exception e) {
+            // DataException, IOException, EmptyClipboardException, MaxChangedBlocksException
             ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
-        } catch (IOException e) {
-            ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
-        } catch (EmptyClipboardException e) {
-            ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
-        } catch (MaxChangedBlocksException e) {
-            ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
+            
         }
     }
 
