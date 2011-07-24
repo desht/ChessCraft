@@ -1,9 +1,17 @@
 v0.3 (not released)
+right-click piece moving removed
+can now seperately define board style & piece style
+players must be online to be invited
+moves players out of the way of moving chess pieces
+added no_pvp option to config
+players on a chess board are protected from monster attacks
+- player damage is disabled
+- monsters are removed
+- players cannot exploit protection & damage monsters, either
 now does terrain saving when a board is created
 control panel items are grey when inactive
 can setup iConomy stakes - amount each player bets on winning (winner recieves double)
 WorldEdit can instead be put in ChessCraft plugin folder or lib folder
-moves players out of the way of moving chess pieces
 games now auto-delete if not started 
 pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
@@ -38,7 +46,7 @@ Piece selection/moving has changed: now pieces are selected & moved by waving a 
 Control panel on the side of each board with chess clock
 - to-play indicator
 - halfmove clock display
-- ply count display
+- play count display
 - and a set of buttons to make a lot of the /chess commands easier to use (e.g. you can now create a game on the board with one click).
 More visible notification if you've been placed in check.
 When you join a game, you can now be automatically teleported to it (new config itemauto_teleport_on_join, default true).

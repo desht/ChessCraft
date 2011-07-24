@@ -48,8 +48,9 @@ public class ChessEntityListener extends EntityListener {
                 || !plugin.getConfiguration().getBoolean("no_creatures", false)) {
             return;
         }
-        BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
-        if (bv != null) {
+        
+        if (BoardView.partOfChessBoard(event.getEntity().getLocation()) != null
+                || BoardView.partOfChessBoard(event.getTarget().getLocation()) != null) {
             event.setCancelled(true);
             // don't remove tame (pet) wolves
             if (!(event.getEntity() instanceof Wolf
@@ -104,12 +105,7 @@ public class ChessEntityListener extends EntityListener {
                 }
             }
 
-        }
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-
-        if (event instanceof EntityDamageByEntityEvent) {
+        } else if (event instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
             if (dbeEvent.getDamager() instanceof Player
                     && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
@@ -122,7 +118,8 @@ public class ChessEntityListener extends EntityListener {
                 if (bv.isPartOfBoard(defenderLoc)
                         || bv.isPartOfBoard(attackerLoc)) {
                     event.setCancelled(true);
-                    if (!(dbeEvent.getDamager() instanceof Player)
+                    if ((event.getEntity() instanceof Player) && // victim is a player
+                            !(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
                             && dbeEvent.getDamager() instanceof LivingEntity) {
                         dbeEvent.getDamager().remove();
                     }
@@ -130,7 +127,11 @@ public class ChessEntityListener extends EntityListener {
                 }
             }
 
-        } else if (event.getCause() == DamageCause.SUFFOCATION) {
+        }
+        if (!(event.getEntity() instanceof Player)) {
+            return;
+        }
+        if (event.getCause() == DamageCause.SUFFOCATION) {
             BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
             if (bv != null) {
                 final int MAX_DIST = 100;
