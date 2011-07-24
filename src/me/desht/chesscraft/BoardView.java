@@ -439,7 +439,7 @@ public class BoardView implements PositionListener {
             //for (Location loc : square.walls()) { // outline square
             for (Location loc : square.corners()) { // highlight corners
                 //highlightMat.setBlock(loc.getBlock());
-                m = Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat;
+                m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
                 (m == null ? highlightMat : m).setBlock(loc.getBlock());
             }
 //            // checkered
