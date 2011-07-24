@@ -54,6 +54,27 @@ public class Cuboid implements Iterable<Location> {
 
     }
 
+    public List<Location> walls() {
+        List<Location> res = new ArrayList<Location>(8);
+        World w = lowerNE.getWorld();
+        int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
+        int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
+        for (int x = minX; x <= maxX; ++x) {
+            for (int y = minY; y <= maxY; ++y) {
+                res.add(new Location(w, x, y, minZ));
+                res.add(new Location(w, x, y, maxZ));
+            }
+        }
+        for (int z = minZ; z <= maxZ; ++z) {
+            for (int y = minY; y <= maxY; ++y) {
+                res.add(new Location(w, minX, y, z));
+                res.add(new Location(w, maxX, y, z));
+            }
+        }
+        return res;
+
+    }
+
     public Cuboid expand(Direction dir, int amount) {
         switch (dir) {
             case North:

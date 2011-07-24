@@ -169,7 +169,8 @@ public class ChessPersistence {
             try {
                 BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
                         (String) boardMap.get("pieceStyle"));
-                bv.getControlPanel().repaintSignButtons();
+                //bv.getControlPanel().repaintSignButtons();
+                bv.paintAll();
                 ++nLoaded;
             } catch (Exception e) {
                 ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());

@@ -37,6 +37,9 @@ public class BoardView implements PositionListener {
     private Game game;
     private Location a1Square;
     private Location origin;
+    // if highlight_last_move, what squares are highlighted
+    //private Location fromSquare = null, toSquare = null;
+    private int fromSquare = -1, toSquare = -1;
     private int frameWidth;
     private int squareSize;
     private int height;
@@ -44,6 +47,7 @@ public class BoardView implements PositionListener {
     private MaterialWithData whiteSquareMat;
     private MaterialWithData frameMat;
     private MaterialWithData controlPanelMat;
+    private MaterialWithData highlightMat;
     private MaterialWithData enclosureMat;
     private String pieceStyle;
     private Boolean isLit;
@@ -217,6 +221,11 @@ public class BoardView implements PositionListener {
             if (styleMap.get("panel") != null) {
                 controlPanelMat = new MaterialWithData((String) styleMap.get("panel"));
             }
+            if (styleMap.get("highlight") != null) {
+                highlightMat = new MaterialWithData((String) styleMap.get("highlight"));
+            }else{
+                highlightMat = new MaterialWithData(89);
+            }
             enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
         } catch (Exception e) {
             //e.printStackTrace();
@@ -263,7 +272,11 @@ public class BoardView implements PositionListener {
         paintFrame();
         controlPanel.repaint();
         lastLevel = -1; // force a lighting update
-        doLighting();
+        if (fromSquare >= 0 || toSquare >= 0) {
+            highlightSquares(fromSquare, toSquare);
+        } else {
+            doLighting();
+        }
     }
 
     private void paintEnclosure() {
@@ -322,8 +335,6 @@ public class BoardView implements PositionListener {
             paintSquareAt(i);
             int stone = game != null ? game.getPosition().getStone(i) : Chess.NO_STONE;
             paintStoneAt(i, stone);
-        }
-        if (game != null) {
         }
     }
 
@@ -390,8 +401,15 @@ public class BoardView implements PositionListener {
     }
 
     private void paintSquareAt(int sqi) {
+        paintSquareAt(sqi, false);
+    }
+
+    private void paintSquareAt(int sqi, boolean highlight) {
         int col = Chess.sqiToCol(sqi);
         int row = Chess.sqiToRow(sqi);
+        if (!(row >= 0 && row < 8 && col >= 0 && col < 8)) {
+            return;
+        }
         Location locNE = rowColToWorldNE(row, col);
         MaterialWithData m = new MaterialWithData(Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
         Cuboid square = new Cuboid(locNE, locNE);
@@ -400,6 +418,20 @@ public class BoardView implements PositionListener {
 
         for (Location loc : square) {
             m.setBlock(loc.getBlock());
+        }
+        if (highlight) {
+            // not sure which style i like most..
+            //for (Location loc : square.walls()) { // outline square
+            for (Location loc : square.corners()) { // highlight corners
+                highlightMat.setBlock(loc.getBlock());
+            }
+//            // checkered
+//            int i = 0, o = this.squareSize % 2 == 0 ? 2 : 3; // should work for even.. untested
+//            for (Location loc : square) {
+//                if (i++ % o == 0) {
+//                    highlightMat.setBlock(loc.getBlock());
+//                }
+//            }
         }
     }
 
@@ -463,6 +495,21 @@ public class BoardView implements PositionListener {
         } else {
             return true;
         }
+    }
+
+    //public void highlightSquares(Location from, Location to) {
+    public void highlightSquares(int from, int to) {
+        if (fromSquare >= 0 || toSquare >= 0) {
+            paintSquareAt(fromSquare);
+            paintSquareAt(toSquare);
+        }
+        fromSquare = from;
+        toSquare = to;
+
+        paintSquareAt(fromSquare, true);
+        paintSquareAt(toSquare, true);
+
+        doLighting();
     }
 
     /**

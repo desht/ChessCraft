@@ -448,6 +448,9 @@ public class Game {
         short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
         try {
             short realMove = checkMove(move);
+            if(plugin.config.config.getBoolean("highlight_last_move", true)){
+                view.highlightSquares(fromSquare, toSquare);
+            }
             getPosition().doMove(realMove);
             Move lastMove = getPosition().getLastMove();
             fromSquare = Chess.NO_SQUARE;
