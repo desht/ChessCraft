@@ -163,7 +163,9 @@ public class ChessConfig {
         }
     }
 
-    // return a sorted list of all config keys
+    /**
+     * @return a sorted list of all config keys
+     */
     List<String> getConfigList() {
         ArrayList<String> res = new ArrayList<String>();
         for (String k : configItems.keySet()) {

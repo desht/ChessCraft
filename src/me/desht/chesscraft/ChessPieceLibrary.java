@@ -81,7 +81,12 @@ public class ChessPieceLibrary {
         }
     }
 
-    // Return a chess stone rotated in the given direction
+    /**
+     * Return a chess stone rotated in the given direction
+     * @param style
+     * @param stone
+     * @return
+     */
     ChessStone getStone(String style, int stone) {
         if (!templates.containsKey(style)) {
             throw new IllegalArgumentException("No such style '" + style + "'");

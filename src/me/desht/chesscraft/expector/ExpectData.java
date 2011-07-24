@@ -6,7 +6,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.entity.Player;
 
-abstract class ExpectData {
+public abstract class ExpectData {
 
     ChessCraft plugin;
     ExpectAction action;

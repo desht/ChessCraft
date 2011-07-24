@@ -74,7 +74,10 @@ public class BoardView implements PositionListener {
         BoardView.addBoardView(name, this);
     }
 
-    // Overall sanity checking on board/set parameters
+    /**
+     * Overall sanity checking on board/set parameters
+     * @throws ChessException if anything about the board & pieces are bad
+     */
     private void validateBoardParams() throws ChessException {
         if (squareSize < 2) {
             throw new ChessException("Board's square size is too small (minimum 2)!");
@@ -100,7 +103,10 @@ public class BoardView implements PositionListener {
         }
     }
 
-    // Ensure this board doesn't intersect any other boards
+    /**
+     * Ensure this board doesn't intersect any other boards
+     * @throws ChessException if an intersection would occur
+     */
     private void validateIntersections() throws ChessException {
         Cuboid bounds = getBounds();
         bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
@@ -219,9 +225,13 @@ public class BoardView implements PositionListener {
         }
     }
 
-    // Given a board origin (the block at the centre of the A1 square),
-    // calculate the southwest corner of the A1 square (which is also the
-    // southwest corner of the whole board)
+    /**
+     * Given a board origin (the block at the center of the A1 square),
+     * calculate the southwest corner of the A1 square <br>
+     * (which is also the southwest corner of the whole board)
+     * @param where the center of the square to be A1
+     * @return southwest corner of the square
+     */
     private Location calcBaseSquare(Location where) {
         int xOff = squareSize / 2;
         int zOff = squareSize / 2;
@@ -242,6 +252,10 @@ public class BoardView implements PositionListener {
         return result;
     }
 
+    /**
+     * paint whole board
+     * (board, frame, enclosure, control panel, lighting)
+     */
     public void paintAll() {
         wipe();
         paintEnclosure();
@@ -308,6 +322,8 @@ public class BoardView implements PositionListener {
             paintSquareAt(i);
             int stone = game != null ? game.getPosition().getStone(i) : Chess.NO_STONE;
             paintStoneAt(i, stone);
+        }
+        if (game != null) {
         }
     }
 
@@ -449,7 +465,10 @@ public class BoardView implements PositionListener {
         }
     }
 
-    // Return the bounds of the chess board - the innermost ring of the frame
+    /**
+     * get the bounds of the board itself
+     * @return the bounds of the chess board - the innermost ring of the frame
+     */
     public Cuboid getBounds() {
         Location a1 = rowColToWorldSW(0, 0);
         Location h8 = rowColToWorldNE(7, 7);
@@ -469,14 +488,24 @@ public class BoardView implements PositionListener {
         return res;
     }
 
-    // given a Chess row & col, get the location in world coords of that
-    // square's NE block (smallest X & Z)
+    /**
+     * given a Chess row & col, get the location in world coords
+     * of that square's NE block (smallest X & Z)
+     * @param row
+     * @param col
+     * @return
+     */
     public Location rowColToWorldNE(int row, int col) {
         return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
     }
 
-    // given a Chess row & col, get the location in world coords of that
-    // square's SW block (largest X & Z)
+    /**
+     * given a Chess row & col, get the location in world coords
+     * of that square's SW block (largest X & Z)
+     * @param row
+     * @param col
+     * @return
+     */
     public Location rowColToWorldSW(int row, int col) {
         return rowColToWorld(row, col, 0, 0);
     }
@@ -540,19 +569,31 @@ public class BoardView implements PositionListener {
         return bounds.contains(loc);
     }
 
-    // true if the location is part of the board itself
+    /**
+     * check if this is a part of the board floor
+     * @param loc location to check
+     * @return true if the location is part of the board itself
+     */
     public boolean isOnBoard(Location loc) {
         return isOnBoard(loc, 0, 0);
     }
 
-    // true if the location is above the board AND within the board's height
-    // range
+    /**
+     * check if this is a space within the board bounds, and above the board
+     * @param loc location to check
+     * @return true if the location is above the board <br>
+     * AND within the board's height range
+     */
     public boolean isAboveBoard(Location loc) {
         return isOnBoard(loc, 1, height);
     }
 
-    // true if the location is *anywhere* within the board, including frame &
-    // enclosure
+    /**
+     * check if this is somewhere within the board bounds
+     * @param loc location to check
+     * @return true if the location is *anywhere* within the board <br>
+     * including frame & enclosure
+     */
     public boolean isPartOfBoard(Location loc) {
         return getOuterBounds().contains(loc);
     }
@@ -683,7 +724,11 @@ public class BoardView implements PositionListener {
         throw new ChessException("There are no free boards to create a game on.");
     }
 
-    // match if loc is any part of the board including the frame & enclosure
+    /**
+     * match if loc is any part of the board including the frame & enclosure
+     * @param loc location to check
+     * @return the boardview that matches, or null if none
+     */
     public static BoardView partOfChessBoard(Location loc) {
         for (BoardView bv : listBoardViews()) {
             if (bv.isPartOfBoard(loc)) {
@@ -693,7 +738,11 @@ public class BoardView implements PositionListener {
         return null;
     }
 
-    // match if loc is above a board square but below the roof
+    /**
+     * match if loc is above a board square but below the roof
+     * @param loc location to check
+     * @return the boardview that matches, or null if none
+     */
     public static BoardView aboveChessBoard(Location loc) {
         for (BoardView bv : listBoardViews()) {
             if (bv.isAboveBoard(loc)) {
@@ -703,7 +752,11 @@ public class BoardView implements PositionListener {
         return null;
     }
 
-    // match if loc is part of a board square
+    /**
+     * match if loc is part of a board square
+     * @param loc location to check
+     * @return the boardview that matches, or null if none
+     */
     public static BoardView onChessBoard(Location loc) {
         for (BoardView bv : listBoardViews()) {
             if (bv.isOnBoard(loc)) {

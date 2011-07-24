@@ -426,9 +426,16 @@ public class Game {
         cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
         announceResult(playerWhite, playerBlack, GameResult.DrawAgreed);
     }
-
-    // Do a move for playerName to toSquare. fromSquare is already set, either
-    // from	command-line, or from clicking a piece
+    
+    /**
+     * Do a move for playerName to toSquare <br>
+     * fromSquare should already be set, <br>
+     * either from command-line, or from clicking a piece
+     * @param playerName
+     * @param toSquare
+     * @throws IllegalMoveException
+     * @throws ChessException
+     */
     public void doMove(String playerName, int toSquare) throws IllegalMoveException, ChessException {
         ensureGameState(GameState.RUNNING);
         ensurePlayerToMove(playerName);
@@ -499,8 +506,12 @@ public class Game {
         }
     }
 
-    // Announce the result of the game to the server
-    // p1 is the winner, p2 is the loser (unless it's a draw)
+    /**
+     * Announce the result of the game to the server
+     * @param p1 the winner
+     * @param p2 the loser (unless it's a draw)
+     * @param rt result to announce
+     */
     public void announceResult(String p1, String p2, GameResult rt) {
         String msg = "";
         switch (rt) {
@@ -594,8 +605,13 @@ public class Game {
         }
     }
 
-    // Check if the move is really allowed
-    // Also account for special cases: castling, en passant, pawn promotion
+    /**
+     * Check if the move is really allowed
+     * Also account for special cases: castling, en passant, pawn promotion
+     * @param move move to check
+     * @return move, if allowed
+     * @throws IllegalMoveException if not allowed
+     */
     private short checkMove(short move) throws IllegalMoveException {
         int sqiFrom = Move.getFromSqi(move);
         int sqiTo = Move.getToSqi(move);
@@ -642,7 +658,10 @@ public class Game {
         }
     }
 
-    // return game result in PGN notation
+    /**
+     * get PGN result
+     * @return game result in PGN notation
+     */
     public String getResult() {
         if (getState() != GameState.FINISHED) {
             return "*";
@@ -731,16 +750,21 @@ public class Game {
         return f;
     }
 
-    // the version in chesspresso.pgn.PGN gets the month wrong :(
-    private static String getRights(String s, int num) {
-        return s.substring(s.length() - num);
-    }
-
+    /**
+     * get PGN format of the date
+     * (the version in chesspresso.pgn.PGN gets the month wrong :( )
+     * @param date date to convert
+     * @return PGN format of the date
+     */
     private static String dateToPGNDate(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal.get(Calendar.YEAR) + "." + getRights("00" + (cal.get(Calendar.MONTH) + 1), 2) + "."
                 + getRights("00" + cal.get(Calendar.DAY_OF_MONTH), 2);
+    }
+
+    private static String getRights(String s, int num) {
+        return s.substring(s.length() - num);
     }
 
     public void setFen(String fen) {

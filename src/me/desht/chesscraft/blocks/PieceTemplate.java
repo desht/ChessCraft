@@ -100,7 +100,9 @@ public class PieceTemplate {
         return pieceMaterials;
     }
 
-    // (Re)generate the piece data array and material map
+    /**
+     * (Re)generate the piece data array and material map
+     */
     private void scan() {
         pieceData = new ArrayList<List<String>>(sizeY);
         pieceMaterials = new HashMap<String, String>();

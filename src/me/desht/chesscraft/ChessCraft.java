@@ -18,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.iConomy.*;
 import com.jascotty2.net.InstallDependency;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import java.util.Date;
 import me.desht.chesscraft.enums.ChessPermission;
 
 public class ChessCraft extends JavaPlugin {
