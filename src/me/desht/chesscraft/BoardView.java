@@ -47,7 +47,7 @@ public class BoardView implements PositionListener {
     private MaterialWithData whiteSquareMat;
     private MaterialWithData frameMat;
     private MaterialWithData controlPanelMat;
-    private MaterialWithData highlightMat;
+    private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
     private MaterialWithData enclosureMat;
     private String pieceStyle;
     private Boolean isLit;
@@ -223,9 +223,24 @@ public class BoardView implements PositionListener {
             }
             if (styleMap.get("highlight") != null) {
                 highlightMat = new MaterialWithData((String) styleMap.get("highlight"));
-            }else{
+            } else {
                 highlightMat = new MaterialWithData(89);
             }
+
+            if (styleMap.get("highlight_white_square") != null) {
+                highlightWhiteSquareMat =
+                        new MaterialWithData((String) styleMap.get("highlight_white_square"));
+            } else {
+                highlightWhiteSquareMat = null;
+            }
+
+            if (styleMap.get("highlight_black_square") != null) {
+                highlightBlackSquareMat =
+                        new MaterialWithData((String) styleMap.get("highlight_black_square"));
+            } else {
+                highlightBlackSquareMat = null;
+            }
+
             enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
         } catch (Exception e) {
             //e.printStackTrace();
@@ -423,7 +438,9 @@ public class BoardView implements PositionListener {
             // not sure which style i like most..
             //for (Location loc : square.walls()) { // outline square
             for (Location loc : square.corners()) { // highlight corners
-                highlightMat.setBlock(loc.getBlock());
+                //highlightMat.setBlock(loc.getBlock());
+                m = Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat;
+                (m == null ? highlightMat : m).setBlock(loc.getBlock());
             }
 //            // checkered
 //            int i = 0, o = this.squareSize % 2 == 0 ? 2 : 3; // should work for even.. untested

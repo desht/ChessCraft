@@ -14,6 +14,7 @@ players can now delete a game if they created it (or if not started & the person
 added partial-name matching for games
 added option to highlight last move
 - board definition can manually set material with "highlight"
+- can also define "highlight_white_square & highlight_black_square""
 boards are now redrawn on load (if style changed / worldedit mistakes)
 
 
