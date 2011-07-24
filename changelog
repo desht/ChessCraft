@@ -9,6 +9,9 @@ pieces with nonsolid blocks (like torches) won't leave trails of items when they
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
 now automatically downloads Chesspresso-lib.jar if not found
 major-ish code restructure
+players now allowed to resign even when not their turn
+players can now delete a game if they created it (or if not started & the person who joined left)
+added partial-name matching for games
 
 
 v0.2.2 (18 Jul 2011)

@@ -26,6 +26,7 @@ import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
+import com.sk89q.util.StringUtil;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
@@ -364,7 +365,7 @@ public class Game {
         }
 
         ensurePlayerInGame(playerName);
-        ensurePlayerToMove(playerName);
+        //ensurePlayerToMove(playerName);
 
         setState(GameState.FINISHED);
         String winner;
@@ -862,6 +863,38 @@ public class Game {
 
     public static Game getGame(String name) throws ChessException {
         if (!chessGames.containsKey(name)) {
+            // try "fuzzy" search
+            String keys[] = chessGames.keySet().toArray(new String[0]);
+            int dist = StringUtil.getLevenshteinDistance(keys[0], name),
+                    k = 0, c = 0;
+            for (int i = 1; i < keys.length; ++i) {
+                int d = StringUtil.getLevenshteinDistance(keys[i], name);
+                if (d < dist) {
+                    dist = d;
+                    k = i;
+                    c = 0;
+                } else if (d == dist) {
+                    ++c;
+                }
+            }
+            if (c == 0 && dist < 3) {
+                return chessGames.get(keys[k]);
+            } else {
+                // partial-name search
+                k = -1;
+                c = 0;
+                name = name.toLowerCase();
+                for (int i = 0; i < keys.length; ++i) {
+                    if (keys[i].toLowerCase().startsWith(name)) {
+                        k = i;
+                        ++c;
+                    }
+                }
+                if (k >= 0 && c == 1) {
+                    return chessGames.get(keys[k]);
+                }
+            }
+
             throw new ChessException("No such game '" + name + "'");
         }
         return chessGames.get(name);
@@ -911,5 +944,26 @@ public class Game {
         } while (Game.checkGame(res));
 
         return res;
+    }
+
+    public boolean playerCanDelete(Player pl) {
+        if (pl == null) {
+            return false;
+        }
+        String plN = pl.getName();
+        if (state == GameState.SETTING_UP) {
+            if (!playerWhite.isEmpty() && playerBlack.isEmpty()) {
+                return playerWhite.equalsIgnoreCase(plN);
+            } else if (playerWhite.isEmpty() && !playerBlack.isEmpty()) {
+                return playerBlack.equalsIgnoreCase(plN);
+            } else if (playerWhite.equalsIgnoreCase(plN)) {
+                Player other = pl.getServer().getPlayer(playerBlack);
+                return other == null || !other.isOnline();
+            } else if (playerBlack.equalsIgnoreCase(plN)) {
+                Player other = pl.getServer().getPlayer(playerWhite);
+                return other == null || !other.isOnline();
+            }
+        }
+        return false;
     }
 }

@@ -47,6 +47,7 @@ public class ChessConfig {
             put("no_pvp", true);
             put("wand_item", "air");
             put("auto_teleport_on_join", true);
+            put("highlight_last_move", true);
             put("timeout_forfeit", 60);
             put("timeout_auto_delete", 180);
             put("stake.default", 0.0);

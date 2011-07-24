@@ -198,17 +198,19 @@ public class ChessCommandExecutor implements CommandExecutor {
     }
 
     private void deleteCommands(Player player, String[] args) throws ChessException {
-        ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELETE);
 
         if (partialMatch(args, 1, "g")) { // game
             tryDeleteGame(player, args);
             plugin.maybeSave();
-        } else if (partialMatch(args, 1, "b")) { // board
-            tryDeleteBoard(player, args);
-            plugin.maybeSave();
         } else {
-            ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>");
-            ChessUtils.errorMessage(player, "       /chess delete game <game-name>");
+            ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELETE);
+            if (partialMatch(args, 1, "b")) { // board
+                tryDeleteBoard(player, args);
+                plugin.maybeSave();
+            } else {
+                ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>");
+                ChessUtils.errorMessage(player, "       /chess delete game <game-name>");
+            }
         }
     }
 
@@ -677,11 +679,12 @@ public class ChessCommandExecutor implements CommandExecutor {
     }
 
     void tryDeleteGame(Player player, String[] args) throws ChessException {
-        // TODO: allow delete if deleting a game player created
-        ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELGAME);
-
         String gameName = args[2];
         Game game = Game.getGame(gameName);
+        // allow delete if deleting a game player created
+        if (!game.playerCanDelete(player)) {
+            ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELGAME);
+        }
         String deleter = player == null ? "CONSOLE" : player.getName();
         game.alert("Game deleted by " + deleter + "!");
         game.delete();
@@ -701,6 +704,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         }
         String style = options.get("style");
         String pieceStyle = options.get("pstyle");
+
+        // todo: try to find style/piece errors before attempting to create board
+
         ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
         ChessUtils.statusMessage(player, "This block will become the centre of the board's A1 square.");
         plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name,
