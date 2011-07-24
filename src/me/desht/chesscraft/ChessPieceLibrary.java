@@ -1,5 +1,7 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.blocks.PieceTemplate;
+import me.desht.chesscraft.blocks.ChessStone;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,75 +18,79 @@ import org.yaml.snakeyaml.Yaml;
 import chesspresso.Chess;
 
 public class ChessPieceLibrary {
-	ChessCraft plugin;
-	private static final String libraryDir = ChessCraft.directory + File.separator + "piece_styles";
-	private final Map<String, Map<Integer, PieceTemplate>> templates = new HashMap<String, Map<Integer, PieceTemplate>>();
 
-	ChessPieceLibrary(ChessCraft plugin) {
-		this.plugin = plugin;
-	}
+    ChessCraft plugin;
+    private static final String libraryDir = ChessConfig.getDirectory() + File.separator + "piece_styles";
+    private final Map<String, Map<Integer, PieceTemplate>> templates = new HashMap<String, Map<Integer, PieceTemplate>>();
 
-	boolean isChessSetLoaded(String setName) {
-		return templates.containsKey(setName);
-	}
+    ChessPieceLibrary(ChessCraft plugin) {
+        this.plugin = plugin;
+    }
 
-	void loadChessSet(String setName) throws ChessException {
-		if (!setName.matches("\\.yml$"))
-			setName = setName + ".yml";
-		File f = new File(libraryDir, setName);
-		try {
-			loadChessSet(f);
-		} catch (FileNotFoundException e) {
-			throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
-		}
-	}
+    boolean isChessSetLoaded(String setName) {
+        return templates.containsKey(setName);
+    }
 
-	@SuppressWarnings("unchecked")
-	private void loadChessSet(File f) throws FileNotFoundException {
+    void loadChessSet(String setName) throws ChessException {
+        if (!setName.matches("\\.yml$")) {
+            setName = setName + ".yml";
+        }
+        File f = new File(libraryDir, setName);
+        try {
+            loadChessSet(f);
+        } catch (FileNotFoundException e) {
+            throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
+        }
+    }
 
-		String setName = null;
-		Yaml yaml = new Yaml();
+    @SuppressWarnings("unchecked")
+    private void loadChessSet(File f) throws FileNotFoundException {
 
-		try {
-			Map<String, Object> pieceMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
+        String setName = null;
+        Yaml yaml = new Yaml();
 
-			setName = (String) pieceMap.get("name");
-			if (templates.get(setName) != null)
-				throw new ChessException("Duplicate chess set name " + setName + " detected");
+        try {
+            Map<String, Object> pieceMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
 
-			Map<String, Map<String, String>> mm = (Map<String, Map<String, String>>) pieceMap.get("materials");
-			Map<String, String> whiteMats = mm.get("white");
-			Map<String, String> blackMats = mm.get("black");
+            setName = (String) pieceMap.get("name");
+            if (templates.get(setName) != null) {
+                throw new ChessException("Duplicate chess set name " + setName + " detected");
+            }
 
-			Map<String, Object> mp = (Map<String, Object>) pieceMap.get("pieces");
-			Map<Integer, PieceTemplate> pieces = new HashMap<Integer, PieceTemplate>();
-			for (Entry<String, Object> e : mp.entrySet()) {
-				List<List<String>> data = (List<List<String>>) e.getValue();
-				int piece = Chess.charToPiece(e.getKey().charAt(0));
-				PieceTemplate ptw = new PieceTemplate(data, whiteMats);
-				pieces.put(Chess.pieceToStone(piece, Chess.WHITE), ptw);
+            Map<String, Map<String, String>> mm = (Map<String, Map<String, String>>) pieceMap.get("materials");
+            Map<String, String> whiteMats = mm.get("white");
+            Map<String, String> blackMats = mm.get("black");
 
-				PieceTemplate ptb = new PieceTemplate(data, blackMats);
-				pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
-			}
-			templates.put(setName, pieces);
-			plugin.log(Level.INFO, "loaded set " + setName + " OK.");
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			plugin.log(Level.SEVERE, "can't load chess set " + setName + ": " + e);
-		}
-	}
+            Map<String, Object> mp = (Map<String, Object>) pieceMap.get("pieces");
+            Map<Integer, PieceTemplate> pieces = new HashMap<Integer, PieceTemplate>();
+            for (Entry<String, Object> e : mp.entrySet()) {
+                List<List<String>> data = (List<List<String>>) e.getValue();
+                int piece = Chess.charToPiece(e.getKey().charAt(0));
+                PieceTemplate ptw = new PieceTemplate(data, whiteMats);
+                pieces.put(Chess.pieceToStone(piece, Chess.WHITE), ptw);
 
-	// Return a chess stone rotated in the given direction
-	ChessStone getStone(String style, int stone) {
-		if (!templates.containsKey(style))
-			throw new IllegalArgumentException("No such style '" + style + "'");
-		if (stone < Chess.MIN_STONE || stone > Chess.MAX_STONE || stone == Chess.NO_STONE)
-			throw new IllegalArgumentException("Bad stone index " + stone);
-		PieceTemplate tmpl = templates.get(style).get(stone);
-		ChessStone result = new ChessStone(stone, tmpl);
-		return result;
-	}
+                PieceTemplate ptb = new PieceTemplate(data, blackMats);
+                pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
+            }
+            templates.put(setName, pieces);
+            ChessCraft.log(Level.INFO, "loaded set " + setName + " OK.");
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            ChessCraft.log(Level.SEVERE, "can't load chess set " + setName + ": " + e);
+        }
+    }
 
+    // Return a chess stone rotated in the given direction
+    ChessStone getStone(String style, int stone) {
+        if (!templates.containsKey(style)) {
+            throw new IllegalArgumentException("No such style '" + style + "'");
+        }
+        if (stone < Chess.MIN_STONE || stone > Chess.MAX_STONE || stone == Chess.NO_STONE) {
+            throw new IllegalArgumentException("Bad stone index " + stone);
+        }
+        PieceTemplate tmpl = templates.get(style).get(stone);
+        ChessStone result = new ChessStone(stone, tmpl);
+        return result;
+    }
 }
