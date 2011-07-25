@@ -7,60 +7,67 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class ChessBlockListener extends BlockListener {
-	ChessCraft plugin;
 
-	public ChessBlockListener(ChessCraft plugin) {
-		this.plugin = plugin;
-	}
+    ChessCraft plugin;
 
-	@Override
-	public void onBlockDamage(BlockDamageEvent event) {
-		if (event.isCancelled())
-			return;
-		if (!plugin.getConfiguration().getBoolean("no_building", true))
-			return;
+    public ChessBlockListener(ChessCraft plugin) {
+        this.plugin = plugin;
+    }
 
-		Location loc = event.getBlock().getLocation();
+    @Override
+    public void onBlockDamage(BlockDamageEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (!plugin.getConfiguration().getBoolean("no_building", true)) {
+            return;
+        }
 
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
-		}
-	}
+        Location loc = event.getBlock().getLocation();
 
-	@Override
-	public void onBlockPlace(BlockPlaceEvent event) {
-		if (event.isCancelled())
-			return;
-		if (!plugin.getConfiguration().getBoolean("no_building", true))
-			return;
+        for (BoardView bv : BoardView.listBoardViews()) {
+            if (bv.isPartOfBoard(loc)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
 
-		Location loc = event.getBlock().getLocation();
+    @Override
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (!plugin.getConfiguration().getBoolean("no_building", true)) {
+            return;
+        }
 
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
-		}
-	}
+        Location loc = event.getBlock().getLocation();
 
-	@Override
-	public void onBlockIgnite(BlockIgniteEvent event) {
-		if (event.isCancelled())
-			return;
-		if (!plugin.getConfiguration().getBoolean("no_burning", true))
-			return;
+        for (BoardView bv : BoardView.listBoardViews()) {
+            if (bv.isPartOfBoard(loc)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
 
-		Location loc = event.getBlock().getLocation();
+    @Override
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        if (event.isCancelled()) {
+            return;
+        }
+        if (!plugin.getConfiguration().getBoolean("no_burning", true)) {
+            return;
+        }
 
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
-		}
-	}
+        Location loc = event.getBlock().getLocation();
+
+        for (BoardView bv : BoardView.listBoardViews()) {
+            if (bv.isPartOfBoard(loc)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
 }
