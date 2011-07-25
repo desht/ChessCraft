@@ -148,8 +148,9 @@ public class ChessEntityListener extends EntityListener {
                     ChessUtils.errorMessage(p,
                             "Can't find a safe place to displace you - going to spawn");
                     p.teleport(p.getWorld().getSpawnLocation());
+                } else {
+                	p.teleport(loc);
                 }
-                p.teleport(loc);
                 event.setCancelled(true);
             }
         } else {
