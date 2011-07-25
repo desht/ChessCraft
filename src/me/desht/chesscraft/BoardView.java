@@ -463,9 +463,8 @@ public class BoardView implements PositionListener {
         		break;
         	case Checkered:
         	case Chequered:
-        		int i = 0, o = this.squareSize % 2 == 0 ? 2 : 3; // should work for even.. untested
         		for (Location loc : square) {
-        			if (i++ % o == 0) {
+        			if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
         				highlightMat.applyToBlock(loc.getBlock());
         			}
         		}
