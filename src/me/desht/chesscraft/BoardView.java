@@ -95,7 +95,7 @@ public class BoardView implements PositionListener {
             throw new ChessException("Frame width is too narrow (minimum 2)");
         }
         if (a1Square.getBlockY() + height >= 127) {
-        	throw new ChessException("Board altitude is too high - roof would be above top of world");
+            throw new ChessException("Board altitude is too high - roof would be above top of world");
         }
 
         int maxH = -1, maxV = -1;
@@ -247,17 +247,17 @@ public class BoardView implements PositionListener {
             }
 
             if (styleMap.get("highlight_style") != null) {
-            	String hs = (String) styleMap.get("highlight_style");
-            	try {
-            		highlightStyle = HighlightStyle.valueOf(hs);
-            	} catch (IllegalArgumentException e) {
-            		ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
-            		highlightStyle = HighlightStyle.Corners;
-            	}
+                String hs = (String) styleMap.get("highlight_style");
+                try {
+                    highlightStyle = HighlightStyle.valueOf(hs);
+                } catch (IllegalArgumentException e) {
+                    ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
+                    highlightStyle = HighlightStyle.Corners;
+                }
             } else {
-            	highlightStyle = HighlightStyle.Corners;
+                highlightStyle = HighlightStyle.Corners;
             }
-            
+
             enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
         } catch (Exception e) {
             //e.printStackTrace();
@@ -451,28 +451,28 @@ public class BoardView implements PositionListener {
             m.applyToBlock(loc.getBlock());
         }
         if (highlight) {
-        	switch (highlightStyle) {
-        	case Edges:
-        		for (Location loc : square.walls()) {
-        			m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-                    (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
-        		}
-        		break;
-        	case Corners:
-        		for (Location loc : square.corners()) {
-                    m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-                    (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
-                }
-        		break;
-        	case Checkered:
-        	case Chequered:
-        		for (Location loc : square) {
-        			if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
-        				highlightMat.applyToBlock(loc.getBlock());
-        			}
-        		}
-        		break;
-        	}
+            switch (highlightStyle) {
+                case Edges:
+                    for (Location loc : square.walls()) {
+                        m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+                        (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+                    }
+                    break;
+                case Corners:
+                    for (Location loc : square.corners()) {
+                        m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+                        (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+                    }
+                    break;
+                case Checkered:
+                case Chequered:
+                    for (Location loc : square) {
+                        if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
+                            highlightMat.applyToBlock(loc.getBlock());
+                        }
+                    }
+                    break;
+            }
         }
     }
 
@@ -560,25 +560,26 @@ public class BoardView implements PositionListener {
     }
 
     public void highlightSquares(int from, int to) {
-    	if (highlightStyle == HighlightStyle.None)
-    		return;
-    	
+        if (highlightStyle == HighlightStyle.None) {
+            return;
+        }
+
         if (fromSquare >= 0 || toSquare >= 0) {
-        	if (highlightStyle == HighlightStyle.Line) {
-        		drawHighlightLine(fromSquare, toSquare, false);
-        	} else {
-        		paintSquareAt(fromSquare);
-        		paintSquareAt(toSquare);
-        	}
+            if (highlightStyle == HighlightStyle.Line) {
+                drawHighlightLine(fromSquare, toSquare, false);
+            } else {
+                paintSquareAt(fromSquare);
+                paintSquareAt(toSquare);
+            }
         }
         fromSquare = from;
         toSquare = to;
 
         if (highlightStyle == HighlightStyle.Line) {
-        	drawHighlightLine(fromSquare, toSquare, true);
+            drawHighlightLine(fromSquare, toSquare, true);
         } else {
-        	paintSquareAt(fromSquare, true);
-        	paintSquareAt(toSquare, true);
+            paintSquareAt(fromSquare, true);
+            paintSquareAt(toSquare, true);
         }
         doLighting(true);
     }
@@ -591,32 +592,32 @@ public class BoardView implements PositionListener {
      * @param isHighlighting	True if drawing a highlight, false if erasing it
      */
     private void drawHighlightLine(int from, int to, boolean isHighlighting) {
-		Location loc1 = rowColToWorldCenter(Chess.sqiToRow(from), Chess.sqiToCol(from));
-		Location loc2 = rowColToWorldCenter(Chess.sqiToRow(to), Chess.sqiToCol(to));
-			
-		int dx = Math.abs(loc1.getBlockX() - loc2.getBlockX());
-		int dz = Math.abs(loc1.getBlockZ() - loc2.getBlockZ());
-		int sx = loc1.getBlockX() < loc2.getBlockX() ? 1 : -1;
-		int sz = loc1.getBlockZ() < loc2.getBlockZ() ? 1 : -1;
-		int err = dx - dz;
-		
-		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
-			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
-			m.applyToBlock(loc1.getBlock());
-			int e2 = 2 * err;
-			if (e2 > -dz) {
-				err -= dz;
-				loc1.add(sx, 0, 0);
-			}
-			if (e2 < dx) {
-				err += dx;
-				loc1.add(0, 0, sz);
-			}
-		}
+        Location loc1 = rowColToWorldCenter(Chess.sqiToRow(from), Chess.sqiToCol(from));
+        Location loc2 = rowColToWorldCenter(Chess.sqiToRow(to), Chess.sqiToCol(to));
+
+        int dx = Math.abs(loc1.getBlockX() - loc2.getBlockX());
+        int dz = Math.abs(loc1.getBlockZ() - loc2.getBlockZ());
+        int sx = loc1.getBlockX() < loc2.getBlockX() ? 1 : -1;
+        int sz = loc1.getBlockZ() < loc2.getBlockZ() ? 1 : -1;
+        int err = dx - dz;
+
+        while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
+            int sqi = getSquareAt(loc1);
+            MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
+            m.applyToBlock(loc1.getBlock());
+            int e2 = 2 * err;
+            if (e2 > -dz) {
+                err -= dz;
+                loc1.add(sx, 0, 0);
+            }
+            if (e2 < dx) {
+                err += dx;
+                loc1.add(0, 0, sz);
+            }
+        }
     }
 
-	/**
+    /**
      * get the bounds of the board itself
      * @return the bounds of the chess board - the innermost ring of the frame
      */
@@ -662,9 +663,9 @@ public class BoardView implements PositionListener {
     }
 
     public Location rowColToWorldCenter(int row, int col) {
-    	return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
+        return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
     }
-    
+
     public Location rowColToWorld(int row, int col, int xOff, int zOff) {
         Location a1 = a1Square;
         xOff += row * squareSize;
@@ -847,38 +848,39 @@ public class BoardView implements PositionListener {
 
     public static BoardView getBoardView(String name) throws ChessException {
         if (!chessBoards.containsKey(name)) {
-            // try "fuzzy" search
-            String keys[] = chessBoards.keySet().toArray(new String[0]);
-            int dist = StringUtil.getLevenshteinDistance(keys[0], name),
-                    k = 0, c = 0;
-            for (int i = 1; i < keys.length; ++i) {
-                int d = StringUtil.getLevenshteinDistance(keys[i], name);
-                if (d < dist) {
-                    dist = d;
-                    k = i;
-                    c = 0;
-                } else if (d == dist) {
-                    ++c;
-                }
-            }
-            if (c == 0 && dist < 3) {
-                return chessBoards.get(keys[k]);
-            } else {
-                // partial-name search
-                k = -1;
-                c = 0;
-                name = name.toLowerCase();
-                for (int i = 0; i < keys.length; ++i) {
-                    if (keys[i].toLowerCase().startsWith(name)) {
+            if (chessBoards.size() > 0) {
+                // try "fuzzy" search
+                String keys[] = chessBoards.keySet().toArray(new String[0]);
+                int dist = StringUtil.getLevenshteinDistance(keys[0], name),
+                        k = 0, c = 0;
+                for (int i = 1; i < keys.length; ++i) {
+                    int d = StringUtil.getLevenshteinDistance(keys[i], name);
+                    if (d < dist) {
+                        dist = d;
                         k = i;
+                        c = 0;
+                    } else if (d == dist) {
                         ++c;
                     }
                 }
-                if (k >= 0 && c == 1) {
+                if (c == 0 && dist < 3) {
                     return chessBoards.get(keys[k]);
+                } else {
+                    // partial-name search
+                    k = -1;
+                    c = 0;
+                    name = name.toLowerCase();
+                    for (int i = 0; i < keys.length; ++i) {
+                        if (keys[i].toLowerCase().startsWith(name)) {
+                            k = i;
+                            ++c;
+                        }
+                    }
+                    if (k >= 0 && c == 1) {
+                        return chessBoards.get(keys[k]);
+                    }
                 }
             }
-
             throw new ChessException("No such board '" + name + "'");
         }
         return chessBoards.get(name);
