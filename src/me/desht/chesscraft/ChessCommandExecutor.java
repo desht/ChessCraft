@@ -418,10 +418,10 @@ public class ChessCommandExecutor implements CommandExecutor {
             try {
                 Game game = Game.getCurrentGame(player);
                 double amount = Double.parseDouble(args[1]);
-                if (amount <= 0.0) {
+                if (amount <= 0.0)
                     throw new ChessException("Negative stakes are not permitted!");
-                }
-
+                if (!iConomy.getAccount(player.getName()).getHoldings().hasEnough(amount))
+                	throw new ChessException("You can't afford that stake!");
                 game.setStake(amount);
                 game.getView().getControlPanel().repaintSignButtons();
                 ChessUtils.statusMessage(player, "Stake for this game is now " + iConomy.format(amount));
