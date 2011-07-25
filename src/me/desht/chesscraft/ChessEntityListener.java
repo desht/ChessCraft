@@ -95,7 +95,7 @@ public class ChessEntityListener extends EntityListener {
             Location defenderLoc = event.getEntity().getLocation();
             for (BoardView bv : BoardView.listBoardViews()) {
                 if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-                    event.setCancelled(true); // don't allow players to attack from safty of chessboard
+                    event.setCancelled(true); // don't allow players to attack from safety of chessboard
                     if ((event.getEntity() instanceof Player) && // victim is a player
                             !(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
                             && dbeEvent.getDamager() instanceof LivingEntity) {
@@ -115,8 +115,7 @@ public class ChessEntityListener extends EntityListener {
             Location attackerLoc = dbeEvent.getDamager().getLocation();
             Location defenderLoc = event.getEntity().getLocation();
             for (BoardView bv : BoardView.listBoardViews()) {
-                if (bv.isPartOfBoard(defenderLoc)
-                        || bv.isPartOfBoard(attackerLoc)) {
+                if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
                     event.setCancelled(true);
                     if ((event.getEntity() instanceof Player) && // victim is a player
                             !(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
@@ -156,7 +155,7 @@ public class ChessEntityListener extends EntityListener {
         } else {
             // any other damage to a player while on a board
             // eg. falling off of a piece or viewing platform,
-            // catus/lava/fire on pieces, etc..
+            // cactus/lava/fire on pieces, etc..
             BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
             if (bv != null) {
                 event.setCancelled(true);
