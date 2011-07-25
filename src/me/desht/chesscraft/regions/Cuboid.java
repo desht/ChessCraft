@@ -173,6 +173,18 @@ public class Cuboid implements Iterable<Location> {
         return getSizeX() * getSizeY() * getSizeZ();
     }
 
+    public byte averageLightLevel() {
+        long total = 0;
+        int n = 0;
+        for (Location l : this) {
+            if (l.getBlock().isEmpty()) {
+                total += l.getBlock().getLightLevel();
+                ++n;
+            }
+        }
+        return (byte) (total / n);
+    }
+
     @Override
     public Iterator<Location> iterator() {
         return new CuboidIterator(lowerNE, upperSW);

@@ -457,23 +457,24 @@ public class BoardView implements PositionListener {
             return;
         }
 
-        //byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
-        byte level = getBounds().shift(Direction.Up, 1)
-                .inset(Direction.Both, frameWidth + squareSize)
-                .getUpperSW().getBlock().getLightLevel();
+//        byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
+//        byte level = getBounds().shift(Direction.Up, height/2)
+//                .getUpperSW().getBlock().getLightLevel();
+        byte level = getBounds().shift(Direction.Up, height - 1).
+                inset(Direction.Both, frameWidth + squareSize * 3).
+                averageLightLevel();
+
         if (isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
             return;
         }
         lastLevel = level;
 
         if (isBright(level)) {
-            MaterialWithData white = new MaterialWithData(whiteSquareMat);
-            MaterialWithData black = new MaterialWithData(blackSquareMat);
             for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; ++sqi) {
                 int col = Chess.sqiToCol(sqi);
                 int row = Chess.sqiToRow(sqi);
                 Location locNE = rowColToWorldNE(row, col);
-                (Chess.isWhiteSquare(sqi) ? white : black).setBlock(locNE.getBlock());
+                (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).setBlock(locNE.getBlock());
             }
             setFrameLights(frameMat);
         } else {
