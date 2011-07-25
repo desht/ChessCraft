@@ -94,6 +94,9 @@ public class BoardView implements PositionListener {
         if (frameWidth < 2) {
             throw new ChessException("Frame width is too narrow (minimum 2)");
         }
+        if (a1Square.getBlockY() + height >= 127) {
+        	throw new ChessException("Board altitude is too high - roof would be above top of world");
+        }
 
         int maxH = -1, maxV = -1;
         for (Entry<Integer, ChessStone> entry : stones.entrySet()) {
