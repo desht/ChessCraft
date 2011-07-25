@@ -62,7 +62,7 @@ public class ControlPanel {
     public void repaint() {
         World w = view.getA1Square().getWorld();
         for (Location l : panelBlocks) {
-            view.getControlPanelMat().setBlock(w.getBlockAt(l));
+            view.getControlPanelMat().applyToBlock(w.getBlockAt(l));
         }
         view.toPlayChanged(Chess.WHITE);
 
@@ -70,14 +70,14 @@ public class ControlPanel {
 
         MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
         
-        eastFacingWallSign.setBlock(halfMoveClockSign.getBlock());
+        eastFacingWallSign.applyToBlock(halfMoveClockSign.getBlock());
         updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
 
-        eastFacingWallSign.setBlock(plyCountSign.getBlock());
+        eastFacingWallSign.applyToBlock(plyCountSign.getBlock());
         updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
 
-        eastFacingWallSign.setBlock(whiteClockSign.getBlock());
-        eastFacingWallSign.setBlock(blackClockSign.getBlock());
+        eastFacingWallSign.applyToBlock(whiteClockSign.getBlock());
+        eastFacingWallSign.applyToBlock(blackClockSign.getBlock());
         
         updateClock(Chess.WHITE, game == null ? 0 : game.getTimeWhite());
         updateClock(Chess.BLACK, game == null ? 0 : game.getTimeBlack());
@@ -267,7 +267,7 @@ public class ControlPanel {
 
     public void updateToMoveIndicator(MaterialWithData mat) {
         for (Location l : toMoveIndicator) {
-            mat.setBlock(l.getBlock());
+            mat.applyToBlock(l.getBlock());
         }
     }
 

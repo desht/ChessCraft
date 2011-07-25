@@ -25,6 +25,8 @@ import me.desht.chesscraft.blocks.ChessStone;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.enums.HighlightStyle;
+
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
@@ -48,6 +50,7 @@ public class BoardView implements PositionListener {
     private MaterialWithData frameMat;
     private MaterialWithData controlPanelMat;
     private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
+    private HighlightStyle highlightStyle;
     private MaterialWithData enclosureMat;
     private String boardStyle, pieceStyle;
     private Boolean isLit;
@@ -240,6 +243,18 @@ public class BoardView implements PositionListener {
                 highlightBlackSquareMat = null;
             }
 
+            if (styleMap.get("highlight_style") != null) {
+            	String hs = (String) styleMap.get("highlight_style");
+            	try {
+            		highlightStyle = HighlightStyle.valueOf(hs);
+            	} catch (IllegalArgumentException e) {
+            		ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
+            		highlightStyle = HighlightStyle.Corners;
+            	}
+            } else {
+            	highlightStyle = HighlightStyle.Corners;
+            }
+            
             enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
         } catch (Exception e) {
             //e.printStackTrace();
@@ -315,7 +330,7 @@ public class BoardView implements PositionListener {
         };
         for (Cuboid wall : walls) {
             for (Location l : wall) {
-                enclosureMat.setBlock(w.getBlockAt(l));
+                enclosureMat.applyToBlock(w.getBlockAt(l));
             }
         }
     }
@@ -338,7 +353,7 @@ public class BoardView implements PositionListener {
         };
         for (Cuboid part : frameParts) {
             for (Location l : part) {
-                frameMat.setBlock(w.getBlockAt(l));
+                frameMat.applyToBlock(w.getBlockAt(l));
             }
         }
     }
@@ -389,7 +404,7 @@ public class BoardView implements PositionListener {
                     for (int z = 0; z < cStone.getSizeZ(); ++z) {
                         MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
                         if (!BlockType.shouldPlaceLast(mat.getMaterial())) {
-                            mat.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
+                            mat.applyToBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
                                     (l.getBlockZ() - zOff) - z));
                         } else {
                             secondPassNeeded = true;
@@ -403,7 +418,7 @@ public class BoardView implements PositionListener {
                         for (int z = 0; z < cStone.getSizeZ(); ++z) {
                             MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
                             if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-                                mat.setBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
+                                mat.applyToBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
                                         (l.getBlockZ() - zOff) - z));
                             }
                         }
@@ -430,23 +445,32 @@ public class BoardView implements PositionListener {
         square.expand(Direction.West, squareSize - 1);
 
         for (Location loc : square) {
-            m.setBlock(loc.getBlock());
+            m.applyToBlock(loc.getBlock());
         }
         if (highlight) {
-            // not sure which style i like most..
-            //for (Location loc : square.walls()) { // outline square
-            for (Location loc : square.corners()) { // highlight corners
-                //highlightMat.setBlock(loc.getBlock());
-                m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-                (m == null ? highlightMat : m).setBlock(loc.getBlock());
-            }
-//            // checkered
-//            int i = 0, o = this.squareSize % 2 == 0 ? 2 : 3; // should work for even.. untested
-//            for (Location loc : square) {
-//                if (i++ % o == 0) {
-//                    highlightMat.setBlock(loc.getBlock());
-//                }
-//            }
+        	switch (highlightStyle) {
+        	case Edges:
+        		for (Location loc : square.walls()) {
+        			m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+                    (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+        		}
+        		break;
+        	case Corners:
+        		for (Location loc : square.corners()) {
+                    m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+                    (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+                }
+        		break;
+        	case Checkered:
+        	case Chequered:
+        		int i = 0, o = this.squareSize % 2 == 0 ? 2 : 3; // should work for even.. untested
+        		for (Location loc : square) {
+        			if (i++ % o == 0) {
+        				highlightMat.applyToBlock(loc.getBlock());
+        			}
+        		}
+        		break;
+        	}
         }
     }
 
@@ -488,7 +512,7 @@ public class BoardView implements PositionListener {
                 int row = Chess.sqiToRow(sqi);
                 Location locNE = rowColToWorldNE(row, col);
                 if (locNE.getBlock().getTypeId() == 89) {
-                    (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).setBlock(locNE.getBlock());
+                    (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).applyToBlock(locNE.getBlock());
                 }
             }
             setFrameLights(frameMat);
@@ -509,18 +533,18 @@ public class BoardView implements PositionListener {
         int boardSize = squareSize * 8 + 1;
         // east & west sides
         for (int i = 0; i < 8; ++i) {
-            mat.setBlock(l.getBlock());
+            mat.applyToBlock(l.getBlock());
             l.add(0, 0, boardSize);
-            mat.setBlock(l.getBlock());
+            mat.applyToBlock(l.getBlock());
             l.add(squareSize, 0, -boardSize);
         }
         // north & south sides
         l = getBounds().getLowerNE();
         l.add(0, 0, squareSize / 2 + 1);
         for (int i = 0; i < 8; ++i) {
-            mat.setBlock(l.getBlock());
+            mat.applyToBlock(l.getBlock());
             l.add(boardSize, 0, 0);
-            mat.setBlock(l.getBlock());
+            mat.applyToBlock(l.getBlock());
             l.add(-boardSize, 0, squareSize);
         }
     }
@@ -533,22 +557,64 @@ public class BoardView implements PositionListener {
         }
     }
 
-    //public void highlightSquares(Location from, Location to) {
     public void highlightSquares(int from, int to) {
+    	if (highlightStyle == HighlightStyle.None)
+    		return;
+    	
         if (fromSquare >= 0 || toSquare >= 0) {
-            paintSquareAt(fromSquare);
-            paintSquareAt(toSquare);
+        	if (highlightStyle == HighlightStyle.Line) {
+        		drawHighlightLine(fromSquare, toSquare, false);
+        	} else {
+        		paintSquareAt(fromSquare);
+        		paintSquareAt(toSquare);
+        	}
         }
         fromSquare = from;
         toSquare = to;
 
-        paintSquareAt(fromSquare, true);
-        paintSquareAt(toSquare, true);
-
+        if (highlightStyle == HighlightStyle.Line) {
+        	drawHighlightLine(fromSquare, toSquare, true);
+        } else {
+        	paintSquareAt(fromSquare, true);
+        	paintSquareAt(toSquare, true);
+        }
         doLighting(true);
     }
 
     /**
+     * Use Bresenham's algorithm to draw line between two squares on the board
+     * 
+     * @param from	Square index of the first square
+     * @param to	Square index of the second square
+     * @param isHighlighting	True if drawing a highlight, false if erasing it
+     */
+    private void drawHighlightLine(int from, int to, boolean isHighlighting) {
+		Location loc1 = rowColToWorldCenter(Chess.sqiToRow(from), Chess.sqiToCol(from));
+		Location loc2 = rowColToWorldCenter(Chess.sqiToRow(to), Chess.sqiToCol(to));
+			
+		int dx = Math.abs(loc1.getBlockX() - loc2.getBlockX());
+		int dz = Math.abs(loc1.getBlockZ() - loc2.getBlockZ());
+		int sx = loc1.getBlockX() < loc2.getBlockX() ? 1 : -1;
+		int sz = loc1.getBlockZ() < loc2.getBlockZ() ? 1 : -1;
+		int err = dx - dz;
+		
+		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
+			int sqi = getSquareAt(loc1);
+			MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
+			m.applyToBlock(loc1.getBlock());
+			int e2 = 2 * err;
+			if (e2 > -dz) {
+				err -= dz;
+				loc1.add(sx, 0, 0);
+			}
+			if (e2 < dx) {
+				err += dx;
+				loc1.add(0, 0, sz);
+			}
+		}
+    }
+
+	/**
      * get the bounds of the board itself
      * @return the bounds of the chess board - the innermost ring of the frame
      */
@@ -593,6 +659,10 @@ public class BoardView implements PositionListener {
         return rowColToWorld(row, col, 0, 0);
     }
 
+    public Location rowColToWorldCenter(int row, int col) {
+    	return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
+    }
+    
     public Location rowColToWorld(int row, int col, int xOff, int zOff) {
         Location a1 = a1Square;
         xOff += row * squareSize;

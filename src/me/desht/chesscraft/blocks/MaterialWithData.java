@@ -62,7 +62,7 @@ public class MaterialWithData {
         return material;
     }
 
-    public void setBlock(Block b) {
+    public void applyToBlock(Block b) {
         if (b != null) {
             if (data >= 0) {
                 b.setTypeIdAndData(material, data, false);

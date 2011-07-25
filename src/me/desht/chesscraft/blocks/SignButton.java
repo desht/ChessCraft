@@ -58,7 +58,7 @@ public class SignButton {
     
     public void repaint() {
         Block block = location.getBlock();
-        mat.setBlock(block);
+        mat.applyToBlock(block);
         if (block.getState() instanceof Sign) {
             String[] lines = text.split(";");
             Sign s = (Sign) block.getState();
