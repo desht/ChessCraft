@@ -475,16 +475,17 @@ public class ChessCommandExecutor implements CommandExecutor {
         if (game.getPlayerWhite().equals(player.getName())) {
             loc = bv.getBounds().getUpperSW().clone();
             loc.setYaw(90.0f);
-            loc.add(0.0, 2.0, -(1.0 + 4.5 * bv.getSquareSize()));
+            loc.add(0.0, 1.0, -(1.0 + 4.5 * bv.getSquareSize()));
         } else if (game.getPlayerBlack().equals(player.getName())) {
             loc = bv.getBounds().getLowerNE().clone();
             loc.setYaw(270.0f);
-            loc.add(0.0, 2.0, -1.0 + 4.5 * bv.getSquareSize());
+            loc.add(0.0, 1.0, -1.0 + 4.5 * bv.getSquareSize());
         } else {
             loc = bv.getBounds().getLowerNE().clone();
             loc.setYaw(0.0f);
-            loc.add(-4.5 * bv.getSquareSize(), 2.0, 0.0);
+            loc.add(4.5 * bv.getSquareSize(), 1.0, 1.0);
         }
+        System.out.println("teleport to "  + loc);
         if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
             throw new ChessException("Teleport destination obstructed!");
         }
