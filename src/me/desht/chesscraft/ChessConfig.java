@@ -92,14 +92,14 @@ public class ChessConfig {
 
     private void setupDefaultStructure() {
             createDir(null);
-            createDir("archive");
+            createDir("pgn");
             createDir("board_styles");
             createDir("piece_styles");
             createDir("schematics");
 
             extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
-            extractResource("/datafiles/board_styles/Open.yml", "board_styles/Open.yml");
-            extractResource("/datafiles/board_styles/woodsand.yml", "board_styles/woodsand.yml");
+            extractResource("/datafiles/board_styles/open.yml", "board_styles/open.yml");
+            extractResource("/datafiles/board_styles/sandwood.yml", "board_styles/sandwood.yml");
             extractResource("/datafiles/board_styles/large.yml", "board_styles/large.yml");
             
             extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");
@@ -109,7 +109,7 @@ public class ChessConfig {
     }
 
     void createDir(String dir) {
-        File f = new File(directory);
+        File f = dir == null ? new File(directory) : new File(directory, dir);
         if (f.isDirectory()) {
             return;
         }
@@ -144,7 +144,8 @@ public class ChessConfig {
             ChessCraft.log(Level.SEVERE, null, ex);
         } finally {
             try {
-                out.close();
+                if (out != null)
+                	out.close();
             } catch (IOException ex) {
                 //ChessCraft.log(Level.SEVERE, null, ex);
             }
