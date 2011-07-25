@@ -83,7 +83,7 @@ public class Economy {
             //return iConomy.getAccount(pl.getName()).getHoldings().balance();
             return com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().balance();
         } else if (economy != null) {
-            return economy.getPlayerMoney(pl.getName());
+            return economy.getPlayerMoneyDouble(pl.getName());
         } else {
             return 0;
         }
@@ -96,7 +96,7 @@ public class Economy {
             //return iConomy.getAccount(playerName).getHoldings().balance();
             return com.iConomy.iConomy.getAccount(playerName).getHoldings().balance();
         } else if (economy != null) {
-            return economy.getPlayerMoney(playerName);
+            return economy.getPlayerMoneyDouble(playerName);
         } else {
             return 0;
         }
@@ -109,7 +109,7 @@ public class Economy {
             //iConomy.getAccount(pl.getName()).getHoldings().add(amt);
             com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().add(amt);
         } else if (economy != null) {
-            economy.addPlayerMoney(pl.getName(), (int) Math.round(amt), true);
+            economy.addPlayerMoney(pl.getName(), amt, true);
         }
     }
 
@@ -120,7 +120,7 @@ public class Economy {
             //iConomy.getAccount(playerName).getHoldings().add(amt);
             com.iConomy.iConomy.getAccount(playerName).getHoldings().add(amt);
         } else if (economy != null) {
-            economy.addPlayerMoney(playerName, (int) Math.round(amt), true);
+            economy.addPlayerMoney(playerName, amt, true);
         }
     }
 
@@ -131,7 +131,7 @@ public class Economy {
             //iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
             com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
         } else if (economy != null) {
-            economy.addPlayerMoney(pl.getName(), -(int) Math.round(amt), true);
+            economy.addPlayerMoney(pl.getName(), -amt, true);
         }
     }
 
@@ -142,7 +142,7 @@ public class Economy {
             //iConomy.getAccount(playerName).getHoldings().subtract(amt);
             com.iConomy.iConomy.getAccount(playerName).getHoldings().subtract(amt);
         } else if (economy != null) {
-            economy.addPlayerMoney(playerName, -(int) Math.round(amt), true);
+            economy.addPlayerMoney(playerName, -amt, true);
         }
     }
 
