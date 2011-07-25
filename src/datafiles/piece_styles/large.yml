@@ -1,0 +1,47 @@
+# Name for this set - should match the filename
+name: large
+
+# List of materials used in the set
+# Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)
+# or material plus data (e.g. 35:0, wool:white)
+# If you use plain integers, they must be quoted, or the set will not load!
+# If you use material names, they must match the org.bukkit.Material definitions exactly
+# - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
+materials:
+  black:
+    O: AIR
+    X: OBSIDIAN
+    P: '89'
+    L: '65:5'
+    K: '65:4'
+    T: '50'
+    Y: '50:4'
+    U: '50:3'
+    I: '50:1'
+    R: '50:2'
+  white:
+    O: AIR
+    X: IRON_BLOCK
+    P: '89'
+    L: '65:4'
+    K: '65:5'
+    T: '50'
+    Y: '50:3'
+    U: '50:4'
+    I: '50:2'
+    R: '50:1'
+
+# Piece definitions
+# This is a list of list of strings such that:
+# - definition[0] is the lowest layer on the Y-axis
+# - definition[0][0] is the northmost row on the lowest layer
+# - each string runs from west to east and consists of materials defined above
+#
+pieces:
+  P: [ [OXXXO, XXXXX, XXXXX, XXXXX, OXXXO], [OOXOO, OXXXO, XXXXX, OXXXO, OOXOO], [OOOOO, OTXTO, OXXXO, OTXTO, OOOOO], [OOOOO, OXXXO, OXXXO, OXXXO, OOOOO], [OOOOO, OOOOO, OOXOO, OOOOO, OOOOO] ]
+  N: [ [XOOOX, OXOXO, OOXOO, OXKXO, XOOOX], [XXPXX, XXXXX, XXXXX, XXKXX, XXOXX], [OOOOO, OXXXO, OXXXO, OXKXO, OXXXO], [OOXOO, OPXPO, OXXXO, OXKXO, OOXOO], [OOXOO, OOXOO, OOXOO, OOKOO, OOOOO], [OOOOO, OOXOO, OOOOO, OOOOO, OOOOO] ]
+  B: [ [XXXXX, XXXXX, XXXXX, XXXXX, XXXXX], [OXXXO, XXXXX, XXXXX, XXXXX, OXXXO], [OOOOO, OXXXO, OXXXO, OXXXO, OOOOO], [OOOOO, OOOOO, OOXOO, OOOOO, OOOOO], [OOOOO, OPPPO, OPXPO, OPPPO, OOOOO], [OOOOO, OOOOO, OOXOO, OOOOO, OOOOO] ]
+  R: [ [OOOOOOO, OXXOXXO, OXXOXXO, OXXLXXO, OXXXXXO, OXXXXXO, OOOOOOO], [OOOOOOO, OXXOXXO, OXXOXXO, OXXLXXO, OXXXXXO, OXXXXXO, OOOOOOO], [OOOOOOO, OXXXXXO, OXXXXXO, OXXLXXO, OXXXXXO, OXXXXXO, OOOOOOO], [OOROROO, OXXXXXO, YXXXXXU, OXXLXXO, YXXXXXU, OXXXXXO, OOIOIOO], [OOOOOOO, OXXXXXO, OXPXPXO, OXXLXXO, OXPXPXO, OXXXXXO, OOOOOOO], [OOOOOOO, OXOXOXO, OOOOOOO, OXOOOXO, OOOOOOO, OXOXOXO, OOOOOOO] ]
+  Q: [ [XXXXX, XXXXX, XXXXX, XXXXX, XXXXX], [OXXXO, XXXXX, XXXXX, XXXXX, OXXXO], [OOOOO, OXXXO, OXXXO, OXXXO, OOOOO], [OOOOO, OXXXO, OXXXO, OXXXO, OOOOO], [OPPPO, PXXXP, PXXXP, PXXXP, OPPPO], [OOOOO, OXXXO, OXXXO, OXXXO, OOOOO], [OOOOO, OOOOO, OOXOO, OOOOO, OOOOO] ]
+  K: [ [XXOXX, XXOXX, XXLXX, XXXXX, XXXXX], [OXOXO, XXOXX, XXLXX, XXXXX, OXXXO], [OOOOO, OXXXO, OXLXO, OXXXO, OOOOO], [OOOOO, OXXXO, OXLXO, OXXXO, OOOOO], [OPPPO, PXOXP, PXLXP, PXXXP, OPPPO], [OOOOO, OXOXO, OXLXO, OXXXO, OOOOO], [OOOOO, OOOOO, OOPOO, OOOOO, OOOOO], [OOOOO, OOOOO, OPPPO, OOOOO, OOOOO], [OOOOO, OOOOO, OOPOO, OOOOO, OOOOO] ]
+
