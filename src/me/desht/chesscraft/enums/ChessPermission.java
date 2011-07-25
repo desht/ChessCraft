@@ -30,14 +30,6 @@ public enum ChessPermission {
      */
     COMMAND_GAME("chesscraft.commands.game", true),
     /**
-     * list boards / games
-     */
-    COMMAND_LIST("chesscraft.commands.list", true),
-    /**
-     * delete a board or game
-     */
-    COMMAND_DELETE("chesscraft.commands.delete"),
-    /**
      * save all config & data
      */
     COMMAND_SAVE("chesscraft.commands.save"),
@@ -159,23 +151,36 @@ public enum ChessPermission {
         if (player == null /* || player.isOp() */) {
             return true;
         }
-        // if Permissions is in force, then it overrides op status
+        // if Permissions is in force, then it overrides Bukkit's built-in superperms... for now
         if (permissionHandler != null) {
             return permissionHandler.has(player, node.permissionNode);
         } else {
-            return node.isBasicNode ? true : player.isOp();
+        	return player.hasPermission(node.permissionNode);
         }
     }
 
     public static void requirePerms(Player player, ChessPermission node) throws ChessException {
-        // TODO? change permission nodes so that these permissions don't override other permissions?
-        if (isAllowedTo(player, ChessPermission.Admin)
-                || (node.isBasicNode && isAllowedTo(player, ChessPermission.Basic))) {
-            return;
-        }
+    	if (permissionHandler == null) {
+    		// Once support for Permissions is dropped, this check will be all that's required
+    		if (player == null)
+    			return;
+    		else if (player.hasPermission(node.permissionNode))
+    			return;
+    		else
+    			throw new ChessException("You are not allowed to do that.");
+    	} else {
+    		// TODO? change permission nodes so that these permissions don't override other permissions?
+    		// This will become obsolete when we drop Permissions support because superperms gives us
+    		// this functionality for free, using parent/child nodes.
+    		if (isAllowedTo(player, ChessPermission.Admin)
+    				|| (node.isBasicNode && isAllowedTo(player, ChessPermission.Basic))) {
+    			return;
+    		}
 
-        if (!isAllowedTo(player, node)) {
-            throw new ChessException("You are not allowed to do that.");
-        }
+    		if (!isAllowedTo(player, node)) {
+    			throw new ChessException("You are not allowed to do that.");
+    		}
+
+    	}
     }
 }

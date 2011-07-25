@@ -26,3 +26,100 @@ commands:
       /chess page <page-number>
       /chess setcfg <item> <value>
       /chess getcfg [<item>]
+permissions:
+  chesscraft.*:
+    description: Gives access to all ChessCraft commands
+    children:
+      chesscraft.admin: true
+      chesscraft.basic: true
+  chesscraft.admin:
+    description: Gives access to ChessCraft administration commands
+    children:
+      chesscraft.commands.create.board: true
+      chesscraft.commands.delete.board: true
+      chesscraft.commands.delete.game: true
+      chesscraft.commands.redraw: true
+      chesscraft.commands.getcfg: true
+      chesscraft.commands.setcfg: true
+      chesscraft.commands.save: true
+      chesscraft.commands.reload: true
+  chesscraft.basic:
+    description: Gives access to basic ChessCraft commands
+    children:
+      chesscraft.commands.create.game: true
+      chesscraft.commands.invite: true
+      chesscraft.commands.join: true
+      chesscraft.commands.move: true
+      chesscraft.commands.offer.draw: true
+      chesscraft.commands.offer.swap: true
+      chesscraft.commands.resign: true
+      chesscraft.commands.archive: true
+      chesscraft.commands.tp: true
+      chesscraft.commands.win: true
+  chesscraft.commands.create.board:
+    description: Allows you to create chessboards
+    default: op
+  chesscraft.commands.delete.board:
+    description: Allows you to delete chessboards
+    default: op
+  chesscraft.commands.delete.game:
+    description: Allows you to delete games
+    default: op
+  chesscraft.commands.redraw:
+    description: Allows you to force a redraw of all boards
+    default: op
+  chesscraft.commands.getcfg:
+    description: Allows you to inspect the ChessCraft configuration
+    default: op
+  chesscraft.commands.setcfg:
+    description: Allows you to alter the ChessCraft configuration
+    default: op
+  chesscraft.commands.save:
+    description: Allows you to force a save of ChessCraft state to disk
+    default: op
+  chesscraft.commands.reload:
+    description: Allows you to reload the ChessCraft state from disk
+    default: op
+  chesscraft.commands.create.game:
+    description: Allows you to create chess games
+    default: true
+  chesscraft.commands.invite:
+    description: Allows you to invite players to a game
+    default: true
+  chesscraft.commands.join:
+    description: Allows you to join a chess game
+    default: true
+  chesscraft.commands.move:
+    description: Allows you to move chess pieces (in a game you're in)
+    default: true
+  chesscraft.commands.offer.draw:
+    description: Allows you to offer draws to the opposing player
+    default: true
+  chesscraft.commands.offer.swap:
+    description: Allows you to offer a side swap to the opposing player
+    default: true
+  chesscraft.commands.resign:
+    description: Allows you to resign a game
+    default: true
+  chesscraft.commands.archive:
+    description: Allows you to write a PGN archive of a game
+    default: true
+  chesscraft.commands.tp:
+    description: Allows you to teleport to chess games
+    default: true
+  chesscraft.commands.win:
+    description: Allows you to claim victory by default if the opposing player went offline
+    default: true
+  chesscraft.commands.list.board:
+    description: Allows you to list chessboards that have been created
+    default: true
+  chesscraft.commands.list.game:
+    description: Allows you to list chess games that have been created
+    default: true
+  chesscraft.commands.start:
+    description: Allows you to start a chess game
+    default: true
+  chesscraft.commands.stake:
+    description: Allows you to set/modify the stake for a game
+    default: true
+    

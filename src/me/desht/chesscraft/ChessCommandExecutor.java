@@ -177,7 +177,6 @@ public class ChessCommandExecutor implements CommandExecutor {
     }
 
     private void listCommands(Player player, String[] args) throws ChessException {
-        ChessPermission.requirePerms(player, ChessPermission.COMMAND_LIST);
 
         if (partialMatch(args, 1, "g")) { // game
             if (args.length > 2) {
@@ -203,7 +202,6 @@ public class ChessCommandExecutor implements CommandExecutor {
             tryDeleteGame(player, args);
             plugin.maybeSave();
         } else {
-            ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELETE);
             if (partialMatch(args, 1, "b")) { // board
                 tryDeleteBoard(player, args);
                 plugin.maybeSave();
@@ -801,7 +799,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_STAKE);
 
         double newStake = game.getStake() + stakeIncr;
-        if (newStake < 0.0) {
+        if (newStake < 0.0 || newStake > iConomy.getAccount(player.getName()).getHoldings().balance()) {
             return;
         }
         game.setStake(newStake);
