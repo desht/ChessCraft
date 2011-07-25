@@ -80,7 +80,8 @@ public class Economy {
         if (legacyIConomy != null) {
             return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).getBalance();
         } else if (iConomy != null) {
-            return iConomy.getAccount(pl.getName()).getHoldings().balance();
+            //return iConomy.getAccount(pl.getName()).getHoldings().balance();
+            return com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().balance();
         } else if (economy != null) {
             return economy.getPlayerMoney(pl.getName());
         } else {
@@ -92,7 +93,8 @@ public class Economy {
         if (legacyIConomy != null) {
             return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).getBalance();
         } else if (iConomy != null) {
-            return iConomy.getAccount(playerName).getHoldings().balance();
+            //return iConomy.getAccount(playerName).getHoldings().balance();
+            return com.iConomy.iConomy.getAccount(playerName).getHoldings().balance();
         } else if (economy != null) {
             return economy.getPlayerMoney(playerName);
         } else {
@@ -104,7 +106,8 @@ public class Economy {
         if (legacyIConomy != null) {
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).add(amt);
         } else if (iConomy != null) {
-            iConomy.getAccount(pl.getName()).getHoldings().add(amt);
+            //iConomy.getAccount(pl.getName()).getHoldings().add(amt);
+            com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().add(amt);
         } else if (economy != null) {
             economy.addPlayerMoney(pl.getName(), (int) Math.round(amt), true);
         }
@@ -114,7 +117,8 @@ public class Economy {
         if (legacyIConomy != null) {
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).add(amt);
         } else if (iConomy != null) {
-            iConomy.getAccount(playerName).getHoldings().add(amt);
+            //iConomy.getAccount(playerName).getHoldings().add(amt);
+            com.iConomy.iConomy.getAccount(playerName).getHoldings().add(amt);
         } else if (economy != null) {
             economy.addPlayerMoney(playerName, (int) Math.round(amt), true);
         }
@@ -124,7 +128,8 @@ public class Economy {
         if (legacyIConomy != null) {
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).subtract(amt);
         } else if (iConomy != null) {
-            iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
+            //iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
+            com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
         } else if (economy != null) {
             economy.addPlayerMoney(pl.getName(), -(int) Math.round(amt), true);
         }
@@ -134,7 +139,8 @@ public class Economy {
         if (legacyIConomy != null) {
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).subtract(amt);
         } else if (iConomy != null) {
-            iConomy.getAccount(playerName).getHoldings().subtract(amt);
+            //iConomy.getAccount(playerName).getHoldings().subtract(amt);
+            com.iConomy.iConomy.getAccount(playerName).getHoldings().subtract(amt);
         } else if (economy != null) {
             economy.addPlayerMoney(playerName, -(int) Math.round(amt), true);
         }
@@ -144,7 +150,8 @@ public class Economy {
         if (legacyIConomy != null) {
             com.nijiko.coelho.iConomy.iConomy.getBank().format(amt);
         } else if (iConomy != null) {
-            return iConomy.format(amt);
+            //return iConomy.format(amt);
+            return com.iConomy.iConomy.format(amt);
         } else if (economy != null) {
             amt = Math.round(amt);
             if (amt < 1 || amt > 1) {

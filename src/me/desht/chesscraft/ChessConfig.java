@@ -62,7 +62,6 @@ public class ChessConfig {
         if (plugin != null) {
             directory = plugin.getDataFolder().getAbsolutePath();
             config = plugin.getConfiguration();
-            System.out.println(directory);
         }
     }
 
