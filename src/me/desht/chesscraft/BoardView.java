@@ -39,7 +39,6 @@ public class BoardView implements PositionListener {
     private Location a1Square;
     private Location origin;
     // if highlight_last_move, what squares are highlighted
-    //private Location fromSquare = null, toSquare = null;
     private int fromSquare = -1, toSquare = -1;
     private int frameWidth;
     private int squareSize;
@@ -454,7 +453,7 @@ public class BoardView implements PositionListener {
     public void doLighting() {
         doLighting(false);
     }
-    
+
     public void doLighting(boolean force) {
         if (!isLit) {
             return;
@@ -463,8 +462,19 @@ public class BoardView implements PositionListener {
 //        byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
 //        byte level = getBounds().shift(Direction.Up, height/2)
 //                .getUpperSW().getBlock().getLightLevel();
-        byte level = getBounds().shift(Direction.Up, height - 1).
-                inset(Direction.Both, frameWidth + squareSize * 3).
+//        Player jas = plugin.getServer().getPlayer("jascotty2");
+//        if(jas!=null && getName().contains("cave")){
+//            Cuboid c = getBounds().shift(Direction.Up, 2).
+//                inset(Direction.Horizontal, frameWidth + squareSize * 3)
+//                .expand(Direction.Up, height / 2);
+//            com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
+//                    new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
+//                    c.getUpperSW().getWorld(), c.getUpperSW(), c.getLowerNE());
+//            plugin.getWorldEdit().setSelection(jas, s);
+//        }
+        byte level = getBounds().shift(Direction.Up, 2).
+                inset(Direction.Horizontal, frameWidth + squareSize * 3).
+                expand(Direction.Up, height / 2).
                 averageLightLevel();
 
         if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
@@ -477,7 +487,9 @@ public class BoardView implements PositionListener {
                 int col = Chess.sqiToCol(sqi);
                 int row = Chess.sqiToRow(sqi);
                 Location locNE = rowColToWorldNE(row, col);
-                (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).setBlock(locNE.getBlock());
+                if (locNE.getBlock().getTypeId() == 89) {
+                    (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).setBlock(locNE.getBlock());
+                }
             }
             setFrameLights(frameMat);
         } else {

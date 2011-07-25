@@ -344,7 +344,7 @@ public class ChessCommandExecutor implements CommandExecutor {
             BoardView b = BoardView.getBoardView(args[1]);
             b.loadStyle(b.getBoardStyle());
             b.paintAll();
-            ChessUtils.statusMessage(player, "Board " + args[1] + " has been redrawn.");
+            ChessUtils.statusMessage(player, "Board " + b.getName() + " has been redrawn.");
         } else {
             for (BoardView bv : BoardView.listBoardViews()) {
                 bv.paintAll();
@@ -683,6 +683,7 @@ public class ChessCommandExecutor implements CommandExecutor {
     void tryDeleteGame(Player player, String[] args) throws ChessException {
         String gameName = args[2];
         Game game = Game.getGame(gameName);
+        gameName = game.getName();
         // allow delete if deleting a game player created
         if (!game.playerCanDelete(player)) {
             ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELGAME);
@@ -720,6 +721,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         if (args.length >= 3) {
             String name = args[2];
             BoardView view = BoardView.getBoardView(name);
+            name = view.getName();
             if (view.getGame() == null) {
                 view.restoreTerrain(player);
                 BoardView.removeBoardView(name);

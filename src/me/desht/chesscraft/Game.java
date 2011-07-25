@@ -293,6 +293,7 @@ public class Game {
 
     public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
         if (plugin.getServer().getPlayer(inviteeName) == null) {
+            //TODO: partial name matching
             throw new ChessException("Player " + inviteeName + " is not online.");
         }
 
@@ -921,6 +922,8 @@ public class Game {
                     return chessGames.get(keys[k]);
                 }
             }
+            // todo: if multiple matches, check if only one is waiting for more players
+            //          (and return that one)
 
             throw new ChessException("No such game '" + name + "'");
         }
