@@ -37,6 +37,7 @@ public class ExpectBoardCreation extends ExpectData {
             view.paintAll();
             ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
                     + ChessUtils.formatLoc(view.getA1Square()) + ".");
+            plugin.maybeSave();
         } else {
             ChessUtils.errorMessage(player, "Board '" + boardName + "' already exists.");
         }

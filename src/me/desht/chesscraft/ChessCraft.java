@@ -169,7 +169,7 @@ public class ChessCraft extends JavaPlugin {
     }
 
     /*-----------------------------------------------------------------*/
-    void maybeSave() {
+    public void maybeSave() {
         if (getConfiguration().getBoolean("autosave", true)) {
             persistence.save();
         }

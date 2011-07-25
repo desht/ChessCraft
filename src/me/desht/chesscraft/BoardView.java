@@ -19,6 +19,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
+import com.sk89q.util.StringUtil;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.ChessStone;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -756,6 +757,38 @@ public class BoardView implements PositionListener {
 
     public static BoardView getBoardView(String name) throws ChessException {
         if (!chessBoards.containsKey(name)) {
+            // try "fuzzy" search
+            String keys[] = chessBoards.keySet().toArray(new String[0]);
+            int dist = StringUtil.getLevenshteinDistance(keys[0], name),
+                    k = 0, c = 0;
+            for (int i = 1; i < keys.length; ++i) {
+                int d = StringUtil.getLevenshteinDistance(keys[i], name);
+                if (d < dist) {
+                    dist = d;
+                    k = i;
+                    c = 0;
+                } else if (d == dist) {
+                    ++c;
+                }
+            }
+            if (c == 0 && dist < 3) {
+                return chessBoards.get(keys[k]);
+            } else {
+                // partial-name search
+                k = -1;
+                c = 0;
+                name = name.toLowerCase();
+                for (int i = 0; i < keys.length; ++i) {
+                    if (keys[i].toLowerCase().startsWith(name)) {
+                        k = i;
+                        ++c;
+                    }
+                }
+                if (k >= 0 && c == 1) {
+                    return chessBoards.get(keys[k]);
+                }
+            }
+
             throw new ChessException("No such board '" + name + "'");
         }
         return chessBoards.get(name);
