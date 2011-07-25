@@ -24,6 +24,7 @@ added option to highlight last move
 - board definition can manually set material with "highlight"
 - can also define "highlight_white_square & highlight_black_square""
 boards are now redrawn on load (if style changed / worldedit mistakes)
+style "large" (7x7 board squares & matching pieces) is now included
 
 
 v0.2.2 (18 Jul 2011)
