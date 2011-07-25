@@ -66,7 +66,7 @@ public class ChessCraft extends JavaPlugin {
         if (ChessPermission.setupPermissions(this.getServer())) {
             log(Level.INFO, "Permissions detected");
         } else {
-            log(Level.INFO, "Permissions not detected, using ops");
+            log(Level.INFO, "Permissions not detected, using Bukkit superperms");
         }
         
         getCommand("chess").setExecutor(commandExecutor);
@@ -85,9 +85,18 @@ public class ChessCraft extends JavaPlugin {
         pm.registerEvent(Event.Type.PLUGIN_ENABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
         pm.registerEvent(Event.Type.PLUGIN_DISABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
 
-        persistence.reload();
-
-        util.setupRepeatingTask(2);
+        if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+			@Override
+			public void run() {
+				persistence.reload();
+				util.setupRepeatingTask(2);
+			}
+        } ) == -1) {
+			log(Level.WARNING, "Couldn't schedule persisted data reloading.  Loading immediately, but multi-world" +
+			    "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
+			persistence.reload();
+			util.setupRepeatingTask(2);
+        }
 
         log(" version " + description.getVersion() + " is enabled!");
     }
