@@ -1,7 +1,7 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.expector.ExpectResponse;
-import java.io.File;
+//import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -15,7 +15,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.jascotty2.net.InstallDependency;
+//import com.jascotty2.net.InstallDependency;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.desht.chesscraft.enums.ChessPermission;
 
@@ -38,10 +38,6 @@ public class ChessCraft extends JavaPlugin {
     protected WorldEditPlugin worldEditPlugin = null;
 
     /*-----------------------------------------------------------------*/
-    @Override
-    public void onLoad() {
-        checkForChesspresso();
-    }
 
     @Override
     public void onEnable() {
@@ -108,30 +104,6 @@ public class ChessCraft extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
         persistence.save();
         log("disabled!");
-    }
-
-    private void checkForChesspresso() {
-        File chesspressoFile = new File("lib", ChessConfig.getChesspressoLibName());
-        if (!chesspressoFile.exists()) {
-
-            log(Level.INFO, "Downloading Chesspresso lib from " + ChessConfig.getChesspressoDownload() + " ...");
-
-            if (!InstallDependency.install(chesspressoFile.getAbsolutePath(),
-                    ChessConfig.getChesspressoZipName(),
-                    ChessConfig.getChesspressoDownload())) {
-                log(Level.SEVERE, "Could not download Chesspresso library automatically.. ");
-                log(Level.SEVERE, "You will need to obtain a copy manually and install it at " + chesspressoFile.getAbsolutePath());
-                super.setEnabled(false);
-                return;
-            }
-        }
-        try {
-            super.getClassLoader().loadClass("chesspresso.Chess");
-        } catch (ClassNotFoundException e) {
-            log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
-        } catch (Exception ex) {
-            log(Level.SEVERE, "Chesspresso Loading Error", ex);
-        }
     }
 
     private void setupWorldEdit() {
