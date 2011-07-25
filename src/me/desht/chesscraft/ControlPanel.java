@@ -74,7 +74,7 @@ public class ControlPanel {
         updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
 
         eastFacingWallSign.setBlock(plyCountSign.getBlock());
-        updatePlayCount(game == null ? 0 : game.getPosition().getPlyNumber());
+        updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
 
         eastFacingWallSign.setBlock(whiteClockSign.getBlock());
         eastFacingWallSign.setBlock(blackClockSign.getBlock());
@@ -271,7 +271,7 @@ public class ControlPanel {
         }
     }
 
-    public void updatePlayCount(int playNumber) {
+    public void updatePlyCount(int playNumber) {
         if (plyCountSign.getBlock().getState() instanceof Sign) {
             Sign s = (Sign) plyCountSign.getBlock().getState();
             s.setLine(1, "Play Number");

@@ -612,7 +612,7 @@ public class BoardView implements PositionListener {
 
     @Override
     public void plyNumberChanged(int plyNumber) {
-        controlPanel.updatePlayCount(plyNumber);
+        controlPanel.updatePlyCount(plyNumber);
     }
 
     @Override
