@@ -9,9 +9,12 @@ players on a chess board are protected from monster attacks
 - monsters are removed
 - players cannot exploit protection & damage monsters, either
 now does terrain saving when a board is created
+- this feature depends on WorldEdit
+- WorldEdit can instead be put in ChessCraft plugin folder or lib folder
+board creation now triggers data autosave
 control panel items are grey when inactive
-can setup iConomy stakes - amount each player bets on winning (winner recieves double)
-WorldEdit can instead be put in ChessCraft plugin folder or lib folder
+can setup economy stakes - amount each player bets on winning (winner recieves double)
+- supports iConomy 4 & 5 and BOSEconomy
 games now auto-delete if not started 
 pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
@@ -22,10 +25,12 @@ players can now delete a game if they created it (or if not started & the person
 added partial-name matching for games
 added option to highlight last move
 - board definition can manually set material with "highlight"
-- can also define "highlight_white_square & highlight_black_square""
+- can also define "highlight_white_square & "highlight_black_square"
+- highlight style can be configured in the board style definition
+- - outline edges, highlight corners, use a checkerboard pattern, or draw a line
 boards are now redrawn on load (if style changed / worldedit mistakes)
+board control panel toplay indicator color on reload fixed
 style "large" (7x7 board squares & matching pieces) is now included
-last move highlighting - highlight style can be configured in the board style definition
 support for Bukkit superperms (Permissions still used first if found, for now...)
 
 

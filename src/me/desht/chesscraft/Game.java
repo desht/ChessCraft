@@ -18,8 +18,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.iConomy.*;
-
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -72,9 +70,9 @@ public class Game {
         lastCheck = new Date();
         result = Chess.RES_NOT_FINISHED;
         delTask = -1;
-        stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), 
-                         Economy.getBalance(playerName));
-        
+        stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
+                Economy.getBalance(playerName));
+
         setupChesspressoGame();
 
         getPosition().addPositionListener(view);
@@ -293,7 +291,7 @@ public class Game {
     }
 
     public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
-    	Player player = plugin.getServer().getPlayer(inviteeName);
+        Player player = plugin.getServer().getPlayer(inviteeName);
         // Looks like partial name matching is already handled by getPlayer()...
         if (player == null) {
             throw new ChessException("Player " + inviteeName + " is not online.");
@@ -347,18 +345,18 @@ public class Game {
             throw new ChessException("There is no black player yet.");
         }
         if (!canAffordToPlay(playerWhite)) {
-            throw new ChessException("White can't afford to play! (need " + iConomy.format(stake) + ")");
+            throw new ChessException("White can't afford to play! (need " + Economy.format(stake) + ")");
         }
         if (!canAffordToPlay(playerBlack)) {
-            throw new ChessException("Black can't afford to play! (need " + iConomy.format(stake) + ")");
+            throw new ChessException("Black can't afford to play! (need " + Economy.format(stake) + ")");
         }
         alert(playerWhite, "Game started!  You are playing &fWhite&-.");
         alert(playerBlack, "Game started!  You are playing &fBlack&-.");
         if (Economy.active() && stake > 0.0f) {
-        	Economy.subtract(playerWhite, stake);
-        	Economy.subtract(playerBlack, stake);
+            Economy.subtractMoney(playerWhite, stake);
+            Economy.subtractMoney(playerBlack, stake);
             double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
-            alert("You have paid a stake of " + iConomy.format(s2) + ".");
+            alert("You have paid a stake of " + Economy.format(s2) + ".");
         }
         setState(GameState.RUNNING);
     }
@@ -430,7 +428,7 @@ public class Game {
         cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
         announceResult(playerWhite, playerBlack, GameResult.DrawAgreed);
     }
-    
+
     /**
      * Do a move for playerName to toSquare <br>
      * fromSquare should already be set, <br>
@@ -557,23 +555,25 @@ public class Game {
     private void handlePayout(GameResult rt, String p1, String p2) {
 //        if (plugin.iConomy == null)
 //            return;
-        if (stake <= 0.0)
+        if (stake <= 0.0) {
             return;
-        if (getState() == GameState.SETTING_UP)
-        	return;
+        }
+        if (getState() == GameState.SETTING_UP) {
+            return;
+        }
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // one player won
-        	Economy.add(p1, stake * 2);
-            alert(p1, "You have won " + iConomy.format(stake * 2) + "!");
-            alert(p2, "You lost your stake of " + iConomy.format(stake) + "!");
+            Economy.addMoney(p1, stake * 2);
+            alert(p1, "You have won " + Economy.format(stake * 2) + "!");
+            alert(p2, "You lost your stake of " + Economy.format(stake) + "!");
         } else {
             // a draw
-        	Economy.add(p1, stake);
-        	Economy.add(p2, stake);
-            alert("You get your stake of " + iConomy.format(stake) + " back.");
+            Economy.addMoney(p1, stake);
+            Economy.addMoney(p2, stake);
+            alert("You get your stake of " + Economy.format(stake) + " back.");
         }
-        
+
         stake = 0.0;
     }
 
@@ -817,7 +817,7 @@ public class Game {
             if (timeout <= 0) {
                 return;
             }
-            if (elapsed > timeout) {
+            if (elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
                 alert("Game auto-deleted (not started within " + timeout + " seconds)");
                 ChessCraft.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
                 delete();
@@ -844,10 +844,8 @@ public class Game {
     }
 
     private boolean canAffordToPlay(String playerName) {
-        if (stake <= 0.0) {
-            return true;
-        }
-        return Economy.hasEnough(playerName, stake);
+        return stake <= 0.0 || !Economy.active()
+                || Economy.canAfford(playerName, stake);
     }
 
     /*--------------------------------------------------------------------------------*/
@@ -895,40 +893,41 @@ public class Game {
 
     public static Game getGame(String name) throws ChessException {
         if (!chessGames.containsKey(name)) {
-            // try "fuzzy" search
-            String keys[] = chessGames.keySet().toArray(new String[0]);
-            int dist = StringUtil.getLevenshteinDistance(keys[0], name),
-                    k = 0, c = 0;
-            for (int i = 1; i < keys.length; ++i) {
-                int d = StringUtil.getLevenshteinDistance(keys[i], name);
-                if (d < dist) {
-                    dist = d;
-                    k = i;
-                    c = 0;
-                } else if (d == dist) {
-                    ++c;
-                }
-            }
-            if (c == 0 && dist < 3) {
-                return chessGames.get(keys[k]);
-            } else {
-                // partial-name search
-                k = -1;
-                c = 0;
-                name = name.toLowerCase();
-                for (int i = 0; i < keys.length; ++i) {
-                    if (keys[i].toLowerCase().startsWith(name)) {
+            if (chessGames.size() > 0) {
+                // try "fuzzy" search
+                String keys[] = chessGames.keySet().toArray(new String[0]);
+                int dist = StringUtil.getLevenshteinDistance(keys[0], name),
+                        k = 0, c = 0;
+                for (int i = 1; i < keys.length; ++i) {
+                    int d = StringUtil.getLevenshteinDistance(keys[i], name);
+                    if (d < dist) {
+                        dist = d;
                         k = i;
+                        c = 0;
+                    } else if (d == dist) {
                         ++c;
                     }
                 }
-                if (k >= 0 && c == 1) {
+                if (c == 0 && dist < 3) {
                     return chessGames.get(keys[k]);
+                } else {
+                    // partial-name search
+                    k = -1;
+                    c = 0;
+                    name = name.toLowerCase();
+                    for (int i = 0; i < keys.length; ++i) {
+                        if (keys[i].toLowerCase().startsWith(name)) {
+                            k = i;
+                            ++c;
+                        }
+                    }
+                    if (k >= 0 && c == 1) {
+                        return chessGames.get(keys[k]);
+                    }
                 }
+                // todo: if multiple matches, check if only one is waiting for more players
+                //          (and return that one)
             }
-            // todo: if multiple matches, check if only one is waiting for more players
-            //          (and return that one)
-
             throw new ChessException("No such game '" + name + "'");
         }
         return chessGames.get(name);

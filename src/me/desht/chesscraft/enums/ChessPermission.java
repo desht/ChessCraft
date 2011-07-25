@@ -137,7 +137,7 @@ public enum ChessPermission {
     }
 
     /*-----------------------------------------------------------------*/
-    public static boolean setupPermissions(Server sv) {        
+    public static boolean setupPermissions(Server sv) {
         if (sv != null && permissionHandler == null) {
             Plugin permissionsPlugin = sv.getPluginManager().getPlugin("Permissions");
             if (permissionsPlugin != null) {
@@ -146,7 +146,7 @@ public enum ChessPermission {
         }
         return permissionHandler != null;
     }
-    
+
     public static boolean isAllowedTo(Player player, ChessPermission node) {
         if (player == null /* || player.isOp() */) {
             return true;
@@ -155,32 +155,33 @@ public enum ChessPermission {
         if (permissionHandler != null) {
             return permissionHandler.has(player, node.permissionNode);
         } else {
-        	return player.hasPermission(node.permissionNode);
+            return player.hasPermission(node.permissionNode);
         }
     }
 
     public static void requirePerms(Player player, ChessPermission node) throws ChessException {
-    	if (permissionHandler == null) {
-    		// Once support for Permissions is dropped, this check will be all that's required
-    		if (player == null)
-    			return;
-    		else if (player.hasPermission(node.permissionNode))
-    			return;
-    		else
-    			throw new ChessException("You are not allowed to do that.");
-    	} else {
-    		// TODO? change permission nodes so that these permissions don't override other permissions?
-    		// This will become obsolete when we drop Permissions support because superperms gives us
-    		// this functionality for free, using parent/child nodes.
-    		if (isAllowedTo(player, ChessPermission.Admin)
-    				|| (node.isBasicNode && isAllowedTo(player, ChessPermission.Basic))) {
-    			return;
-    		}
+        if (permissionHandler == null) {
+            // Once support for Permissions is dropped, this check will be all that's required
+            if (player == null) {
+                return;
+            } else if (player.hasPermission(node.permissionNode)) {
+                return;
+            } else {
+                throw new ChessException("You are not allowed to do that.");
+            }
+        } else {
+            // TODO? change permission nodes so that these permissions don't override other permissions?
+            // This will become obsolete when (if) we drop Permissions support because superperms gives us
+            // this functionality for free, using parent/child nodes.
+            if (isAllowedTo(player, ChessPermission.Admin)
+                    || (node.isBasicNode && isAllowedTo(player, ChessPermission.Basic))) {
+                return;
+            }
 
-    		if (!isAllowedTo(player, node)) {
-    			throw new ChessException("You are not allowed to do that.");
-    		}
+            if (!isAllowedTo(player, node)) {
+                throw new ChessException("You are not allowed to do that.");
+            }
 
-    	}
+        }
     }
 }

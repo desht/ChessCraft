@@ -12,8 +12,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 
-import com.iConomy.iConomy;
-
 import chesspresso.Chess;
 
 import me.desht.chesscraft.enums.GameState;
@@ -64,12 +62,18 @@ public class ControlPanel {
         for (Location l : panelBlocks) {
             view.getControlPanelMat().applyToBlock(w.getBlockAt(l));
         }
-        view.toPlayChanged(Chess.WHITE);
 
         Game game = view.getGame();
+        if (game != null
+                //&& game.getState() != GameState.SETTING_UP
+                && game.getPlayerToMove().equals(game.getPlayerBlack())) {
+            view.toPlayChanged(Chess.BLACK);
+        } else {
+            view.toPlayChanged(Chess.WHITE);
+        }
 
         MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
-        
+
         eastFacingWallSign.applyToBlock(halfMoveClockSign.getBlock());
         updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
 
@@ -78,7 +82,7 @@ public class ControlPanel {
 
         eastFacingWallSign.applyToBlock(whiteClockSign.getBlock());
         eastFacingWallSign.applyToBlock(blackClockSign.getBlock());
-        
+
         updateClock(Chess.WHITE, game == null ? 0 : game.getTimeWhite());
         updateClock(Chess.BLACK, game == null ? 0 : game.getTimeBlack());
 
@@ -248,11 +252,11 @@ public class ControlPanel {
     private String getStakeStr(Game game) {
         if (game == null) {
             double stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
-            String stakeStr = iConomy.format(stake).replaceFirst(" ", ";");
+            String stakeStr = Economy.format(stake).replaceFirst(" ", ";");
             return "Stake;;" + stakeStr;
         } else {
             double stake = game.getStake();
-            String stakeStr = iConomy.format(stake).replaceFirst(" ", ";&4");
+            String stakeStr = Economy.format(stake).replaceFirst(" ", ";&4");
             String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0";
             return col + "Stake;;&4" + stakeStr;
         }

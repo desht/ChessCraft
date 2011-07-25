@@ -418,7 +418,7 @@ public class ChessCommandExecutor implements CommandExecutor {
                 double amount = Double.parseDouble(args[1]);
                 if (amount <= 0.0)
                     throw new ChessException("Negative stakes are not permitted!");
-                if (!Economy.hasEnough(player.getName(), amount))
+                if (!Economy.canAfford(player.getName(), amount))
                 	throw new ChessException("You can't afford that stake!");
                 game.setStake(amount);
                 game.getView().getControlPanel().repaintSignButtons();
