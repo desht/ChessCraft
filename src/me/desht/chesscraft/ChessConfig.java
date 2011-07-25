@@ -100,11 +100,12 @@ public class ChessConfig {
             extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
             extractResource("/datafiles/board_styles/Open.yml", "board_styles/Open.yml");
             extractResource("/datafiles/board_styles/woodsand.yml", "board_styles/woodsand.yml");
-
+            extractResource("/datafiles/board_styles/large.yml", "board_styles/large.yml");
+            
             extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");
             extractResource("/datafiles/piece_styles/twist.yml", "piece_styles/twist.yml");
             extractResource("/datafiles/piece_styles/sandwood.yml", "piece_styles/sandwood.yml");
-
+            extractResource("/datafiles/piece_styles/large.yml", "piece_styles/large.yml");
     }
 
     void createDir(String dir) {
