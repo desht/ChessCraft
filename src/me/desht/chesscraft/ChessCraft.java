@@ -146,16 +146,21 @@ public class ChessCraft extends JavaPlugin {
     }
 
     /*-----------------------------------------------------------------*/
+    
+    protected static String getPluginName() {
+    	return description != null ? description.getName() : "ChessCraft";
+    }
+    
     protected static void log(String message) {
-        logger.log(Level.INFO, String.format("%s: %s", description.getName(), message));
+        logger.log(Level.INFO, String.format("%s: %s", getPluginName(), message));
     }
 
     protected static void log(Level level, String message) {
-        logger.log(level, String.format("%s: %s", description.getName(), message));
+        logger.log(level, String.format("%s: %s", getPluginName(), message));
     }
 
     protected static void log(Level level, String message, Exception err) {
-        logger.log(level, String.format("%s: %s", description.getName(),
+        logger.log(level, String.format("%s: %s", getPluginName(),
                 message == null ? (err == null ? "?" : err.getMessage()) : message), err);
     }
 
