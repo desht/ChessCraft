@@ -769,7 +769,7 @@ public class ChessCommandExecutor implements CommandExecutor {
             game.inviteOpen(player.getName());
         } else {
             game.invitePlayer(player.getName(), invitee);
-            ChessUtils.statusMessage(player, "An invitation has been sent to &6" + invitee + "&-.");
+            ChessUtils.statusMessage(player, "An invitation has been sent to &6" + game.getInvited() + "&-.");
         }
     }
 

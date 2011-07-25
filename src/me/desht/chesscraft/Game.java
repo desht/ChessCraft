@@ -292,10 +292,12 @@ public class Game {
     }
 
     public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
-        if (plugin.getServer().getPlayer(inviteeName) == null) {
-            //TODO: partial name matching
+    	Player player = plugin.getServer().getPlayer(inviteeName);
+        // Looks like partial name matching is already handled by getPlayer()...
+        if (player == null) {
             throw new ChessException("Player " + inviteeName + " is not online.");
         }
+        inviteeName = player.getName();
 
         inviteSanityCheck(inviterName);
         if (invited.equals(inviteeName)) {
@@ -552,12 +554,12 @@ public class Game {
     }
 
     private void handlePayout(GameResult rt, String p1, String p2) {
-        if (plugin.iConomy == null) {
+        if (plugin.iConomy == null)
             return;
-        }
-        if (stake <= 0.0f) {
+        if (stake <= 0.0)
             return;
-        }
+        if (getState() == GameState.SETTING_UP)
+        	return;
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // one player won
@@ -570,6 +572,8 @@ public class Game {
             iConomy.getAccount(p2).getHoldings().add(stake);
             alert("You get your stake of " + iConomy.format(stake) + " back.");
         }
+        
+        stake = 0.0;
     }
 
     private void setupAutoDeletion() {
@@ -603,6 +607,7 @@ public class Game {
         getView().highlightSquares(-1, -1);
         getView().setGame(null);
         getView().paintAll();
+        handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
         try {
             Game.removeGame(getName());
         } catch (ChessException e) {
