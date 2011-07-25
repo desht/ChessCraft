@@ -72,7 +72,11 @@ public class Game {
         lastCheck = new Date();
         result = Chess.RES_NOT_FINISHED;
         delTask = -1;
-        stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
+        if (plugin.iConomy != null) {
+        	stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), iConomy.getAccount(playerName).getHoldings().balance());
+        } else {
+        	stake = 0.0;
+        }
 
         setupChesspressoGame();
 
