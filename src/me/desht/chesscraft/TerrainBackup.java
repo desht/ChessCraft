@@ -21,7 +21,7 @@ import com.sk89q.worldedit.data.DataException;
 public class TerrainBackup {
 
     private static String schematicDir = "schematics";
-    private ChessCraft plugin;
+//    private ChessCraft plugin;
     private Player player;
     private WorldEditPlugin wep;
     private WorldEdit we;
@@ -33,7 +33,7 @@ public class TerrainBackup {
     private Vector min, max;
 
     private TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
-        this.plugin = plugin;
+//        this.plugin = plugin;
         this.player = player;
 
         wep = plugin.getWorldEdit();

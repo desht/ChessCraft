@@ -31,7 +31,7 @@ public class ControlPanel {
     private Location halfMoveClockSign;
     private Location whiteClockSign;
     private Location blackClockSign;
-    private Location playCountSign;
+    private Location plyCountSign;
     private Map<String, SignButton> buttons;
     private Map<Location, SignButton> buttonLocs;
 
@@ -54,7 +54,7 @@ public class ControlPanel {
         toMoveIndicator.shift(Direction.Down, 1).shift(Direction.North, 3).expand(Direction.North, 1);
 
         halfMoveClockSign = getSignLocation(2, 0);
-        playCountSign = getSignLocation(5, 0);
+        plyCountSign = getSignLocation(5, 0);
         whiteClockSign = getSignLocation(2, 1);
         blackClockSign = getSignLocation(5, 1);
     }
@@ -73,7 +73,7 @@ public class ControlPanel {
         eastFacingWallSign.setBlock(halfMoveClockSign.getBlock());
         updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
 
-        eastFacingWallSign.setBlock(playCountSign.getBlock());
+        eastFacingWallSign.setBlock(plyCountSign.getBlock());
         updatePlayCount(game == null ? 0 : game.getPosition().getPlyNumber());
 
         eastFacingWallSign.setBlock(whiteClockSign.getBlock());
@@ -272,8 +272,8 @@ public class ControlPanel {
     }
 
     public void updatePlayCount(int playNumber) {
-        if (playCountSign.getBlock().getState() instanceof Sign) {
-            Sign s = (Sign) playCountSign.getBlock().getState();
+        if (plyCountSign.getBlock().getState() instanceof Sign) {
+            Sign s = (Sign) plyCountSign.getBlock().getState();
             s.setLine(1, "Play Number");
             s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber));
             s.update();

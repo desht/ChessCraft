@@ -24,6 +24,7 @@ import org.bukkit.util.config.Configuration;
 /**
  * @author jacob
  */
+@SuppressWarnings("serial")
 public class ChessConfig {
 
     private static final String chesspressoDownload =

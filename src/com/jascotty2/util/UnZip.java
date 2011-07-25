@@ -44,7 +44,7 @@ public class UnZip {
         }
         try {
             ZipFile zipFile = new ZipFile(file);
-            Enumeration entries = zipFile.entries();
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -89,7 +89,7 @@ public class UnZip {
         try {
             boolean good = false; // TODO: parallel array & stop if array fills
             ZipFile zipFile = new ZipFile(file);
-            Enumeration entries = zipFile.entries();
+            Enumeration<?> entries = zipFile.entries();
 
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();

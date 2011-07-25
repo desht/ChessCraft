@@ -46,7 +46,7 @@ Piece selection/moving has changed: now pieces are selected & moved by waving a 
 Control panel on the side of each board with chess clock
 - to-play indicator
 - halfmove clock display
-- play count display
+- ply count display
 - and a set of buttons to make a lot of the /chess commands easier to use (e.g. you can now create a game on the board with one click).
 More visible notification if you've been placed in check.
 When you join a game, you can now be automatically teleported to it (new config itemauto_teleport_on_join, default true).
