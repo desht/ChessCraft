@@ -60,6 +60,7 @@ public class ChessCraft extends JavaPlugin {
         expecter = new ExpectResponse();
 
         setupWorldEdit();
+        Economy.initEcon(getServer());
         if (ChessPermission.setupPermissions(this.getServer())) {
             log(Level.INFO, "Permissions detected");
         } else {

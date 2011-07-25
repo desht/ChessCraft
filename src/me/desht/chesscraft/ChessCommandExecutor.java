@@ -322,7 +322,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         Game game = Game.getGame(gameName);
         Game.setCurrentGame(player.getName(), game);
         int playingAs = game.playingAs(player.getName());
-        ChessUtils.statusMessage(player, "You have joined the chess game &6" + gameName + "&-.");
+        ChessUtils.statusMessage(player, "You have joined the chess game &6" + game.getName() + "&-.");
         ChessUtils.statusMessage(player, "You will be playing as &f" + Game.getColour(playingAs) + "&-.");
 
         if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
