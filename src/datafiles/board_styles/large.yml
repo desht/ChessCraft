@@ -1,0 +1,19 @@
+# width/length of the board squares, in blocks
+square_size: 7
+# width in blocks of the frame surrounding the board
+frame_width: 3
+# height of the board - number of squares of clear air between board and enclosure roof
+height: 11
+# material/data for the white squares
+white_square: IRON_BLOCK
+# material/data for the black squares
+black_square: OBSIDIAN
+# material/data for the frame
+frame: '5'
+# material/data for the enclosure (if you don't use glass, then you better have lit = true!)
+enclosure: air
+# is the board lit up?
+lit: true
+# style of chess set to use (see ../pieces/*.yml)
+# the style chosen must fit within the square_size specified above
+piece_style: large
