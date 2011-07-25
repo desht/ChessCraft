@@ -286,11 +286,10 @@ public class BoardView implements PositionListener {
         paintBoard();
         paintFrame();
         controlPanel.repaint();
-        lastLevel = -1; // force a lighting update
         if (fromSquare >= 0 || toSquare >= 0) {
             highlightSquares(fromSquare, toSquare);
         } else {
-            doLighting();
+            doLighting(true); // force a lighting update
         }
     }
 
@@ -453,6 +452,10 @@ public class BoardView implements PositionListener {
     }
 
     public void doLighting() {
+        doLighting(false);
+    }
+    
+    public void doLighting(boolean force) {
         if (!isLit) {
             return;
         }
@@ -464,7 +467,7 @@ public class BoardView implements PositionListener {
                 inset(Direction.Both, frameWidth + squareSize * 3).
                 averageLightLevel();
 
-        if (isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
+        if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
             return;
         }
         lastLevel = level;
@@ -530,7 +533,7 @@ public class BoardView implements PositionListener {
         paintSquareAt(fromSquare, true);
         paintSquareAt(toSquare, true);
 
-        doLighting();
+        doLighting(true);
     }
 
     /**
