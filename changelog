@@ -26,6 +26,7 @@ added option to highlight last move
 boards are now redrawn on load (if style changed / worldedit mistakes)
 style "large" (7x7 board squares & matching pieces) is now included
 last move highlighting - highlight style can be configured in the board style definition
+support for Bukkit superperms (Permissions still used first if found, for now...)
 
 
 v0.2.2 (18 Jul 2011)
