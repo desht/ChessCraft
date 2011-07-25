@@ -17,3 +17,5 @@ lit: true
 # style of chess set to use (see ../pieces/*.yml)
 # the style chosen must fit within the square_size specified above
 piece_style: large
+# square highlighting style: use one of None, Line, Edges, Corners, Checkered/Chequered
+highlight_style: Corners
