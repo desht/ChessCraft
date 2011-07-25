@@ -22,10 +22,9 @@ import me.desht.chesscraft.enums.ChessPermission;
 public class ChessCraft extends JavaPlugin {
 
     static final Logger logger = Logger.getLogger("Minecraft");
+    static final String name = "ChessCraft";
     private static PluginDescriptionFile description;
-    
     private final Map<String, Location> lastPos = new HashMap<String, Location>();
-    
     protected ChessPlayerListener playerListener;
     protected ChessBlockListener blockListener;
     protected ChessEntityListener entityListener;
@@ -33,9 +32,9 @@ public class ChessCraft extends JavaPlugin {
     protected ChessPersistence persistence;
     protected ChessPieceLibrary library;
     protected ExpectResponse expecter;
+    protected ChessServerListener pluginListener = new ChessServerListener();
     public ChessConfig config = null;
     public ChessUtils util = null;
-    
     protected WorldEditPlugin worldEditPlugin = null;
 
     /*-----------------------------------------------------------------*/
@@ -66,7 +65,7 @@ public class ChessCraft extends JavaPlugin {
         } else {
             log(Level.INFO, "Permissions not detected, using Bukkit superperms");
         }
-        
+
         getCommand("chess").setExecutor(commandExecutor);
 
         PluginManager pm = getServer().getPluginManager();
@@ -80,20 +79,21 @@ public class ChessCraft extends JavaPlugin {
         pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
         pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Normal, this);
         pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
-        pm.registerEvent(Event.Type.PLUGIN_ENABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLUGIN_DISABLE, new ChessServerListener(this), Event.Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLUGIN_ENABLE, pluginListener, Event.Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLUGIN_DISABLE, pluginListener, Event.Priority.Monitor, this);
 
         if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-			@Override
-			public void run() {
-				persistence.reload();
-				util.setupRepeatingTask(2);
-			}
-        } ) == -1) {
-			log(Level.WARNING, "Couldn't schedule persisted data reloading.  Loading immediately, but multi-world" +
-			    "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
-			persistence.reload();
-			util.setupRepeatingTask(2);
+
+            @Override
+            public void run() {
+                persistence.reload();
+                util.setupRepeatingTask(2);
+            }
+        }) == -1) {
+            log(Level.WARNING, "Couldn't schedule persisted data reloading.  Loading immediately, but multi-world"
+                    + "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
+            persistence.reload();
+            util.setupRepeatingTask(2);
         }
 
         log(" version " + description.getVersion() + " is enabled!");
@@ -124,18 +124,13 @@ public class ChessCraft extends JavaPlugin {
                 return;
             }
         }
-//            try {
-//                Class.forName("chesspresso.Chess").newInstance();
-//            } catch (ClassNotFoundException e) {
-//                log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
-//            } catch (Exception ex) {
-//                log(Level.SEVERE, "Chesspresso Loading Error", ex);
-//            }
-//             catch (InstantiationException ex) {
-//                Logger.getLogger(ChessCraft.class.getName()).log(Level.SEVERE, null, ex);
-//            } catch (IllegalAccessException ex) {
-//                Logger.getLogger(ChessCraft.class.getName()).log(Level.SEVERE, null, ex);
-//            }
+        try {
+            super.getClassLoader().loadClass("chesspresso.Chess");
+        } catch (ClassNotFoundException e) {
+            log(Level.SEVERE, "Chesspresso downloaded, but can't find the class?");
+        } catch (Exception ex) {
+            log(Level.SEVERE, "Chesspresso Loading Error", ex);
+        }
     }
 
     private void setupWorldEdit() {
@@ -153,21 +148,17 @@ public class ChessCraft extends JavaPlugin {
     }
 
     /*-----------------------------------------------------------------*/
-    
-    protected static String getPluginName() {
-    	return description != null ? description.getName() : "ChessCraft";
-    }
-    
+
     protected static void log(String message) {
-        logger.log(Level.INFO, String.format("%s: %s", getPluginName(), message));
+        logger.log(Level.INFO, String.format("%s: %s", name, message));
     }
 
     protected static void log(Level level, String message) {
-        logger.log(level, String.format("%s: %s", getPluginName(), message));
+        logger.log(level, String.format("%s: %s", name, message));
     }
 
     protected static void log(Level level, String message, Exception err) {
-        logger.log(level, String.format("%s: %s", getPluginName(),
+        logger.log(level, String.format("%s: %s", name,
                 message == null ? (err == null ? "?" : err.getMessage()) : message), err);
     }
 
@@ -190,5 +181,4 @@ public class ChessCraft extends JavaPlugin {
     ChessCommandExecutor getCommandExecutor() {
         return commandExecutor;
     }
-
 }
