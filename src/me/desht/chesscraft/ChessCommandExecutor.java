@@ -341,7 +341,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_REDRAW);
 
         if (args.length >= 2) {
-            BoardView.getBoardView(args[1]).paintAll();
+            BoardView b = BoardView.getBoardView(args[1]);
+            b.loadStyle(b.getBoardStyle());
+            b.paintAll();
             ChessUtils.statusMessage(player, "Board " + args[1] + " has been redrawn.");
         } else {
             for (BoardView bv : BoardView.listBoardViews()) {

@@ -50,10 +50,9 @@ public class BoardView implements PositionListener {
     private MaterialWithData controlPanelMat;
     private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
     private MaterialWithData enclosureMat;
-    private String pieceStyle;
+    private String boardStyle, pieceStyle;
     private Boolean isLit;
     private Map<Integer, ChessStone> stones;
-    private String boardStyle;
     private byte lastLevel;
     private ControlPanel controlPanel;
 
@@ -458,7 +457,10 @@ public class BoardView implements PositionListener {
             return;
         }
 
-        byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
+        //byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
+        byte level = getBounds().shift(Direction.Up, 1)
+                .inset(Direction.Both, frameWidth + squareSize)
+                .getUpperSW().getBlock().getLightLevel();
         if (isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
             return;
         }
