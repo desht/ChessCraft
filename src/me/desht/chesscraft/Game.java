@@ -72,12 +72,9 @@ public class Game {
         lastCheck = new Date();
         result = Chess.RES_NOT_FINISHED;
         delTask = -1;
-        if (plugin.iConomy != null) {
-        	stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), iConomy.getAccount(playerName).getHoldings().balance());
-        } else {
-        	stake = 0.0;
-        }
-
+        stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), 
+                         Economy.getBalance(playerName));
+        
         setupChesspressoGame();
 
         getPosition().addPositionListener(view);
@@ -357,9 +354,9 @@ public class Game {
         }
         alert(playerWhite, "Game started!  You are playing &fWhite&-.");
         alert(playerBlack, "Game started!  You are playing &fBlack&-.");
-        if (plugin.iConomy != null && stake > 0.0f) {
-            iConomy.getAccount(playerWhite).getHoldings().subtract(stake);
-            iConomy.getAccount(playerBlack).getHoldings().subtract(stake);
+        if (Economy.active() && stake > 0.0f) {
+        	Economy.subtract(playerWhite, stake);
+        	Economy.subtract(playerBlack, stake);
             double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
             alert("You have paid a stake of " + iConomy.format(s2) + ".");
         }
@@ -558,8 +555,8 @@ public class Game {
     }
 
     private void handlePayout(GameResult rt, String p1, String p2) {
-        if (plugin.iConomy == null)
-            return;
+//        if (plugin.iConomy == null)
+//            return;
         if (stake <= 0.0)
             return;
         if (getState() == GameState.SETTING_UP)
@@ -567,13 +564,13 @@ public class Game {
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // one player won
-            iConomy.getAccount(p1).getHoldings().add(stake * 2);
+        	Economy.add(p1, stake * 2);
             alert(p1, "You have won " + iConomy.format(stake * 2) + "!");
             alert(p2, "You lost your stake of " + iConomy.format(stake) + "!");
         } else {
             // a draw
-            iConomy.getAccount(p1).getHoldings().add(stake);
-            iConomy.getAccount(p2).getHoldings().add(stake);
+        	Economy.add(p1, stake);
+        	Economy.add(p2, stake);
             alert("You get your stake of " + iConomy.format(stake) + " back.");
         }
         
@@ -847,13 +844,10 @@ public class Game {
     }
 
     private boolean canAffordToPlay(String playerName) {
-        if (plugin.iConomy == null) {
-            return true;
-        }
         if (stake <= 0.0) {
             return true;
         }
-        return iConomy.getAccount(playerName).getHoldings().hasEnough(stake);
+        return Economy.hasEnough(playerName, stake);
     }
 
     /*--------------------------------------------------------------------------------*/

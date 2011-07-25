@@ -19,9 +19,9 @@ public class ChessServerListener extends ServerListener {
 
     @Override
     public void onPluginDisable(PluginDisableEvent event) {
-        if (plugin.iConomy != null) {
+        if (Economy.getiConomyPlugin() != null) {
             if (event.getPlugin().getDescription().getName().equals("iConomy")) {
-                plugin.iConomy = null;
+                Economy.setiConomyPlugin(null);
                 ChessCraft.log(Level.INFO, "un-hooked from iConomy");
             }
         }
@@ -29,12 +29,12 @@ public class ChessServerListener extends ServerListener {
 
     @Override
     public void onPluginEnable(PluginEnableEvent event) {
-        if (plugin.iConomy == null) {
+        if (Economy.getiConomyPlugin() == null) {
             Plugin iConomy = plugin.getServer().getPluginManager().getPlugin("iConomy");
 
             if (iConomy != null) {
                 if (iConomy.isEnabled() && iConomy.getClass().getName().equals("com.iConomy.iConomy")) {
-                    plugin.iConomy = (iConomy) iConomy;
+                    Economy.setiConomyPlugin((iConomy) iConomy);
                     ChessCraft.log(Level.INFO, "hooked into iConomy");
                 }
             }

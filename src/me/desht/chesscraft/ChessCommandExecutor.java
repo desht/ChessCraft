@@ -20,8 +20,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.iConomy.iConomy;
-
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -420,11 +418,11 @@ public class ChessCommandExecutor implements CommandExecutor {
                 double amount = Double.parseDouble(args[1]);
                 if (amount <= 0.0)
                     throw new ChessException("Negative stakes are not permitted!");
-                if (!iConomy.getAccount(player.getName()).getHoldings().hasEnough(amount))
+                if (!Economy.hasEnough(player.getName(), amount))
                 	throw new ChessException("You can't afford that stake!");
                 game.setStake(amount);
                 game.getView().getControlPanel().repaintSignButtons();
-                ChessUtils.statusMessage(player, "Stake for this game is now " + iConomy.format(amount));
+                ChessUtils.statusMessage(player, "Stake for this game is now " + Economy.format(amount));
             } catch (NumberFormatException e) {
                 throw new ChessException("Invalid numeric value: " + args[1]);
             }
@@ -588,8 +586,8 @@ public class ChessCommandExecutor implements CommandExecutor {
         messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
                 + game.getView().getName());
         messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
-        if (plugin.iConomy != null) {
-            messageBuffer.add(bullet + "Stake: " + iConomy.format(game.getStake()));
+        if (Economy.active()) {
+            messageBuffer.add(bullet + "Stake: " + Economy.format(game.getStake()));
         }
         messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
         if (game.getState() == GameState.RUNNING) {
@@ -799,7 +797,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_STAKE);
 
         double newStake = game.getStake() + stakeIncr;
-        if (newStake < 0.0 || newStake > iConomy.getAccount(player.getName()).getHoldings().balance()) {
+        if (newStake < 0.0 || newStake > Economy.getBalance(player.getName())) {
             return;
         }
         game.setStake(newStake);

@@ -15,7 +15,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.iConomy.*;
 import com.jascotty2.net.InstallDependency;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.desht.chesscraft.enums.ChessPermission;
@@ -38,7 +37,6 @@ public class ChessCraft extends JavaPlugin {
     public ChessUtils util = null;
     
     protected WorldEditPlugin worldEditPlugin = null;
-    protected iConomy iConomy = null;
 
     /*-----------------------------------------------------------------*/
     @Override

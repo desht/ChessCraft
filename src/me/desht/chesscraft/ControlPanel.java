@@ -96,7 +96,7 @@ public class ControlPanel {
 
         createSignButton(0, 2, "board-info", ";Board;Info", eastFacingWallSign, true);
         createSignButton(0, 1, "teleport", ";Teleport;Out", eastFacingWallSign, true);
-        if (plugin.iConomy != null) {
+        if (Economy.active()) {
             createSignButton(7, 1, "stake", getStakeStr(game), eastFacingWallSign, game != null);
         }
 
@@ -227,7 +227,7 @@ public class ControlPanel {
             plugin.getCommandExecutor().doResponse(player, true);
         } else if (name.equals("white-no") || name.equals("black-no")) {
             plugin.getCommandExecutor().doResponse(player, false);
-        } else if (name.equals("stake") && plugin.iConomy != null) {
+        } else if (name.equals("stake") && Economy.active()) {
             double stakeIncr;
             if (player.isSneaking()) {
                 stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0);
