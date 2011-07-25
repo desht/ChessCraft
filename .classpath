@@ -7,6 +7,5 @@
 	<classpathentry kind="var" path="LOCAL_JARS/Chesspresso-lib.jar" sourcepath="/CHESSPRESSO_SRC"/>
 	<classpathentry kind="var" path="LOCAL_JARS/WorldEdit.jar" sourcepath="/WORLEDIT_SRC"/>
 	<classpathentry kind="var" path="LOCAL_JARS/iConomy.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/ScrollingMenuSign.jar" sourcepath="/SMS_SRC"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
