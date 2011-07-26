@@ -37,6 +37,7 @@ public class ChessConfig {
             put("broadcast_results", true);
             put("auto_delete.finished", 30);
             put("auto_delete.not_started", 180);
+            put("max_ai_games", 3);
             put("no_building", true);
             put("no_creatures", true);
             put("no_explosions", true);

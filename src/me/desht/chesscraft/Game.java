@@ -363,11 +363,13 @@ public class Game {
 //            throw new ChessException("There is no black player yet.");
 //        }
         if (playerWhite.isEmpty()) {
+        	ensureAILimitNotReached();
             aiPlayer = ChessAI.getNewAI(this);
             playerWhite = aiPlayer.getName();
             aiPlayer.init(true);
             aiPlayer.setUserMove(false);
         } else if (playerBlack.isEmpty()) {
+        	ensureAILimitNotReached();
             aiPlayer = ChessAI.getNewAI(this);
             playerBlack = aiPlayer.getName();
             aiPlayer.init(false);
@@ -881,6 +883,17 @@ public class Game {
     		return true;
         return stake <= 0.0 || !Economy.active()
                 || Economy.canAfford(playerName, stake);
+    }
+    
+    private void ensureAILimitNotReached() throws ChessException {
+    	int n = 0;
+    	for (Game game : listGames()) {
+    		if (game.isAIGame())
+    			n++;
+    	}
+    	int max = plugin.getConfiguration().getInt("max_ai_games", 3);
+    	if (n >= max)
+    		throw new ChessException("Limit of " + max + " AI games has been reached");
     }
 
     /*--------------------------------------------------------------------------------*/
