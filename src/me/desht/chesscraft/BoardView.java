@@ -716,11 +716,11 @@ public class BoardView implements PositionListener {
     public void toPlayChanged(int toPlay) {
         MaterialWithData mat;
         if (toPlay == Chess.WHITE) {
-            mat = whiteSquareMat;
+            mat = getWhiteSquareMat();
         } else if (toPlay == Chess.BLACK) {
-            mat = blackSquareMat;
+            mat = getBlackSquareMat();
         } else if (toPlay == Chess.NOBODY) {
-            mat = controlPanelMat;
+            mat = getControlPanelMat();
         } else {
             return; // should never get here
         }
