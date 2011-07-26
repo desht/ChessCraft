@@ -26,11 +26,6 @@ import org.bukkit.util.config.Configuration;
  */
 @SuppressWarnings("serial")
 public class ChessConfig {
-
-    private static final String chesspressoDownload =
-            "http://sourceforge.net/projects/chesspresso/files/chesspresso-lib/0.9.2/Chesspresso-lib-0.9.2.zip/download";
-    private static final String chesspressoLibName = "Chesspresso-lib.jar";
-    private static final String chesspressoZipName = "Chesspresso-lib-0.9.2/Chesspresso-lib.jar";
     private static String directory = "plugins" + File.separator + "ChessCraft";
     ChessCraft plugin = null;
     Configuration config = null;
@@ -40,17 +35,19 @@ public class ChessConfig {
             put("autosave", true);
             put("tick_interval", 1);
             put("broadcast_results", true);
-            put("auto_delete_finished", 30);
+            put("auto_delete.finished", 30);
+            put("auto_delete.not_started", 180);
             put("no_building", true);
             put("no_creatures", true);
             put("no_explosions", true);
             put("no_burning", true);
             put("no_pvp", true);
+            put("no_monster_damage", true);
+            put("no_misc_damage", true);
             put("wand_item", "air");
             put("auto_teleport_on_join", true);
             put("highlight_last_move", true);
             put("timeout_forfeit", 60);
-            put("timeout_auto_delete", 180);
             put("stake.default", 0.0);
             put("stake.smallIncrement", 1.0);
             put("stake.largeIncrement", 10.0);
@@ -71,18 +68,6 @@ public class ChessConfig {
 
         configInitialise();
 
-    }
-
-    public static String getChesspressoDownload() {
-        return chesspressoDownload;
-    }
-
-    public static String getChesspressoLibName() {
-        return chesspressoLibName;
-    }
-
-    public static String getChesspressoZipName() {
-        return chesspressoZipName;
     }
 
     public static String getDirectory() {

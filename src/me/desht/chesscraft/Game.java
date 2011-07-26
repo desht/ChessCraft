@@ -578,7 +578,7 @@ public class Game {
     }
 
     private void setupAutoDeletion() {
-        int autoDel = plugin.getConfiguration().getInt("auto_delete_finished", 0);
+        int autoDel = plugin.getConfiguration().getInt("auto_delete.finished", 0);
         if (autoDel > 0) {
             delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
@@ -813,7 +813,7 @@ public class Game {
         if (getState() == GameState.SETTING_UP) {
             long now = System.currentTimeMillis();
             long elapsed = (now - started.getTime()) / 1000;
-            int timeout = plugin.getConfiguration().getInt("timeout_auto_delete", 180);
+            int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180);
             if (timeout <= 0) {
                 return;
             }

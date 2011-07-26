@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -85,12 +86,20 @@ public class ChessEntityListener extends EntityListener {
             return;
         }
         if (event instanceof EntityDamageByProjectileEvent) {
+        	
             EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
-            if (dbeEvent.getDamager() instanceof Player
-                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
-                return;
-            }
-
+            if (isAllowedPlayerAttack(dbeEvent.getDamager()) || isAllowedMonsterAttack(dbeEvent.getDamager()))
+            	return;
+            
+//            if (dbeEvent.getDamager() instanceof Player
+//                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
+//                return;
+//            }
+//            if (!(dbeEvent.getDamager() instanceof Player) && dbeEvent.getDamager() instanceof LivingEntity
+//                    && !plugin.getConfiguration().getBoolean("no_monster_attacks", false)) {
+//                return;
+//            }
+//            
             Location attackerLoc = dbeEvent.getDamager().getLocation();
             Location defenderLoc = event.getEntity().getLocation();
             for (BoardView bv : BoardView.listBoardViews()) {
@@ -107,10 +116,17 @@ public class ChessEntityListener extends EntityListener {
 
         } else if (event instanceof EntityDamageByEntityEvent) {
             EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
-            if (dbeEvent.getDamager() instanceof Player
-                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
-                return;
-            }
+            if (isAllowedPlayerAttack(dbeEvent.getDamager()) || isAllowedMonsterAttack(dbeEvent.getDamager()))
+            	return;
+            
+//            if (dbeEvent.getDamager() instanceof Player
+//                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
+//                return;
+//            }
+//            if (!(dbeEvent.getDamager() instanceof Player) && dbeEvent.getDamager() instanceof LivingEntity
+//                    && !plugin.getConfiguration().getBoolean("no_monster_attacks", false)) {
+//                return;
+//            }
 
             Location attackerLoc = dbeEvent.getDamager().getLocation();
             Location defenderLoc = event.getEntity().getLocation();
@@ -130,6 +146,9 @@ public class ChessEntityListener extends EntityListener {
         if (!(event.getEntity() instanceof Player)) {
             return;
         }
+        if (!plugin.getConfiguration().getBoolean("no_misc_damage", false))
+        	return;
+        
         if (event.getCause() == DamageCause.SUFFOCATION) {
             BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
             if (bv != null) {
@@ -161,6 +180,15 @@ public class ChessEntityListener extends EntityListener {
                 event.setCancelled(true);
             }
         }
-
+    }
+    
+    private boolean isAllowedMonsterAttack(Entity damager) {
+    	return !(damager instanceof Player) && damager instanceof LivingEntity
+    	&& !plugin.getConfiguration().getBoolean("no_monster_attacks", false);
+    }
+    
+    private boolean isAllowedPlayerAttack(Entity damager) {
+    	return damager instanceof Player
+    	&& !plugin.getConfiguration().getBoolean("no_pvp", false);
     }
 }
