@@ -62,6 +62,7 @@ public class ChessCraft extends JavaPlugin {
         } else {
             log(Level.INFO, "Permissions not detected, using Bukkit superperms");
         }
+        ChessAI.initThreading(this);
 
         getCommand("chess").setExecutor(commandExecutor);
 

@@ -18,7 +18,8 @@ can setup economy stakes - amount each player bets on winning (winner recieves d
 games now auto-delete if not started 
 pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
-now automatically downloads Chesspresso-lib.jar if not found
+[[now automatically downloads Chesspresso-lib.jar if not found]]
+- class file now included inside plugin, so lib is no longer required seperately
 major-ish code restructure
 players now allowed to resign even when not their turn
 players can now delete a game if they created it (or if not started & the person who joined left)
@@ -32,6 +33,9 @@ boards are now redrawn on load (if style changed / worldedit mistakes)
 board control panel toplay indicator color on reload fixed
 style "large" (7x7 board squares & matching pieces) is now included
 support for Bukkit superperms (Permissions still used first if found, for now...)
+AI SUPPORT ADDED :D
+- games, if started without another player, will have an AI player
+- chess engine taken from jChecs: http://sourceforge.net/projects/jchecs/files/Sources/v0.1.0/jChecs-0.1.0-src.tgz
 
 
 v0.2.2 (18 Jul 2011)
