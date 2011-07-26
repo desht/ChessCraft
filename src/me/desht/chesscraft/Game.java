@@ -36,7 +36,7 @@ public class Game {
     private static final String archiveDir = "pgn";
     private ChessCraft plugin;
     private String name;
-    private chesspresso.game.Game cpGame;
+    chesspresso.game.Game cpGame;
     private BoardView view;
     private String playerWhite, playerBlack;
     private int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
@@ -50,6 +50,7 @@ public class Game {
     private int delTask;
     private int result;
     private double stake;
+    private ChessAI aiPlayer = null;
 
     public Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
         this.plugin = plugin;
@@ -139,6 +140,17 @@ public class Game {
         }
         setupChesspressoGame();
 
+        if (isAIPlayer(playerWhite)) {
+            aiPlayer = ChessAI.getNewAI(this);
+            playerWhite = aiPlayer.getName();
+            aiPlayer.init(true);
+            aiPlayer.setUserMove(false);
+        } else if (isAIPlayer(playerBlack)) {
+            aiPlayer = ChessAI.getNewAI(this);
+            playerBlack = aiPlayer.getName();
+            aiPlayer.init(false);
+        }
+
         // Replay the move history to restore the saved board position.
         // We do this instead of just saving the position so that the
         // Chesspresso Game model
@@ -146,6 +158,12 @@ public class Game {
         try {
             for (short move : history) {
                 getPosition().doMove(move);
+            }
+            if (aiPlayer != null) {
+
+                for (short move : history) {
+                    aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+                }
             }
         } catch (IllegalMoveException e) {
             // should only get here if the save file was corrupted - the history
@@ -156,6 +174,7 @@ public class Game {
         }
 
         getPosition().addPositionListener(view);
+
     }
 
     public String getName() {
@@ -249,13 +268,12 @@ public class Game {
             getView().getControlPanel().updateClock(Chess.BLACK, timeBlack);
         }
 
-        checkForAIResponse();
+        //checkForAIResponse();
     }
 
-    private void checkForAIResponse() {
-        // TODO: STUB method for when we add AI
-    }
-
+//    private void checkForAIResponse() {
+//        // TODO: STUB method for when we add AI
+//    }
     public void swapColours() {
         clockTick();
         String tmp = playerWhite;
@@ -338,11 +356,22 @@ public class Game {
         ensurePlayerInGame(playerName);
         ensureGameState(GameState.SETTING_UP);
 
+//        if (playerWhite.isEmpty()) {
+//            throw new ChessException("There is no white player yet.");
+//        }
+//        if (playerBlack.isEmpty()) {
+//            throw new ChessException("There is no black player yet.");
+//        }
         if (playerWhite.isEmpty()) {
-            throw new ChessException("There is no white player yet.");
-        }
-        if (playerBlack.isEmpty()) {
-            throw new ChessException("There is no black player yet.");
+            aiPlayer = ChessAI.getNewAI(this);
+            playerWhite = aiPlayer.getName();
+            aiPlayer.init(true);
+            aiPlayer.setUserMove(false);
+        } else if (playerBlack.isEmpty()) {
+            aiPlayer = ChessAI.getNewAI(this);
+            playerBlack = aiPlayer.getName();
+            aiPlayer.init(false);
+            //aiPlayer.loadBoard(cpGame, getPlayerNotToMove().equals(playerBlack));
         }
         if (!canAffordToPlay(playerWhite)) {
             throw new ChessException("White can't afford to play! (need " + Economy.format(stake) + ")");
@@ -439,6 +468,10 @@ public class Game {
      * @throws ChessException
      */
     public void doMove(String playerName, int toSquare) throws IllegalMoveException, ChessException {
+        doMove(playerName, toSquare, fromSquare);
+    }
+
+    public void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
         ensureGameState(GameState.RUNNING);
         ensurePlayerToMove(playerName);
         if (fromSquare == Chess.NO_SQUARE) {
@@ -455,7 +488,6 @@ public class Game {
             }
             getPosition().doMove(realMove);
             Move lastMove = getPosition().getLastMove();
-            fromSquare = Chess.NO_SQUARE;
             history.add(realMove);
             clockTick();
             if (getPosition().isMate()) {
@@ -477,8 +509,7 @@ public class Game {
                 // the game continues...
                 String nextPlayer = getPlayerToMove();
                 if (isAIPlayer(nextPlayer)) {
-                    // TODO: set AI to thinking above next move and add poll for
-                    // move ready
+                    aiPlayer.userMove(fromSquare, toSquare);
                 } else {
                     String checkNotify = getPosition().isCheck() ? " &5+++CHECK+++" : "";
                     alert(nextPlayer, "&f" + getColour(prevToMove) + "&- played [" + lastMove.getLAN() + "]."
@@ -486,14 +517,15 @@ public class Game {
                     alert(nextPlayer, "It is your move &f(" + getColour(getPosition().getToPlay()) + ")&-.");
                 }
             }
+            this.fromSquare = Chess.NO_SQUARE;
         } catch (IllegalMoveException e) {
             throw e;
         }
     }
 
     public boolean isAIPlayer(String name) {
-        // no support for AI players yet...
-        return false;
+        // simple name match.. not checking if in this game
+        return name.startsWith(ChessAI.AI_PREFIX);
     }
 
     public String getPGNResult() {

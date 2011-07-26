@@ -109,7 +109,7 @@ public class ControlPanel {
                 && (!hasWhite || !hasBlack));
         createSignButton(3, 2, "invite-anyone", ";Invite;ANYONE", eastFacingWallSign, settingUp
                 && (!hasWhite || !hasBlack));
-        createSignButton(4, 2, "start", ";Start;Game", eastFacingWallSign, settingUp && hasWhite && hasBlack);
+        createSignButton(4, 2, "start", ";Start;Game", eastFacingWallSign, settingUp);// && hasWhite && hasBlack);
         createSignButton(5, 2, "offer-draw", ";Offer;Draw", eastFacingWallSign, running);
         createSignButton(6, 2, "resign", ";Resign", eastFacingWallSign, running);
         createSignButton(7, 2, "game-info", ";Game;Info", eastFacingWallSign, game != null);
