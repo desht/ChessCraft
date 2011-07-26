@@ -20,8 +20,8 @@ package chesspresso.game;
  * @author Bernhard Seybold
  * @version $Revision: 1.1 $
  */
-@SuppressWarnings("unchecked")
-public interface GameModelIterator extends java.util.Iterator
+
+public interface GameModelIterator extends java.util.Iterator<GameModel>
 {
     public GameModel nextGameModel();
 }
