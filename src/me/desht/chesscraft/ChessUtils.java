@@ -25,10 +25,13 @@ public class ChessUtils {
     public ChessUtils(ChessCraft plugin) {
         ChessUtils.plugin = plugin;
     }
-    
+
     public void setupRepeatingTask(int initialDelay) {
+        if (plugin == null) {
+            return;
+        }
         BukkitScheduler s = plugin.getServer().getScheduler();
-        if(tickTaskId != -1){
+        if (tickTaskId != -1) {
             s.cancelTask(tickTaskId);
         }
         tickTaskId = s.scheduleSyncRepeatingTask(plugin, new Runnable() {
@@ -45,7 +48,6 @@ public class ChessUtils {
             }
         }, 20L * initialDelay, 20L * plugin.config.config.getInt("tick_interval", 1));
     }
-
 
     public static void errorMessage(Player player, String string) {
         prevColour = ChatColor.RED.toString();
@@ -96,7 +98,7 @@ public class ChessUtils {
                 + loc.getWorld().getName() + ">";
         return str;
     }
-    
+
     public static String pieceToStr(int piece) {
         switch (piece) {
             case Chess.PAWN:
