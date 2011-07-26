@@ -64,13 +64,14 @@ public class ControlPanel {
         }
 
         Game game = view.getGame();
-        if (game != null
-                //&& game.getState() != GameState.SETTING_UP
-                && game.getPlayerToMove().equals(game.getPlayerBlack())) {
-            view.toPlayChanged(Chess.BLACK);
-        } else {
-            view.toPlayChanged(Chess.WHITE);
-        }
+//        if (game != null
+//                //&& game.getState() != GameState.SETTING_UP
+//                && game.getPosition().getToPlay()
+//            view.toPlayChanged(Chess.BLACK);
+//        } else {
+//            view.toPlayChanged(Chess.WHITE);
+//        }
+        view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
 
         MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
 

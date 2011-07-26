@@ -59,11 +59,22 @@ public class BoardView implements PositionListener {
     private ControlPanel controlPanel;
 
     public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
-        this.plugin = plugin;
+        _init(bName, plugin, where, bStyle, pStyle, false);
+    }
+    
+    public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException {
+        _init(bName, plugin, where, bStyle, pStyle, onlyTesting);
+    }
+
+    private void _init(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException  {
+    	this.plugin = plugin;
         boardStyle = bStyle;
         pieceStyle = pStyle;
 
         name = bName;
+        if (BoardView.checkBoardView(name))
+        	throw new ChessException("A board with this name already exists.");
+        
         game = null; // indicates board not used by any game yet
         if (boardStyle == null) {
             boardStyle = "Standard";
@@ -71,15 +82,18 @@ public class BoardView implements PositionListener {
         loadStyle(boardStyle);
         origin = where;
         a1Square = calcBaseSquare(where);
-        validateIntersections();
+        if (!onlyTesting)
+        	validateIntersections();
         stones = createStones(pieceStyle);
         validateBoardParams();
-        controlPanel = new ControlPanel(plugin, this);
         lastLevel = -1;
-
-        BoardView.addBoardView(name, this);
+        
+        if (!onlyTesting) { 
+        	controlPanel = new ControlPanel(plugin, this);
+        	BoardView.addBoardView(name, this);
+        }
     }
-
+    
     /**
      * Overall sanity checking on board/set parameters
      * @throws ChessException if anything about the board & pieces are bad
@@ -706,7 +720,7 @@ public class BoardView implements PositionListener {
         } else if (toPlay == Chess.BLACK) {
             mat = blackSquareMat;
         } else if (toPlay == Chess.NOBODY) {
-            mat = frameMat;
+            mat = controlPanelMat;
         } else {
             return; // should never get here
         }

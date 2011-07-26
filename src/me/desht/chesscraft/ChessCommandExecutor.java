@@ -705,7 +705,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         String style = options.get("style");
         String pieceStyle = options.get("pstyle");
 
-        // todo: try to find style/piece errors before attempting to create board
+        @SuppressWarnings("unused")
+        // we create this temporary board only to check that the style & piece styles are valid & compatible
+		BoardView testBoard = new BoardView(name, plugin, player.getLocation(), style, pieceStyle, true);
 
         ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
         ChessUtils.statusMessage(player, "This block will become the centre of the board's A1 square.");
