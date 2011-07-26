@@ -84,9 +84,9 @@ public class ChessPieceLibrary {
 
     /**
      * Return a chess stone rotated in the given direction
-     * @param style
-     * @param stone
-     * @return
+     * @param style The style to use
+     * @param stone The Chess stone to rotate
+     * @return A ChessStone representing the stone
      */
     ChessStone getStone(String style, int stone) {
         if (!templates.containsKey(style)) {
