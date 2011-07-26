@@ -42,7 +42,7 @@ public class ChessConfig {
             put("no_explosions", true);
             put("no_burning", true);
             put("no_pvp", true);
-            put("no_monster_damage", true);
+            put("no_monster_attacks", true);
             put("no_misc_damage", true);
             put("wand_item", "air");
             put("auto_teleport_on_join", true);
