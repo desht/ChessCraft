@@ -19,7 +19,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
-import com.sk89q.util.StringUtil;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.ChessStone;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -90,7 +89,6 @@ public class BoardView implements PositionListener {
         
         if (!onlyTesting) { 
         	controlPanel = new ControlPanel(plugin, this);
-        	BoardView.addBoardView(name, this);
         }
     }
     
@@ -847,6 +845,10 @@ public class BoardView implements PositionListener {
     public static void addBoardView(String name, BoardView view) {
         chessBoards.put(name, view);
     }
+    
+    public static void addBoardView(BoardView view) {
+        chessBoards.put(view.name, view);
+    }
 
     public static void removeBoardView(String name) {
         chessBoards.remove(name);
@@ -865,24 +867,13 @@ public class BoardView implements PositionListener {
             if (chessBoards.size() > 0) {
                 // try "fuzzy" search
                 String keys[] = chessBoards.keySet().toArray(new String[0]);
-                int dist = StringUtil.getLevenshteinDistance(keys[0], name),
-                        k = 0, c = 0;
-                for (int i = 1; i < keys.length; ++i) {
-                    int d = StringUtil.getLevenshteinDistance(keys[i], name);
-                    if (d < dist) {
-                        dist = d;
-                        k = i;
-                        c = 0;
-                    } else if (d == dist) {
-                        ++c;
-                    }
-                }
-                if (c == 0 && dist < 3) {
-                    return chessBoards.get(keys[k]);
+                String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
+                
+                if (matches.length == 1) {
+                    return chessBoards.get(matches[0]);
                 } else {
                     // partial-name search
-                    k = -1;
-                    c = 0;
+                    int k = -1, c = 0;
                     name = name.toLowerCase();
                     for (int i = 0; i < keys.length; ++i) {
                         if (keys[i].toLowerCase().startsWith(name)) {

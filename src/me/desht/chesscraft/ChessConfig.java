@@ -37,7 +37,8 @@ public class ChessConfig {
             put("broadcast_results", true);
             put("auto_delete.finished", 30);
             put("auto_delete.not_started", 180);
-            put("max_ai_games", 3);
+            put("ai.min_move_wait", 3);
+            put("ai.max_ai_games", 3);
             put("no_building", true);
             put("no_creatures", true);
             put("no_explosions", true);
@@ -69,6 +70,8 @@ public class ChessConfig {
 
         configInitialise();
 
+        ChessAI.initAI_Names();
+
     }
 
     public static String getDirectory() {
@@ -81,7 +84,9 @@ public class ChessConfig {
             createDir("board_styles");
             createDir("piece_styles");
             createDir("schematics");
-
+                    
+            extractResource("/AI_settings.yml", "AI_settings.yml");
+                    
             extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
             extractResource("/datafiles/board_styles/open.yml", "board_styles/open.yml");
             extractResource("/datafiles/board_styles/sandwood.yml", "board_styles/sandwood.yml");

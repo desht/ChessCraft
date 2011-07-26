@@ -1,7 +1,6 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.expector.ExpectResponse;
-//import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -15,7 +14,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-//import com.jascotty2.net.InstallDependency;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.desht.chesscraft.enums.ChessPermission;
 
@@ -99,8 +97,10 @@ public class ChessCraft extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        ChessAI.clearAI();
         for (Game game : Game.listGames()) {
             game.clockTick();
+            game.delete();
         }
         getServer().getScheduler().cancelTasks(this);
         persistence.save();

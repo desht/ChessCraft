@@ -24,7 +24,6 @@ import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
-import com.sk89q.util.StringUtil;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
@@ -36,7 +35,7 @@ public class Game {
     private static final String archiveDir = "pgn";
     private ChessCraft plugin;
     private String name;
-    chesspresso.game.Game cpGame;
+    private chesspresso.game.Game cpGame;
     private BoardView view;
     private String playerWhite, playerBlack;
     private int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
@@ -117,7 +116,7 @@ public class Game {
     }
 
     @SuppressWarnings("unchecked")
-    void thaw(Map<String, Object> map) {
+    boolean thaw(Map<String, Object> map) {
         playerWhite = (String) map.get("playerWhite");
         playerBlack = (String) map.get("playerBlack");
         state = GameState.valueOf((String) map.get("state"));
@@ -140,41 +139,50 @@ public class Game {
         }
         setupChesspressoGame();
 
-        if (isAIPlayer(playerWhite)) {
-            aiPlayer = ChessAI.getNewAI(this);
-            playerWhite = aiPlayer.getName();
-            aiPlayer.init(true);
-            aiPlayer.setUserMove(false);
-        } else if (isAIPlayer(playerBlack)) {
-            aiPlayer = ChessAI.getNewAI(this);
-            playerBlack = aiPlayer.getName();
-            aiPlayer.init(false);
-        }
-
-        // Replay the move history to restore the saved board position.
-        // We do this instead of just saving the position so that the
-        // Chesspresso Game model
-        // includes a history of the moves, suitable for creating a PGN file.
         try {
+            if (isAIPlayer(playerWhite)) {
+                aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+                playerWhite = aiPlayer.getName();
+                aiPlayer.init(true);
+            } else if (isAIPlayer(playerBlack)) {
+                aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+                playerBlack = aiPlayer.getName();
+                aiPlayer.init(false);
+            }
+
+            // Replay the move history to restore the saved board position.
+            // We do this instead of just saving the position so that the
+            // Chesspresso Game model
+            // includes a history of the moves, suitable for creating a PGN file.
             for (short move : history) {
                 getPosition().doMove(move);
             }
+            // repeat for the ai engine (doesn't support loading from fen)
             if (aiPlayer != null) {
-
                 for (short move : history) {
                     aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
                 }
+                aiPlayer.loadDone(); // tell ai to start on next move
             }
         } catch (IllegalMoveException e) {
             // should only get here if the save file was corrupted - the history
             // is a list of moves which was already validated before the game was
             // saved
             ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
-                    + " - move history corrupted?");
+                    + " - move history corrupted?" + "  (game will be deleted)");
+            delete();
+            return false;
+        } catch (Exception e) {
+            ChessCraft.log(Level.WARNING, "Unexpected exception restoring game " 
+                    + getName() + "\n" + e.getMessage() + "  (game will be deleted)");
+            // delete game
+            delete();
+            return false;
         }
 
         getPosition().addPositionListener(view);
-
+        
+        return true;
     }
 
     public String getName() {
@@ -215,6 +223,11 @@ public class Game {
 
     public void setState(GameState state) {
         this.state = state;
+        if(state == GameState.FINISHED
+                && aiPlayer != null){
+            aiPlayer.removeAI();
+            aiPlayer = null;
+        }
         getView().getControlPanel().repaintSignButtons();
     }
 
@@ -267,13 +280,8 @@ public class Game {
             timeBlack += diff;
             getView().getControlPanel().updateClock(Chess.BLACK, timeBlack);
         }
-
-        //checkForAIResponse();
     }
 
-//    private void checkForAIResponse() {
-//        // TODO: STUB method for when we add AI
-//    }
     public void swapColours() {
         clockTick();
         String tmp = playerWhite;
@@ -356,24 +364,15 @@ public class Game {
         ensurePlayerInGame(playerName);
         ensureGameState(GameState.SETTING_UP);
 
-//        if (playerWhite.isEmpty()) {
-//            throw new ChessException("There is no white player yet.");
-//        }
-//        if (playerBlack.isEmpty()) {
-//            throw new ChessException("There is no black player yet.");
-//        }
         if (playerWhite.isEmpty()) {
-        	ensureAILimitNotReached();
             aiPlayer = ChessAI.getNewAI(this);
             playerWhite = aiPlayer.getName();
             aiPlayer.init(true);
-            aiPlayer.setUserMove(false);
+            aiPlayer.setUserMove(false); // tell ai to start thinking
         } else if (playerBlack.isEmpty()) {
-        	ensureAILimitNotReached();
             aiPlayer = ChessAI.getNewAI(this);
             playerBlack = aiPlayer.getName();
             aiPlayer.init(false);
-            //aiPlayer.loadBoard(cpGame, getPlayerNotToMove().equals(playerBlack));
         }
         if (!canAffordToPlay(playerWhite)) {
             throw new ChessException("White can't afford to play! (need " + Economy.format(stake) + ")");
@@ -384,10 +383,12 @@ public class Game {
         alert(playerWhite, "Game started!  You are playing &fWhite&-.");
         alert(playerBlack, "Game started!  You are playing &fBlack&-.");
         if (Economy.active() && stake > 0.0f) {
-        	if (!isAIPlayer(playerWhite))
-        		Economy.subtractMoney(playerWhite, stake);
-        	if (!isAIPlayer(playerBlack))
-        		Economy.subtractMoney(playerBlack, stake);
+            if (!isAIPlayer(playerWhite)) {
+                Economy.subtractMoney(playerWhite, stake);
+            }
+            if (!isAIPlayer(playerBlack)) {
+                Economy.subtractMoney(playerBlack, stake);
+            }
             double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
             alert("You have paid a stake of " + Economy.format(s2) + ".");
         }
@@ -589,23 +590,28 @@ public class Game {
     }
 
     private void handlePayout(GameResult rt, String p1, String p2) {
-        if (stake <= 0.0)
+        if (stake <= 0.0) {
             return;
-        if (getState() == GameState.SETTING_UP)
+        }
+        if (getState() == GameState.SETTING_UP) {
             return;
+        }
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // one player won
-        	if (!isAIPlayer(p1))
-        		Economy.addMoney(p1, stake * 2);
+            if (!isAIPlayer(p1)) {
+                Economy.addMoney(p1, stake * 2);
+            }
             alert(p1, "You have won " + Economy.format(stake * 2) + "!");
             alert(p2, "You lost your stake of " + Economy.format(stake) + "!");
         } else {
             // a draw
-        	if (!isAIPlayer(p1))
-        		Economy.addMoney(p1, stake);
-            if (!isAIPlayer(p2))
-            	Economy.addMoney(p2, stake);
+            if (!isAIPlayer(p1)) {
+                Economy.addMoney(p1, stake);
+            }
+            if (!isAIPlayer(p2)) {
+                Economy.addMoney(p2, stake);
+            }
             alert("You get your stake of " + Economy.format(stake) + " back.");
         }
 
@@ -879,21 +885,11 @@ public class Game {
     }
 
     private boolean canAffordToPlay(String playerName) {
-    	if (isAIPlayer(playerName))
-    		return true;
+        if (isAIPlayer(playerName)) {
+            return true;
+        }
         return stake <= 0.0 || !Economy.active()
                 || Economy.canAfford(playerName, stake);
-    }
-    
-    private void ensureAILimitNotReached() throws ChessException {
-    	int n = 0;
-    	for (Game game : listGames()) {
-    		if (game.isAIGame())
-    			n++;
-    	}
-    	int max = plugin.getConfiguration().getInt("max_ai_games", 3);
-    	if (n >= max)
-    		throw new ChessException("Limit of " + max + " AI games has been reached");
     }
 
     /*--------------------------------------------------------------------------------*/
@@ -944,24 +940,13 @@ public class Game {
             if (chessGames.size() > 0) {
                 // try "fuzzy" search
                 String keys[] = chessGames.keySet().toArray(new String[0]);
-                int dist = StringUtil.getLevenshteinDistance(keys[0], name),
-                        k = 0, c = 0;
-                for (int i = 1; i < keys.length; ++i) {
-                    int d = StringUtil.getLevenshteinDistance(keys[i], name);
-                    if (d < dist) {
-                        dist = d;
-                        k = i;
-                        c = 0;
-                    } else if (d == dist) {
-                        ++c;
-                    }
-                }
-                if (c == 0 && dist < 3) {
-                    return chessGames.get(keys[k]);
+                String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
+                
+                if (matches.length == 1) {
+                    return chessGames.get(matches[0]);
                 } else {
                     // partial-name search
-                    k = -1;
-                    c = 0;
+                    int k = -1, c = 0;
                     name = name.toLowerCase();
                     for (int i = 0; i < keys.length; ++i) {
                         if (keys[i].toLowerCase().startsWith(name)) {
@@ -1047,8 +1032,8 @@ public class Game {
         }
         return false;
     }
-    
+
     public boolean isAIGame() {
-    	return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
+        return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
     }
 }

@@ -1,0 +1,102 @@
+# definition file for all avaliable AIs
+# there are only 17 total possible, so don't try to add any more
+# engines: (minimum, maximum, default)
+#     AlphaBeta   (3, 6, 5)
+#     MiniMax     (1, 4, 3)
+#     MiniMax++   (2, 5, 4)
+#     NegaScout   (3, 6, 5) (default)
+#     Random      (1, 1, 1)
+# funName is the displayed name in-Game
+#   can also be used by a player to invite this AI to their game
+#   if you want more of one type avaliable, funName can be comma-delimited to add more AI
+# eg. funName: "Bob, George, Moe" gives 3 AI of that type
+# !! Names CANNOT be repeated, or only the last of that name will be avaliable !!
+# if funName is null, will be the definition node (eg. ai01)
+
+AI:
+  ai01:
+    funName:
+    engine: "AlphaBeta"
+    depth: 3
+    enabled: true
+  ai02:
+    funName:
+    engine: "AlphaBeta"
+    depth: 4
+    enabled: true
+  ai03:
+    funName:
+    engine: "AlphaBeta"
+    depth: 5
+    enabled: true
+  ai04:
+    funName:
+    engine: "AlphaBeta"
+    depth: 6
+    enabled: true
+  ai05:
+    funName:
+    engine: "MiniMax"
+    depth: 1
+    enabled: true
+  ai06:
+    funName:
+    engine: "MiniMax"
+    depth: 2
+    enabled: true
+  ai07:
+    funName:
+    engine: "MiniMax"
+    depth: 3
+    enabled: true
+  ai08:
+    funName:
+    engine: "MiniMax"
+    depth: 4
+    enabled: true
+  ai09:
+    funName:
+    engine: "MiniMax++"
+    depth: 2
+    enabled: true
+  ai10:
+    funName:
+    engine: "MiniMax++"
+    depth: 3
+    enabled: true
+  ai11:
+    funName:
+    engine: "MiniMax++"
+    depth: 4
+    enabled: true
+  ai12:
+    funName:
+    engine: "MiniMax++"
+    depth: 5
+    enabled: true
+  ai13:
+    funName:
+    engine: "NegaScout"
+    depth: 3
+    enabled: true
+  ai14:
+    funName:
+    engine: "NegaScout"
+    depth: 4
+    enabled: true
+  ai15:
+    funName:
+    engine: "NegaScout"
+    depth: 5
+    enabled: true
+  ai16:
+    funName:
+    engine: "NegaScout"
+    depth: 6
+    enabled: true
+  ai17:
+    funName:
+    engine: "Random"
+    depth: 1
+    enabled: true
+    
