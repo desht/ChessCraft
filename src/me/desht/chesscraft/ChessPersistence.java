@@ -106,7 +106,12 @@ public class ChessPersistence {
         if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) {
             makeBackup(f);
         }
-
+        
+        ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
+        
+        for (BoardView bv : BoardView.listBoardViews())
+        	bv.paintAll();
+        
         Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
         if (cgMap != null) {
             for (Entry<String, String> entry : cgMap.entrySet()) {
@@ -167,16 +172,13 @@ public class ChessPersistence {
             World w = findWorld((String) origin.get(0));
             Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
             try {
-                BoardView bv = new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
-                        (String) boardMap.get("pieceStyle"));
-                //bv.getControlPanel().repaintSignButtons();
-                bv.paintAll();
+            	new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
+            	              (String) boardMap.get("pieceStyle"));
                 ++nLoaded;
             } catch (Exception e) {
                 ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
             }
         }
-        ChessCraft.log(Level.INFO, "loaded " + nLoaded + " saved boards.");
         return nLoaded;
     }
 
@@ -189,13 +191,11 @@ public class ChessPersistence {
                 Game game = new Game(plugin, gameName, bv, null);
                 game.thaw(gameMap);
                 Game.addGame(gameName, game);
-                game.getView().getControlPanel().repaintSignButtons();
                 ++nLoaded;
             } catch (Exception e) {
                 ChessCraft.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage());
             }
         }
-        ChessCraft.log(Level.INFO, "loaded " + nLoaded + " saved games.");
         return nLoaded;
     }
 }
