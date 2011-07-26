@@ -382,8 +382,10 @@ public class Game {
         alert(playerWhite, "Game started!  You are playing &fWhite&-.");
         alert(playerBlack, "Game started!  You are playing &fBlack&-.");
         if (Economy.active() && stake > 0.0f) {
-            Economy.subtractMoney(playerWhite, stake);
-            Economy.subtractMoney(playerBlack, stake);
+        	if (!isAIPlayer(playerWhite))
+        		Economy.subtractMoney(playerWhite, stake);
+        	if (!isAIPlayer(playerBlack))
+        		Economy.subtractMoney(playerBlack, stake);
             double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
             alert("You have paid a stake of " + Economy.format(s2) + ".");
         }
@@ -585,24 +587,23 @@ public class Game {
     }
 
     private void handlePayout(GameResult rt, String p1, String p2) {
-//        if (plugin.iConomy == null)
-//            return;
-        if (stake <= 0.0) {
+        if (stake <= 0.0)
             return;
-        }
-        if (getState() == GameState.SETTING_UP) {
+        if (getState() == GameState.SETTING_UP)
             return;
-        }
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // one player won
-            Economy.addMoney(p1, stake * 2);
+        	if (!isAIPlayer(p1))
+        		Economy.addMoney(p1, stake * 2);
             alert(p1, "You have won " + Economy.format(stake * 2) + "!");
             alert(p2, "You lost your stake of " + Economy.format(stake) + "!");
         } else {
             // a draw
-            Economy.addMoney(p1, stake);
-            Economy.addMoney(p2, stake);
+        	if (!isAIPlayer(p1))
+        		Economy.addMoney(p1, stake);
+            if (!isAIPlayer(p2))
+            	Economy.addMoney(p2, stake);
             alert("You get your stake of " + Economy.format(stake) + " back.");
         }
 
@@ -876,6 +877,8 @@ public class Game {
     }
 
     private boolean canAffordToPlay(String playerName) {
+    	if (isAIPlayer(playerName))
+    		return true;
         return stake <= 0.0 || !Economy.active()
                 || Economy.canAfford(playerName, stake);
     }
@@ -1030,5 +1033,9 @@ public class Game {
             }
         }
         return false;
+    }
+    
+    public boolean isAIGame() {
+    	return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
     }
 }
