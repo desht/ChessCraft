@@ -122,4 +122,7 @@ permissions:
   chesscraft.commands.stake:
     description: Allows you to set/modify the stake for a game
     default: true
+  chesscraft.commands.promote:
+    description: Allows you to set your preferred pawn promotion piece
+    default: true
     
