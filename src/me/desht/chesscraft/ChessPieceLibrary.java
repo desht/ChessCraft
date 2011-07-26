@@ -22,6 +22,7 @@ public class ChessPieceLibrary {
     ChessCraft plugin;
     private static final String libraryDir = ChessConfig.getDirectory() + File.separator + "piece_styles";
     private final Map<String, Map<Integer, PieceTemplate>> templates = new HashMap<String, Map<Integer, PieceTemplate>>();
+    private final Map<String, ChessStone> stoneCache = new HashMap<String, ChessStone>();
 
     ChessPieceLibrary(ChessCraft plugin) {
         this.plugin = plugin;
@@ -94,8 +95,11 @@ public class ChessPieceLibrary {
         if (stone < Chess.MIN_STONE || stone > Chess.MAX_STONE || stone == Chess.NO_STONE) {
             throw new IllegalArgumentException("Bad stone index " + stone);
         }
-        PieceTemplate tmpl = templates.get(style).get(stone);
-        ChessStone result = new ChessStone(stone, tmpl);
-        return result;
+        String k = style + ":" + stone;
+        if (!stoneCache.containsKey(k)) {
+        	PieceTemplate tmpl = templates.get(style).get(stone);
+        	stoneCache.put(k, new ChessStone(stone, tmpl));
+        }
+        return stoneCache.get(k);
     }
 }
