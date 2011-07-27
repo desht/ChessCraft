@@ -240,10 +240,31 @@ public class ChessCommandExecutor implements CommandExecutor {
     private void reloadCommand(Player player, String[] args) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_RELOAD);
 
-        plugin.getConfiguration().load();
-        plugin.persistence.reload();
-        ChessAI.initAI_Names();
-        ChessUtils.statusMessage(player, "Chess boards, games & AI definitions have been reloaded.");
+        boolean reloadPersisted = false;
+        boolean reloadAI = false;
+		boolean reloadConfig = false;
+		
+		if (partialMatch(args, 1, "a"))
+        	reloadAI = true;
+		else if (partialMatch(args, 1, "c"))
+			reloadConfig = true;
+		else if (partialMatch(args, 1, "p"))
+			reloadPersisted = true;
+		else
+			ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>");
+        
+		if (reloadConfig) {
+			plugin.getConfiguration().load();
+			ChessUtils.statusMessage(player, "Configuration (config.yml) has been reloaded");
+		}
+		if (reloadAI) {
+			ChessAI.initAI_Names();
+			ChessUtils.statusMessage(player, "AI definitions have been reloaded.");
+		}
+		if (reloadPersisted) {
+			plugin.persistence.reload();
+			ChessUtils.statusMessage(player, "Persisted board and game data has been reloaded");
+		}
     }
 
     private void startCommand(Player player, String[] args) throws ChessException {
