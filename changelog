@@ -40,6 +40,7 @@ AI SUPPORT ADDED :D
             ai.max_ai_games - limit the maximum concurrent AI game sessions (AI can be CPU-intensive) (0 disables AI)
 - AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
 -- players can invite specific AIs with these names
+- project is now licensed under the GPLv3 instead of Creative Commons license
 
 
 v0.2.2 (18 Jul 2011)
