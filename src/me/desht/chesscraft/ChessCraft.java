@@ -41,8 +41,7 @@ public class ChessCraft extends JavaPlugin {
     public void onEnable() {
         description = this.getDescription();
         util = new ChessUtils(this);
-        config = new ChessConfig(this);
-        config.load();
+        ChessConfig.init(this);
 
         playerListener = new ChessPlayerListener(this);
         blockListener = new ChessBlockListener(this);

@@ -48,7 +48,7 @@ public class ChessUtils {
                     game.checkForAutoDelete();
                 }
             }
-        }, 20L * initialDelay, 20L * plugin.config.config.getInt("tick_interval", 1));
+        }, 20L * initialDelay, 20L * plugin.getConfiguration().getInt("tick_interval", 1));
     }
 
     public static void errorMessage(Player player, String string) {

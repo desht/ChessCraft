@@ -26,11 +26,16 @@ import org.bukkit.util.config.Configuration;
  */
 @SuppressWarnings("serial")
 public class ChessConfig {
-    private static String directory = "plugins" + File.separator + "ChessCraft";
-    ChessCraft plugin = null;
-    Configuration config = null;
-    private static final Map<String, Object> configItems = new HashMap<String, Object>() {
-
+    private static final File pluginDirectory = new File("plugins", "ChessCraft");
+    private static final File pgnDir = new File(pluginDirectory, "pgn");
+    private static final File boardStyleDir = new File(pluginDirectory, "board_styles");
+    private static final File pieceStyleDir = new File(pluginDirectory, "piece_styles");
+    private static final File schematicsDir = new File(pluginDirectory, "schematics");
+    private static final File gamePersistDir = new File(pluginDirectory, "games");
+    
+    private static ChessCraft plugin = null;
+    
+    private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
         {
             put("autosave", true);
             put("tick_interval", 1);
@@ -57,66 +62,80 @@ public class ChessConfig {
         }
     };
 
-    public ChessConfig(ChessCraft plugin) {
-        this.plugin = plugin;
-        if (plugin != null) {
-            directory = plugin.getDataFolder().getAbsolutePath();
-            config = plugin.getConfiguration();
-        }
+    public static void init(ChessCraft plugin) {
+    	if (ChessConfig.plugin == null) {
+    		ChessConfig.plugin = plugin;
+
+    		setupDirectoryStructure();
+
+    		configFileInitialise();
+
+    		ChessAI.initAI_Names();
+    	}
     }
 
-    public void load() {
-
-        setupDefaultStructure();
-
-        configInitialise();
-
-        ChessAI.initAI_Names();
-
+    public static File getPluginDirectory() {
+        return pluginDirectory;
+    }
+    
+    public static File getPGNDirectory() {
+    	return pgnDir;
+    }
+    
+    public static File getBoardStyleDirectory() {
+    	return boardStyleDir;
+    }
+    
+    public static File getPieceStyleDirectory() {
+    	return pieceStyleDir;
+    }
+    
+    public static File getSchematicsDirectory() {
+    	return schematicsDir;
+    }
+    
+    public static File getGamesPersistDirectory() {
+    	return gamePersistDir;
     }
 
-    public static String getDirectory() {
-        return directory;
-    }
+    private static void setupDirectoryStructure() {
+    	createDir(pgnDir);
+    	createDir(boardStyleDir);
+    	createDir(pieceStyleDir);
+    	createDir(schematicsDir);
+    	createDir(gamePersistDir);
+    	
+    	extractResource("/AI_settings.yml", pluginDirectory);
 
-    private void setupDefaultStructure() {
-            createDir(null);
-            createDir("pgn");
-            createDir("board_styles");
-            createDir("piece_styles");
-            createDir("schematics");
-                    
-            extractResource("/AI_settings.yml", "AI_settings.yml");
-                    
-            extractResource("/datafiles/board_styles/Standard.yml", "board_styles/Standard.yml");
-            extractResource("/datafiles/board_styles/open.yml", "board_styles/open.yml");
-            extractResource("/datafiles/board_styles/sandwood.yml", "board_styles/sandwood.yml");
-            extractResource("/datafiles/board_styles/large.yml", "board_styles/large.yml");
-            
-            extractResource("/datafiles/piece_styles/Standard.yml", "piece_styles/Standard.yml");
-            extractResource("/datafiles/piece_styles/twist.yml", "piece_styles/twist.yml");
-            extractResource("/datafiles/piece_styles/sandwood.yml", "piece_styles/sandwood.yml");
-            extractResource("/datafiles/piece_styles/large.yml", "piece_styles/large.yml");
-    }
+    	extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir);
+    	extractResource("/datafiles/board_styles/open.yml", boardStyleDir);
+    	extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir);
+    	extractResource("/datafiles/board_styles/large.yml", boardStyleDir);
 
-    void createDir(String dir) {
-        File f = dir == null ? new File(directory) : new File(directory, dir);
-        if (f.isDirectory()) {
+    	extractResource("/datafiles/piece_styles/Standard.yml", pieceStyleDir);
+    	extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir);
+    	extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir);
+    	extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir);
+    }
+    
+    private static void createDir(File dir) {
+    	if (dir.isDirectory()) {
             return;
         }
-        if (!f.mkdir()) {
-            ChessCraft.log(Level.WARNING, "Can't make directory " + f.getName());
+        if (!dir.mkdir()) {
+            ChessCraft.log(Level.WARNING, "Can't make directory " + dir.getName());
         }
     }
 
-    private void extractResource(String from, String to) {
-        File of = new File(directory, to);
+    private static void extractResource(String from, File toDir) {
+    	String fname = new File(from).getName();
+        File of = new File(toDir, fname);
         if (of.exists()) {
             return;
         }
         OutputStream out = null;
         try {
-            InputStream in = this.getClass().getResourceAsStream(from);
+            InputStream in = ChessCraft.class.getResourceAsStream(from);
             if (in == null) {
                 ChessCraft.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR");
             } else {
@@ -143,13 +162,18 @@ public class ChessConfig {
         }
     }
 
-    /*-----------------------------------------------------------------*/
-    private void configInitialise() {
+    /**
+     * Load the existing config file (config.yml) and see if there are any items
+     * in configDefaults which are not in the file.  If so, update the config with
+     * defaults from configDefaults (preserving existing settings) and re-write the file.
+     */
+    private static void configFileInitialise() {
         Boolean saveNeeded = false;
-        for (String k : configItems.keySet()) {
+        Configuration config = plugin.getConfiguration();
+        for (String k : configDefaults.keySet()) {
             if (config.getProperty(k) == null) {
                 saveNeeded = true;
-                config.setProperty(k, configItems.get(k));
+                config.setProperty(k, configDefaults.get(k));
             }
         }
         if (saveNeeded) {
@@ -160,22 +184,24 @@ public class ChessConfig {
     /**
      * @return a sorted list of all config keys
      */
-    List<String> getConfigList() {
+    static List<String> getConfigList() {
         ArrayList<String> res = new ArrayList<String>();
-        for (String k : configItems.keySet()) {
-            res.add(k + " = '" + config.getString(k) + "'");
+        for (String k : configDefaults.keySet()) {
+            res.add(k + " = '" + plugin.getConfiguration().getString(k) + "'");
         }
         Collections.sort(res);
         return res;
     }
 
-    void setConfigItem(Player player, String key, String val) {
-        if (configItems.get(key) == null) {
+    static void setConfigItem(Player player, String key, String val) {
+    	Configuration config = plugin.getConfiguration();
+    	
+        if (configDefaults.get(key) == null) {
             ChessUtils.errorMessage(player, "No such config key: " + key);
             ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys");
             return;
         }
-        if (configItems.get(key) instanceof Boolean) {
+        if (configDefaults.get(key) instanceof Boolean) {
             Boolean bVal = false;
             if (val.equals("false") || val.equals("no")) {
                 bVal = false;
@@ -186,14 +212,14 @@ public class ChessConfig {
                 return;
             }
             config.setProperty(key, bVal);
-        } else if (configItems.get(key) instanceof Integer) {
+        } else if (configDefaults.get(key) instanceof Integer) {
             try {
                 int nVal = Integer.parseInt(val);
                 config.setProperty(key, nVal);
             } catch (NumberFormatException e) {
                 ChessUtils.errorMessage(player, "Invalid numeric value: " + val);
             }
-        } else if (configItems.get(key) instanceof Double) {
+        } else if (configDefaults.get(key) instanceof Double) {
             try {
                 double nVal = Double.parseDouble(val);
                 config.setProperty(key, nVal);

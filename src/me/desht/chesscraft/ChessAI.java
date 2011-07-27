@@ -98,7 +98,7 @@ public class ChessAI {
     public static void initAI_Names() {
         availableAI.clear();
         try {
-            File aiFile = new File(ChessConfig.getDirectory(), "AI_settings.yml");
+            File aiFile = new File(ChessConfig.getPluginDirectory(), "AI_settings.yml");
             if (!aiFile.exists()) {
                 ChessCraft.log(Level.SEVERE, "AI Loading Error: file not found");
                 return;

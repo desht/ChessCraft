@@ -461,7 +461,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
         messageBuffer.clear();
         if (args.length < 2) {
-            for (String line : plugin.config.getConfigList()) {
+            for (String line : ChessConfig.getConfigList()) {
                 messageBuffer.add(line);
             }
             pagedDisplay(player, 1);
@@ -481,7 +481,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         if (args.length < 3) {
             ChessUtils.errorMessage(player, "Usage: /chess setcfg <key> <value>");
         } else {
-            plugin.config.setConfigItem(player, args[1], combine(args, 2));
+            ChessConfig.setConfigItem(player, args[1], combine(args, 2));
         }
     }
 
@@ -922,35 +922,6 @@ public class ChessCommandExecutor implements CommandExecutor {
         }
     }
 
-    // private boolean onConsole(Player player) {
-    // if (player == null) {
-    // plugin.errorMessage(player,
-    // "This command cannot be run from the console.");
-    // return true;
-    // } else {
-    // return false;
-    // }
-    // }
-    // private Location parseLocation(String arglist, Player player) {
-    // String s = player == null ? ",worldname" : "";
-    // String args[] = arglist.split(",");
-    // try {
-    // int x = Integer.parseInt(args[0]);
-    // int y = Integer.parseInt(args[1]);
-    // int z = Integer.parseInt(args[2]);
-    // World w = (player == null) ?
-    // plugin.getServer().getWorld(args[3]) :
-    // player.getWorld();
-    // if (w == null) throw new IllegalArgumentException("Unknown world: " +
-    // args[3]);
-    // return new Location(w, x, y, z);
-    // } catch (ArrayIndexOutOfBoundsException e) {
-    // throw new IllegalArgumentException("You must specify all of x,y,z" + s +
-    // ".");
-    // } catch (NumberFormatException e) {
-    // throw new IllegalArgumentException("Invalid location: x,y,z" + s + ".");
-    // }
-    // }
     private Map<String, String> parseCommand(String[] args, int start) {
         Map<String, String> res = new HashMap<String, String>();
 

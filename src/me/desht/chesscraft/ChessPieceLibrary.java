@@ -20,7 +20,6 @@ import chesspresso.Chess;
 public class ChessPieceLibrary {
 
     ChessCraft plugin;
-    private static final String libraryDir = ChessConfig.getDirectory() + File.separator + "piece_styles";
     private final Map<String, Map<Integer, PieceTemplate>> templates = new HashMap<String, Map<Integer, PieceTemplate>>();
     private final Map<String, ChessStone> stoneCache = new HashMap<String, ChessStone>();
 
@@ -36,7 +35,7 @@ public class ChessPieceLibrary {
         if (!setName.matches("\\.yml$")) {
             setName = setName + ".yml";
         }
-        File f = new File(libraryDir, setName);
+        File f = new File(ChessConfig.getPieceStyleDirectory(), setName);
         try {
             loadChessSet(f);
         } catch (FileNotFoundException e) {

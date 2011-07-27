@@ -520,7 +520,7 @@ public class Game {
         short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
         try {
             short realMove = checkMove(move);
-            if (plugin.config.config.getBoolean("highlight_last_move", true)) {
+            if (plugin.getConfiguration().getBoolean("highlight_last_move", true)) {
                 view.highlightSquares(fromSquare, toSquare);
             }
             getPosition().doMove(realMove);
@@ -831,7 +831,6 @@ public class Game {
     }
 
     public File writePGN(boolean force) throws ChessException {
-        plugin.config.createDir(archiveDir);
 
         File f = makePGNName();
         if (f.exists() && !force) {

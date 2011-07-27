@@ -20,8 +20,6 @@ import com.sk89q.worldedit.data.DataException;
 
 public class TerrainBackup {
 
-    private static String schematicDir = "schematics";
-//    private ChessCraft plugin;
     private Player player;
     private WorldEditPlugin wep;
     private WorldEdit we;
@@ -33,7 +31,6 @@ public class TerrainBackup {
     private Vector min, max;
 
     private TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
-//        this.plugin = plugin;
         this.player = player;
 
         wep = plugin.getWorldEdit();
@@ -51,11 +48,9 @@ public class TerrainBackup {
         localPlayer = wep.wrapPlayer(player);
         localSession = we.getSession(localPlayer);
         editSession = localSession.createEditSession(localPlayer);
-
-        File dir = new File(plugin.getDataFolder(), schematicDir);
-
+        
         try {
-            saveFile = we.getSafeSaveFile(localPlayer, dir, view.getName(), "schematic", new String[]{"schematic"});
+            saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(), "schematic", new String[]{"schematic"});
         } catch (FilenameException ex) {
             ChessCraft.log(Level.WARNING, ex.getMessage());
         }

@@ -33,7 +33,7 @@ import org.bukkit.inventory.Inventory;
 public class BoardView implements PositionListener {
 
     private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
-    private static final String styleDir = ChessConfig.getDirectory() + File.separator + "board_styles";
+    
     private ChessCraft plugin;
     private String name;
     private Game game;
@@ -220,7 +220,7 @@ public class BoardView implements PositionListener {
     public final void loadStyle(String style) throws ChessException {
         Yaml yaml = new Yaml();
 
-        File f = new File(styleDir, style + ".yml");
+        File f = new File(ChessConfig.getBoardStyleDirectory(), style + ".yml");
         try {
             Map<String, Object> styleMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
 
