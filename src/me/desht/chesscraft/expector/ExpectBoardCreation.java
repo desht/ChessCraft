@@ -29,17 +29,14 @@ public class ExpectBoardCreation extends ExpectData {
 
     @Override
     public void doResponse(Player player) throws ChessException {
-//        if (!BoardView.checkBoardView(boardName)) {
-            BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
-            if (plugin.getWorldEdit() != null) {
-                TerrainBackup.save(plugin, player, view);
-            }
-            view.paintAll();
-            ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
-                    + ChessUtils.formatLoc(view.getA1Square()) + ".");
-            plugin.maybeSave();
-//        } else {
-//            ChessUtils.errorMessage(player, "Board '" + boardName + "' already exists.");
-//        }
+    	BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
+    	BoardView.addBoardView(view);
+    	if (plugin.getWorldEdit() != null) {
+    		TerrainBackup.save(plugin, player, view);
+    	}
+    	view.paintAll();
+    	ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
+    	                         + ChessUtils.formatLoc(view.getA1Square()) + ".");
+    	plugin.maybeSave();
     }
 }
