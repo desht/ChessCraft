@@ -16,6 +16,9 @@ import fr.free.jchecs.core.Square;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -116,7 +119,8 @@ public class ChessAI {
                         if ((name = name.trim()).length() > 0) {
                             availableAI.put(name.toLowerCase(),
                                     new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-                                    d.getInt("depth", 0),  d.getDouble("payout_multiplier", 1.0)));
+                                    d.getInt("depth", 0),  d.getDouble("payout_multiplier", 1.0),
+                                    d.getString("comment")));
                         }
                     }
                 }
@@ -157,6 +161,22 @@ public class ChessAI {
         return ai;
     }
 
+    public static List<AI_Def> listAIs(boolean isSorted) {
+    	if (isSorted) {
+            SortedSet<String> sorted = new TreeSet<String>(availableAI.keySet());
+            List<AI_Def> res = new ArrayList<AI_Def>();
+            for (String name : sorted) {
+                res.add(availableAI.get(name));
+            }
+            return res;
+        } else {
+            return new ArrayList<AI_Def>(availableAI.values());
+        }
+    }
+    public static List<AI_Def> listAIs() {
+    	return listAIs(true);
+    }
+    
     public static void clearAI() {
         String[] ais = runningAI.keySet().toArray(new String[0]);
         for (String aiName : ais) {
@@ -323,14 +343,20 @@ public class ChessAI {
         ChessEngine engine;
         int searchDepth;
         double payoutMultiplier;
+        String comment;
 
-        public AI_Def(String name, ChessEngine engine, int searchDepth, double payoutMultiplier) {
+        public AI_Def(String name, ChessEngine engine, int searchDepth, double payoutMultiplier, String comment) {
             this.name = name;
             this.engine = engine;
             this.searchDepth = searchDepth;
             this.payoutMultiplier = payoutMultiplier;
+            this.comment = comment;
         }
 
+        public String getName() {
+        	return name;	
+        }
+        
         public ChessEngine getEngine() {
             return engine;
         }
@@ -341,6 +367,10 @@ public class ChessAI {
         
         public double getPayoutMultiplier() {
         	return payoutMultiplier;
+        }
+        
+        public String getComment() {
+        	return comment;
         }
 
         public Engine newInstance() {

@@ -116,6 +116,9 @@ permissions:
   chesscraft.commands.list.game:
     description: Allows you to list chess games that have been created
     default: true
+  chesscraft.commands.list.ai:
+    description: Allows you to list the available chess AI's
+    default: true
   chesscraft.commands.start:
     description: Allows you to start a chess game
     default: true

@@ -1,5 +1,6 @@
 # definition file for all available AIs
 # there are only 17 total possible, so don't try to add any more
+#
 # engines: (minimum, maximum, default)
 #     AlphaBeta   (3, 6, 5)
 #     MiniMax     (1, 4, 3)
@@ -7,12 +8,18 @@
 #     NegaScout   (3, 6, 5) (default)
 #     Random      (1, 1, 1)
 # added a few comments for an idea for relative difficulty
-# funName is the displayed name in-Game
+#
+# "funName" is the displayed name in-Game
 #   can also be used by a player to invite this AI to their game
 #   if you want more of one type available, funName can be comma-delimited to add more AI
 # e.g. funName: "Bob, George, Moe" gives 3 AI of that type
 # !! Names CANNOT be repeated, or only the last of that name will be available !!
 # if funName is null, will be the definition node (e.g. ai01)
+#
+# "comment" is an optional comment which will be shown to players if they list the AI's
+#
+# "payout_multiplier" applies if Economy support is enabled.  Default is 1.0 - it could be
+#   raised for tougher engines and lowered for weaker engines.
 
 AI:
   ai01:
@@ -21,6 +28,7 @@ AI:
     engine: "AlphaBeta"
     depth: 3
     enabled: true
+    comment: Decent. Don't underestimate.
   ai02:
     funName:
     engine: "AlphaBeta"
@@ -42,6 +50,7 @@ AI:
     engine: "MiniMax"
     depth: 1
     enabled: true
+    comment: Not too tough.
   ai06:
     funName:
     engine: "MiniMax"
@@ -53,6 +62,7 @@ AI:
     engine: "MiniMax"
     depth: 3
     enabled: true
+    comment: Fair, but sometimes get confused.
   ai08:
     funName:
     engine: "MiniMax"
@@ -86,6 +96,7 @@ AI:
     engine: "NegaScout"
     depth: 3
     enabled: true
+    comment: Good, but sometimes get confused.
   ai14:
     funName:
     engine: "NegaScout"
@@ -109,4 +120,5 @@ AI:
     engine: "Random"
     depth: 1
     enabled: true
-    
+    payout_multiplier: 0.1
+    comment: Completely stupid.

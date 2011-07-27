@@ -1,6 +1,7 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectYesNoOffer;
 import me.desht.chesscraft.enums.GameState;
@@ -188,6 +189,8 @@ public class ChessCommandExecutor implements CommandExecutor {
             } else {
                 listBoards(player);
             }
+        } else if (partialMatch(args, 1, "a")) { // ai
+        	listAIs(player);
         } else {
             ChessUtils.errorMessage(player, "Usage: /chess list board");
             ChessUtils.errorMessage(player, "       /chess list game");
@@ -238,8 +241,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_RELOAD);
 
         plugin.getConfiguration().load();
-        plugin.persistence.reload();
-        ChessUtils.statusMessage(player, "Chess boards & games have been reloaded.");
+//        plugin.persistence.reload();
+        ChessAI.initAI_Names();
+        ChessUtils.statusMessage(player, "Chess boards, games & AI definitions have been reloaded.");
     }
 
     private void startCommand(Player player, String[] args) throws ChessException {
@@ -653,7 +657,27 @@ public class ChessCommandExecutor implements CommandExecutor {
         pagedDisplay(player, 1);
     }
 
-    void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
+    void listAIs(Player player) throws ChessException {
+		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTAI);
+		
+		messageBuffer.clear();
+		for (AI_Def ai : ChessAI.listAIs(true)) {
+			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
+			if (Economy.active()) {
+				sb.append(", payout=" + ai.getPayoutMultiplier());
+			}
+			if (ai.getComment() != null && messageBuffer.size() == pageSize - 1 && player != null) {
+				messageBuffer.add("");	// ensure description and comment are on the same page
+			}
+			messageBuffer.add(sb.toString());
+			if (ai.getComment() != null) {
+				messageBuffer.add("  &2 - " + ai.getComment());
+			}
+		}
+		pagedDisplay(player, 1);
+	}
+
+	void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_NEWGAME);
 
         BoardView bv;

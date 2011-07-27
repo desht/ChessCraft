@@ -117,7 +117,11 @@ public enum ChessPermission {
      * save a game for later
      * (although only a server op can get the file)
      */
-    COMMAND_ARCHIVE("chesscraft.commands.archive", true);
+    COMMAND_ARCHIVE("chesscraft.commands.archive", true),
+    /**
+     * list the available AI's
+     */
+    COMMAND_LISTAI("chesscraft.commands.list.ai", true);
     String permissionNode = null;
     boolean isBasicNode = false;
     private static PermissionHandler permissionHandler;
