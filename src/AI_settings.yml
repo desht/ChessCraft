@@ -1,4 +1,4 @@
-# definition file for all avaliable AIs
+# definition file for all available AIs
 # there are only 17 total possible, so don't try to add any more
 # engines: (minimum, maximum, default)
 #     AlphaBeta   (3, 6, 5)
@@ -6,17 +6,17 @@
 #     MiniMax++   (2, 5, 4)
 #     NegaScout   (3, 6, 5) (default)
 #     Random      (1, 1, 1)
-# added a few comments for an idea for reletive difficulty
+# added a few comments for an idea for relative difficulty
 # funName is the displayed name in-Game
 #   can also be used by a player to invite this AI to their game
-#   if you want more of one type avaliable, funName can be comma-delimited to add more AI
-# eg. funName: "Bob, George, Moe" gives 3 AI of that type
-# !! Names CANNOT be repeated, or only the last of that name will be avaliable !!
-# if funName is null, will be the definition node (eg. ai01)
+#   if you want more of one type available, funName can be comma-delimited to add more AI
+# e.g. funName: "Bob, George, Moe" gives 3 AI of that type
+# !! Names CANNOT be repeated, or only the last of that name will be available !!
+# if funName is null, will be the definition node (e.g. ai01)
 
 AI:
   ai01:
-    #decent engine.. not to be underestimated, even at this low depth
+    # decent engine.. not to be underestimated, even at this low depth
     funName:
     engine: "AlphaBeta"
     depth: 3
@@ -81,7 +81,7 @@ AI:
     enabled: true
   ai13:
     # good, but sometimes confused (if has the upper-hand)
-    #once could've had a 1-move mate that it instead waited another 6 moves
+    # once could've had a 1-move mate that it instead waited another 6 moves
     funName:
     engine: "NegaScout"
     depth: 3
@@ -103,7 +103,7 @@ AI:
     depth: 6
     enabled: true
   ai17:
-    #idiotic..
+    # idiotic..
     # probably shouldn't be allowed to play against such stupidity
     funName:
     engine: "Random"
