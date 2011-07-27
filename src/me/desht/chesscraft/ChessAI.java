@@ -32,7 +32,7 @@ public class ChessAI {
     static ChessCraft plugin = null;
     static BukkitScheduler scheduler = null;
     static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
-    static HashMap<String, AI_Def> avaliableAI = new HashMap<String, AI_Def>();
+    static HashMap<String, AI_Def> availableAI = new HashMap<String, AI_Def>();
     fr.free.jchecs.core.Game _game = null;
     String name = null;
     Game callback = null;
@@ -93,7 +93,7 @@ public class ChessAI {
     }
 
     public static void initAI_Names() {
-        avaliableAI.clear();
+        availableAI.clear();
         try {
             File aiFile = new File(ChessConfig.getDirectory(), "AI_settings.yml");
             if (!aiFile.exists()) {
@@ -114,9 +114,9 @@ public class ChessAI {
                 if (n.getBoolean("enabled", true)) {
                     for (String name : d.getString("funName", a).split(",")) {
                         if ((name = name.trim()).length() > 0) {
-                            avaliableAI.put(name.toLowerCase(),
+                            availableAI.put(name.toLowerCase(),
                                     new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-                                    d.getInt("depth", 0)));
+                                    d.getInt("depth", 0),  d.getDouble("payout_multiplier", 1.0)));
                         }
                     }
                 }
@@ -263,18 +263,23 @@ public class ChessAI {
         return ai != null && !runningAI.containsKey(ai.name.toLowerCase()) ? ai : null;
     }
 
+    /**
+     * Get the AI definition for the given name
+     * @param aiName	Name of the ai, either with or without the AI prefix string
+     * @return	The AI definition
+     */
     public static AI_Def getAI(String aiName) {
         if (aiName == null) {
             // return a random free AI
             ArrayList<Integer> free = new ArrayList<Integer>();
-            String ai[] = avaliableAI.keySet().toArray(new String[0]);
+            String ai[] = availableAI.keySet().toArray(new String[0]);
             for (int i = 0; i < ai.length; ++i) {
                 if (!runningAI.containsKey(ai[i])) {
                     free.add(i);
                 }
             }
             if (free.size() > 0) {
-                return avaliableAI.get(ai[Rand.RandomInt(0, ai.length - 1)]);
+                return availableAI.get(ai[Rand.RandomInt(0, ai.length - 1)]);
             } else {
                 return null;
             }
@@ -285,8 +290,8 @@ public class ChessAI {
         if (aiName.startsWith(getAIPrefix().toLowerCase())) {
             aiName = aiName.substring(getAIPrefix().length());
         }
-        if (!avaliableAI.containsKey(aiName)) {
-            String keys[] = avaliableAI.keySet().toArray(new String[0]);
+        if (!availableAI.containsKey(aiName)) {
+            String keys[] = availableAI.keySet().toArray(new String[0]);
             String matches[] = ChessUtils.fuzzyMatch(aiName, keys, 3);
             if (matches.length == 1) {
                 aiName = matches[0];
@@ -309,7 +314,7 @@ public class ChessAI {
             }
         }
 
-        return avaliableAI.get(aiName);
+        return availableAI.get(aiName);
     }
 
     public static class AI_Def {
@@ -317,11 +322,13 @@ public class ChessAI {
         public String name;
         ChessEngine engine;
         int searchDepth;
+        double payoutMultiplier;
 
-        public AI_Def(String name, ChessEngine engine, int searchDepth) {
+        public AI_Def(String name, ChessEngine engine, int searchDepth, double payoutMultiplier) {
             this.name = name;
             this.engine = engine;
             this.searchDepth = searchDepth;
+            this.payoutMultiplier = payoutMultiplier;
         }
 
         public ChessEngine getEngine() {
@@ -330,6 +337,10 @@ public class ChessAI {
 
         public int getSearchDepth() {
             return searchDepth;
+        }
+        
+        public double getPayoutMultiplier() {
+        	return payoutMultiplier;
         }
 
         public Engine newInstance() {

@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -629,11 +630,23 @@ public class Game {
         }
 
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
-            // one player won
+            // somebody won
             if (!isAIPlayer(p1)) {
-                Economy.addMoney(p1, stake * 2);
+            	double winnings;
+            	if (isAIPlayer(p2)) {
+            		AI_Def ai = ChessAI.getAI(p2);
+            		if (ai != null) {
+            			winnings = stake * (1.0 + ai.getPayoutMultiplier());
+            		} else {
+            			winnings = stake * 2.0;
+            			ChessCraft.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
+            		}
+            	} else {
+            		winnings = stake * 2.0;
+            	}
+                Economy.addMoney(p1, winnings);
+                alert(p1, "You have won " + Economy.format(winnings) + "!");
             }
-            alert(p1, "You have won " + Economy.format(stake * 2) + "!");
             alert(p2, "You lost your stake of " + Economy.format(stake) + "!");
         } else {
             // a draw
