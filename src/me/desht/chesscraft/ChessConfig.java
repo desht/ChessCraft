@@ -26,12 +26,12 @@ import org.bukkit.util.config.Configuration;
  */
 @SuppressWarnings("serial")
 public class ChessConfig {
-    private static final File pluginDirectory = new File("plugins", "ChessCraft");
-    private static final File pgnDir = new File(pluginDirectory, "pgn");
-    private static final File boardStyleDir = new File(pluginDirectory, "board_styles");
-    private static final File pieceStyleDir = new File(pluginDirectory, "piece_styles");
-    private static final File schematicsDir = new File(pluginDirectory, "schematics");
-    private static final File gamePersistDir = new File(pluginDirectory, "games");
+    private static final File pluginDir = new File("plugins", "ChessCraft");
+    private static final File pgnDir = new File(pluginDir, "pgn");
+    private static final File boardStyleDir = new File(pluginDir, "board_styles");
+    private static final File pieceStyleDir = new File(pluginDir, "piece_styles");
+    private static final File schematicsDir = new File(pluginDir, "schematics");
+    private static final File gamePersistDir = new File(pluginDir, "games");
     
     private static ChessCraft plugin = null;
     
@@ -75,7 +75,7 @@ public class ChessConfig {
     }
 
     public static File getPluginDirectory() {
-        return pluginDirectory;
+        return pluginDir;
     }
     
     public static File getPGNDirectory() {
@@ -99,13 +99,14 @@ public class ChessConfig {
     }
 
     private static void setupDirectoryStructure() {
+    	createDir(pluginDir);
     	createDir(pgnDir);
     	createDir(boardStyleDir);
     	createDir(pieceStyleDir);
     	createDir(schematicsDir);
     	createDir(gamePersistDir);
     	
-    	extractResource("/AI_settings.yml", pluginDirectory);
+    	extractResource("/AI_settings.yml", pluginDir);
 
     	extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir);
     	extractResource("/datafiles/board_styles/open.yml", boardStyleDir);
