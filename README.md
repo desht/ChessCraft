@@ -19,4 +19,4 @@ Detailed documentation can be found in the Wiki: https://github.com/desht/ChessC
 
 ## License
 
-ChessCraft by Des Herriott is licensed under a [Creative Commons Attribution-NonCommercial 3.0 Unported License](http://creativecommons.org/licenses/by-nc/3.0/). 
+ChessCraft by Des Herriott is licensed under the [Gnu GPL v3](http://www.gnu.org/licenses/gpl-3.0.html). 
