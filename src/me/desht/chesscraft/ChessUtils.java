@@ -7,6 +7,8 @@
 package me.desht.chesscraft;
 
 import chesspresso.Chess;
+import com.sk89q.util.StringUtil;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -116,6 +118,26 @@ public class ChessUtils {
             default:
                 return "(unknown)";
         }
+    }
+
+    public static String[] fuzzyMatch(String search, String set[], int minDist) {
+        ArrayList<String> matches = new ArrayList<String>();
+        int dist = minDist;
+        if (search != null) {
+            for (String s : set) {
+                if (s != null) {
+                    int d = StringUtil.getLevenshteinDistance(s, search);
+                    if (d < dist) {
+                        dist = d;
+                        matches.clear();
+                        matches.add(s);
+                    } else if (d == dist) {
+                        matches.add(s);
+                    }
+                }
+            }
+        }
+        return matches.toArray(new String[0]);
     }
 } // end class ChessUtils
 

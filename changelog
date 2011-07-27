@@ -1,6 +1,6 @@
 v0.3 (not released)
 right-click piece moving removed
-can now seperately define board style & piece style
+can now separately define board style & piece style
 players must be online to be invited
 moves players out of the way of moving chess pieces
 added no_pvp option to config
@@ -13,13 +13,13 @@ now does terrain saving when a board is created
 - WorldEdit can instead be put in ChessCraft plugin folder or lib folder
 board creation now triggers data autosave
 control panel items are grey when inactive
-can setup economy stakes - amount each player bets on winning (winner recieves double)
+can setup economy stakes - amount each player bets on winning (winner receives double)
 - supports iConomy 4 & 5 and BOSEconomy
 games now auto-delete if not started 
 pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
 [[now automatically downloads Chesspresso-lib.jar if not found]]
-- class file now included inside plugin, so lib is no longer required seperately
+- class file now included inside plugin, so lib is no longer required separately
 major-ish code restructure
 players now allowed to resign even when not their turn
 players can now delete a game if they created it (or if not started & the person who joined left)
@@ -34,8 +34,12 @@ board control panel toplay indicator color on reload fixed
 style "large" (7x7 board squares & matching pieces) is now included
 support for Bukkit superperms (Permissions still used first if found, for now...)
 AI SUPPORT ADDED :D
-- games, if started without another player, will have an AI player
+- games, if started without another player, will have an AI player "join"
 - chess engine taken from jChecs: http://sourceforge.net/projects/jchecs/files/Sources/v0.1.0/jChecs-0.1.0-src.tgz
+- settings: ai.min_move_wait - minimum time (seconds) before AI makes a move (0 is faster, but can be disorientatingly quick)
+            ai.max_ai_games - limit the maximum concurrent AI game sessions (AI can be CPU-intensive) (0 disables AI)
+- AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
+-- players can invite specific AIs with these names
 
 
 v0.2.2 (18 Jul 2011)
