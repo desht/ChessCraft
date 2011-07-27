@@ -19,7 +19,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
-import com.sk89q.util.StringUtil;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.ChessStone;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -90,7 +89,6 @@ public class BoardView implements PositionListener {
         
         if (!onlyTesting) { 
         	controlPanel = new ControlPanel(plugin, this);
-        	BoardView.addBoardView(name, this);
         }
     }
     
@@ -263,13 +261,13 @@ public class BoardView implements PositionListener {
             if (styleMap.get("highlight_style") != null) {
                 String hs = (String) styleMap.get("highlight_style");
                 try {
-                    highlightStyle = HighlightStyle.valueOf(hs);
+                    highlightStyle = HighlightStyle.getStyle(hs);
                 } catch (IllegalArgumentException e) {
                     ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
-                    highlightStyle = HighlightStyle.Corners;
+                    highlightStyle = HighlightStyle.CORNERS;
                 }
             } else {
-                highlightStyle = HighlightStyle.Corners;
+                highlightStyle = HighlightStyle.CORNERS;
             }
 
             enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
@@ -466,20 +464,20 @@ public class BoardView implements PositionListener {
         }
         if (highlight) {
             switch (highlightStyle) {
-                case Edges:
+                case EDGES:
                     for (Location loc : square.walls()) {
                         m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
                         (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
                     }
                     break;
-                case Corners:
+                case CORNERS:
                     for (Location loc : square.corners()) {
                         m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
                         (m == null ? highlightMat : m).applyToBlock(loc.getBlock());
                     }
                     break;
-                case Checkered:
-                case Chequered:
+                case CHECKERED:
+                case CHEQUERED:
                     for (Location loc : square) {
                         if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
                             highlightMat.applyToBlock(loc.getBlock());
@@ -534,6 +532,7 @@ public class BoardView implements PositionListener {
             setFrameLights(frameMat);
         } else {
             for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; ++sqi) {
+                // todo: this code could be better optimized
                 int col = Chess.sqiToCol(sqi);
                 int row = Chess.sqiToRow(sqi);
                 Location locNE = rowColToWorldNE(row, col);
@@ -574,12 +573,12 @@ public class BoardView implements PositionListener {
     }
 
     public void highlightSquares(int from, int to) {
-        if (highlightStyle == HighlightStyle.None) {
+        if (highlightStyle == HighlightStyle.NONE) {
             return;
         }
 
         if (fromSquare >= 0 || toSquare >= 0) {
-            if (highlightStyle == HighlightStyle.Line) {
+            if (highlightStyle == HighlightStyle.LINE) {
                 drawHighlightLine(fromSquare, toSquare, false);
             } else {
                 paintSquareAt(fromSquare);
@@ -588,14 +587,15 @@ public class BoardView implements PositionListener {
         }
         fromSquare = from;
         toSquare = to;
+        
+        doLighting(true);
 
-        if (highlightStyle == HighlightStyle.Line) {
+        if (highlightStyle == HighlightStyle.LINE) {
             drawHighlightLine(fromSquare, toSquare, true);
         } else {
             paintSquareAt(fromSquare, true);
             paintSquareAt(toSquare, true);
         }
-        doLighting(true);
     }
 
     /**
@@ -847,6 +847,10 @@ public class BoardView implements PositionListener {
     public static void addBoardView(String name, BoardView view) {
         chessBoards.put(name, view);
     }
+    
+    public static void addBoardView(BoardView view) {
+        chessBoards.put(view.name, view);
+    }
 
     public static void removeBoardView(String name) {
         chessBoards.remove(name);
@@ -865,24 +869,13 @@ public class BoardView implements PositionListener {
             if (chessBoards.size() > 0) {
                 // try "fuzzy" search
                 String keys[] = chessBoards.keySet().toArray(new String[0]);
-                int dist = StringUtil.getLevenshteinDistance(keys[0], name),
-                        k = 0, c = 0;
-                for (int i = 1; i < keys.length; ++i) {
-                    int d = StringUtil.getLevenshteinDistance(keys[i], name);
-                    if (d < dist) {
-                        dist = d;
-                        k = i;
-                        c = 0;
-                    } else if (d == dist) {
-                        ++c;
-                    }
-                }
-                if (c == 0 && dist < 3) {
-                    return chessBoards.get(keys[k]);
+                String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
+                
+                if (matches.length == 1) {
+                    return chessBoards.get(matches[0]);
                 } else {
                     // partial-name search
-                    k = -1;
-                    c = 0;
+                    int k = -1, c = 0;
                     name = name.toLowerCase();
                     for (int i = 0; i < keys.length; ++i) {
                         if (keys[i].toLowerCase().startsWith(name)) {

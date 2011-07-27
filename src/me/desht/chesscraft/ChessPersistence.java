@@ -106,12 +106,13 @@ public class ChessPersistence {
         if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) {
             makeBackup(f);
         }
-        
+
         ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
-        
-        for (BoardView bv : BoardView.listBoardViews())
-        	bv.paintAll();
-        
+
+        for (BoardView bv : BoardView.listBoardViews()) {
+            bv.paintAll();
+        }
+
         Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
         if (cgMap != null) {
             for (Entry<String, String> entry : cgMap.entrySet()) {
@@ -172,8 +173,9 @@ public class ChessPersistence {
             World w = findWorld((String) origin.get(0));
             Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
             try {
-            	new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
-            	              (String) boardMap.get("pieceStyle"));
+                BoardView.addBoardView(
+                        new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
+                        (String) boardMap.get("pieceStyle")));
                 ++nLoaded;
             } catch (Exception e) {
                 ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -189,9 +191,10 @@ public class ChessPersistence {
             try {
                 BoardView bv = BoardView.getBoardView((String) gameMap.get("boardview"));
                 Game game = new Game(plugin, gameName, bv, null);
-                game.thaw(gameMap);
-                Game.addGame(gameName, game);
-                ++nLoaded;
+                if (game.thaw(gameMap)) {
+                    Game.addGame(gameName, game);
+                    ++nLoaded;
+                }
             } catch (Exception e) {
                 ChessCraft.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage());
             }
