@@ -343,7 +343,7 @@ public class Game {
                 if (!ChessAI.isFree(ai)) {
                     throw new ChessException("That AI is currently busy playing a game right now");
                 }
-                addPlayer(ChessAI.AI_PREFIX + ai.name);
+                addPlayer(ChessAI.getAIPrefix() + ai.name);
                 return;
             }
             throw new ChessException("Player " + inviteeName + " is not online.");
@@ -561,7 +561,7 @@ public class Game {
 
     public boolean isAIPlayer(String name) {
         // simple name match.. not checking if in this game
-        return name.startsWith(ChessAI.AI_PREFIX);
+        return name.startsWith(ChessAI.getAIPrefix());
     }
 
     public String getPGNResult() {

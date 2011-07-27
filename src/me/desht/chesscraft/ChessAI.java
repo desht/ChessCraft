@@ -28,7 +28,7 @@ import org.bukkit.util.config.ConfigurationNode;
  */
 public class ChessAI {
 
-    public final static String AI_PREFIX = "__AI__";
+//    public final static String AI_PREFIX = "__AI__";
     static ChessCraft plugin = null;
     static BukkitScheduler scheduler = null;
     static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
@@ -45,7 +45,7 @@ public class ChessAI {
         if (aiSettings == null) {
             throw new ChessException("no free AI was found");
         }
-        name = AI_PREFIX + aiSettings.name;
+        name = getAIPrefix() + aiSettings.name;
     }
 
     public ChessAI(String aiName) throws ChessException {
@@ -55,13 +55,21 @@ public class ChessAI {
         } else if (runningAI.containsKey(aiSettings.name.toLowerCase())) {
             throw new ChessException("AI is busy right now");
         }
-        name = AI_PREFIX + aiSettings.name;
+        name = getAIPrefix() + aiSettings.name;
     }
 
     public String getName() {
         return name;
     }
 
+    public AI_Def getAISettings() {
+    	return aiSettings;
+    }
+    
+    public static String getAIPrefix() {
+    	return plugin.getConfiguration().getString("ai.name_prefix", "[AI]");
+    }
+    
     public void init(boolean aiWhite) {
         if (_game != null) {
             return; // only init once
@@ -274,8 +282,8 @@ public class ChessAI {
         // else, return one with a matching name
         //          (if multiple, return one if its the only one free)
         aiName = aiName.toLowerCase();
-        if (aiName.startsWith(AI_PREFIX.toLowerCase())) {
-            aiName = aiName.substring(AI_PREFIX.length());
+        if (aiName.startsWith(getAIPrefix().toLowerCase())) {
+            aiName = aiName.substring(getAIPrefix().length());
         }
         if (!avaliableAI.containsKey(aiName)) {
             String keys[] = avaliableAI.keySet().toArray(new String[0]);
@@ -283,7 +291,7 @@ public class ChessAI {
             if (matches.length == 1) {
                 aiName = matches[0];
             } else if (matches.length > 0) {
-                // first that is avaliable
+                // first that is available
                 int k = -1;
                 for (int i = 0; i < matches.length; ++i) {
                     if (!runningAI.containsKey(matches[i])) {

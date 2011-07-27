@@ -39,6 +39,7 @@ public class ChessConfig {
             put("auto_delete.not_started", 180);
             put("ai.min_move_wait", 3);
             put("ai.max_ai_games", 3);
+            put("ai.name_prefix", "[AI]");
             put("no_building", true);
             put("no_creatures", true);
             put("no_explosions", true);
