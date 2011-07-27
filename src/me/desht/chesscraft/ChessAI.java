@@ -144,14 +144,18 @@ public class ChessAI {
 
         ChessAI ai = new ChessAI(aiName);
         ai.callback = callback;
-        runningAI.put(ai.getName(), ai);
+        runningAI.put(ai.aiSettings.name.toLowerCase(), ai);
 
         return ai;
     }
 
     public static void clearAI() {
-        for (ChessAI ai : runningAI.values()) {
-            ai.removeAI();
+        String[] ais = runningAI.keySet().toArray(new String[0]);
+        for (String aiName : ais) {
+            ChessAI ai = runningAI.get(aiName);
+            if(ai!=null){
+                ai.removeAI();
+            }
         }
         runningAI.clear();
     }
@@ -163,6 +167,7 @@ public class ChessAI {
         _game.getPlayer(isWhite).setEngine(null);
         _game = null;
         callback = null;
+        runningAI.remove(aiSettings.name.toLowerCase());
     }
 
     public void loadBoard(chesspresso.game.Game game, boolean usersTurn) {
@@ -174,6 +179,7 @@ public class ChessAI {
             if (!(userToMove = move)) {
                 int wait = plugin.getConfiguration().getInt("ai.min_move_wait", 3);
                 aiTask = scheduler.scheduleAsyncDelayedTask(plugin, new Runnable() {
+
                     public void run() {
                         final MoveGenerator plateau = _game.getBoard();
                         final Engine ia = _game.getPlayer(isWhite).getEngine();
@@ -222,14 +228,16 @@ public class ChessAI {
     }
 
     public void aiMove(Move m) {
-        if (userToMove) {
+        if (userToMove || _game == null) {
             return;
         }
         //System.out.println("ai move: " + m);
 
         try {
             callback.doMove(name, m.getTo().getIndex(), m.getFrom().getIndex());
-            _game.moveFromCurrent(m);
+            if (_game != null){ // if game not been deleted
+                _game.moveFromCurrent(m);
+            }
         } catch (Exception ex) {
             ChessCraft.log(Level.SEVERE, "Unexpected Exception in AI", ex);
             callback.alert("Unexpected Exception in AI: " + ex.getMessage());
@@ -238,7 +246,16 @@ public class ChessAI {
         userToMove = true;
     }
 
-    private static AI_Def getAI(String aiName) {
+    public static boolean isFree(AI_Def ai) {
+        return ai != null && !runningAI.containsKey(ai.name.toLowerCase());
+    }
+
+    public static AI_Def getFreeAI(String aiName) {
+        AI_Def ai = getAI(aiName);
+        return ai != null && !runningAI.containsKey(ai.name.toLowerCase()) ? ai : null;
+    }
+
+    public static AI_Def getAI(String aiName) {
         if (aiName == null) {
             // return a random free AI
             ArrayList<Integer> free = new ArrayList<Integer>();
@@ -286,39 +303,40 @@ public class ChessAI {
 
         return avaliableAI.get(aiName);
     }
+
+    public static class AI_Def {
+
+        public String name;
+        ChessEngine engine;
+        int searchDepth;
+
+        public AI_Def(String name, ChessEngine engine, int searchDepth) {
+            this.name = name;
+            this.engine = engine;
+            this.searchDepth = searchDepth;
+        }
+
+        public ChessEngine getEngine() {
+            return engine;
+        }
+
+        public int getSearchDepth() {
+            return searchDepth;
+        }
+
+        public Engine newInstance() {
+            Engine moteur;
+            if (engine == null) {
+                moteur = EngineFactory.newInstance();
+            } else {
+                moteur = EngineFactory.newInstance(engine.toString());
+                if (searchDepth >= engine.getMinDepth() && searchDepth <= engine.getMaxDepth()) {
+                    moteur.setSearchDepthLimit(searchDepth);
+                }
+            }
+            moteur.setOpeningsEnabled(false); // don't use pre-defined openings
+            return moteur;
+        }
+    }
 } // end class ChessAI
 
-class AI_Def {
-
-    public String name;
-    ChessEngine engine;
-    int searchDepth;
-
-    public AI_Def(String name, ChessEngine engine, int searchDepth) {
-        this.name = name;
-        this.engine = engine;
-        this.searchDepth = searchDepth;
-    }
-
-    public ChessEngine getEngine() {
-        return engine;
-    }
-
-    public int getSearchDepth() {
-        return searchDepth;
-    }
-
-    public Engine newInstance() {
-        Engine moteur;
-        if (engine == null) {
-            moteur = EngineFactory.newInstance();
-        } else {
-            moteur = EngineFactory.newInstance(engine.toString());
-            if (searchDepth >= engine.getMinDepth() && searchDepth <= engine.getMaxDepth()) {
-                moteur.setSearchDepthLimit(searchDepth);
-            }
-        }
-        moteur.setOpeningsEnabled(false); // don't use pre-defined openings
-        return moteur;
-    }
-}

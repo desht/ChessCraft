@@ -173,7 +173,7 @@ public class Game {
             delete();
             return false;
         } catch (Exception e) {
-            ChessCraft.log(Level.WARNING, "Unexpected exception restoring game " 
+            ChessCraft.log(Level.WARNING, "Unexpected exception restoring game "
                     + getName() + "\n" + e.getMessage() + "  (game will be deleted)");
             // delete game
             delete();
@@ -181,7 +181,7 @@ public class Game {
         }
 
         getPosition().addPositionListener(view);
-        
+
         return true;
     }
 
@@ -223,8 +223,8 @@ public class Game {
 
     public void setState(GameState state) {
         this.state = state;
-        if(state == GameState.FINISHED
-                && aiPlayer != null){
+        if (state == GameState.FINISHED
+                && aiPlayer != null) {
             aiPlayer.removeAI();
             aiPlayer = null;
         }
@@ -293,22 +293,25 @@ public class Game {
 
     public void addPlayer(String playerName) throws ChessException {
         ensureGameState(GameState.SETTING_UP);
-
-        if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
-            throw new ChessException("You don't have an invitation for this game.");
-        }
-        String otherPlayer = null;
-        if (playerBlack.isEmpty()) {
-            playerBlack = playerName;
-            otherPlayer = playerWhite;
-        } else if (playerWhite.isEmpty()) {
-            playerWhite = playerName;
-            otherPlayer = playerBlack;
-        } else {
+        if (!playerBlack.isEmpty() && !playerWhite.isEmpty()) {
             throw new ChessException("This game already has two players.");
         }
-        getView().getControlPanel().repaintSignButtons();
 
+        String otherPlayer = playerBlack.isEmpty() ? playerWhite : playerBlack;
+
+        if (isAIPlayer(playerName)) {
+            addAI(playerName);
+        } else {
+            if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
+                throw new ChessException("You don't have an invitation for this game.");
+            }
+            if (playerBlack.isEmpty()) {
+                playerBlack = playerName;
+            } else {//if (playerWhite.isEmpty()) {
+                playerWhite = playerName;
+            }
+        }
+        getView().getControlPanel().repaintSignButtons();
         alert(otherPlayer, playerName + " has joined your game.");
         clearInvitation();
         if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
@@ -316,24 +319,48 @@ public class Game {
         }
     }
 
-    public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
-        Player player = plugin.getServer().getPlayer(inviteeName);
-        // Looks like partial name matching is already handled by getPlayer()...
-        if (player == null) {
-            throw new ChessException("Player " + inviteeName + " is not online.");
+    void addAI(String aiName) throws ChessException {
+        if (playerWhite.isEmpty()) {
+            aiPlayer = ChessAI.getNewAI(this, aiName);
+            playerWhite = aiPlayer.getName();
+            aiPlayer.init(true);
+            aiPlayer.setUserMove(false); // tell ai to start thinking
+        } else if (playerBlack.isEmpty()) {
+            aiPlayer = ChessAI.getNewAI(this, aiName);
+            playerBlack = aiPlayer.getName();
+            aiPlayer.init(false);
         }
-        inviteeName = player.getName();
+    }
 
+    public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
         inviteSanityCheck(inviterName);
-        if (invited.equals(inviteeName)) {
-            return;
+        // Looks like partial name matching is already handled by getPlayer()...
+        Player player = plugin.getServer().getPlayer(inviteeName);
+        if (player == null) {
+
+            ChessAI.AI_Def ai = ChessAI.getAI(inviteeName);
+            if (ai != null) {
+                if (!ChessAI.isFree(ai)) {
+                    throw new ChessException("That AI is currently busy playing a game right now");
+                }
+                addPlayer(ChessAI.AI_PREFIX + ai.name);
+                return;
+            }
+            throw new ChessException("Player " + inviteeName + " is not online.");
+        } else {
+            inviteeName = player.getName();
+
+            //resend instead
+            //if (invited.equals(inviteeName)) return;
+
+            alert(inviteeName, "You have been invited to this game by &6" + inviterName + "&-.");
+            alert(inviteeName, "Type &f/chess join&- to join the game.");
+            if (!invited.isEmpty()) {
+                alert(invited, "Your invitation has been withdrawn.");
+            }
+            invited = inviteeName;
+            alert(inviterName, "An invitation has been sent to &6" + invited + "&-.");
         }
-        alert(inviteeName, "You have been invited to this game by &6" + inviterName + "&-.");
-        alert(inviteeName, "Type &f/chess join&- to join the game.");
-        if (!invited.isEmpty()) {
-            alert(invited, "Your invitation has been withdrawn.");
-        }
-        invited = inviteeName;
     }
 
     public void inviteOpen(String inviterName) throws ChessException {
@@ -352,7 +379,17 @@ public class Game {
         ensureGameState(GameState.SETTING_UP);
 
         if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-            throw new ChessException("This game already has two players!");
+            // if one is an AI, allow the AI to leave
+            if (aiPlayer != null) {
+                if (isAIPlayer(playerWhite)) {
+                    playerWhite = "";
+                } else {
+                    playerBlack = "";
+                }
+                aiPlayer.removeAI();
+            } else {
+                throw new ChessException("This game already has two players!");
+            }
         }
     }
 
@@ -364,15 +401,9 @@ public class Game {
         ensurePlayerInGame(playerName);
         ensureGameState(GameState.SETTING_UP);
 
-        if (playerWhite.isEmpty()) {
-            aiPlayer = ChessAI.getNewAI(this);
-            playerWhite = aiPlayer.getName();
-            aiPlayer.init(true);
-            aiPlayer.setUserMove(false); // tell ai to start thinking
-        } else if (playerBlack.isEmpty()) {
-            aiPlayer = ChessAI.getNewAI(this);
-            playerBlack = aiPlayer.getName();
-            aiPlayer.init(false);
+        if (playerWhite.isEmpty() || playerBlack.isEmpty()) {
+            addAI(null);
+            alert(playerName, aiPlayer.getName() + " has joined your game.");
         }
         if (!canAffordToPlay(playerWhite)) {
             throw new ChessException("White can't afford to play! (need " + Economy.format(stake) + ")");
@@ -941,7 +972,7 @@ public class Game {
                 // try "fuzzy" search
                 String keys[] = chessGames.keySet().toArray(new String[0]);
                 String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
-                
+
                 if (matches.length == 1) {
                     return chessGames.get(matches[0]);
                 } else {

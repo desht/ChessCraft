@@ -6,6 +6,7 @@
 #     MiniMax++   (2, 5, 4)
 #     NegaScout   (3, 6, 5) (default)
 #     Random      (1, 1, 1)
+# added a few comments for an idea for reletive difficulty
 # funName is the displayed name in-Game
 #   can also be used by a player to invite this AI to their game
 #   if you want more of one type avaliable, funName can be comma-delimited to add more AI
@@ -15,6 +16,7 @@
 
 AI:
   ai01:
+    #decent engine.. not to be underestimated, even at this low depth
     funName:
     engine: "AlphaBeta"
     depth: 3
@@ -35,6 +37,7 @@ AI:
     depth: 6
     enabled: true
   ai05:
+    #this depth is quite easy
     funName:
     engine: "MiniMax"
     depth: 1
@@ -45,6 +48,7 @@ AI:
     depth: 2
     enabled: true
   ai07:
+    # fair competitor, but sometimes confused (if has the upper-hand)
     funName:
     engine: "MiniMax"
     depth: 3
@@ -60,6 +64,7 @@ AI:
     depth: 2
     enabled: true
   ai10:
+    #improved over ai07
     funName:
     engine: "MiniMax++"
     depth: 3
@@ -75,6 +80,8 @@ AI:
     depth: 5
     enabled: true
   ai13:
+    # good, but sometimes confused (if has the upper-hand)
+    #once could've had a 1-move mate that it instead waited another 6 moves
     funName:
     engine: "NegaScout"
     depth: 3
@@ -85,6 +92,7 @@ AI:
     depth: 4
     enabled: true
   ai15:
+    # quite good
     funName:
     engine: "NegaScout"
     depth: 5
@@ -95,6 +103,8 @@ AI:
     depth: 6
     enabled: true
   ai17:
+    #idiotic..
+    # probably shouldn't be allowed to play against such stupidity
     funName:
     engine: "Random"
     depth: 1

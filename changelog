@@ -34,11 +34,12 @@ board control panel toplay indicator color on reload fixed
 style "large" (7x7 board squares & matching pieces) is now included
 support for Bukkit superperms (Permissions still used first if found, for now...)
 AI SUPPORT ADDED :D
-- games, if started without another player, will have an AI player
+- games, if started without another player, will have an AI player "join"
 - chess engine taken from jChecs: http://sourceforge.net/projects/jchecs/files/Sources/v0.1.0/jChecs-0.1.0-src.tgz
 - settings: ai.min_move_wait - minimum time (seconds) before AI makes a move (0 is faster, but can be disorientatingly quick)
             ai.max_ai_games - limit the maximum concurrent AI game sessions (AI can be CPU-intensive) (0 disables AI)
 - AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
+-- players can invite specific AIs with these names
 
 
 v0.2.2 (18 Jul 2011)
