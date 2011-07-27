@@ -1,10 +1,5 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.ChessAI.AI_Def;
-import me.desht.chesscraft.expector.ExpectBoardCreation;
-import me.desht.chesscraft.expector.ExpectYesNoOffer;
-import me.desht.chesscraft.enums.GameState;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,16 +19,23 @@ import org.bukkit.entity.Player;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
+import java.util.LinkedList;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.enums.ExpectAction;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.ChessAI.AI_Def;
+import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.chesscraft.expector.ExpectYesNoOffer;
+import me.desht.chesscraft.enums.GameState;
+import me.jascotty2.bukkit.MinecraftChatStr;
 
 public class ChessCommandExecutor implements CommandExecutor {
 
     private ChessCraft plugin;
     private final List<String> messageBuffer = new ArrayList<String>();
-    private static int pageSize = 16;
+    private static int pageSize = 18;
 
     public ChessCommandExecutor(ChessCraft plugin) {
         this.plugin = plugin;
@@ -190,7 +192,7 @@ public class ChessCommandExecutor implements CommandExecutor {
                 listBoards(player);
             }
         } else if (partialMatch(args, 1, "a")) { // ai
-        	listAIs(player);
+            listAIs(player);
         } else {
             ChessUtils.errorMessage(player, "Usage: /chess list board");
             ChessUtils.errorMessage(player, "       /chess list game");
@@ -201,11 +203,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 
         if (partialMatch(args, 1, "g")) { // game
             tryDeleteGame(player, args);
-            plugin.maybeSave();
         } else {
             if (partialMatch(args, 1, "b")) { // board
                 tryDeleteBoard(player, args);
-                plugin.maybeSave();
+                plugin.persistence.autosaveBoards();
             } else {
                 ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>");
                 ChessUtils.errorMessage(player, "       /chess delete game <game-name>");
@@ -220,10 +221,9 @@ public class ChessCommandExecutor implements CommandExecutor {
             String gameName = args.length >= 3 ? args[2] : null;
             String boardName = args.length >= 4 ? args[3] : null;
             tryCreateGame(player, gameName, boardName);
-            plugin.maybeSave();
         } else if (partialMatch(args, 1, "b")) { // board
             tryCreateBoard(player, args);
-            plugin.maybeSave();
+            plugin.persistence.autosaveBoards();
         } else {
             ChessUtils.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>]");
             ChessUtils.errorMessage(player, "       /chess create game [<game-name>] [<board-name>]");
@@ -242,29 +242,30 @@ public class ChessCommandExecutor implements CommandExecutor {
 
         boolean reloadPersisted = false;
         boolean reloadAI = false;
-		boolean reloadConfig = false;
-		
-		if (partialMatch(args, 1, "a"))
-        	reloadAI = true;
-		else if (partialMatch(args, 1, "c"))
-			reloadConfig = true;
-		else if (partialMatch(args, 1, "p"))
-			reloadPersisted = true;
-		else
-			ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>");
-        
-		if (reloadConfig) {
-			plugin.getConfiguration().load();
-			ChessUtils.statusMessage(player, "Configuration (config.yml) has been reloaded");
-		}
-		if (reloadAI) {
-			ChessAI.initAI_Names();
-			ChessUtils.statusMessage(player, "AI definitions have been reloaded.");
-		}
-		if (reloadPersisted) {
-			plugin.persistence.reload();
-			ChessUtils.statusMessage(player, "Persisted board and game data has been reloaded");
-		}
+        boolean reloadConfig = false;
+
+        if (partialMatch(args, 1, "a")) {
+            reloadAI = true;
+        } else if (partialMatch(args, 1, "c")) {
+            reloadConfig = true;
+        } else if (partialMatch(args, 1, "p")) {
+            reloadPersisted = true;
+        } else {
+            ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>");
+        }
+
+        if (reloadConfig) {
+            plugin.getConfiguration().load();
+            ChessUtils.statusMessage(player, "Configuration (config.yml) has been reloaded");
+        }
+        if (reloadAI) {
+            ChessAI.initAI_Names();
+            ChessUtils.statusMessage(player, "AI definitions have been reloaded.");
+        }
+        if (reloadPersisted) {
+            plugin.persistence.reload();
+            ChessUtils.statusMessage(player, "Persisted board and game data has been reloaded");
+        }
     }
 
     private void startCommand(Player player, String[] args) throws ChessException {
@@ -441,10 +442,12 @@ public class ChessCommandExecutor implements CommandExecutor {
             try {
                 Game game = Game.getCurrentGame(player);
                 double amount = Double.parseDouble(args[1]);
-                if (amount <= 0.0)
+                if (amount <= 0.0) {
                     throw new ChessException("Negative stakes are not permitted!");
-                if (!Economy.canAfford(player.getName(), amount))
-                	throw new ChessException("You can't afford that stake!");
+                }
+                if (!Economy.canAfford(player.getName(), amount)) {
+                    throw new ChessException("You can't afford that stake!");
+                }
                 game.setStake(amount);
                 game.getView().getControlPanel().repaintSignButtons();
                 ChessUtils.statusMessage(player, "Stake for this game is now " + Economy.format(amount));
@@ -510,7 +513,7 @@ public class ChessCommandExecutor implements CommandExecutor {
             loc.setYaw(0.0f);
             loc.add(4.5 * bv.getSquareSize(), 1.0, 1.0);
         }
-        System.out.println("teleport to "  + loc);
+        System.out.println("teleport to " + loc);
         if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
             throw new ChessException("Teleport destination obstructed!");
         }
@@ -679,26 +682,29 @@ public class ChessCommandExecutor implements CommandExecutor {
     }
 
     void listAIs(Player player) throws ChessException {
-		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTAI);
-		
-		messageBuffer.clear();
-		for (AI_Def ai : ChessAI.listAIs(true)) {
-			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
-			if (Economy.active()) {
-				sb.append(", payout=" + ai.getPayoutMultiplier());
-			}
-			if (ai.getComment() != null && messageBuffer.size() == pageSize - 1 && player != null) {
-				messageBuffer.add("");	// ensure description and comment are on the same page
-			}
-			messageBuffer.add(sb.toString());
-			if (ai.getComment() != null) {
-				messageBuffer.add("  &2 - " + ai.getComment());
-			}
-		}
-		pagedDisplay(player, 1);
-	}
+        ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTAI);
+        LinkedList<String> lines = new LinkedList<String>();
+        for (AI_Def ai : ChessAI.listAIs(true)) {
+            StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
+            if (Economy.active()) {
+                sb.append(player != null ? "<l>" : ", ");
+                sb.append("payout=").append((int) (ai.getPayoutMultiplier() * 100)).append("%");
+            }
+            if (ai.getComment() != null && ((lines.size() + 1) % pageSize) == 0 && player != null) {
+                lines.add("");	// ensure description and comment are on the same page
+            }
+            lines.add(sb.toString());
+            if (ai.getComment() != null) {
+                lines.add("  &2 - " + ai.getComment());
+            }
+        }
+        lines = MinecraftChatStr.alignTags(lines, true);
+        messageBuffer.clear();
+        messageBuffer.addAll(lines);
+        pagedDisplay(player, 1);
+    }
 
-	void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
+    void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_NEWGAME);
 
         BoardView bv;
@@ -717,8 +723,8 @@ public class ChessCommandExecutor implements CommandExecutor {
         Game.setCurrentGame(player.getName(), game);
         bv.getControlPanel().repaintSignButtons();
 
-        plugin.maybeSave();
-        
+        plugin.persistence.autosaveGame(game);
+
         ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
         ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
         ChessUtils.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
@@ -735,6 +741,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         String deleter = player == null ? "CONSOLE" : player.getName();
         game.alert("Game deleted by " + deleter + "!");
         game.delete();
+        plugin.persistence.removeGame(game);
         ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been deleted.");
     }
 
@@ -751,10 +758,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         }
         String style = options.get("style");
         String pieceStyle = options.get("pstyle");
-
         @SuppressWarnings("unused")
         // we create this temporary board only to check that the style & piece styles are valid & compatible
-		BoardView testBoard = new BoardView(name, plugin, player.getLocation(), style, pieceStyle, true);
+        BoardView testBoard = new BoardView(name, plugin, player.getLocation(), style, pieceStyle, true);
 
         ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
         ChessUtils.statusMessage(player, "This block will become the centre of the board's A1 square.");
@@ -869,15 +875,19 @@ public class ChessCommandExecutor implements CommandExecutor {
         if (player != null) {
             // pretty paged display
             int nMessages = messageBuffer.size();
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "" + nMessages + " lines (page " + pageNum + "/"
-                    + ((nMessages - 1) / pageSize + 1) + ")");
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "---------------");
+            ChessUtils.statusMessage(player,
+                    // not sure why the spacing is off.. will have to try later
+                    ChatColor.GREEN.toString()
+                    + MinecraftChatStr.strPadCenterChat((pageSize > nMessages ? nMessages : pageSize)
+                    + " of " + nMessages + " lines (page "
+                    + pageNum + "/" + ((nMessages - 1) / pageSize + 1) + ")",
+                    310 /* for now, limit to 310px */, '-'));
+            //ChessUtils.statusMessage(player, ChatColor.GREEN + "---------------");
             for (int i = (pageNum - 1) * pageSize; i < nMessages && i < pageNum * pageSize; ++i) {
                 ChessUtils.statusMessage(player, messageBuffer.get(i));
             }
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "---------------");
-            String footer = (nMessages > pageSize * pageNum) ? "Use /chess page [page#] to see more" : "";
-            ChessUtils.statusMessage(player, ChatColor.GREEN + footer);
+            ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(
+                    (nMessages > pageSize * pageNum) ? "Use /chess page [page#] to see more" : "", 310, '-'));
         } else {
             // just dump the whole message buffer to the console
             for (String s : messageBuffer) {

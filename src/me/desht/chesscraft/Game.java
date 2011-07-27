@@ -182,6 +182,7 @@ public class Game {
         }
 
         getPosition().addPositionListener(view);
+        view.getControlPanel().repaint();
 
         return true;
     }
@@ -526,8 +527,8 @@ public class Game {
             getPosition().doMove(realMove);
             Move lastMove = getPosition().getLastMove();
             history.add(realMove);
-            // TODO: inefficient right now... all games & boards get saved whenever a move is made
-            plugin.maybeSave();
+            // save this game state
+            plugin.persistence.autosaveGame(this);
             clockTick();
             if (getPosition().isMate()) {
                 announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
@@ -564,7 +565,8 @@ public class Game {
 
     public boolean isAIPlayer(String name) {
         // simple name match.. not checking if in this game
-        return name.startsWith(ChessAI.getAIPrefix());
+//        return name.startsWith(ChessAI.getAIPrefix());
+        return name.startsWith(ChessAI.AI_PREFIX);
     }
 
     public String getPGNResult() {
@@ -634,18 +636,18 @@ public class Game {
         if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
             // somebody won
             if (!isAIPlayer(p1)) {
-            	double winnings;
-            	if (isAIPlayer(p2)) {
-            		AI_Def ai = ChessAI.getAI(p2);
-            		if (ai != null) {
-            			winnings = stake * (1.0 + ai.getPayoutMultiplier());
-            		} else {
-            			winnings = stake * 2.0;
-            			ChessCraft.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
-            		}
-            	} else {
-            		winnings = stake * 2.0;
-            	}
+                double winnings;
+                if (isAIPlayer(p2)) {
+                    AI_Def ai = ChessAI.getAI(p2);
+                    if (ai != null) {
+                        winnings = stake * (1.0 + ai.getPayoutMultiplier());
+                    } else {
+                        winnings = stake * 2.0;
+                        ChessCraft.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
+                    }
+                } else {
+                    winnings = stake * 2.0;
+                }
                 Economy.addMoney(p1, winnings);
                 alert(p1, "You have won " + Economy.format(winnings) + "!");
             }
@@ -692,29 +694,29 @@ public class Game {
 
     public void delete(boolean refundStake) {
         cancelAutoDelete();
-        
+
         getView().highlightSquares(-1, -1);
         getView().setGame(null);
         getView().paintAll();
-        
+
         if (refundStake) {
-        	// return players' stakes - this is a no-op if a payout has already been done
-        	handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
+            // return players' stakes - this is a no-op if a payout has already been done
+            handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
         }
-        
+
         if (aiPlayer != null) {
-        	aiPlayer.removeAI();	// this can happen if the game is explicitly deleted
+            aiPlayer.removeAI();	// this can happen if the game is explicitly deleted
         }
-        
+
         try {
             Game.removeGame(getName());
         } catch (ChessException e) {
             ChessCraft.log(Level.WARNING, e.getMessage());
         }
     }
-    
+
     public void delete() {
-    	delete(true);
+        delete(true);
     }
 
     /**

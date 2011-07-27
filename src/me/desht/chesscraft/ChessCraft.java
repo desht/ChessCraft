@@ -104,7 +104,7 @@ public class ChessCraft extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
         persistence.save();
         for (Game game : Game.listGames()) {
-            game.delete();
+            game.delete(false);
         }
         for (BoardView view : BoardView.listBoardViews()) {
             view.delete();
@@ -151,10 +151,8 @@ public class ChessCraft extends JavaPlugin {
     }
 
     /*-----------------------------------------------------------------*/
-    public void maybeSave() {
-        if (getConfiguration().getBoolean("autosave", true)) {
-            persistence.save();
-        }
+    public ChessPersistence getSaveDatabase(){
+        return persistence;
     }
 
     ChessCommandExecutor getCommandExecutor() {

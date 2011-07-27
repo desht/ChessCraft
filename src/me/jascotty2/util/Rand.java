@@ -4,7 +4,7 @@
  * Description:
  * Date: Mar 29, 2011
  */
-package com.jascotty2.util;
+package me.jascotty2.util;
 
 import java.util.Date;
 import java.util.Random;

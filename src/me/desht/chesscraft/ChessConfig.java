@@ -85,6 +85,7 @@ public class ChessConfig {
             createDir("board_styles");
             createDir("piece_styles");
             createDir("schematics");
+            createDir("data");
                     
             extractResource("/AI_settings.yml", "AI_settings.yml");
                     

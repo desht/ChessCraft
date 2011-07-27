@@ -6,7 +6,7 @@
  */
 package me.desht.chesscraft;
 
-import com.jascotty2.util.Rand;
+import me.jascotty2.util.Rand;
 import fr.free.jchecs.ai.Engine;
 import fr.free.jchecs.ai.EngineFactory;
 import fr.free.jchecs.core.Move;
@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
+import org.bukkit.ChatColor;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
@@ -31,7 +32,13 @@ import org.bukkit.util.config.ConfigurationNode;
  */
 public class ChessAI {
 
-//    public final static String AI_PREFIX = "__AI__";
+    /**
+     * special character ensures AI name cannot (easily) be faked/hacked
+     * also adds another level of AI name visibility
+     * user/admins should NOT be given control of this variable 
+     * - use something else to enable changing AI name colors, if wanted
+     */
+    public final static String AI_PREFIX = ChatColor.WHITE.toString();
     static ChessCraft plugin = null;
     static BukkitScheduler scheduler = null;
     static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
@@ -61,18 +68,28 @@ public class ChessAI {
         name = getAIPrefix() + aiSettings.name;
     }
 
+    public ChessAI(AI_Def ai) throws ChessException {
+        if (ai == null) {
+            throw new ChessException("AI not found");
+        } else if (runningAI.containsKey(ai.name.toLowerCase())) {
+            throw new ChessException("AI is busy right now");
+        }
+        aiSettings = ai;
+        name = getAIPrefix() + aiSettings.name;
+    }
+
     public String getName() {
-        return name;
+        return AI_PREFIX + name;
     }
 
     public AI_Def getAISettings() {
-    	return aiSettings;
+        return aiSettings;
     }
-    
+
     public static String getAIPrefix() {
-    	return plugin.getConfiguration().getString("ai.name_prefix", "[AI]");
+        return plugin.getConfiguration().getString("ai.name_prefix", "[AI]");
     }
-    
+
     public void init(boolean aiWhite) {
         if (_game != null) {
             return; // only init once
@@ -119,7 +136,7 @@ public class ChessAI {
                         if ((name = name.trim()).length() > 0) {
                             availableAI.put(name.toLowerCase(),
                                     new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-                                    d.getInt("depth", 0),  d.getDouble("payout_multiplier", 1.0),
+                                    d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0),
                                     d.getString("comment")));
                         }
                     }
@@ -162,7 +179,7 @@ public class ChessAI {
     }
 
     public static List<AI_Def> listAIs(boolean isSorted) {
-    	if (isSorted) {
+        if (isSorted) {
             SortedSet<String> sorted = new TreeSet<String>(availableAI.keySet());
             List<AI_Def> res = new ArrayList<AI_Def>();
             for (String name : sorted) {
@@ -173,15 +190,16 @@ public class ChessAI {
             return new ArrayList<AI_Def>(availableAI.values());
         }
     }
+
     public static List<AI_Def> listAIs() {
-    	return listAIs(true);
+        return listAIs(true);
     }
-    
+
     public static void clearAI() {
         String[] ais = runningAI.keySet().toArray(new String[0]);
         for (String aiName : ais) {
             ChessAI ai = runningAI.get(aiName);
-            if(ai!=null){
+            if (ai != null) {
                 ai.removeAI();
             }
         }
@@ -192,8 +210,10 @@ public class ChessAI {
         if (aiTask != -1) {
             scheduler.cancelTask(aiTask);
         }
-        _game.getPlayer(isWhite).setEngine(null);
-        _game = null;
+        if (_game != null) {
+            _game.getPlayer(isWhite).setEngine(null);
+            _game = null;
+        }
         callback = null;
         runningAI.remove(aiSettings.name.toLowerCase());
     }
@@ -262,8 +282,8 @@ public class ChessAI {
         //System.out.println("ai move: " + m);
 
         try {
-            callback.doMove(name, m.getTo().getIndex(), m.getFrom().getIndex());
-            if (_game != null){ // if game not been deleted
+            callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
+            if (_game != null) { // if game not been deleted
                 _game.moveFromCurrent(m);
             }
         } catch (Exception ex) {
@@ -285,8 +305,9 @@ public class ChessAI {
 
     /**
      * Get the AI definition for the given name
-     * @param aiName	Name of the ai, either with or without the AI prefix string
-     * @return	The AI definition
+     * @param aiName	Name of the AI, either with or without the AI prefix string <br>
+     * if null, will return a random free AI (or null, if none are free)
+     * @return	The AI definition, if found
      */
     public static AI_Def getAI(String aiName) {
         if (aiName == null) {
@@ -306,7 +327,7 @@ public class ChessAI {
         }
         // else, return one with a matching name
         //          (if multiple, return one if its the only one free)
-        aiName = aiName.toLowerCase();
+        aiName = ChatColor.stripColor(aiName.toLowerCase());
         if (aiName.startsWith(getAIPrefix().toLowerCase())) {
             aiName = aiName.substring(getAIPrefix().length());
         }
@@ -354,9 +375,9 @@ public class ChessAI {
         }
 
         public String getName() {
-        	return name;	
+            return name;
         }
-        
+
         public ChessEngine getEngine() {
             return engine;
         }
@@ -364,13 +385,13 @@ public class ChessAI {
         public int getSearchDepth() {
             return searchDepth;
         }
-        
+
         public double getPayoutMultiplier() {
-        	return payoutMultiplier;
+            return payoutMultiplier;
         }
-        
+
         public String getComment() {
-        	return comment;
+            return comment; //or return comment == null ? "" : comment
         }
 
         public Engine newInstance() {
