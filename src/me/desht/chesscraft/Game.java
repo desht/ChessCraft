@@ -526,6 +526,8 @@ public class Game {
             getPosition().doMove(realMove);
             Move lastMove = getPosition().getLastMove();
             history.add(realMove);
+            // TODO: inefficient right now... all games & boards get saved whenever a move is made
+            plugin.maybeSave();
             clockTick();
             if (getPosition().isMate()) {
                 announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
@@ -688,17 +690,31 @@ public class Game {
         delTask = -1;
     }
 
-    public void delete() {
+    public void delete(boolean refundStake) {
         cancelAutoDelete();
+        
         getView().highlightSquares(-1, -1);
         getView().setGame(null);
         getView().paintAll();
-        handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
+        
+        if (refundStake) {
+        	// return players' stakes - this is a no-op if a payout has already been done
+        	handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
+        }
+        
+        if (aiPlayer != null) {
+        	aiPlayer.removeAI();	// this can happen if the game is explicitly deleted
+        }
+        
         try {
             Game.removeGame(getName());
         } catch (ChessException e) {
             ChessCraft.log(Level.WARNING, e.getMessage());
         }
+    }
+    
+    public void delete() {
+    	delete(true);
     }
 
     /**

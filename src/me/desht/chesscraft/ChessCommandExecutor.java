@@ -241,7 +241,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_RELOAD);
 
         plugin.getConfiguration().load();
-//        plugin.persistence.reload();
+        plugin.persistence.reload();
         ChessAI.initAI_Names();
         ChessUtils.statusMessage(player, "Chess boards, games & AI definitions have been reloaded.");
     }
@@ -696,6 +696,8 @@ public class ChessCommandExecutor implements CommandExecutor {
         Game.setCurrentGame(player.getName(), game);
         bv.getControlPanel().repaintSignButtons();
 
+        plugin.maybeSave();
+        
         ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
         ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
         ChessUtils.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
