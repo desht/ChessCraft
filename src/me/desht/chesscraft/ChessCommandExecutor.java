@@ -719,7 +719,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         Game.setCurrentGame(player.getName(), game);
         bv.getControlPanel().repaintSignButtons();
 
-        plugin.maybeSave();
+        game.maybeSave();
         
         ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
         ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
@@ -736,7 +736,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         }
         String deleter = player == null ? "CONSOLE" : player.getName();
         game.alert("Game deleted by " + deleter + "!");
-        game.delete();
+        game.deletePermanently();
         ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been deleted.");
     }
 

@@ -103,7 +103,7 @@ public class ChessCraft extends JavaPlugin {
         getServer().getScheduler().cancelTasks(this);
         persistence.save();
         for (Game game : Game.listGames()) {
-            game.delete();
+            game.deleteTransitory();
         }
         for (BoardView view : BoardView.listBoardViews()) {
             view.delete();

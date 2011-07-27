@@ -116,6 +116,15 @@ public class Game {
         return map;
     }
 
+    void save() {
+    	plugin.persistence.saveOneGame(this);
+    }
+    
+    void maybeSave() {
+    	if (plugin.getConfiguration().getBoolean("autosave", true))
+    		save();
+    }
+    
     @SuppressWarnings("unchecked")
     boolean thaw(Map<String, Object> map) {
         playerWhite = (String) map.get("playerWhite");
@@ -138,8 +147,7 @@ public class Game {
         if (map.containsKey("stake")) {
             stake = (Double) map.get("stake");
         }
-        setupChesspressoGame();
-
+        
         try {
             if (isAIPlayer(playerWhite)) {
                 aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
@@ -171,15 +179,17 @@ public class Game {
             // saved
             ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
                     + " - move history corrupted?" + "  (game will be deleted)");
-            delete();
+            deletePermanently();
             return false;
         } catch (Exception e) {
             ChessCraft.log(Level.WARNING, "Unexpected exception restoring game "
                     + getName() + "\n" + e.getMessage() + "  (game will be deleted)");
             // delete game
-            delete();
+            deletePermanently();
             return false;
         }
+
+        setupChesspressoGame();
 
         getPosition().addPositionListener(view);
 
@@ -526,8 +536,7 @@ public class Game {
             getPosition().doMove(realMove);
             Move lastMove = getPosition().getLastMove();
             history.add(realMove);
-            // TODO: inefficient right now... all games & boards get saved whenever a move is made
-            plugin.maybeSave();
+            maybeSave();
             clockTick();
             if (getPosition().isMate()) {
                 announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
@@ -671,7 +680,7 @@ public class Game {
 
                 public void run() {
                     alert("Game auto-deleted!");
-                    delete();
+                    deletePermanently();
                 }
             }, autoDel * 20L);
 
@@ -690,34 +699,46 @@ public class Game {
         delTask = -1;
     }
 
-    public void delete(boolean refundStake) {
-        cancelAutoDelete();
-        
-        getView().highlightSquares(-1, -1);
-        getView().setGame(null);
-        getView().paintAll();
-        
-        if (refundStake) {
-        	// return players' stakes - this is a no-op if a payout has already been done
-        	handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
-        }
-        
-        if (aiPlayer != null) {
-        	aiPlayer.removeAI();	// this can happen if the game is explicitly deleted
-        }
-        
-        try {
-            Game.removeGame(getName());
-        } catch (ChessException e) {
-            ChessCraft.log(Level.WARNING, e.getMessage());
-        }
+    /**
+     * Called when a game is permanently deleted.
+     */
+    public void deletePermanently() {
+    	plugin.persistence.removeGameSavefile(this);
+    	
+    	handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
+    	
+    	getView().highlightSquares(-1, -1);
+    	getView().setGame(null);
+    	getView().paintAll();
+
+    	deleteCommon();
     }
     
-    public void delete() {
-    	delete(true);
+    /**
+     * Called for a transitory deletion, where we expect the object to be shortly
+     * restored, e.g. server reload, plugin disable, /chess reload persist command
+     */
+    public void deleteTransitory() {
+    	deleteCommon();
     }
 
-    /**
+	private void deleteCommon() {
+		cancelAutoDelete();
+    	
+    	if (aiPlayer != null) {
+    		// this would normally happen when the game goes to state FINISHED,
+    		// but we could get here if the game is explicitly deleted
+    		aiPlayer.removeAI();
+    	}
+
+    	try {
+    		Game.removeGame(getName());
+    	} catch (ChessException e) {
+    		ChessCraft.log(Level.WARNING, e.getMessage());
+    	}
+	}
+
+	/**
      * Check if the move is really allowed
      * Also account for special cases: castling, en passant, pawn promotion
      * @param move move to check
@@ -920,7 +941,7 @@ public class Game {
             if (elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
                 alert("Game auto-deleted (not started within " + timeout + " seconds)");
                 ChessCraft.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
-                delete();
+                deletePermanently();
             }
         }
     }
