@@ -1,17 +1,18 @@
-# ChessCraft v0.2.2
+# ChessCraft v0.3pre
 
 ChessCraft is a Bukkit plugin that allows you to play chess on your CraftBukkit Minecraft server.
  
 ## Installation
 
+The notes below apply to released versions.  "pre" versions do not supply a pre-compiled JAR file, but you can "git clone" the source and build it
+yourself.  Please only do this if you're prepared for possibly broken functionality and/or you want to contribute!
+
 1) Copy ChessCraft.jar into your Bukkit plugins/ folder.
 
-2) Download a copy of Chesspresso-lib.jar here: http://sourceforge.net/projects/chesspresso/files/chesspresso-lib/0.9.2/Chesspresso-lib-0.9.2.zip/download
+2) Restart/reload your server.
 
-3) Extract Chesspresso-lib.jar from the above ZIP file (it also contains package documentation for Chesspresso but you don't need 
-to do anything with that) into your Bukkit lib/ folder.
-
-4) Restart/reload your server.
+3) If you're upgrading from a version of ChessCraft prior to v0.3, you can if you wish remove Chesspresso-lib.jar from your Bukkit lib/ directory.
+Chesspresso is now distributed as part of ChessCraft and a separate download is no longer required.
 
 ## Usage
 
