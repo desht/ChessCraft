@@ -236,7 +236,6 @@ public class ChessConfig {
             plugin.util.setupRepeatingTask(0);
         }
 
-        ChessUtils.statusMessage(player, key + " is now set to: " + val);
         config.save();
     }
 } // end class ChessConfig

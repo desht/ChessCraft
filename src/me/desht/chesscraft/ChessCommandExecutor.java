@@ -481,7 +481,9 @@ public class ChessCommandExecutor implements CommandExecutor {
         if (args.length < 3) {
             ChessUtils.errorMessage(player, "Usage: /chess setcfg <key> <value>");
         } else {
-            ChessConfig.setConfigItem(player, args[1], combine(args, 2));
+        	String key = args[1], val = combine(args, 2);
+            ChessConfig.setConfigItem(player, key, val);
+            ChessUtils.statusMessage(player, key + " is now set to: " + val);
         }
     }
 
