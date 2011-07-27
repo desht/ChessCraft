@@ -26,6 +26,7 @@ import static fr.free.jchecs.core.PieceType.KING;
  * 
  * @author David Cotton
  */
+@SuppressWarnings("serial")
 abstract class AbstractMoveGenerator extends AbstractBoard implements MoveGenerator
 {
   /** Position du roi noir. */

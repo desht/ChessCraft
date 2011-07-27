@@ -28,6 +28,7 @@ import java.util.Random;
  * 
  * @author David Cotton
  */
+@SuppressWarnings("serial")
 abstract class AbstractBoard implements Board
 {
   /** Constantes de pièce / position pour le calcul de clés de hachage "Zobrist". */
