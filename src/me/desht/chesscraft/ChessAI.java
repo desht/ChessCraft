@@ -378,6 +378,10 @@ public class ChessAI {
             return name;
         }
 
+        public String getFullAIName() {
+            return ChessAI.AI_PREFIX + ChessAI.getAIPrefix() + name;
+        }
+        
         public ChessEngine getEngine() {
             return engine;
         }

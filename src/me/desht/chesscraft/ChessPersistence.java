@@ -417,7 +417,7 @@ public class ChessPersistence {
                 return true;
             }
         } catch (Exception e) {
-            ChessCraft.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage());
+            ChessCraft.log(Level.SEVERE, "can't load saved game " + gameName + ": ", e);//  + e.getMessage());
         }
         return false;
     }

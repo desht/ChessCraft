@@ -64,10 +64,6 @@ public class Economy {
         }
     }
 
-    public static boolean decimalSupported() {
-        return iConomy != null || legacyIConomy != null;
-    }
-
     static boolean active() {
         return iConomy != null || legacyIConomy != null || economy != null;
     }
@@ -77,51 +73,90 @@ public class Economy {
     }
 
     public static double getBalance(Player pl) {
-        if (legacyIConomy != null) {
-            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).getBalance();
-        } else if (iConomy != null) {
-            //return iConomy.getAccount(pl.getName()).getHoldings().balance();
-            return com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().balance();
-        } else if (economy != null) {
-            return economy.getPlayerMoneyDouble(pl.getName());
-        } else {
-            return 0;
+        if (pl != null && hasAccount(pl.getName())) {
+            if (legacyIConomy != null) {
+                return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).getBalance();
+            } else if (iConomy != null) {
+                //return iConomy.getAccount(pl.getName()).getHoldings().balance();
+                return com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().balance();
+            } else if (economy != null) {
+                return economy.getPlayerMoneyDouble(pl.getName());
+            }
         }
+        return 0;
     }
 
     public static double getBalance(String playerName) {
+        if (hasAccount(playerName)) {
+            if (legacyIConomy != null) {
+                return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).getBalance();
+            } else if (iConomy != null) {
+                //return iConomy.getAccount(playerName).getHoldings().balance();
+//            if( com.iConomy.iConomy.getAccount(playerName) == null){
+//                System.out.println("no account");
+//            }else if(com.iConomy.iConomy.getAccount(playerName).getHoldings() == null){
+//                System.out.println("no holdongs");
+//            }else return
+                com.iConomy.iConomy.getAccount(playerName).getHoldings().balance();
+            } else if (economy != null) {
+                return economy.getPlayerMoneyDouble(playerName);
+            }
+        }
+        return 0;
+    }
+
+    public static boolean hasAccount(String playerName) {
         if (legacyIConomy != null) {
-            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).getBalance();
+            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName) != null;
         } else if (iConomy != null) {
-            //return iConomy.getAccount(playerName).getHoldings().balance();
-            return com.iConomy.iConomy.getAccount(playerName).getHoldings().balance();
+            return com.iConomy.iConomy.getAccount(playerName) != null;
         } else if (economy != null) {
-            return economy.getPlayerMoneyDouble(playerName);
+            return economy.playerRegistered(playerName, false);
         } else {
-            return 0;
+            return false;
         }
     }
 
     public static void addMoney(Player pl, double amt) {
+        if(pl!=null){
         if (legacyIConomy != null) {
+            if(com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()) == null){
+                com.nijiko.coelho.iConomy.iConomy.getBank().addAccount(pl.getName());
+            }
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).add(amt);
         } else if (iConomy != null) {
             //iConomy.getAccount(pl.getName()).getHoldings().add(amt);
+            if(com.iConomy.iConomy.getAccount(pl.getName()) == null){
+                com.iConomy.iConomy.Accounts.create(pl.getName());
+            }
             com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().add(amt);
         } else if (economy != null) {
+            if(!economy.playerRegistered(pl.getName(), false)){
+                economy.registerPlayer(pl.getName());
+            }
             economy.addPlayerMoney(pl.getName(), amt, true);
-        }
+        }}
     }
 
     public static void addMoney(String playerName, double amt) {
+        if(playerName!=null){
         if (legacyIConomy != null) {
+            if(com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName) == null){
+                com.nijiko.coelho.iConomy.iConomy.getBank().addAccount(playerName);
+            }
             com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).add(amt);
         } else if (iConomy != null) {
             //iConomy.getAccount(playerName).getHoldings().add(amt);
+            if(com.iConomy.iConomy.getAccount(playerName) == null){
+                com.iConomy.iConomy.Accounts.create(playerName);
+            }
             com.iConomy.iConomy.getAccount(playerName).getHoldings().add(amt);
         } else if (economy != null) {
+            if(!economy.playerRegistered(playerName, false)){
+                economy.registerPlayer(playerName);
+            }
             economy.addPlayerMoney(playerName, amt, true);
-        }
+        }}
     }
 
     public static void subtractMoney(Player pl, double amt) {

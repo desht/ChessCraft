@@ -71,8 +71,8 @@ public class Game {
         lastCheck = new Date();
         result = Chess.RES_NOT_FINISHED;
         delTask = -1;
-        stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
-                Economy.getBalance(playerName));
+        stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
+        //Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName));
 
         setupChesspressoGame();
 
@@ -345,7 +345,7 @@ public class Game {
                 if (!ChessAI.isFree(ai)) {
                     throw new ChessException("That AI is currently busy playing a game right now");
                 }
-                addPlayer(ChessAI.getAIPrefix() + ai.name);
+                addPlayer(ai.getFullAIName());
                 return;
             }
             throw new ChessException("Player " + inviteeName + " is not online.");
