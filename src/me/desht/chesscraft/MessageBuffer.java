@@ -22,23 +22,45 @@ public class MessageBuffer {
 	private static final String bar = "------------------------------------------------";
 	private static final String footerBar = "---Use /chess page [#|n|p] to see other pages---";
 	
-	private void init(Player p) {
+	/**
+	 * Initialise the buffer for the player if necessary
+	 * @param p
+	 */
+	static private void init(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
 			bufferMap.put(name(p), new ArrayList<String>());
 			currentPage.put(name(p), 1);
 		}
 	}
 	
-	private String name(Player p) {
+	/**
+	 * Get the player's name
+	 * 
+	 * @param p		The player, may be null
+	 * @return		Player's name, or &CONSOLE if the player is null
+	 */
+	static private String name(Player p) {
 		return p == null ? "&CONSOLE" : p.getName();
 	}
 
-	void add(Player p, String message) {
+	/**
+	 * Add a message to the buffer.
+	 * @param p			The player
+	 * @param message	The message line to add
+	 */
+	static void add(Player p, String message) {
 		init(p);
 		bufferMap.get(name(p)).add(message);
 	}
 	
-	void add(Player p, String[] messages) {
+	/**
+	 * Add a block of messages.  All message should stay on the same page if possible - add
+	 * padding to ensure this where necessary.  If block is larger than the page size, then just
+	 * add it.
+	 * @param p			The player
+	 * @param messages	List of message lines to add
+	 */
+	static void add(Player p, String[] messages) {
 		init(p);
 		
 		if (messages.length > pageSize) {
@@ -57,7 +79,11 @@ public class MessageBuffer {
 		}
 	}
 	
-	void clear(Player p) {
+	/**
+	 * Clear the player's message buffer
+	 * @param p	The player
+	 */
+	static void clear(Player p) {
 		if (!bufferMap.containsKey(name(p)))
 			return;
 		
@@ -65,52 +91,61 @@ public class MessageBuffer {
 		currentPage.put(name(p), 1);
 	}
 	
-	void delete(Player p) {
+	/**
+	 * Delete the message buffer for the player.  Should be called when the player logs out.
+	 * @param p	The player
+	 */
+	static void delete(Player p) {
 		bufferMap.remove(name(p));
 		currentPage.remove(name(p));
 	}
 	
-	int getSize(Player p)	{
+	/**
+	 * Get the number of lines in the player's message buffer.
+	 * @param p	The player
+	 * @return	The number of lines
+	 */
+	static int getSize(Player p)	{
 		if (!bufferMap.containsKey(name(p)))
 			return 0;
 		
 		return bufferMap.get(name(p)).size();
 	}
 	
-	int getPageCount(Player p) {
+	static int getPageCount(Player p) {
 		return (getSize(p) - 1) / pageSize + 1;
 	}
 	
-	String getLine(Player p, int i) {
+	static String getLine(Player p, int i) {
 		if (!bufferMap.containsKey(name(p)))
 			return null;
 		
 		return bufferMap.get(name(p)).get(i);
 	}
 	
-	void setPage(Player player, int page) {
+	static void setPage(Player player, int page) {
 		if (page < 1 || page > getPageCount(player))
 			return;
 		currentPage.put(name(player), page);
 	}
 	
-	void nextPage(Player player) {
+	static void nextPage(Player player) {
 		setPage(player, getPage(player) + 1);
 	}
 	
-	void prevPage(Player player) {
+	static void prevPage(Player player) {
 		setPage(player, getPage(player) - 1);
 	}
 	
-	int getPage(Player player) {
+	static int getPage(Player player) {
 		return currentPage.get(name(player));
 	}
 
-	void showPage(Player player) {
+	static void showPage(Player player) {
 		showPage(player, currentPage.get(name(player)));
 	}
 	
-	void showPage(Player player, String pageStr) {
+	static void showPage(Player player, String pageStr) {
 		try {
 			int pageNum = Integer.parseInt(pageStr);
             showPage(player, pageNum);
@@ -119,7 +154,7 @@ public class MessageBuffer {
         }
 	}
 	
-	void showPage(Player player, int pageNum) {
+	static void showPage(Player player, int pageNum) {
 		if (!bufferMap.containsKey(name(player)))
 			return;
 		

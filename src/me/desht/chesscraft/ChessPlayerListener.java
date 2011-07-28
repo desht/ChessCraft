@@ -156,6 +156,7 @@ public class ChessPlayerListener extends PlayerListener {
                 }
             }
         }
+        MessageBuffer.delete(event.getPlayer());
     }
 
     private void cancelMove(Location loc) {

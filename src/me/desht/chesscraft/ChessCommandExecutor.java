@@ -31,9 +31,6 @@ import me.desht.chesscraft.enums.ExpectAction;
 public class ChessCommandExecutor implements CommandExecutor {
 
     private ChessCraft plugin;
-//    private final List<String> messageBuffer = new ArrayList<String>();
-//    private static int pageSize = 16;
-    private final MessageBuffer msgBuf = new MessageBuffer();
     
     public ChessCommandExecutor(ChessCraft plugin) {
         this.plugin = plugin;
@@ -459,12 +456,12 @@ public class ChessCommandExecutor implements CommandExecutor {
     private void getcfgCommand(Player player, String[] args) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_GETCONFIG);
 
-        msgBuf.clear(player);
+        MessageBuffer.clear(player);
         if (args.length < 2) {
             for (String line : ChessConfig.getConfigList()) {
-                msgBuf.add(player, line);
+                MessageBuffer.add(player, line);
             }
-            msgBuf.showPage(player);
+            MessageBuffer.showPage(player);
         } else {
             String res = plugin.getConfiguration().getString(args[1]);
             if (res != null) {
@@ -490,18 +487,18 @@ public class ChessCommandExecutor implements CommandExecutor {
     private void pageCommand(Player player, String[] args) {
 	    if (args.length < 2) {
 	    	// default is to advance one page and display
-	    	msgBuf.nextPage(player);
-	        msgBuf.showPage(player);
+	    	MessageBuffer.nextPage(player);
+	        MessageBuffer.showPage(player);
 	    } else if (partialMatch(args, 1, "n")) {
-	    	msgBuf.nextPage(player);
-	    	msgBuf.showPage(player);
+	    	MessageBuffer.nextPage(player);
+	    	MessageBuffer.showPage(player);
 	    } else if (partialMatch(args, 1, "p")) {
-	    	msgBuf.prevPage(player);
-	    	msgBuf.showPage(player);
+	    	MessageBuffer.prevPage(player);
+	    	MessageBuffer.showPage(player);
 	    } else {
 	    	try {
 				int pageNum = Integer.parseInt(args[1]);
-	            msgBuf.showPage(player, pageNum);
+	            MessageBuffer.showPage(player, pageNum);
 	        } catch (NumberFormatException e) {
 	            ChessUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
 	        }
@@ -605,7 +602,7 @@ public class ChessCommandExecutor implements CommandExecutor {
         	return;
         }
         
-        msgBuf.clear(player);
+        MessageBuffer.clear(player);
         for (Game game : Game.listGames(true)) {
             String name = game.getName();
             String curGameMarker = "  ";
@@ -621,9 +618,9 @@ public class ChessCommandExecutor implements CommandExecutor {
             if (game.getInvited().length() > 0) {
                 info.append(" invited: &6").append(game.getInvited());
             }
-            msgBuf.add(player, curGameMarker + name + info);
+            MessageBuffer.add(player, curGameMarker + name + info);
         }
-        msgBuf.showPage(player);
+        MessageBuffer.showPage(player);
     }
 
     void showGameDetail(Player player, String gameName) throws ChessException {
@@ -635,25 +632,25 @@ public class ChessCommandExecutor implements CommandExecutor {
         String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
 
         String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA;
-        msgBuf.clear(player);
-        msgBuf.add(player, "&eGame " + gameName + " [" + game.getState() + "] :");
-        msgBuf.add(player, bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
+        MessageBuffer.clear(player);
+        MessageBuffer.add(player, "&eGame " + gameName + " [" + game.getState() + "] :");
+        MessageBuffer.add(player, bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
                 + game.getView().getName());
-        msgBuf.add(player, bullet + game.getHistory().size() + " half-moves made");
+        MessageBuffer.add(player, bullet + game.getHistory().size() + " half-moves made");
         if (Economy.active()) {
-            msgBuf.add(player, bullet + "Stake: " + Economy.format(game.getStake()));
+            MessageBuffer.add(player, bullet + "Stake: " + Economy.format(game.getStake()));
         }
-        msgBuf.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
+        MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
         if (game.getState() == GameState.RUNNING) {
-            msgBuf.add(player, bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
+            MessageBuffer.add(player, bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
                     + Game.secondsToHMS(game.getTimeBlack()));
         }
         if (game.getInvited().equals("*")) {
-            msgBuf.add(player, bullet + "Game has an open invitation");
+            MessageBuffer.add(player, bullet + "Game has an open invitation");
         } else if (!game.getInvited().isEmpty()) {
-            msgBuf.add(player, bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
+            MessageBuffer.add(player, bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
         }
-        msgBuf.add(player, "&eMove history:");
+        MessageBuffer.add(player, "&eMove history:");
         List<Short> h = game.getHistory();
         for (int i = 0; i < h.size(); i += 2) {
             StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1));
@@ -661,10 +658,10 @@ public class ChessCommandExecutor implements CommandExecutor {
             if (i < h.size() - 1) {
                 sb.append("  ").append(Move.getString(h.get(i + 1)));
             }
-            msgBuf.add(player, sb.toString());
+            MessageBuffer.add(player, sb.toString());
         }
 
-        msgBuf.showPage(player);
+        MessageBuffer.showPage(player);
     }
 
     void showBoardDetail(Player player, String boardName) throws ChessException {
@@ -677,21 +674,21 @@ public class ChessCommandExecutor implements CommandExecutor {
         Cuboid bounds = bv.getOuterBounds();
         String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
 
-        msgBuf.clear(player);
-        msgBuf.add(player, ChatColor.YELLOW + "Board " + boardName + ":");
-        msgBuf.add(player, bullet + "Lower NE corner: " + w + ChessUtils.formatLoc(bounds.getLowerNE()));
-        msgBuf.add(player, bullet + "Upper SW corner: " + w + ChessUtils.formatLoc(bounds.getUpperSW()));
-        msgBuf.add(player, bullet + "Game: " + w + gameName);
-        msgBuf.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
-        msgBuf.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
-        msgBuf.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
+        MessageBuffer.clear(player);
+        MessageBuffer.add(player, ChatColor.YELLOW + "Board " + boardName + ":");
+        MessageBuffer.add(player, bullet + "Lower NE corner: " + w + ChessUtils.formatLoc(bounds.getLowerNE()));
+        MessageBuffer.add(player, bullet + "Upper SW corner: " + w + ChessUtils.formatLoc(bounds.getUpperSW()));
+        MessageBuffer.add(player, bullet + "Game: " + w + gameName);
+        MessageBuffer.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
+        MessageBuffer.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
+        MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
                 + bv.getBlackSquareMat() + ")");
-        msgBuf.add(player, bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
-        msgBuf.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
-        msgBuf.add(player, bullet + "Height: " + w + bv.getHeight());
-        msgBuf.add(player, bullet + "Lit: " + w + bv.getIsLit());
+        MessageBuffer.add(player, bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
+        MessageBuffer.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
+        MessageBuffer.add(player, bullet + "Height: " + w + bv.getHeight());
+        MessageBuffer.add(player, bullet + "Lit: " + w + bv.getIsLit());
 
-        msgBuf.showPage(player);
+        MessageBuffer.showPage(player);
     }
 
     void listBoards(Player player) throws ChessException {
@@ -702,19 +699,19 @@ public class ChessCommandExecutor implements CommandExecutor {
         	return;
         }
         
-        msgBuf.clear(player);
+        MessageBuffer.clear(player);
         for (BoardView bv : BoardView.listBoardViews(true)) {
             String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-            msgBuf.add(player, "&6" + bv.getName() + ": &-loc=&f" + ChessUtils.formatLoc(bv.getA1Square())
+            MessageBuffer.add(player, "&6" + bv.getName() + ": &-loc=&f" + ChessUtils.formatLoc(bv.getA1Square())
                     + "&-, style=&6" + bv.getBoardStyle() + "&-, game=&6" + gameName);
         }
-        msgBuf.showPage(player);
+        MessageBuffer.showPage(player);
     }
 
     void listAIs(Player player) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTAI);
 		
-		msgBuf.clear(player);
+		MessageBuffer.clear(player);
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
 			if (Economy.active()) {
@@ -722,12 +719,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 			
 			if (ai.getComment() != null) {
-				msgBuf.add(player, new String[] { sb.toString(), "  &2 - " + ai.getComment() });
+				MessageBuffer.add(player, new String[] { sb.toString(), "  &2 - " + ai.getComment() });
 			} else {
-				msgBuf.add(player, sb.toString());
+				MessageBuffer.add(player, sb.toString());
 			}
 		}
-		msgBuf.showPage(player);
+		MessageBuffer.showPage(player);
 	}
 
 	void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
