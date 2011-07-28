@@ -77,16 +77,7 @@ public class Economy {
     }
 
     public static double getBalance(Player pl) {
-        if (legacyIConomy != null) {
-            return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).getBalance();
-        } else if (iConomy != null) {
-            //return iConomy.getAccount(pl.getName()).getHoldings().balance();
-            return com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().balance();
-        } else if (economy != null) {
-            return economy.getPlayerMoneyDouble(pl.getName());
-        } else {
-            return 0;
-        }
+    	return getBalance(pl.getName());
     }
 
     public static double getBalance(String playerName) {
@@ -103,14 +94,7 @@ public class Economy {
     }
 
     public static void addMoney(Player pl, double amt) {
-        if (legacyIConomy != null) {
-            com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).add(amt);
-        } else if (iConomy != null) {
-            //iConomy.getAccount(pl.getName()).getHoldings().add(amt);
-            com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().add(amt);
-        } else if (economy != null) {
-            economy.addPlayerMoney(pl.getName(), amt, true);
-        }
+    	addMoney(pl.getName(), amt);
     }
 
     public static void addMoney(String playerName, double amt) {
@@ -125,14 +109,7 @@ public class Economy {
     }
 
     public static void subtractMoney(Player pl, double amt) {
-        if (legacyIConomy != null) {
-            com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(pl.getName()).subtract(amt);
-        } else if (iConomy != null) {
-            //iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
-            com.iConomy.iConomy.getAccount(pl.getName()).getHoldings().subtract(amt);
-        } else if (economy != null) {
-            economy.addPlayerMoney(pl.getName(), -amt, true);
-        }
+        subtractMoney(pl.getName(), amt);
     }
 
     public static void subtractMoney(String playerName, double amt) {
