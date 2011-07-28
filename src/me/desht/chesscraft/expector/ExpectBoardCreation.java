@@ -11,32 +11,32 @@ import org.bukkit.entity.Player;
 
 public class ExpectBoardCreation extends ExpectData {
 
-    String boardName;
-    String style;
-    String pieceStyle;
-    Location loc;
+	String boardName;
+	String style;
+	String pieceStyle;
+	Location loc;
 
-    public ExpectBoardCreation(ChessCraft plugin, String boardName, String style, String pieceStyle) {
-        super(plugin);
-        this.boardName = boardName;
-        this.style = style;
-        this.pieceStyle = pieceStyle;
-    }
+	public ExpectBoardCreation(ChessCraft plugin, String boardName, String style, String pieceStyle) {
+		super(plugin);
+		this.boardName = boardName;
+		this.style = style;
+		this.pieceStyle = pieceStyle;
+	}
 
-    public void setLocation(Location loc) {
-        this.loc = loc;
-    }
+	public void setLocation(Location loc) {
+		this.loc = loc;
+	}
 
-    @Override
-    public void doResponse(Player player) throws ChessException {
-    	BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
-    	BoardView.addBoardView(view);
-    	if (plugin.getWorldEdit() != null) {
-    		TerrainBackup.save(plugin, player, view);
-    	}
-    	view.paintAll();
-    	ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
-    	                         + ChessUtils.formatLoc(view.getA1Square()) + ".");
-    	plugin.maybeSave();
-    }
+	@Override
+	public void doResponse(Player player) throws ChessException {
+		BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
+		BoardView.addBoardView(view);
+		if (plugin.getWorldEdit() != null) {
+			TerrainBackup.save(plugin, player, view);
+		}
+		view.paintAll();
+		ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
+				+ ChessUtils.formatLoc(view.getA1Square()) + ".");
+		plugin.maybeSave();
+	}
 }

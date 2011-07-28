@@ -64,20 +64,12 @@ public class Economy {
 		}
 	}
 
-	static boolean active() {
-		return iConomy != null || legacyIConomy != null || economy != null;
+	public static boolean decimalSupported() {
+		return iConomy != null || legacyIConomy != null;
 	}
 
-	public static boolean hasAccount(String playerName) {
-		if (legacyIConomy != null) {
-			return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName) != null;
-		} else if (iConomy != null) {
-			return com.iConomy.iConomy.getAccount(playerName) != null;
-		} else if (economy != null) {
-			return economy.playerRegistered(playerName, false);
-		} else {
-			return false;
-		}
+	static boolean active() {
+		return iConomy != null || legacyIConomy != null || economy != null;
 	}
 
 	public static boolean canAfford(String playerName, double amt) {
@@ -85,17 +77,14 @@ public class Economy {
 	}
 
 	public static double getBalance(Player pl) {
-		return pl == null ? 0 : getBalance(pl.getName());
+		return getBalance(pl.getName());
 	}
 
 	public static double getBalance(String playerName) {
-		if (!hasAccount(playerName)) {
-			return 0;
-		}
-
 		if (legacyIConomy != null) {
 			return com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).getBalance();
 		} else if (iConomy != null) {
+			//return iConomy.getAccount(playerName).getHoldings().balance();
 			return com.iConomy.iConomy.getAccount(playerName).getHoldings().balance();
 		} else if (economy != null) {
 			return economy.getPlayerMoneyDouble(playerName);
@@ -105,19 +94,14 @@ public class Economy {
 	}
 
 	public static void addMoney(Player pl, double amt) {
-		if (pl != null) {
-			addMoney(pl.getName(), amt);
-		}
+		addMoney(pl.getName(), amt);
 	}
 
 	public static void addMoney(String playerName, double amt) {
-		if (!hasAccount(playerName)) {
-			return;
-		}
-		
 		if (legacyIConomy != null) {
 			com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).add(amt);
 		} else if (iConomy != null) {
+			//iConomy.getAccount(playerName).getHoldings().add(amt);
 			com.iConomy.iConomy.getAccount(playerName).getHoldings().add(amt);
 		} else if (economy != null) {
 			economy.addPlayerMoney(playerName, amt, true);
@@ -125,19 +109,14 @@ public class Economy {
 	}
 
 	public static void subtractMoney(Player pl, double amt) {
-		if (pl != null) {
-			subtractMoney(pl.getName(), amt);
-		}
+		subtractMoney(pl.getName(), amt);
 	}
 
 	public static void subtractMoney(String playerName, double amt) {
-		if (!hasAccount(playerName)) {
-			return;
-		}
-		
 		if (legacyIConomy != null) {
 			com.nijiko.coelho.iConomy.iConomy.getBank().getAccount(playerName).subtract(amt);
 		} else if (iConomy != null) {
+			//iConomy.getAccount(playerName).getHoldings().subtract(amt);
 			com.iConomy.iConomy.getAccount(playerName).getHoldings().subtract(amt);
 		} else if (economy != null) {
 			economy.addPlayerMoney(playerName, -amt, true);
@@ -148,6 +127,7 @@ public class Economy {
 		if (legacyIConomy != null) {
 			com.nijiko.coelho.iConomy.iConomy.getBank().format(amt);
 		} else if (iConomy != null) {
+			//return iConomy.format(amt);
 			return com.iConomy.iConomy.format(amt);
 		} else if (economy != null) {
 			amt = Math.round(amt);

@@ -1,21 +1,18 @@
-/**
- * 
- */
 package me.desht.chesscraft;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import me.jascotty2.bukkit.MinecraftChatStr;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-/**
- * @author des
- *
- */
 public class MessageBuffer {
+
 	private static final Map<String, List<String>> bufferMap = new HashMap<String, List<String>>();
 	private static final Map<String, Integer> currentPage = new HashMap<String, Integer>();
 	private static final int pageSize = 18;
@@ -23,7 +20,7 @@ public class MessageBuffer {
 	private static final String footerBar = "---Use /chess page [#|n|p] to see other pages---";
 
 	/**
-	 * Initialise the buffer for the player if necessary
+	 * initialize the buffer for the player if necessary
 	 * @param p
 	 */
 	static private void init(Player p) {
@@ -62,21 +59,14 @@ public class MessageBuffer {
 	 */
 	static void add(Player p, String[] messages) {
 		init(p);
+		bufferMap.get(name(p)).addAll(Arrays.asList(messages));
+	}
 
-		if (messages.length > pageSize) {
-			// block is bigger than a page, just add it
-		} else if ((getSize(p) % pageSize) + messages.length > pageSize) {
-			int amount = pageSize - (getSize(p) % pageSize);
-			System.out.println("pad needed: size=" + getSize(p) + ", len=" + messages.length + " amount=" + amount);
-			// add padding to keep the block on one page
-			for (int i = 1; i <= amount; i++) {
-				System.out.println("pad " + i);
-				bufferMap.get(name(p)).add("");
-			}
-		}
-		for (String line : messages) {
-			bufferMap.get(name(p)).add(line);
-		}
+	static void add(Player p, LinkedList<String> lines) {
+		init(p);
+		//TODO: apply MinecraftChatStr.alignTags(lines, true)
+		//		in pagesize segments before adding to buffer
+		bufferMap.get(name(p)).addAll(lines);
 	}
 
 	/**
@@ -84,8 +74,9 @@ public class MessageBuffer {
 	 * @param p	The player
 	 */
 	static void clear(Player p) {
-		if (!bufferMap.containsKey(name(p)))
+		if (!bufferMap.containsKey(name(p))) {
 			return;
+		}
 
 		bufferMap.get(name(p)).clear();
 		currentPage.put(name(p), 1);
@@ -105,11 +96,16 @@ public class MessageBuffer {
 	 * @param p	The player
 	 * @return	The number of lines
 	 */
-	static int getSize(Player p)	{
-		if (!bufferMap.containsKey(name(p)))
+	static int getSize(Player p) {
+		if (!bufferMap.containsKey(name(p))) {
 			return 0;
+		}
 
 		return bufferMap.get(name(p)).size();
+	}
+
+	public static int getPageSize() {
+		return pageSize;
 	}
 
 	static int getPageCount(Player p) {
@@ -117,15 +113,17 @@ public class MessageBuffer {
 	}
 
 	static String getLine(Player p, int i) {
-		if (!bufferMap.containsKey(name(p)))
+		if (!bufferMap.containsKey(name(p))) {
 			return null;
+		}
 
 		return bufferMap.get(name(p)).get(i);
 	}
 
 	static void setPage(Player player, int page) {
-		if (page < 1 || page > getPageCount(player))
+		if (page < 1 || page > getPageCount(player)) {
 			return;
+		}
 		currentPage.put(name(player), page);
 	}
 
@@ -155,23 +153,33 @@ public class MessageBuffer {
 	}
 
 	static void showPage(Player player, int pageNum) {
-		if (!bufferMap.containsKey(name(player)))
+		if (!bufferMap.containsKey(name(player))) {
 			return;
+		}
 
 		if (player != null) {
 			// pretty paged display
-			if (pageNum < 1 || pageNum > getPageCount(player))
+			if (pageNum < 1 || pageNum > getPageCount(player)) {
 				throw new IllegalArgumentException("page number " + pageNum + " is out of range");
+			}
 
 			int nMessages = getSize(player);
-			String headerLine = "---" + nMessages + " lines (page " + pageNum + "/" + getPageCount(player) + ")";
-			String headerBar = headerLine + bar.substring(0, bar.length() - headerLine.length());
-			ChessUtils.statusMessage(player, ChatColor.GREEN + headerBar);
-			for (int i = (pageNum - 1) * pageSize; i < nMessages && i < pageNum * pageSize; ++i) {
+			ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(
+					(pageSize > nMessages ? nMessages : pageSize)
+					+ " of " + nMessages + " lines (page " + pageNum 
+					+ "/" + getPageCount(player) + ")", 310, '-'));
+			int i = (pageNum - 1) * pageSize;
+			for (; i < nMessages && i < pageNum * pageSize; ++i) {
 				ChessUtils.statusMessage(player, getLine(player, i));
 			}
-			String footer = (nMessages > pageSize * pageNum) ? footerBar : bar;
-			ChessUtils.statusMessage(player, ChatColor.GREEN + footer);
+			
+			// if block is smaller than a page, add padding to keep the block on one page
+			for (; i < pageNum * pageSize; ++i) {
+				ChessUtils.statusMessage(player, "");
+			}
+			
+			ChessUtils.statusMessage(player, ChatColor.GREEN.toString()
+					+ (nMessages > pageSize * pageNum ? footerBar : bar));
 
 			setPage(player, pageNum);
 		} else {

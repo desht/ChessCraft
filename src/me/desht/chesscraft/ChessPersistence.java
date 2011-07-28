@@ -186,7 +186,7 @@ public class ChessPersistence {
 			try {
 				BoardView.addBoardView(
 						new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
-								(String) boardMap.get("pieceStyle")));
+						(String) boardMap.get("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
 				ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -202,6 +202,7 @@ public class ChessPersistence {
 	 */
 	private int loadGames() {
 		FilenameFilter filter = new FilenameFilter() {
+
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".yml");
@@ -231,8 +232,9 @@ public class ChessPersistence {
 	private int loadGamesLegacy(List<Map<String, Object>> gameList) {
 		int nLoaded = 0;
 		for (Map<String, Object> gameMap : gameList) {
-			if (loadOneGame(gameMap))
+			if (loadOneGame(gameMap)) {
 				nLoaded++;
+			}
 		}
 		return nLoaded;
 	}
