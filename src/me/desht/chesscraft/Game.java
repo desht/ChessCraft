@@ -707,6 +707,7 @@ public class Game {
     	
     	handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
     	
+    	
     	getView().highlightSquares(-1, -1);
     	getView().setGame(null);
     	getView().paintAll();
