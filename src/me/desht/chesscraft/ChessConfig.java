@@ -108,19 +108,27 @@ public class ChessConfig {
 		pgnDir = new File(pluginDir, pgnFoldername);
 		boardStyleDir = new File(pluginDir, boardStyleFoldername);
 		pieceStyleDir = new File(pluginDir, pieceStyleFoldername);
-		schematicsDir = new File(pluginDir, schematicsFoldername);
 		dataDir = new File(pluginDir, datasaveFoldername);
 		gamePersistDir = new File(dataDir, gamesFoldername);
 		boardPersistDir = new File(dataDir, boardsFoldername);
+		schematicsDir = new File(boardPersistDir, schematicsFoldername);
 
+		// [plugins]/ChessCraft
 		createDir(pluginDir);
+		// [plugins]/ChessCraft/pgn
 		createDir(pgnDir);
+		// [plugins]/ChessCraft/board_styles
 		createDir(boardStyleDir);
+		// [plugins]/ChessCraft/piece_styles
 		createDir(pieceStyleDir);
-		createDir(schematicsDir);
+		// [plugins]/ChessCraft/data
 		createDir(dataDir);
+		// [plugins]/ChessCraft/data/games
 		createDir(gamePersistDir);
+		// [plugins]/ChessCraft/data/boards
 		createDir(boardPersistDir);
+		// [plugins]/ChessCraft/data/boards/schematics
+		createDir(schematicsDir);
 
 		extractResource("/AI_settings.yml", pluginDir);
 

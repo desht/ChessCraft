@@ -52,7 +52,6 @@ public class ChessCraft extends JavaPlugin {
 		expecter = new ExpectResponse();
 
 		setupWorldEdit();
-		Economy.initEcon(getServer());
 		if (ChessPermission.setupPermissions(this.getServer())) {
 			log(Level.INFO, "Permissions detected");
 		} else {
@@ -90,7 +89,7 @@ public class ChessCraft extends JavaPlugin {
 			util.setupRepeatingTask(2);
 		}
 
-		log(" version " + description.getVersion() + " is enabled!");
+		log("Version " + description.getVersion() + " is enabled!");
 	}
 
 	@Override

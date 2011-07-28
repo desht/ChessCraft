@@ -71,8 +71,9 @@ public class Game {
 		lastCheck = new Date();
 		result = Chess.RES_NOT_FINISHED;
 		delTask = -1;
-		stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
-				Economy.getBalance(playerName));
+		stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
+//				Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
+//				Economy.getBalance(playerName));
 
 		setupChesspressoGame();
 
@@ -574,7 +575,7 @@ public class Game {
 
 	public boolean isAIPlayer(String name) {
 		// simple name match.. not checking if in this game
-		return name.startsWith(ChessAI.getAIPrefix());
+		return name.startsWith(ChessAI.AI_PREFIX);
 	}
 
 	public String getPGNResult() {

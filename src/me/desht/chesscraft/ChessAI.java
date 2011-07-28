@@ -39,7 +39,7 @@ public class ChessAI {
 	 * user/admins should NOT be given control of this variable
 	 * - use something else to enable changing AI name colors, if wanted
 	 */
-	private final static String AI_PREFIX = ChatColor.WHITE.toString();
+	public final static String AI_PREFIX = ChatColor.WHITE.toString();
 	static ChessCraft plugin = null;
 	static BukkitScheduler scheduler = null;
 	static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();

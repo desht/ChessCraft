@@ -14,7 +14,7 @@ now does terrain saving when a board is created
 board creation now triggers data autosave
 control panel items are grey when inactive
 can setup economy stakes - amount each player bets on winning (winner receives double)
-- supports iConomy 4 & 5 and BOSEconomy
+- supports iConomy 4, 5, & 6, BOSEconomy 6 & 7, EssentialsEco, & MultiCurrency (using Register)
 games now auto-delete if not started 
 pieces with nonsolid blocks (like torches) won't leave trails of items when they move
 added an optional "panel" material definition in the board definition: control panel can be different than the frame
