@@ -6,7 +6,6 @@ import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectYesNoOffer;
 import me.desht.chesscraft.enums.GameState;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +31,10 @@ import me.desht.chesscraft.enums.ExpectAction;
 public class ChessCommandExecutor implements CommandExecutor {
 
     private ChessCraft plugin;
-    private final List<String> messageBuffer = new ArrayList<String>();
-    private static int pageSize = 16;
-
+//    private final List<String> messageBuffer = new ArrayList<String>();
+//    private static int pageSize = 16;
+    private final MessageBuffer msgBuf = new MessageBuffer();
+    
     public ChessCommandExecutor(ChessCraft plugin) {
         this.plugin = plugin;
     }
@@ -74,7 +74,7 @@ public class ChessCommandExecutor implements CommandExecutor {
                 } else if (partialMatch(args[0], "m")) { // move
                     moveCommand(player, args);
                 } else if (partialMatch(args[0], "pa")) { // page
-                    pagedDisplay(player, args);
+                    pageCommand(player, args);
                 } else if (partialMatch(args[0], "pr")) { // promotion
                     promoCommand(player, args);
                 } else if (partialMatch(args[0], "sa")) { // save
@@ -459,12 +459,12 @@ public class ChessCommandExecutor implements CommandExecutor {
     private void getcfgCommand(Player player, String[] args) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_GETCONFIG);
 
-        messageBuffer.clear();
+        msgBuf.clear(player);
         if (args.length < 2) {
             for (String line : ChessConfig.getConfigList()) {
-                messageBuffer.add(line);
+                msgBuf.add(player, line);
             }
-            pagedDisplay(player, 1);
+            msgBuf.showPage(player);
         } else {
             String res = plugin.getConfiguration().getString(args[1]);
             if (res != null) {
@@ -487,7 +487,28 @@ public class ChessCommandExecutor implements CommandExecutor {
         }
     }
 
-    /*-------------------------------------------------------------------------------*/
+    private void pageCommand(Player player, String[] args) {
+	    if (args.length < 2) {
+	    	// default is to advance one page and display
+	    	msgBuf.nextPage(player);
+	        msgBuf.showPage(player);
+	    } else if (partialMatch(args, 1, "n")) {
+	    	msgBuf.nextPage(player);
+	    	msgBuf.showPage(player);
+	    } else if (partialMatch(args, 1, "p")) {
+	    	msgBuf.prevPage(player);
+	    	msgBuf.showPage(player);
+	    } else {
+	    	try {
+				int pageNum = Integer.parseInt(args[1]);
+	            msgBuf.showPage(player, pageNum);
+	        } catch (NumberFormatException e) {
+	            ChessUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
+	        }
+	    }
+	}
+
+	/*-------------------------------------------------------------------------------*/
     void tryTeleportToGame(Player player, Game game) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_TELEPORT);
 
@@ -579,7 +600,12 @@ public class ChessCommandExecutor implements CommandExecutor {
     void listGames(Player player) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTGAMES);
 
-        messageBuffer.clear();
+        if (Game.listGames().size() == 0) {
+        	ChessUtils.statusMessage(player, "There are currently no games.");
+        	return;
+        }
+        
+        msgBuf.clear(player);
         for (Game game : Game.listGames(true)) {
             String name = game.getName();
             String curGameMarker = "  ";
@@ -595,9 +621,9 @@ public class ChessCommandExecutor implements CommandExecutor {
             if (game.getInvited().length() > 0) {
                 info.append(" invited: &6").append(game.getInvited());
             }
-            messageBuffer.add(curGameMarker + name + info);
+            msgBuf.add(player, curGameMarker + name + info);
         }
-        pagedDisplay(player, 1);
+        msgBuf.showPage(player);
     }
 
     void showGameDetail(Player player, String gameName) throws ChessException {
@@ -609,25 +635,25 @@ public class ChessCommandExecutor implements CommandExecutor {
         String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
 
         String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA;
-        messageBuffer.clear();
-        messageBuffer.add("&eGame " + gameName + " [" + game.getState() + "] :");
-        messageBuffer.add(bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
+        msgBuf.clear(player);
+        msgBuf.add(player, "&eGame " + gameName + " [" + game.getState() + "] :");
+        msgBuf.add(player, bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
                 + game.getView().getName());
-        messageBuffer.add(bullet + game.getHistory().size() + " half-moves made");
+        msgBuf.add(player, bullet + game.getHistory().size() + " half-moves made");
         if (Economy.active()) {
-            messageBuffer.add(bullet + "Stake: " + Economy.format(game.getStake()));
+            msgBuf.add(player, bullet + "Stake: " + Economy.format(game.getStake()));
         }
-        messageBuffer.add(bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
+        msgBuf.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
         if (game.getState() == GameState.RUNNING) {
-            messageBuffer.add(bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
+            msgBuf.add(player, bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
                     + Game.secondsToHMS(game.getTimeBlack()));
         }
         if (game.getInvited().equals("*")) {
-            messageBuffer.add(bullet + "Game has an open invitation");
+            msgBuf.add(player, bullet + "Game has an open invitation");
         } else if (!game.getInvited().isEmpty()) {
-            messageBuffer.add(bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
+            msgBuf.add(player, bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
         }
-        messageBuffer.add("&eMove history:");
+        msgBuf.add(player, "&eMove history:");
         List<Short> h = game.getHistory();
         for (int i = 0; i < h.size(); i += 2) {
             StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1));
@@ -635,10 +661,10 @@ public class ChessCommandExecutor implements CommandExecutor {
             if (i < h.size() - 1) {
                 sb.append("  ").append(Move.getString(h.get(i + 1)));
             }
-            messageBuffer.add(sb.toString());
+            msgBuf.add(player, sb.toString());
         }
 
-        pagedDisplay(player, 1);
+        msgBuf.showPage(player);
     }
 
     void showBoardDetail(Player player, String boardName) throws ChessException {
@@ -651,53 +677,57 @@ public class ChessCommandExecutor implements CommandExecutor {
         Cuboid bounds = bv.getOuterBounds();
         String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
 
-        messageBuffer.clear();
-        messageBuffer.add(ChatColor.YELLOW + "Board " + boardName + ":");
-        messageBuffer.add(bullet + "Lower NE corner: " + w + ChessUtils.formatLoc(bounds.getLowerNE()));
-        messageBuffer.add(bullet + "Upper SW corner: " + w + ChessUtils.formatLoc(bounds.getUpperSW()));
-        messageBuffer.add(bullet + "Game: " + w + gameName);
-        messageBuffer.add(bullet + "Board Style: " + w + bv.getBoardStyle());
-        messageBuffer.add(bullet + "Piece Style: " + w + bv.getPieceStyle());
-        messageBuffer.add(bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
+        msgBuf.clear(player);
+        msgBuf.add(player, ChatColor.YELLOW + "Board " + boardName + ":");
+        msgBuf.add(player, bullet + "Lower NE corner: " + w + ChessUtils.formatLoc(bounds.getLowerNE()));
+        msgBuf.add(player, bullet + "Upper SW corner: " + w + ChessUtils.formatLoc(bounds.getUpperSW()));
+        msgBuf.add(player, bullet + "Game: " + w + gameName);
+        msgBuf.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
+        msgBuf.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
+        msgBuf.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
                 + bv.getBlackSquareMat() + ")");
-        messageBuffer.add(bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
-        messageBuffer.add(bullet + "Enclosure: " + w + bv.getEnclosureMat());
-        messageBuffer.add(bullet + "Height: " + w + bv.getHeight());
-        messageBuffer.add(bullet + "Lit: " + w + bv.getIsLit());
+        msgBuf.add(player, bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
+        msgBuf.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
+        msgBuf.add(player, bullet + "Height: " + w + bv.getHeight());
+        msgBuf.add(player, bullet + "Lit: " + w + bv.getIsLit());
 
-        pagedDisplay(player, 1);
+        msgBuf.showPage(player);
     }
 
     void listBoards(Player player) throws ChessException {
         ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTBOARDS);
 
-        messageBuffer.clear();
+        if (BoardView.listBoardViews().size() == 0) {
+        	ChessUtils.statusMessage(player, "There are currently no boards.");
+        	return;
+        }
+        
+        msgBuf.clear(player);
         for (BoardView bv : BoardView.listBoardViews(true)) {
             String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-            messageBuffer.add("&6" + bv.getName() + ": &-loc=&f" + ChessUtils.formatLoc(bv.getA1Square())
+            msgBuf.add(player, "&6" + bv.getName() + ": &-loc=&f" + ChessUtils.formatLoc(bv.getA1Square())
                     + "&-, style=&6" + bv.getBoardStyle() + "&-, game=&6" + gameName);
         }
-        pagedDisplay(player, 1);
+        msgBuf.showPage(player);
     }
 
     void listAIs(Player player) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTAI);
 		
-		messageBuffer.clear();
+		msgBuf.clear(player);
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
 			if (Economy.active()) {
 				sb.append(", payout=" + ai.getPayoutMultiplier());
 			}
-			if (ai.getComment() != null && messageBuffer.size() == pageSize - 1 && player != null) {
-				messageBuffer.add("");	// ensure description and comment are on the same page
-			}
-			messageBuffer.add(sb.toString());
+			
 			if (ai.getComment() != null) {
-				messageBuffer.add("  &2 - " + ai.getComment());
+				msgBuf.add(player, new String[] { sb.toString(), "  &2 - " + ai.getComment() });
+			} else {
+				msgBuf.add(player, sb.toString());
 			}
 		}
-		pagedDisplay(player, 1);
+		msgBuf.showPage(player);
 	}
 
 	void tryCreateGame(Player player, String gameName, String boardName) throws ChessException {
@@ -852,40 +882,6 @@ public class ChessCommandExecutor implements CommandExecutor {
             return;
         }
         game.setStake(newStake);
-    }
-
-    private void pagedDisplay(Player player, String[] args) {
-        int pageNum = 1;
-        if (args.length < 2) {
-            return;
-        }
-        try {
-            pageNum = Integer.parseInt(args[1]);
-            pagedDisplay(player, pageNum);
-        } catch (NumberFormatException e) {
-            ChessUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
-        }
-    }
-
-    private void pagedDisplay(Player player, int pageNum) {
-        if (player != null) {
-            // pretty paged display
-            int nMessages = messageBuffer.size();
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "" + nMessages + " lines (page " + pageNum + "/"
-                    + ((nMessages - 1) / pageSize + 1) + ")");
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "---------------");
-            for (int i = (pageNum - 1) * pageSize; i < nMessages && i < pageNum * pageSize; ++i) {
-                ChessUtils.statusMessage(player, messageBuffer.get(i));
-            }
-            ChessUtils.statusMessage(player, ChatColor.GREEN + "---------------");
-            String footer = (nMessages > pageSize * pageNum) ? "Use /chess page [page#] to see more" : "";
-            ChessUtils.statusMessage(player, ChatColor.GREEN + footer);
-        } else {
-            // just dump the whole message buffer to the console
-            for (String s : messageBuffer) {
-                ChessUtils.statusMessage(null, ChatColor.stripColor(ChessUtils.parseColourSpec(s)));
-            }
-        }
     }
 
     private static String combine(String[] args, int idx) {
