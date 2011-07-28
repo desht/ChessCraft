@@ -41,6 +41,8 @@ AI SUPPORT ADDED :D
 - AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
 -- players can invite specific AIs with these names
 - project is now licensed under the GPLv3 instead of Creative Commons license
+games & boards are now saved in seperate files
+- will automativally impor old persist.yml file
 
 
 v0.2.2 (18 Jul 2011)

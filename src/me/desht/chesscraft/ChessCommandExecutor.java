@@ -765,9 +765,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Game.setCurrentGame(player.getName(), game);
 		bv.getControlPanel().repaintSignButtons();
 
-		game.maybeSave();
+		game.autoSave();
 
-		//plugin.persistence.saveOneGame(game);
+		//plugin.persistence.saveGame(game);
 
 		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
 		ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");

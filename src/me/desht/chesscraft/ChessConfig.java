@@ -37,6 +37,8 @@ public class ChessConfig {
 	private static final String datasaveFoldername = "data";
 	private static final String gamesFoldername = "games";
 	private static final String boardsFoldername = "boards";
+	private static File persistFile;
+	private static final String persistFilename = "persist.yml";
 	private static ChessCraft plugin = null;
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
@@ -104,7 +106,16 @@ public class ChessConfig {
 		return gamePersistDir;
 	}
 
+	public static File getBoardPersistDirectory() {
+		return boardPersistDir;
+	}
+
+	public static File getPersistFile() {
+		return persistFile;
+	}
+
 	private static void setupDirectoryStructure() {
+		// directories
 		pgnDir = new File(pluginDir, pgnFoldername);
 		boardStyleDir = new File(pluginDir, boardStyleFoldername);
 		pieceStyleDir = new File(pluginDir, pieceStyleFoldername);
@@ -113,6 +124,9 @@ public class ChessConfig {
 		boardPersistDir = new File(dataDir, boardsFoldername);
 		schematicsDir = new File(boardPersistDir, schematicsFoldername);
 
+		// files
+		persistFile = new File(dataDir, persistFilename);
+		
 		// [plugins]/ChessCraft
 		createDir(pluginDir);
 		// [plugins]/ChessCraft/pgn

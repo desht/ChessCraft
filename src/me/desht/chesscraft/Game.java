@@ -118,10 +118,10 @@ public class Game {
 	}
 
 	void save() {
-		plugin.persistence.saveOneGame(this);
+		plugin.persistence.saveGame(this);
 	}
 
-	void maybeSave() {
+	void autoSave() {
 		if (plugin.getConfiguration().getBoolean("autosave", true)) {
 			save();
 		}
@@ -538,7 +538,7 @@ public class Game {
 			getPosition().doMove(realMove);
 			Move lastMove = getPosition().getLastMove();
 			history.add(realMove);
-			maybeSave();
+			autoSave();
 			clockTick();
 			if (getPosition().isMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
