@@ -354,7 +354,7 @@ public class Game {
                 if (!ChessAI.isFree(ai)) {
                     throw new ChessException("That AI is currently busy playing a game right now");
                 }
-                addPlayer(ChessAI.getAIPrefix() + ai.name);
+                addPlayer(ai.getFullAIName());
                 return;
             }
             throw new ChessException("Player " + inviteeName + " is not online.");
