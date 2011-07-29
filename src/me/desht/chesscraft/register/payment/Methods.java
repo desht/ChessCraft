@@ -1,4 +1,4 @@
-package com.nijikokun.register.payment;
+package me.desht.chesscraft.register.payment;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -63,13 +63,13 @@ public class Methods {
      * @see #Methods(java.lang.String)
      */
     private void _init() {
-        this.addMethod("iConomy", new com.nijikokun.register.payment.methods.iCo6());
-        this.addMethod("iConomy", new com.nijikokun.register.payment.methods.iCo5());
-        this.addMethod("iConomy", new com.nijikokun.register.payment.methods.iCo4());
-        this.addMethod("BOSEconomy", new com.nijikokun.register.payment.methods.BOSE6());
-        this.addMethod("BOSEconomy", new com.nijikokun.register.payment.methods.BOSE7());
-        this.addMethod("Essentials", new com.nijikokun.register.payment.methods.EE17());
-        this.addMethod("MultiCurrency", new com.nijikokun.register.payment.methods.MCUR());
+        this.addMethod("iConomy", new me.desht.chesscraft.register.payment.methods.iCo6());
+        this.addMethod("iConomy", new me.desht.chesscraft.register.payment.methods.iCo5());
+        this.addMethod("iConomy", new me.desht.chesscraft.register.payment.methods.iCo4());
+        this.addMethod("BOSEconomy", new me.desht.chesscraft.register.payment.methods.BOSE6());
+        this.addMethod("BOSEconomy", new me.desht.chesscraft.register.payment.methods.BOSE7());
+        this.addMethod("Essentials", new me.desht.chesscraft.register.payment.methods.EE17());
+        this.addMethod("MultiCurrency", new me.desht.chesscraft.register.payment.methods.MCUR());
     }
 
     /**

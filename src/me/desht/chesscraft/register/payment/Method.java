@@ -1,4 +1,4 @@
-package com.nijikokun.register.payment;
+package me.desht.chesscraft.register.payment;
 
 import org.bukkit.plugin.Plugin;
 

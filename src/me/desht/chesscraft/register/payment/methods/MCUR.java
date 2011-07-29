@@ -1,9 +1,9 @@
-package com.nijikokun.register.payment.methods;
+package me.desht.chesscraft.register.payment.methods;
 
-import com.nijikokun.register.payment.Method;
 
 import me.ashtheking.currency.Currency;
 import me.ashtheking.currency.CurrencyList;
+import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 

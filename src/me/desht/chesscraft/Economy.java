@@ -1,8 +1,10 @@
 package me.desht.chesscraft;
 
-import com.nijikokun.register.payment.Method;
-import com.nijikokun.register.payment.Methods;
 import java.util.logging.Level;
+
+import me.desht.chesscraft.register.payment.Method;
+import me.desht.chesscraft.register.payment.Methods;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
