@@ -5,6 +5,7 @@ import me.desht.chesscraft.enums.GameState;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,11 +44,11 @@ public class Game {
 	private String invited;
 	private GameState state;
 	private int fromSquare;
-	private Date started;
-	private Date lastCheck;
+	private long started, finished;
+	private long lastCheck;
 	private int timeWhite, timeBlack;
 	private List<Short> history;
-	private int delTask;
+//	private int delTask;
 	private int result;
 	private double stake;
 	private ChessAI aiPlayer = null;
@@ -67,13 +68,12 @@ public class Game {
 		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		history = new ArrayList<Short>();
-		started = new Date();
-		lastCheck = new Date();
+		lastCheck = started = System.currentTimeMillis();
+		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
-		delTask = -1;
-		stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
-//				Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
-//				Economy.getBalance(playerName));
+//		delTask = -1;
+		stake =	Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
+		       	         Economy.getBalance(playerName));
 
 		setupChesspressoGame();
 
@@ -106,7 +106,8 @@ public class Game {
 		map.put("state", state.toString());
 		map.put("invited", invited);
 		map.put("moves", history);
-		map.put("started", started.getTime());
+		map.put("started", started);
+		map.put("finished", finished);
 		map.put("result", result);
 		map.put("promotionWhite", promotionPiece[Chess.WHITE]);
 		map.put("promotionBlack", promotionPiece[Chess.BLACK]);
@@ -138,7 +139,12 @@ public class Game {
 		for (int m : hTmp) {
 			history.add((short) m);
 		}
-		started.setTime((Long) map.get("started"));
+		started = (Long) map.get("started");
+		if (map.containsKey("finished")) {
+			finished = (Long) map.get("finished");	
+		} else {
+			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
+		}
 		result = (Integer) map.get("result");
 		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite");
 		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack");
@@ -236,10 +242,13 @@ public class Game {
 
 	public void setState(GameState state) {
 		this.state = state;
-		if (state == GameState.FINISHED
-				&& aiPlayer != null) {
-			aiPlayer.removeAI();
-			aiPlayer = null;
+		
+		if (state == GameState.FINISHED) {
+			finished = System.currentTimeMillis();
+			if (aiPlayer != null) {
+				aiPlayer.removeAI();
+				aiPlayer = null;
+			}
 		}
 		getView().getControlPanel().repaintSignButtons();
 	}
@@ -248,7 +257,7 @@ public class Game {
 		return fromSquare;
 	}
 
-	public Date getStarted() {
+	public long getStarted() {
 		return started;
 	}
 
@@ -283,9 +292,9 @@ public class Game {
 			return;
 		}
 
-		Date now = new Date();
-		long diff = now.getTime() - lastCheck.getTime();
-		lastCheck.setTime(now.getTime());
+		long now = System.currentTimeMillis();
+		long diff = now - lastCheck;
+		lastCheck = now;
 		if (getPosition().getToPlay() == Chess.WHITE) {
 			timeWhite += diff;
 			getView().getControlPanel().updateClock(Chess.WHITE, timeWhite);
@@ -317,6 +326,9 @@ public class Game {
 		} else {
 			if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
 				throw new ChessException("You don't have an invitation for this game.");
+			}
+			if (Economy.active() && !Economy.canAfford(playerName, getStake())) {
+				throw new ChessException("You can't afford the stake for this game (" + Economy.format(getStake()) + ").");
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
@@ -362,11 +374,10 @@ public class Game {
 			throw new ChessException("Player " + inviteeName + " is not online.");
 		} else {
 			inviteeName = player.getName();
-
-			//resend instead
-			//if (invited.equals(inviteeName)) return;
-
 			alert(inviteeName, "You have been invited to this game by &6" + inviterName + "&-.");
+			if (Economy.active() && getStake() > 0.0) {
+				alert(inviteeName, "This game has a stake of " + Economy.format(getStake()));
+			}
 			alert(inviteeName, "Type &f/chess join&- to join the game.");
 			if (!invited.isEmpty()) {
 				alert(invited, "Your invitation has been withdrawn.");
@@ -381,6 +392,10 @@ public class Game {
 		Bukkit.getServer().broadcastMessage(
 				ChessUtils.parseColourSpec("&e:: &6" + inviterName
 				+ "&e has created an open invitation to a chess game."));
+		if (Economy.active() && getStake() > 0.0) {
+			Bukkit.getServer().broadcastMessage(
+			    "&e:: This game has a stake of &f" + Economy.format(getStake()));
+		}
 		Bukkit.getServer().broadcastMessage(
 				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName()
 				+ "&e to join."));
@@ -436,6 +451,7 @@ public class Game {
 			double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
 			alert("You have paid a stake of " + Economy.format(s2) + ".");
 		}
+		clearInvitation();
 		setState(GameState.RUNNING);
 	}
 
@@ -631,7 +647,7 @@ public class Game {
 			}
 		}
 		handlePayout(rt, p1, p2);
-		setupAutoDeletion();
+//		setupAutoDeletion();
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {
@@ -675,31 +691,31 @@ public class Game {
 		stake = 0.0;
 	}
 
-	private void setupAutoDeletion() {
-		int autoDel = plugin.getConfiguration().getInt("auto_delete.finished", 0);
-		if (autoDel > 0) {
-			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-				public void run() {
-					alert("Game auto-deleted!");
-					deletePermanently();
-				}
-			}, autoDel * 20L);
-
-			if (delTask != -1) {
-				alert("Game will auto-delete in " + autoDel + " seconds.");
-			}
-			alert("Type &f/chess archive&- to archive to PGN file.");
-		}
-	}
-
-	public void cancelAutoDelete() {
-		if (delTask == -1) {
-			return;
-		}
-		Bukkit.getServer().getScheduler().cancelTask(delTask);
-		delTask = -1;
-	}
+//	private void setupAutoDeletion() {
+//		int autoDel = plugin.getConfiguration().getInt("auto_delete.finished", 0);
+//		if (autoDel > 0) {
+//			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+//
+//				public void run() {
+//					alert("Game auto-deleted!");
+//					deletePermanently();
+//				}
+//			}, autoDel * 20L);
+//
+//			if (delTask != -1) {
+//				alert("Game will auto-delete in " + autoDel + " seconds.");
+//			}
+//			alert("Type &f/chess archive&- to archive to PGN file.");
+//		}
+//	}
+//
+//	public void cancelAutoDelete() {
+//		if (delTask == -1) {
+//			return;
+//		}
+//		Bukkit.getServer().getScheduler().cancelTask(delTask);
+//		delTask = -1;
+//	}
 
 	/**
 	 * Called when a game is permanently deleted.
@@ -726,7 +742,7 @@ public class Game {
 	}
 
 	private void deleteCommon() {
-		cancelAutoDelete();
+//		cancelAutoDelete();
 
 		if (aiPlayer != null) {
 			// this would normally happen when the game goes to state FINISHED,
@@ -873,7 +889,7 @@ public class Game {
 	}
 
 	private File makePGNName() {
-		String baseName = getName() + "_" + dateToPGNDate(new Date());
+		String baseName = getName() + "_" + dateToPGNDate(System.currentTimeMillis());
 
 		int n = 1;
 		File f;
@@ -891,15 +907,11 @@ public class Game {
 	 * @param date date to convert
 	 * @return PGN format of the date
 	 */
-	private static String dateToPGNDate(Date date) {
+	private static String dateToPGNDate(long when) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		return cal.get(Calendar.YEAR) + "." + getRights("00" + (cal.get(Calendar.MONTH) + 1), 2) + "."
-				+ getRights("00" + cal.get(Calendar.DAY_OF_MONTH), 2);
-	}
-
-	private static String getRights(String s, int num) {
-		return s.substring(s.length() - num);
+		cal.setTimeInMillis(when);
+		
+		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when));
 	}
 
 	public void setFen(String fen) {
@@ -933,19 +945,35 @@ public class Game {
 		}
 	}
 
+	/**
+	 * Check if a game needs to be auto-deleted:
+	 * - Game that has not been started after a certain time
+	 * - Game that has been finished for a certain time
+	 */
 	public void checkForAutoDelete() {
+		boolean mustDelete = false;
+		String alertStr = null;
+		
 		if (getState() == GameState.SETTING_UP) {
-			long now = System.currentTimeMillis();
-			long elapsed = (now - started.getTime()) / 1000;
+			long elapsed = (System.currentTimeMillis() - started) / 1000;
 			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180);
-			if (timeout <= 0) {
-				return;
+			if (timeout > 0 && elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
+				mustDelete = true;
+				alertStr = "Game auto-deleted (not started within " + timeout + " seconds)";
 			}
-			if (elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
-				alert("Game auto-deleted (not started within " + timeout + " seconds)");
-				ChessCraft.log(Level.INFO, "Auto-deleted game " + getName() + " (not started within " + timeout + " seconds)");
-				deletePermanently();
+		} else if (getState() == GameState.FINISHED) {
+			long elapsed = (System.currentTimeMillis() - finished) / 1000;
+			int timeout = plugin.getConfiguration().getInt("auto_delete.finished", 30);
+			if (timeout > 0 && elapsed > timeout) {
+				mustDelete = true;
+				alertStr = "Finished game auto-deleted";
 			}
+		}
+		
+		if (mustDelete) {
+			alert(alertStr);
+			ChessCraft.log(Level.INFO, alertStr);
+			deletePermanently();
 		}
 	}
 
