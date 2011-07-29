@@ -33,8 +33,13 @@ import org.bukkit.util.config.ConfigurationNode;
  */
 public class ChessAI {
 
-	private final static String AI_PREFIX = ChatColor.WHITE.toString();
-
+	/**
+	 * special character ensures AI name cannot (easily) be faked/hacked
+	 * also adds another level of AI name visibility
+	 * user/admins should NOT be given control of this variable
+	 * - use something else to enable changing AI name colors, if wanted
+	 */
+	public final static String AI_PREFIX = ChatColor.WHITE.toString();
 	static ChessCraft plugin = null;
 	static BukkitScheduler scheduler = null;
 	static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
@@ -132,8 +137,8 @@ public class ChessAI {
 						if ((name = name.trim()).length() > 0) {
 							availableAI.put(name.toLowerCase(),
 									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-											d.getInt("depth", 0),  d.getDouble("payout_multiplier", 1.0),
-											d.getString("comment")));
+									d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0),
+									d.getString("comment")));
 						}
 					}
 				}
@@ -186,6 +191,7 @@ public class ChessAI {
 			return new ArrayList<AI_Def>(availableAI.values());
 		}
 	}
+
 	public static List<AI_Def> listAIs() {
 		return listAIs(true);
 	}
@@ -194,7 +200,7 @@ public class ChessAI {
 		String[] ais = runningAI.keySet().toArray(new String[0]);
 		for (String aiName : ais) {
 			ChessAI ai = runningAI.get(aiName);
-			if(ai != null){
+			if (ai != null) {
 				ai.removeAI();
 			}
 		}
@@ -278,7 +284,7 @@ public class ChessAI {
 
 		try {
 			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
-			if (_game != null){ // if game not been deleted
+			if (_game != null) { // if game not been deleted
 				_game.moveFromCurrent(m);
 			}
 		} catch (Exception ex) {
@@ -300,8 +306,9 @@ public class ChessAI {
 
 	/**
 	 * Get the AI definition for the given name
-	 * @param aiName	Name of the ai, either with or without the AI prefix string
-	 * @return	The AI definition
+	 * @param aiName	Name of the AI, either with or without the AI prefix string <br>
+	 * if null, will return a random free AI (or null, if none are free)
+	 * @return	The AI definition, or null if not found
 	 */
 	public static AI_Def getAI(String aiName) {
 		if (aiName == null) {
@@ -369,7 +376,7 @@ public class ChessAI {
 		}
 
 		public String getName() {
-			return name;	
+			return name;
 		}
 
 		public String getFullAIName() {
