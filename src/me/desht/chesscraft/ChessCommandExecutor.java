@@ -200,11 +200,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		if (partialMatch(args, 1, "g")) { // game
 			tryDeleteGame(player, args);
-			plugin.maybeSave();
 		} else {
 			if (partialMatch(args, 1, "b")) { // board
 				tryDeleteBoard(player, args);
-				plugin.maybeSave();
 			} else {
 				ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>");
 				ChessUtils.errorMessage(player, "       /chess delete game <game-name>");
@@ -219,10 +217,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 			String gameName = args.length >= 3 ? args[2] : null;
 			String boardName = args.length >= 4 ? args[3] : null;
 			tryCreateGame(player, gameName, boardName);
-			plugin.maybeSave();
 		} else if (partialMatch(args, 1, "b")) { // board
 			tryCreateBoard(player, args);
-			plugin.maybeSave();
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>]");
 			ChessUtils.errorMessage(player, "       /chess create game [<game-name>] [<board-name>]");
@@ -765,9 +761,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Game.setCurrentGame(player.getName(), game);
 		bv.getControlPanel().repaintSignButtons();
 
-		game.autoSave();
-
 		//plugin.persistence.saveGame(game);
+		game.autoSave();
 
 		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
 		ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
@@ -820,6 +815,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			if (view.getGame() == null) {
 				view.restoreTerrain(player);
 				BoardView.removeBoardView(name);
+				plugin.persistence.removeBoardSavefile(view);
 				ChessUtils.statusMessage(player, "Deleted board &6" + name + "&-.");
 			} else {
 				ChessUtils.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '"

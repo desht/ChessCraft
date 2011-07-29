@@ -394,4 +394,10 @@ public class ChessPersistence {
 			ChessCraft.log(Level.WARNING, "Can't delete game save file " + f);
 		}
 	}
+	public void removeBoardSavefile(BoardView board) {
+		File f = new File(ChessConfig.getBoardPersistDirectory(), board.getName() + ".yml");
+		if (!f.delete()) {
+			ChessCraft.log(Level.WARNING, "Can't delete board save file " + f);
+		}
+	}
 }
