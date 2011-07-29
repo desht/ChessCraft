@@ -141,9 +141,18 @@ public class ChessConfig {
 		createDir(gamePersistDir);
 		// [plugins]/ChessCraft/data/boards
 		createDir(boardPersistDir);
-		// [plugins]/ChessCraft/data/boards/schematics
-		createDir(schematicsDir);
-
+		
+		// saved board schematics may need to be moved into their new location
+		File oldSchematicsDir = new File (pluginDir, "schematics");
+		if (oldSchematicsDir.isDirectory()) {
+			if (!oldSchematicsDir.renameTo(schematicsDir)) {
+				ChessCraft.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir);
+			}
+		} else {
+			// [plugins]/ChessCraft/data/boards/schematics
+			createDir(schematicsDir);
+		}
+		
 		extractResource("/AI_settings.yml", pluginDir);
 
 		extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir);

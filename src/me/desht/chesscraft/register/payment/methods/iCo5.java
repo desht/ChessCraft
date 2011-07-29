@@ -1,4 +1,4 @@
-package com.nijikokun.register.payment.methods;
+package me.desht.chesscraft.register.payment.methods;
 
 import com.iConomy.iConomy;
 import com.iConomy.system.Account;
@@ -6,7 +6,8 @@ import com.iConomy.system.BankAccount;
 import com.iConomy.system.Holdings;
 import com.iConomy.util.Constants;
 
-import com.nijikokun.register.payment.Method;
+
+import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 

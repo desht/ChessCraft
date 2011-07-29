@@ -3,7 +3,6 @@ package me.desht.chesscraft;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import me.jascotty2.bukkit.MinecraftChatStr;
@@ -57,16 +56,29 @@ public class MessageBuffer {
 	 * @param p			The player
 	 * @param messages	List of message lines to add
 	 */
-	static void add(Player p, String[] messages) {
+	static void add(Player p, String[] lines) {
 		init(p);
-		bufferMap.get(name(p)).addAll(Arrays.asList(messages));
+		add(p, Arrays.asList(lines));
 	}
 
-	static void add(Player p, LinkedList<String> lines) {
+	static void add(Player p, List<String> lines) {
 		init(p);
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
-		bufferMap.get(name(p)).addAll(lines);
+		
+		if (lines.size() > pageSize) {
+			// block is bigger than a page, just add it
+		} else if ((getSize(p) % pageSize) + lines.size() > pageSize) {
+			// add padding to keep the block on one page
+			int amount = pageSize - (getSize(p) % pageSize);
+			for (int i = 1; i <= amount; i++) {
+				System.out.println("pad " + i);
+				bufferMap.get(name(p)).add("");
+			}
+		}
+		for (String line : lines) {
+			bufferMap.get(name(p)).add(line);
+		}
 	}
 
 	/**
@@ -172,14 +184,10 @@ public class MessageBuffer {
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
 				ChessUtils.statusMessage(player, getLine(player, i));
 			}
-			
-			// if block is smaller than a page, add padding to keep the block on one page
-			for (; i < pageNum * pageSize; ++i) {
-				ChessUtils.statusMessage(player, "");
-			}
-			
+				
 			ChessUtils.statusMessage(player, ChatColor.GREEN.toString()
-					+ (nMessages > pageSize * pageNum ? footerBar : bar));
+					+ (nMessages > pageSize * pageNum ? 
+							MinecraftChatStr.strPadCenterChat(footerBar, 310, '-') : bar));
 
 			setPage(player, pageNum);
 		} else {

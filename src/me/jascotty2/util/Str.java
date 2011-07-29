@@ -32,7 +32,7 @@ public class Str extends OutputStream {
 	public static String argStr(String[] s, String sep, int start) {
 		StringBuilder ret = new StringBuilder();
 		if (s != null) {
-			for (int i = start, j = 0; i < s.length; ++i, ++j) {
+			for (int i = start; i < s.length; ++i) {
 				ret.append(s[i]);
 				if (i + 1 < s.length) {
 					ret.append(sep);

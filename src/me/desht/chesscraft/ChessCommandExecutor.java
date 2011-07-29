@@ -130,7 +130,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
 		long leftAt = plugin.playerListener.getPlayerLeftAt(other);
 		if (leftAt == 0) {
-			return;
+			throw new ChessException("You can only do this if the other player has gone offline.");
 		}
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
@@ -717,7 +717,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
 			if (Economy.active()) {
-				//sb.append(", payout=").append(ai.getPayoutMultiplier());
 				sb.append(player != null ? "<l>" : ", ");
 				sb.append("payout=").append((int) (ai.getPayoutMultiplier() * 100)).append("%");
 			}
@@ -731,11 +730,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 			if (ai.getComment() != null) {
 				lines.add("  &2 - " + ai.getComment());
 			}
-//			if (ai.getComment() != null) {
-//				MessageBuffer.add(player, new String[]{sb.toString(), "  &2 - " + ai.getComment()});
-//			} else {
-//				MessageBuffer.add(player, sb.toString());
-//			}
 		}
 		lines = MinecraftChatStr.alignTags(lines, true);
 		MessageBuffer.add(player, lines);
@@ -891,9 +885,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_STAKE);
 
 		double newStake = game.getStake() + stakeIncr;
-		if (newStake < 0.0 || newStake > Economy.getBalance(player.getName())) {
-			return;
+		if (newStake < 0.0)
+			return;		
+		if (newStake > Economy.getBalance(player.getName())) {
+			newStake = Economy.getBalance(player.getName());
 		}
+		
 		game.setStake(newStake);
 	}
 

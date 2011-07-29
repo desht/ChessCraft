@@ -1,7 +1,8 @@
-package com.nijikokun.register.payment.methods;
+package me.desht.chesscraft.register.payment.methods;
 
-import com.nijikokun.register.payment.Method;
 import cosine.boseconomy.BOSEconomy;
+import me.desht.chesscraft.register.payment.Method;
+
 import org.bukkit.plugin.Plugin;
 
 /**
