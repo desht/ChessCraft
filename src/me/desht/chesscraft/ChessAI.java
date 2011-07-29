@@ -168,7 +168,7 @@ public class ChessAI {
 			if (max == 0) {
 				throw new ChessException("AI games are disabled");
 			} else if (runningAI.size() >= max) {
-				throw new ChessException("there are no AI avaliable to play right now \n" + "(all " + max
+				throw new ChessException("There are no AIs available to play right now \n" + "(all " + max
 						+ " are currently playing games of their own)");
 			}
 		}
