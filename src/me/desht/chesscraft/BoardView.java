@@ -23,38 +23,27 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.ChessStone;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.util.config.Configuration;
 
 public class BoardView implements PositionListener {
 
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private ChessCraft plugin;
 	private String name;
-	private Game game;
-	private Location a1Square;
-	private Location origin;
+	// null indicates board not used by any game yet
+	private Game game = null;
 	// if highlight_last_move, what squares are highlighted
 	private int fromSquare = -1, toSquare = -1;
-	private int frameWidth;
-	private int squareSize;
-	private int height;
-	private MaterialWithData blackSquareMat;
-	private MaterialWithData whiteSquareMat;
-	private MaterialWithData frameMat;
-	private MaterialWithData controlPanelMat;
-	private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
-	private HighlightStyle highlightStyle;
-	private MaterialWithData enclosureMat;
-	private String boardStyle, pieceStyle;
-	private Boolean isLit;
-	private Map<Integer, ChessStone> stones;
 	private byte lastLevel;
 	private ControlPanel controlPanel;
+	private ChessBoard boardSettings = null;
 
 	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
 		_init(bName, plugin, where, bStyle, pStyle, false);
@@ -73,8 +62,8 @@ public class BoardView implements PositionListener {
 		if (BoardView.checkBoardView(name)) {
 			throw new ChessException("A board with this name already exists.");
 		}
-
-		game = null; // indicates board not used by any game yet
+		
+		boardSettings = new ChessBoard();
 		if (boardStyle == null) {
 			boardStyle = "Standard";
 		}
@@ -93,23 +82,25 @@ public class BoardView implements PositionListener {
 		}
 	}
 
+	public static void validateBoardCreation(String bName, Location where, String bStyle, String pStyle) throws ChessException {
+		if (checkBoardView(bName)) {
+			throw new ChessException("A board with this name already exists.");
+		}
+		int squares = checkStyle(bStyle != null ? bStyle : "Standard");
+
+		Location a1 = calcBaseSquare(where, squares);
+
+		validateIntersections(getBounds(a1, squares));
+
+		createStones(pieceStyle);
+		validateBoardParams();
+	}
+
 	/**
 	 * Overall sanity checking on board/set parameters
 	 * @throws ChessException if anything about the board & pieces are bad
 	 */
-	private void validateBoardParams() throws ChessException {
-		if (squareSize < 2) {
-			throw new ChessException("Board's square size is too small (minimum 2)!");
-		}
-		if (height < 3) {
-			throw new ChessException("Board does not have enough vertical space (minimum 3)!");
-		}
-		if (frameWidth < 2) {
-			throw new ChessException("Frame width is too narrow (minimum 2)");
-		}
-		if (a1Square.getBlockY() + height >= 127) {
-			throw new ChessException("Board altitude is too high - roof would be above top of world");
-		}
+	private static void validateBoardParams(int squareSize, int height, Map<Integer, ChessStone> stones) throws ChessException {
 
 		int maxH = -1, maxV = -1;
 		for (Entry<Integer, ChessStone> entry : stones.entrySet()) {
@@ -131,11 +122,20 @@ public class BoardView implements PositionListener {
 	 */
 	private void validateIntersections() throws ChessException {
 		Cuboid bounds = getBounds();
+
 		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
 		bounds.expand(Direction.Up, getHeight() + 1);
 
+		validateIntersections(getBounds());
+	}
+
+	private static void validateIntersections(Cuboid bounds) throws ChessException {
+
+		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
+			throw new ChessException("Board altitude is too high - roof would be above top of world");
+		}
 		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.getA1Square().getWorld() != getA1Square().getWorld()) {
+			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
 				continue;
 			}
 			for (Location l : bounds.corners()) {
@@ -155,6 +155,16 @@ public class BoardView implements PositionListener {
 		result.put("origin", ChessPersistence.makeBlockList(origin));
 
 		return result;
+	}
+
+	public void save() {
+		plugin.persistence.saveBoard(this);
+	}
+
+	public void autoSave() {
+		if (plugin.getConfiguration().getBoolean("autosave", true)) {
+			save();
+		}
 	}
 
 	public String getName() {
@@ -215,6 +225,43 @@ public class BoardView implements PositionListener {
 
 	public MaterialWithData getEnclosureMat() {
 		return enclosureMat;
+	}
+
+	/**
+	 * check if there is no problem with the given board style
+	 * @param style style to validate
+	 * @return the size of a square
+	 * @throws ChessException if there is a problem with the file
+	 */
+	public static int checkStyle(String style) throws ChessException {
+		//Yaml yaml = new Yaml();
+		File f = new File(ChessConfig.getBoardStyleDirectory(), style + ".yml");
+		if (!f.exists()) {
+			throw new ChessException("board style \"" + style + "\" was not found");
+		}
+		try {
+			Configuration c = new Configuration(f);
+			c.load();
+			//Map<String, Object> styleMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
+			for (String k : new String[]{"square_size", "frame_width", "height",
+						"lit", "black_square", "white_square", "frame", "enclosure"}) {
+				if (c.getProperty(k) == null) {
+					throw new ChessException("required field '" + k + "' is missing");
+				}
+			}
+			if (c.getInt("square_size", 0) < 2) {
+				throw new ChessException("Board's square size is too small (minimum 2)!");
+			}else if (c.getInt("height", 0) < 3) {
+				throw new ChessException("Board does not have enough vertical space (minimum 3)!");
+			} else if (c.getInt("frame_width", 0) < 2) {
+				throw new ChessException("Frame width is too narrow (minimum 2)");
+			}
+
+			return c.getInt("square_size", 0);
+		} catch (Exception e) {
+			ChessCraft.log(Level.SEVERE, "can't load board style " + style, e);
+			throw new ChessException("Board style '" + style + "' cannot be loaded: " + e.getMessage());
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -292,18 +339,10 @@ public class BoardView implements PositionListener {
 		return new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
 	}
 
-	private Map<Integer, ChessStone> createStones(String pieceStyle) throws ChessException {
-		if (!plugin.library.isChessSetLoaded(pieceStyle)) {
-			plugin.library.loadChessSet(pieceStyle);
-		}
-		Map<Integer, ChessStone> result = new HashMap<Integer, ChessStone>();
-
-		for (int stone = Chess.MIN_STONE; stone <= Chess.MAX_STONE; ++stone) {
-			if (stone != Chess.NO_STONE) {
-				result.put(stone, plugin.library.getStone(pieceStyle, stone));
-			}
-		}
-		return result;
+	private static Location calcBaseSquare(Location where, int square) {
+		int xOff = square / 2;
+		int zOff = square / 2;
+		return new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
 	}
 
 	/**
@@ -648,6 +687,18 @@ public class BoardView implements PositionListener {
 		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, 1);
 	}
 
+	static Cuboid getBounds(Location a1Center, int square) {
+		Location a1 = rowColToWorldSW(a1Center, square, 0, 0);
+		Location h8 = rowColToWorldNE(a1Center, square, 7, 7);
+
+		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
+		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
+
+		World w = a1Center.getWorld();
+		int y = a1Center.getBlockY();
+		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, 1);
+	}
+
 	public Cuboid getOuterBounds() {
 		Cuboid res = getBounds();
 		res.outset(Direction.Horizontal, getFrameWidth() - 1);
@@ -666,6 +717,10 @@ public class BoardView implements PositionListener {
 		return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
 	}
 
+	static Location rowColToWorldNE(Location a1, int square, int row, int col) {
+		return rowColToWorld(a1, square, row, col, square - 1, square - 1);
+	}
+
 	/**
 	 * given a Chess row & col, get the location in world coords
 	 * of that square's SW block (largest X & Z)
@@ -677,6 +732,10 @@ public class BoardView implements PositionListener {
 		return rowColToWorld(row, col, 0, 0);
 	}
 
+	static Location rowColToWorldSW(Location a1, int square, int row, int col) {
+		return rowColToWorld(a1, square, row, col, 0, 0);
+	}
+
 	public Location rowColToWorldCenter(int row, int col) {
 		return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
 	}
@@ -685,6 +744,12 @@ public class BoardView implements PositionListener {
 		Location a1 = a1Square;
 		xOff += row * squareSize;
 		zOff += col * squareSize;
+		return new Location(a1.getWorld(), a1.getX() - xOff, a1.getY(), a1.getZ() - zOff);
+	}
+
+	static Location rowColToWorld(Location a1, int square, int row, int col, int xOff, int zOff) {
+		xOff += row * square;
+		zOff += col * square;
 		return new Location(a1.getWorld(), a1.getX() - xOff, a1.getY(), a1.getZ() - zOff);
 	}
 

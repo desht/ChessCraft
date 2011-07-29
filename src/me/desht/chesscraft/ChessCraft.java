@@ -147,11 +147,10 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	public void maybeSave() {
-		if (getConfiguration().getBoolean("autosave", true)) {
-			persistence.save();
-		}
-	}
+
+    public ChessPersistence getSaveDatabase(){
+        return persistence;
+    }
 
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;

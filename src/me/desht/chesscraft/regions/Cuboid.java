@@ -36,6 +36,10 @@ public class Cuboid implements Iterable<Location> {
 	public Location getUpperSW() {
 		return upperSW;
 	}
+	
+	public World getWorld(){
+		return lowerNE == null ? (upperSW == null ? null : upperSW.getWorld()) : lowerNE.getWorld();
+	}
 
 	public List<Location> corners() {
 		List<Location> res = new ArrayList<Location>(8);

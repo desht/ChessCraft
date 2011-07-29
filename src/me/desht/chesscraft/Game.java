@@ -117,11 +117,11 @@ public class Game {
 		return map;
 	}
 
-	void save() {
+	public void save() {
 		plugin.persistence.saveGame(this);
 	}
 
-	void autoSave() {
+	public void autoSave() {
 		if (plugin.getConfiguration().getBoolean("autosave", true)) {
 			save();
 		}
