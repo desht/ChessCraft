@@ -1,6 +1,6 @@
 package me.desht.chesscraft.enums;
 
-import com.sk89q.util.StringUtil;
+import me.desht.chesscraft.ChessUtils;
 
 public enum HighlightStyle {
 
@@ -12,7 +12,7 @@ public enum HighlightStyle {
 		}
 		style = style.trim().toUpperCase();
 		for (HighlightStyle h : values()) {
-			if (h.name().equals(style) || StringUtil.getLevenshteinDistance(h.name(), style) < 2) {
+			if (h.name().equals(style) || ChessUtils.getLevenshteinDistance(h.name(), style) < 2) {
 				return h;
 			}
 		}

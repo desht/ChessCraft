@@ -413,7 +413,7 @@ public class ChessAI {
 					moteur.setSearchDepthLimit(searchDepth);
 				}
 			}
-			moteur.setOpeningsEnabled(false); // don't use pre-defined openings
+			moteur.setOpeningsEnabled(true); // don't use pre-defined openings
 			return moteur;
 		}
 	}

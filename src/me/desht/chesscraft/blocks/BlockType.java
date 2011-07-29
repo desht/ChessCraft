@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumSet;
 import java.util.Map.Entry;
-import com.sk89q.util.StringUtil;
+
+import me.desht.chesscraft.ChessUtils;
+
 
 /**
  * Block types.
@@ -314,7 +316,7 @@ public enum BlockType {
 				continue;
 			}
 
-			int dist = StringUtil.getLevenshteinDistance(entry.getKey(), testName);
+			int dist = ChessUtils.getLevenshteinDistance(entry.getKey(), testName);
 
 			if ((dist < minDist || minDist == -1) && dist < 2) {
 				minDist = dist;
