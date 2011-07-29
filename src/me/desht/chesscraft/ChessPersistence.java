@@ -229,22 +229,6 @@ public class ChessPersistence {
 		original.renameTo(backup);
 	}
 
-	// private void makeBackup(File original) {
-	// try {
-	// File backup = getBackupFileName(original.getParentFile(),
-	// original.getName());
-	//
-	// ChessCraft.log(Level.INFO,
-	// "An error occurred while loading the saved data, so a backup copy of " +
-	// original
-	// + " is being created. The backup can be found at " + backup.getPath());
-	// copy(original, backup);
-	// } catch (IOException e) {
-	// ChessCraft.log(Level.SEVERE, "Error while trying to write backup file: "
-	// + e);
-	// }
-	// }
-
 	public static File getBackupFileName(File parentFile, String template) {
 		String ext = ".BACKUP.";
 		File backup;
@@ -256,20 +240,6 @@ public class ChessPersistence {
 		} while (backup.exists());
 		return backup;
 	}
-
-	// public static void copy(File src, File dst) throws IOException {
-	// InputStream in = new FileInputStream(src);
-	// OutputStream out = new FileOutputStream(dst);
-	//
-	// // Transfer bytes from in to out
-	// byte[] buf = new byte[1024];
-	// int len;
-	// while ((len = in.read(buf)) > 0) {
-	// out.write(buf, 0, len);
-	// }
-	// in.close();
-	// out.close();
-	// }
 
 	@SuppressWarnings("unchecked")
 	private int loadBoards() {

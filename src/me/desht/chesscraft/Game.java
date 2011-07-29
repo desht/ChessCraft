@@ -69,8 +69,11 @@ public class Game {
 		lastCheck = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
-		stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName));
-
+		if (playerName != null) {
+			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName));
+		} else {
+			stake = 0.0;
+		}
 		setupChesspressoGame();
 
 		getPosition().addPositionListener(view);
@@ -126,6 +129,7 @@ public class Game {
 
 	@SuppressWarnings("unchecked")
 	boolean thaw(Map<String, Object> map) {
+		System.out.println("in thaw");
 		playerWhite = (String) map.get("playerWhite");
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
@@ -137,7 +141,8 @@ public class Game {
 		}
 		started = (Long) map.get("started");
 		if (map.containsKey("finished")) {
-			finished = (Long) map.get("finished");
+			// a simple cast to Long won't work here
+			finished = Long.parseLong(map.get("finished").toString());
 		} else {
 			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
 		}
