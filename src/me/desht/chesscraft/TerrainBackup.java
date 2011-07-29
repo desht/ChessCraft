@@ -50,7 +50,8 @@ public class TerrainBackup {
 		editSession = localSession.createEditSession(localPlayer);
 
 		try {
-			saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(), "schematic", new String[]{"schematic"});
+			saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(),
+					"schematic", new String[] { "schematic" });
 		} catch (FilenameException ex) {
 			ChessCraft.log(Level.WARNING, ex.getMessage());
 		}
@@ -90,20 +91,19 @@ public class TerrainBackup {
 				ChessCraft.log(Level.WARNING, "Could not delete " + saveFile);
 			}
 		} catch (Exception e) {
-			// DataException, IOException, EmptyClipboardException, MaxChangedBlocksException
+			// DataException, IOException, EmptyClipboardException,
+			// MaxChangedBlocksException
 			ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
 
 		}
 	}
 
 	public static void save(ChessCraft plugin, Player player, BoardView view) {
-		if (plugin.getWorldEdit() != null) {
-			try {
-				TerrainBackup tb = new TerrainBackup(plugin, player, view);
-				tb.saveTerrain();
-			} catch (FilenameException e) {
-				ChessCraft.log(Level.WARNING, e.getMessage());
-			}
+		try {
+			TerrainBackup tb = new TerrainBackup(plugin, player, view);
+			tb.saveTerrain();
+		} catch (FilenameException e) {
+			ChessCraft.log(Level.WARNING, e.getMessage());
 		}
 	}
 
