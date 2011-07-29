@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,7 +24,13 @@ import org.bukkit.util.config.Configuration;
 public class ChessPersistence {
 
 	private ChessCraft plugin;
-	private static final String persistFile = "persist.yml";
+	private FilenameFilter ymlFilter = new FilenameFilter() {
+
+		@Override
+		public boolean accept(File dir, String name) {
+			return name.endsWith(".yml");
+		}
+	};
 
 	public ChessPersistence(ChessCraft plugin) {
 		this.plugin = plugin;
@@ -65,76 +72,153 @@ public class ChessPersistence {
 	}
 
 	private void savePersistedData() {
-		Configuration conf = new Configuration(new File(plugin.getDataFolder(), persistFile));
+		saveGames();
+		saveBoards();
+
+		Configuration conf = new Configuration(ChessConfig.getPersistFile());
 
 		conf.setProperty("current_games", Game.getCurrentGames());
 
-		List<Map<String, Object>> boards = new ArrayList<Map<String, Object>>();
-		for (BoardView bv : BoardView.listBoardViews()) {
-			boards.add(bv.freeze());
-		}
-		conf.setProperty("boards", boards);
-
 		conf.save();
-
-		for (Game game : Game.listGames()) {
-			saveOneGame(game);
-		}
-		//        
-		//        List<Map<String, Object>> games = new ArrayList<Map<String, Object>>();
-		//        for (Game game : Game.listGames()) {
-		//            games.add(game.freeze());
-		//        }
-		//        conf.setProperty("games", games);
-		//
-		//        conf.save();
 	}
 
 	@SuppressWarnings("unchecked")
 	private void loadPersistedData() {
-		File f = new File(ChessConfig.getPluginDirectory(), persistFile);
-		Configuration conf = new Configuration(f);
-		conf.load();
+		if (!loadOldPersistedData()) {
+			// load v0.3 or later saved data - they are in a subdirectory, one file per entry
+			int nLoadedBoards = loadBoards();
+			int nLoadedGames = loadGames();
 
-		int nWantedBoards = 0, nLoadedBoards = 0;
-		int nWantedGames = 0, nLoadedGames = 0;
+			ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
 
-		List<Map<String, Object>> boards = (List<Map<String, Object>>) conf.getProperty("boards");
-		if (boards != null) {
-			nWantedBoards = boards.size();
-			nLoadedBoards = loadBoards(boards);
-		}
-		List<Map<String, Object>> games = (List<Map<String, Object>>) conf.getProperty("games");
-		if (games != null) {
-			// this will be the case for v0.2 or older
-			nWantedGames = games.size();
-			nLoadedGames = loadGamesLegacy(games);
-		} else {
-			// load v0.3 or later saved games - they are in a subdirectory, one file per game
-			nWantedGames = nLoadedGames = loadGames();
-		}
-
-		if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) {
-			makeBackup(f);
-		}
-
-		ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
-
-		for (BoardView bv : BoardView.listBoardViews()) {
-			bv.paintAll();
-		}
-
-		Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
-		if (cgMap != null) {
-			for (Entry<String, String> entry : cgMap.entrySet()) {
-				try {
-					Game.setCurrentGame(entry.getKey(), entry.getValue());
-				} catch (ChessException e) {
-					ChessCraft.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
-							+ e.getMessage());
-				}
+			for (BoardView bv : BoardView.listBoardViews()) {
+				bv.paintAll();
 			}
+			try {
+				Configuration conf = new Configuration(ChessConfig.getPersistFile());
+				conf.load();
+
+				Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
+				if (cgMap != null) {
+					for (Entry<String, String> entry : cgMap.entrySet()) {
+						try {
+							Game.setCurrentGame(entry.getKey(), entry.getValue());
+						} catch (ChessException e) {
+							ChessCraft.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
+									+ e.getMessage());
+						}
+					}
+				}
+			} catch (Exception e) {
+				ChessCraft.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
+				moveBackup(ChessConfig.getPersistFile());
+			}
+		} else {
+			save();
 		}
+	}
+
+	/**
+	 * old loading routine
+	 * if the old file is found, will load it, make a backup, then delete
+	 * @return true if the old file was found
+	 */
+	@SuppressWarnings("unchecked")
+	private boolean loadOldPersistedData() {
+		final String oldPersistFilename = "persist.yml";
+		File f = new File(plugin.getDataFolder(), oldPersistFilename);
+		if (f.exists()) {
+			try {
+				Configuration conf = new Configuration(f);
+				conf.load();
+
+				int nWantedBoards = 0, nLoadedBoards = 0;
+				int nWantedGames = 0, nLoadedGames = 0;
+
+				List<Map<String, Object>> boards = (List<Map<String, Object>>) conf.getProperty("boards");
+				if (boards != null) {
+					nWantedBoards = boards.size();
+
+					/**
+					 * v0.2 or earlier saved boards - all in the main persist.yml file
+					 * @param boardList a list of the boards
+					 * @return the number of games that were sucessfully loaded
+					 */
+					for (Map<String, Object> boardMap : boards) {
+						String bvName = (String) boardMap.get("name");
+						List<Object> origin = (List<Object>) boardMap.get("origin");
+						World w = findWorld((String) origin.get(0));
+						Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
+						try {
+							BoardView.addBoardView(
+									new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
+									(String) boardMap.get("pieceStyle")));
+							++nLoadedBoards;
+						} catch (Exception e) {
+							ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
+						}
+					}
+				}
+				List<Map<String, Object>> games = (List<Map<String, Object>>) conf.getProperty("games");
+				if (games != null) {
+					nWantedGames = games.size();
+					/**
+					 * v0.2 or earlier saved games - all in the main persist.yml file
+					 * @param gameList a list of the map objects for each game
+					 * @return the number of games that were sucessfully loaded
+					 */
+					for (Map<String, Object> gameMap : games) {
+						if (loadGame(gameMap)) {
+							++nLoadedGames;
+						}
+					}
+				}
+
+				if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) {
+					ChessCraft.log(Level.INFO, "An error occurred while loading the saved data");
+				}
+
+				ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games from old file.");
+
+				for (BoardView bv : BoardView.listBoardViews()) {
+					bv.paintAll();
+				}
+
+				Map<String, String> cgMap = (Map<String, String>) conf.getProperty("current_games");
+				if (cgMap != null) {
+					for (Entry<String, String> entry : cgMap.entrySet()) {
+						try {
+							Game.setCurrentGame(entry.getKey(), entry.getValue());
+						} catch (ChessException e) {
+							ChessCraft.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
+									+ e.getMessage());
+						}
+					}
+				}
+			} catch (Exception e) {
+				ChessCraft.log(Level.SEVERE, "Unexpected Error while loading the saved data: " + e.getMessage());
+			}
+			ChessCraft.log(Level.INFO, "old file will be backed up, just in case");
+			File backup = getBackupFileName(f.getParentFile(), oldPersistFilename);
+			// rename much easier than copy & delete :)
+			f.renameTo(backup);
+
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * move to a backup & delete original <br>
+	 * (for if the file is considered corrupt)
+	 * @param original file to backup
+	 */
+	private void moveBackup(File original) {
+		File backup = getBackupFileName(original.getParentFile(), original.getName());
+
+		ChessCraft.log(Level.INFO, "An error occurred while loading " + original.getName() + ":\n"
+				+ "a backup copy has been saved to " + backup.getPath());
+		original.renameTo(backup);
 	}
 
 	private void makeBackup(File original) {
@@ -176,23 +260,44 @@ public class ChessPersistence {
 	}
 
 	@SuppressWarnings("unchecked")
-	private int loadBoards(List<Map<String, Object>> boardList) {
+	private int loadBoards() {
 		int nLoaded = 0;
-		for (Map<String, Object> boardMap : boardList) {
-			String bvName = (String) boardMap.get("name");
-			List<Object> origin = (List<Object>) boardMap.get("origin");
-			World w = findWorld((String) origin.get(0));
-			Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
+		for (File f : ChessConfig.getBoardPersistDirectory().listFiles(ymlFilter)) {
 			try {
+				Configuration conf = new Configuration(f);
+				conf.load();
+
+				String bvName = conf.getString("name");
+				List<Object> origin = (List<Object>) conf.getProperty("origin");
+				World w = findWorld((String) origin.get(0));
+				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
 				BoardView.addBoardView(
-						new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
-								(String) boardMap.get("pieceStyle")));
+						new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"),
+						conf.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
+				ChessCraft.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
+				moveBackup(f);
 			}
 		}
 		return nLoaded;
+	}
+
+	protected void saveBoards() {
+		for (BoardView b : BoardView.listBoardViews()) {
+			saveBoard(b);
+		}
+	}
+
+	public void saveBoard(BoardView board) {
+		Configuration conf = new Configuration(new File(
+				ChessConfig.getBoardPersistDirectory(),
+				safeFileName(board.getName()) + ".yml"));
+		Map<String, Object> st = board.freeze();
+		for (String key : st.keySet()) {
+			conf.setProperty(key, st.get(key));
+		}
+		conf.save();
 	}
 
 	/**
@@ -201,52 +306,49 @@ public class ChessPersistence {
 	 * @return the number of games that were sucessfully loaded
 	 */
 	private int loadGames() {
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".yml");
+		HashMap<String, Map<String, Object>> toLoad = new HashMap<String, Map<String, Object>>();
+		// game validation checks
+		for (File f : ChessConfig.getGamesPersistDirectory().listFiles(ymlFilter)) {
+			try {
+				Configuration conf = new Configuration(f);
+				conf.load();
+				conf.setProperty("filename", f.getName());
+				String board = conf.getString("boardview");
+				if (board == null) {
+					ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName() + ": boardview is null");
+					moveBackup(f);
+				} else if (toLoad.containsKey(board)) {
+					// only load the newer game
+					int tstart = conf.getInt("started", 0);
+					int ostart = (Integer) toLoad.get(board).get("started");
+					if (ostart >= tstart) {
+						ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
+						moveBackup(f);
+					} else {
+						String fn = (String) toLoad.get(board).get("filename");
+						ChessCraft.log(Level.SEVERE, "can't load saved game " + fn + ": another game is using the same board");
+						(new File(f.getParentFile(), fn)).renameTo(new File(f.getParentFile(), fn + ".bak"));
+						toLoad.put(board, conf.getAll());
+					}
+				} else {
+					toLoad.put(board, conf.getAll());
+				}
+			} catch (Exception e) {
+				ChessCraft.log(Level.SEVERE, "Error loading " + f.getName(), e);
+				moveBackup(f);
 			}
-		};
-
+		}
+		// now actually load games
 		int nLoaded = 0;
-		for (String fname : ChessConfig.getGamesPersistDirectory().list(filter)) {
-			File f = new File(ChessConfig.getGamesPersistDirectory(), fname);
-			Configuration conf = new Configuration(f);
-			conf.load();
-			Map<String, Object> gameMap = conf.getAll();
-			if (loadOneGame(gameMap)) {
-				nLoaded++;
-			} else {
-				makeBackup(f);
+		for (Map<String, Object> gameMap : toLoad.values()) {
+			if (loadGame(gameMap)) {
+				++nLoaded;
 			}
 		}
 		return nLoaded;
 	}
 
-	/**
-	 * v0.2 or earlier saved games - all in the main persist.yml file
-	 * @param gameList a list of the map objects for each game
-	 * @return the number of games that were sucessfully loaded
-	 */
-	private int loadGamesLegacy(List<Map<String, Object>> gameList) {
-		int nLoaded = 0;
-		for (Map<String, Object> gameMap : gameList) {
-			if (loadOneGame(gameMap))
-				nLoaded++;
-		}
-		return nLoaded;
-	}
-
-	void saveOneGame(Game game) {
-		Configuration gConf = new Configuration(new File(ChessConfig.getGamesPersistDirectory(), game.getName() + ".yml"));
-		Map<String, Object> map = game.freeze();
-		for (Entry<String, Object> e : map.entrySet()) {
-			gConf.setProperty(e.getKey(), e.getValue());
-		}
-		gConf.save();
-	}
-
-	private boolean loadOneGame(Map<String, Object> gameMap) {
+	private boolean loadGame(Map<String, Object> gameMap) {
 		String gameName = (String) gameMap.get("name");
 		try {
 			BoardView bv = BoardView.getBoardView((String) gameMap.get("boardview"));
@@ -261,10 +363,41 @@ public class ChessPersistence {
 		return false;
 	}
 
-	void removeGameSavefile(Game game) {
+	protected void saveGames(){
+		for (Game game : Game.listGames()) {
+			saveGame(game);
+		}
+	}
+
+	public void saveGame(Game game) {
+		Configuration gConf = new Configuration(new File(
+				ChessConfig.getGamesPersistDirectory(),
+				safeFileName(game.getName()) + ".yml"));
+		Map<String, Object> map = game.freeze();
+		for (Entry<String, Object> e : map.entrySet()) {
+			gConf.setProperty(e.getKey(), e.getValue());
+		}
+		gConf.save();
+	}
+
+	protected static String safeFileName(String name) {
+		return name == null ? "" : name.replace("/", "-").
+				replace("\\", "-").replace("?", "-").replace(":", ";").
+				replace("%", "-").replace("|", ";").replace("\"", "'").
+				replace("<", ",").replace(">", ".").replace("+", "=").
+				replace("[", "(").replace("]", ")");
+	}
+
+	public void removeGameSavefile(Game game) {
 		File f = new File(ChessConfig.getGamesPersistDirectory(), game.getName() + ".yml");
 		if (!f.delete()) {
 			ChessCraft.log(Level.WARNING, "Can't delete game save file " + f);
+		}
+	}
+	public void removeBoardSavefile(BoardView board) {
+		File f = new File(ChessConfig.getBoardPersistDirectory(), board.getName() + ".yml");
+		if (!f.delete()) {
+			ChessCraft.log(Level.WARNING, "Can't delete board save file " + f);
 		}
 	}
 }
