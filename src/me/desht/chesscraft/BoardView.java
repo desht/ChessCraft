@@ -157,6 +157,10 @@ public class BoardView implements PositionListener {
 		return result;
 	}
 
+	public void save() {
+		plugin.persistence.saveBoard(this);
+	}
+	
 	public String getName() {
 		return name;
 	}

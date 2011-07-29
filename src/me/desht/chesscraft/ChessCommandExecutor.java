@@ -717,7 +717,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
 			if (Economy.active()) {
-				//sb.append(", payout=").append(ai.getPayoutMultiplier());
 				sb.append(player != null ? "<l>" : ", ");
 				sb.append("payout=").append((int) (ai.getPayoutMultiplier() * 100)).append("%");
 			}
@@ -731,11 +730,6 @@ public class ChessCommandExecutor implements CommandExecutor {
 			if (ai.getComment() != null) {
 				lines.add("  &2 - " + ai.getComment());
 			}
-//			if (ai.getComment() != null) {
-//				MessageBuffer.add(player, new String[]{sb.toString(), "  &2 - " + ai.getComment()});
-//			} else {
-//				MessageBuffer.add(player, sb.toString());
-//			}
 		}
 		lines = MinecraftChatStr.alignTags(lines, true);
 		MessageBuffer.add(player, lines);
