@@ -116,14 +116,30 @@ public class MessageBuffer {
 		return bufferMap.get(name(p)).size();
 	}
 
+	/**
+	 * Get the page size (number of lines in one page)
+	 * @return The page size
+	 */
 	public static int getPageSize() {
 		return pageSize;
 	}
 
+	/**
+	 * Get the number of pages in the player's buffer.
+	 * 
+	 * @return	Number of pages in the buffer, including the partial page at the end
+	 */
 	static int getPageCount(Player p) {
 		return (getSize(p) - 1) / pageSize + 1;
 	}
 
+	/**
+	 * Get a line of text from the player's buffer
+	 * 
+	 * @param p	The player
+	 * @param i The line number
+	 * @return The line of text at that line
+	 */
 	static String getLine(Player p, int i) {
 		if (!bufferMap.containsKey(name(p))) {
 			return null;
@@ -132,6 +148,12 @@ public class MessageBuffer {
 		return bufferMap.get(name(p)).get(i);
 	}
 
+	/**
+	 * Set the current page for the player. This is ignored if the page number is out of range.
+	 * 
+	 * @param player	The player
+	 * @param page		The page number.
+	 */
 	static void setPage(Player player, int page) {
 		if (page < 1 || page > getPageCount(player)) {
 			return;
@@ -139,22 +161,48 @@ public class MessageBuffer {
 		currentPage.put(name(player), page);
 	}
 
+	/**
+	 * Move to the next page of the player's buffer.
+	 * 
+	 * @param player	The player
+	 */
 	static void nextPage(Player player) {
 		setPage(player, getPage(player) + 1);
 	}
 
+	/**
+	 * Move to the previous page of the player's buffer.
+	 * 
+	 * @param player	The player
+	 */
 	static void prevPage(Player player) {
 		setPage(player, getPage(player) - 1);
 	}
 
+	/**
+	 * Get the current page for the player
+	 * @param player The player
+	 * @return	The current page for the player
+	 */
 	static int getPage(Player player) {
 		return currentPage.get(name(player));
 	}
 
+	/**
+	 * Display the current page for the player.
+	 * 
+	 * @param player	The player
+	 */
 	static void showPage(Player player) {
 		showPage(player, currentPage.get(name(player)));
 	}
 
+	/**
+	 * Display the specified page for the player.
+	 * 
+	 * @param player	The player
+	 * @param pageStr	A string containing the page number to display
+	 */
 	static void showPage(Player player, String pageStr) {
 		try {
 			int pageNum = Integer.parseInt(pageStr);
@@ -164,6 +212,12 @@ public class MessageBuffer {
 		}
 	}
 
+	/**
+	 * Display the specified page for the player.
+	 * 
+	 * @param player	The player
+	 * @param pageNum	The page number to display
+	 */
 	static void showPage(Player player, int pageNum) {
 		if (!bufferMap.containsKey(name(player))) {
 			return;
