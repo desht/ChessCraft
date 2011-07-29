@@ -130,7 +130,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
 		long leftAt = plugin.playerListener.getPlayerLeftAt(other);
 		if (leftAt == 0) {
-			return;
+			throw new ChessException("You can only do this if the other player has gone offline.");
 		}
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
@@ -885,9 +885,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_STAKE);
 
 		double newStake = game.getStake() + stakeIncr;
-		if (newStake < 0.0 || newStake > Economy.getBalance(player.getName())) {
-			return;
+		if (newStake < 0.0)
+			return;		
+		if (newStake > Economy.getBalance(player.getName())) {
+			newStake = Economy.getBalance(player.getName());
 		}
+		
 		game.setStake(newStake);
 	}
 
