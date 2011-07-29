@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +47,6 @@ public class Game {
 	private long lastCheck;
 	private int timeWhite, timeBlack;
 	private List<Short> history;
-//	private int delTask;
 	private int result;
 	private double stake;
 	private ChessAI aiPlayer = null;
@@ -71,7 +69,6 @@ public class Game {
 		lastCheck = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
-//		delTask = -1;
 		stake =	Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
 		       	         Economy.getBalance(playerName));
 
@@ -461,7 +458,6 @@ public class Game {
 		}
 
 		ensurePlayerInGame(playerName);
-		//ensurePlayerToMove(playerName);
 
 		setState(GameState.FINISHED);
 		String winner;
@@ -647,7 +643,6 @@ public class Game {
 			}
 		}
 		handlePayout(rt, p1, p2);
-//		setupAutoDeletion();
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {
@@ -691,32 +686,6 @@ public class Game {
 		stake = 0.0;
 	}
 
-//	private void setupAutoDeletion() {
-//		int autoDel = plugin.getConfiguration().getInt("auto_delete.finished", 0);
-//		if (autoDel > 0) {
-//			delTask = Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-//
-//				public void run() {
-//					alert("Game auto-deleted!");
-//					deletePermanently();
-//				}
-//			}, autoDel * 20L);
-//
-//			if (delTask != -1) {
-//				alert("Game will auto-delete in " + autoDel + " seconds.");
-//			}
-//			alert("Type &f/chess archive&- to archive to PGN file.");
-//		}
-//	}
-//
-//	public void cancelAutoDelete() {
-//		if (delTask == -1) {
-//			return;
-//		}
-//		Bukkit.getServer().getScheduler().cancelTask(delTask);
-//		delTask = -1;
-//	}
-
 	/**
 	 * Called when a game is permanently deleted.
 	 */
@@ -742,7 +711,6 @@ public class Game {
 	}
 
 	private void deleteCommon() {
-//		cancelAutoDelete();
 
 		if (aiPlayer != null) {
 			// this would normally happen when the game goes to state FINISHED,
@@ -908,9 +876,6 @@ public class Game {
 	 * @return PGN format of the date
 	 */
 	private static String dateToPGNDate(long when) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(when);
-		
 		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when));
 	}
 
@@ -947,8 +912,8 @@ public class Game {
 
 	/**
 	 * Check if a game needs to be auto-deleted:
-	 * - Game that has not been started after a certain time
-	 * - Game that has been finished for a certain time
+	 * - Game that has not been started after a certain duration
+	 * - Game that has been finished for a certain duration
 	 */
 	public void checkForAutoDelete() {
 		boolean mustDelete = false;
@@ -1069,7 +1034,7 @@ public class Game {
 						return chessGames.get(keys[k]);
 					}
 				}
-				// todo: if multiple matches, check if only one is waiting for more players
+				// TODO: if multiple matches, check if only one is waiting for more players
 				//          (and return that one)
 			}
 			throw new ChessException("No such game '" + name + "'");
