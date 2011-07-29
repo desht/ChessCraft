@@ -129,7 +129,6 @@ public class Game {
 
 	@SuppressWarnings("unchecked")
 	boolean thaw(Map<String, Object> map) {
-		System.out.println("in thaw");
 		playerWhite = (String) map.get("playerWhite");
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
