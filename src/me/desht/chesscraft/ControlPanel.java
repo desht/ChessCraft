@@ -64,13 +64,6 @@ public class ControlPanel {
 		}
 
 		Game game = view.getGame();
-//        if (game != null
-//                //&& game.getState() != GameState.SETTING_UP
-//                && game.getPosition().getToPlay()
-//            view.toPlayChanged(Chess.BLACK);
-//        } else {
-//            view.toPlayChanged(Chess.WHITE);
-//        }
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
 
 		MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
@@ -110,7 +103,10 @@ public class ControlPanel {
 				&& (!hasWhite || !hasBlack));
 		createSignButton(3, 2, "invite-anyone", ";Invite;ANYONE", eastFacingWallSign, settingUp
 				&& (!hasWhite || !hasBlack));
-		createSignButton(4, 2, "start", ";Start;Game", eastFacingWallSign, settingUp);// && hasWhite && hasBlack);
+		createSignButton(4, 2, "start", ";Start;Game", eastFacingWallSign, settingUp);// &&
+																						// hasWhite
+																						// &&
+																						// hasBlack);
 		createSignButton(5, 2, "offer-draw", ";Offer;Draw", eastFacingWallSign, running);
 		createSignButton(6, 2, "resign", ";Resign", eastFacingWallSign, running);
 		createSignButton(7, 2, "game-info", ";Game;Info", eastFacingWallSign, game != null);
@@ -186,8 +182,6 @@ public class ControlPanel {
 		Game game = view.getGame();
 		SignButton button = buttonLocs.get(block.getLocation());
 		if (button == null) {
-			// plugin.log(Level.WARNING, "Can't find button at location " +
-			// block.getLocation());
 			return;
 		}
 

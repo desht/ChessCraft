@@ -44,8 +44,7 @@ public class ChessEntityListener extends EntityListener {
 
 	@Override
 	public void onEntityTarget(EntityTargetEvent event) {
-		if (event.isCancelled()
-				|| !(event.getTarget() instanceof Player)
+		if (event.isCancelled() || !(event.getTarget() instanceof Player)
 				|| !plugin.getConfiguration().getBoolean("no_creatures", false)) {
 			return;
 		}
@@ -54,8 +53,7 @@ public class ChessEntityListener extends EntityListener {
 				|| BoardView.partOfChessBoard(event.getTarget().getLocation()) != null) {
 			event.setCancelled(true);
 			// don't remove tame (pet) wolves
-			if (!(event.getEntity() instanceof Wolf
-					&& ((Wolf) event.getEntity()).isTamed())) {
+			if (!(event.getEntity() instanceof Wolf && ((Wolf) event.getEntity()).isTamed())) {
 				event.getEntity().remove();
 			}
 		}
@@ -92,22 +90,18 @@ public class ChessEntityListener extends EntityListener {
 				return;
 			}
 
-//            if (dbeEvent.getDamager() instanceof Player
-//                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
-//                return;
-//            }
-//            if (!(dbeEvent.getDamager() instanceof Player) && dbeEvent.getDamager() instanceof LivingEntity
-//                    && !plugin.getConfiguration().getBoolean("no_monster_attacks", false)) {
-//                return;
-//            }
-//            
 			Location attackerLoc = dbeEvent.getDamager().getLocation();
 			Location defenderLoc = event.getEntity().getLocation();
 			for (BoardView bv : BoardView.listBoardViews()) {
 				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-					event.setCancelled(true); // don't allow players to attack from safety of chessboard
-					if ((event.getEntity() instanceof Player) && // victim is a player
-							!(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
+					event.setCancelled(true); // don't allow players to attack
+												// from safety of chessboard
+					if ((event.getEntity() instanceof Player) && // victim is a
+																	// player
+							!(dbeEvent.getDamager() instanceof Player) // and
+																		// attacker
+																		// is a
+																		// monster
 							&& dbeEvent.getDamager() instanceof LivingEntity) {
 						dbeEvent.getDamager().remove(); // remove monster
 					}
@@ -121,22 +115,17 @@ public class ChessEntityListener extends EntityListener {
 				return;
 			}
 
-//            if (dbeEvent.getDamager() instanceof Player
-//                    && !plugin.getConfiguration().getBoolean("no_pvp", false)) {
-//                return;
-//            }
-//            if (!(dbeEvent.getDamager() instanceof Player) && dbeEvent.getDamager() instanceof LivingEntity
-//                    && !plugin.getConfiguration().getBoolean("no_monster_attacks", false)) {
-//                return;
-//            }
-
 			Location attackerLoc = dbeEvent.getDamager().getLocation();
 			Location defenderLoc = event.getEntity().getLocation();
 			for (BoardView bv : BoardView.listBoardViews()) {
 				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
 					event.setCancelled(true);
-					if ((event.getEntity() instanceof Player) && // victim is a player
-							!(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
+					if ((event.getEntity() instanceof Player) && // victim is a
+																	// player
+							!(dbeEvent.getDamager() instanceof Player) // and
+																		// attacker
+																		// is a
+																		// monster
 							&& dbeEvent.getDamager() instanceof LivingEntity) {
 						dbeEvent.getDamager().remove();
 					}
@@ -162,12 +151,10 @@ public class ChessEntityListener extends EntityListener {
 				int n = 0;
 				do {
 					loc.add(0, 0, -1); // east
-				} while (loc.getBlock().getTypeId() != 0
-						&& loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
+				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
 						&& n < MAX_DIST);
 				if (n >= MAX_DIST) {
-					ChessUtils.errorMessage(p,
-							"Can't find a safe place to displace you - going to spawn");
+					ChessUtils.errorMessage(p, "Can't find a safe place to displace you - going to spawn");
 					p.teleport(p.getWorld().getSpawnLocation());
 				} else {
 					p.teleport(loc);
@@ -191,7 +178,6 @@ public class ChessEntityListener extends EntityListener {
 	}
 
 	private boolean isAllowedPlayerAttack(Entity damager) {
-		return damager instanceof Player
-				&& !plugin.getConfiguration().getBoolean("no_pvp", false);
+		return damager instanceof Player && !plugin.getConfiguration().getBoolean("no_pvp", false);
 	}
 }

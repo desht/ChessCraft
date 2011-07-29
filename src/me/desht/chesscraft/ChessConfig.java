@@ -28,8 +28,7 @@ import org.bukkit.util.config.Configuration;
 public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft");
-	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir,
-			dataDir, gamePersistDir, boardPersistDir;
+	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, dataDir, gamePersistDir, boardPersistDir;
 	private static final String pgnFoldername = "pgn";
 	private static final String boardStyleFoldername = "board_styles";
 	private static final String pieceStyleFoldername = "piece_styles";
@@ -126,7 +125,7 @@ public class ChessConfig {
 
 		// files
 		persistFile = new File(dataDir, persistFilename);
-		
+
 		// [plugins]/ChessCraft
 		createDir(pluginDir);
 		// [plugins]/ChessCraft/pgn
@@ -141,9 +140,9 @@ public class ChessConfig {
 		createDir(gamePersistDir);
 		// [plugins]/ChessCraft/data/boards
 		createDir(boardPersistDir);
-		
+
 		// saved board schematics may need to be moved into their new location
-		File oldSchematicsDir = new File (pluginDir, "schematics");
+		File oldSchematicsDir = new File(pluginDir, "schematics");
 		if (oldSchematicsDir.isDirectory()) {
 			if (!oldSchematicsDir.renameTo(schematicsDir)) {
 				ChessCraft.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir);
@@ -152,7 +151,7 @@ public class ChessConfig {
 			// [plugins]/ChessCraft/data/boards/schematics
 			createDir(schematicsDir);
 		}
-		
+
 		extractResource("/AI_settings.yml", pluginDir);
 
 		extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir);
@@ -206,15 +205,16 @@ public class ChessConfig {
 					out.close();
 				}
 			} catch (IOException ex) {
-				//ChessCraft.log(Level.SEVERE, null, ex);
+				// ChessCraft.log(Level.SEVERE, null, ex);
 			}
 		}
 	}
 
 	/**
 	 * Load the existing config file (config.yml) and see if there are any items
-	 * in configDefaults which are not in the file.  If so, update the config with
-	 * defaults from configDefaults (preserving existing settings) and re-write the file.
+	 * in configDefaults which are not in the file. If so, update the config
+	 * with defaults from configDefaults (preserving existing settings) and
+	 * re-write the file.
 	 */
 	private static void configFileInitialise() {
 		Boolean saveNeeded = false;

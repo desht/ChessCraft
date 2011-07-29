@@ -133,8 +133,8 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	protected static void log(Level level, String message, Exception err) {
-		logger.log(level, String.format("%s: %s", name,
-				message == null ? (err == null ? "?" : err.getMessage()) : message), err);
+		logger.log(level,
+				String.format("%s: %s", name, message == null ? (err == null ? "?" : err.getMessage()) : message), err);
 	}
 
 	/*-----------------------------------------------------------------*/
@@ -147,11 +147,6 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	public void maybeSave() {
-		if (getConfiguration().getBoolean("autosave", true)) {
-			persistence.save();
-		}
-	}
 
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;

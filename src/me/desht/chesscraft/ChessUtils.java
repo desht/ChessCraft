@@ -103,20 +103,20 @@ public class ChessUtils {
 
 	public static String pieceToStr(int piece) {
 		switch (piece) {
-			case Chess.PAWN:
-				return "Pawn";
-			case Chess.ROOK:
-				return "Rook";
-			case Chess.KNIGHT:
-				return "Knight";
-			case Chess.BISHOP:
-				return "Bishop";
-			case Chess.KING:
-				return "King";
-			case Chess.QUEEN:
-				return "Queen";
-			default:
-				return "(unknown)";
+		case Chess.PAWN:
+			return "Pawn";
+		case Chess.ROOK:
+			return "Rook";
+		case Chess.KNIGHT:
+			return "Knight";
+		case Chess.BISHOP:
+			return "Bishop";
+		case Chess.KING:
+			return "King";
+		case Chess.QUEEN:
+			return "Queen";
+		default:
+			return "(unknown)";
 		}
 	}
 

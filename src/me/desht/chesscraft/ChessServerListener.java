@@ -6,9 +6,9 @@ import org.bukkit.event.server.ServerListener;
 
 public class ChessServerListener extends ServerListener {
 
-	//private ChessCraft plugin;
-	ChessServerListener(/*ChessCraft plugin*/) {
-		//this.plugin = plugin;
+	// private ChessCraft plugin;
+	ChessServerListener(/* ChessCraft plugin */) {
+		// this.plugin = plugin;
 	}
 
 	@Override

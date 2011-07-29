@@ -588,7 +588,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		game.ensureGameState(GameState.RUNNING);
 
 		String other = game.getOtherPlayer(player.getName());
-		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse, new ExpectYesNoOffer(plugin, game, player.getName(), other), other);
+		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse,
+				new ExpectYesNoOffer(plugin, game, player.getName(), other), other);
 		ChessUtils.statusMessage(player, "You have offered a draw to &6" + other + "&-.");
 		game.alert(other, "&6" + player.getName() + "&- has offered a draw.");
 		game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
@@ -641,7 +642,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (Economy.active()) {
 			MessageBuffer.add(player, bullet + "Stake: " + Economy.format(game.getStake()));
 		}
-		MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black") + " to play");
+		MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black")
+				+ " to play");
 		if (game.getState() == GameState.RUNNING) {
 			MessageBuffer.add(player, bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
 					+ Game.secondsToHMS(game.getTimeBlack()));
@@ -682,8 +684,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.add(player, bullet + "Game: " + w + gameName);
 		MessageBuffer.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
 		MessageBuffer.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
-		MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
-				+ bv.getBlackSquareMat() + ")");
+		MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat()
+				+ "/" + bv.getBlackSquareMat() + ")");
 		MessageBuffer.add(player, bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
 		MessageBuffer.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
 		MessageBuffer.add(player, bullet + "Height: " + w + bv.getHeight());
@@ -715,16 +717,16 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.clear(player);
 		LinkedList<String> lines = new LinkedList<String>();
 		for (AI_Def ai : ChessAI.listAIs(true)) {
-			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":" + ai.getSearchDepth());
+			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":"
+					+ ai.getSearchDepth());
 			if (Economy.active()) {
 				sb.append(player != null ? "<l>" : ", ");
 				sb.append("payout=").append((int) (ai.getPayoutMultiplier() * 100)).append("%");
 			}
 
-			if (ai.getComment() != null
-					&& player != null
-					&& ((lines.size() + 1) % MessageBuffer.getPageSize()) == 0) {
-				lines.add("");	// ensure description and comment are on the same page
+			if (ai.getComment() != null && player != null && ((lines.size() + 1) % MessageBuffer.getPageSize()) == 0) {
+				lines.add(""); // ensure description and comment are on the same
+								// page
 			}
 			lines.add(sb.toString());
 			if (ai.getComment() != null) {
@@ -755,10 +757,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 		Game.setCurrentGame(player.getName(), game);
 		bv.getControlPanel().repaintSignButtons();
 
-		//plugin.persistence.saveGame(game);
+		// plugin.persistence.saveGame(game);
 		game.autoSave();
 
-		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName() + "&-.");
+		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName()
+				+ "&-.");
 		ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
 		ChessUtils.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
 	}
@@ -791,7 +794,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String style = options.get("style");
 		String pieceStyle = options.get("pstyle");
 		@SuppressWarnings("unused")
-		// we create this temporary board only to check that the style & piece styles are valid & compatible
+		// we create this temporary board only to check that the style & piece
+		// styles are valid & compatible
 		BoardView testBoard = new BoardView(name, plugin, player.getLocation(), style, pieceStyle, true);
 
 		ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
@@ -886,11 +890,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		double newStake = game.getStake() + stakeIncr;
 		if (newStake < 0.0)
-			return;		
+			return;
 		if (newStake > Economy.getBalance(player.getName())) {
 			newStake = Economy.getBalance(player.getName());
 		}
-		
+
 		game.setStake(newStake);
 	}
 

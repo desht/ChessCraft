@@ -20,6 +20,7 @@ public class MessageBuffer {
 
 	/**
 	 * initialize the buffer for the player if necessary
+	 * 
 	 * @param p
 	 */
 	static private void init(Player p) {
@@ -32,8 +33,9 @@ public class MessageBuffer {
 	/**
 	 * Get the player's name
 	 * 
-	 * @param p		The player, may be null
-	 * @return		Player's name, or &CONSOLE if the player is null
+	 * @param p
+	 *            The player, may be null
+	 * @return Player's name, or &CONSOLE if the player is null
 	 */
 	static private String name(Player p) {
 		return p == null ? "&CONSOLE" : p.getName();
@@ -41,8 +43,11 @@ public class MessageBuffer {
 
 	/**
 	 * Add a message to the buffer.
-	 * @param p			The player
-	 * @param message	The message line to add
+	 * 
+	 * @param p
+	 *            The player
+	 * @param message
+	 *            The message line to add
 	 */
 	static void add(Player p, String message) {
 		init(p);
@@ -50,11 +55,14 @@ public class MessageBuffer {
 	}
 
 	/**
-	 * Add a block of messages.  All message should stay on the same page if possible - add
-	 * padding to ensure this where necessary.  If block is larger than the page size, then just
-	 * add it.
-	 * @param p			The player
-	 * @param messages	List of message lines to add
+	 * Add a block of messages. All message should stay on the same page if
+	 * possible - add padding to ensure this where necessary. If block is larger
+	 * than the page size, then just add it.
+	 * 
+	 * @param p
+	 *            The player
+	 * @param messages
+	 *            List of message lines to add
 	 */
 	static void add(Player p, String[] lines) {
 		init(p);
@@ -63,9 +71,9 @@ public class MessageBuffer {
 
 	static void add(Player p, List<String> lines) {
 		init(p);
-		//TODO: apply MinecraftChatStr.alignTags(lines, true)
-		//		in pagesize segments before adding to buffer
-		
+		// TODO: apply MinecraftChatStr.alignTags(lines, true)
+		// in pagesize segments before adding to buffer
+
 		if (lines.size() > pageSize) {
 			// block is bigger than a page, just add it
 		} else if ((getSize(p) % pageSize) + lines.size() > pageSize) {
@@ -83,7 +91,9 @@ public class MessageBuffer {
 
 	/**
 	 * Clear the player's message buffer
-	 * @param p	The player
+	 * 
+	 * @param p
+	 *            The player
 	 */
 	static void clear(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
@@ -95,8 +105,11 @@ public class MessageBuffer {
 	}
 
 	/**
-	 * Delete the message buffer for the player.  Should be called when the player logs out.
-	 * @param p	The player
+	 * Delete the message buffer for the player. Should be called when the
+	 * player logs out.
+	 * 
+	 * @param p
+	 *            The player
 	 */
 	static void delete(Player p) {
 		bufferMap.remove(name(p));
@@ -105,8 +118,10 @@ public class MessageBuffer {
 
 	/**
 	 * Get the number of lines in the player's message buffer.
-	 * @param p	The player
-	 * @return	The number of lines
+	 * 
+	 * @param p
+	 *            The player
+	 * @return The number of lines
 	 */
 	static int getSize(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
@@ -118,6 +133,7 @@ public class MessageBuffer {
 
 	/**
 	 * Get the page size (number of lines in one page)
+	 * 
 	 * @return The page size
 	 */
 	public static int getPageSize() {
@@ -127,7 +143,8 @@ public class MessageBuffer {
 	/**
 	 * Get the number of pages in the player's buffer.
 	 * 
-	 * @return	Number of pages in the buffer, including the partial page at the end
+	 * @return Number of pages in the buffer, including the partial page at the
+	 *         end
 	 */
 	static int getPageCount(Player p) {
 		return (getSize(p) - 1) / pageSize + 1;
@@ -136,8 +153,10 @@ public class MessageBuffer {
 	/**
 	 * Get a line of text from the player's buffer
 	 * 
-	 * @param p	The player
-	 * @param i The line number
+	 * @param p
+	 *            The player
+	 * @param i
+	 *            The line number
 	 * @return The line of text at that line
 	 */
 	static String getLine(Player p, int i) {
@@ -149,10 +168,13 @@ public class MessageBuffer {
 	}
 
 	/**
-	 * Set the current page for the player. This is ignored if the page number is out of range.
+	 * Set the current page for the player. This is ignored if the page number
+	 * is out of range.
 	 * 
-	 * @param player	The player
-	 * @param page		The page number.
+	 * @param player
+	 *            The player
+	 * @param page
+	 *            The page number.
 	 */
 	static void setPage(Player player, int page) {
 		if (page < 1 || page > getPageCount(player)) {
@@ -164,7 +186,8 @@ public class MessageBuffer {
 	/**
 	 * Move to the next page of the player's buffer.
 	 * 
-	 * @param player	The player
+	 * @param player
+	 *            The player
 	 */
 	static void nextPage(Player player) {
 		setPage(player, getPage(player) + 1);
@@ -173,7 +196,8 @@ public class MessageBuffer {
 	/**
 	 * Move to the previous page of the player's buffer.
 	 * 
-	 * @param player	The player
+	 * @param player
+	 *            The player
 	 */
 	static void prevPage(Player player) {
 		setPage(player, getPage(player) - 1);
@@ -181,8 +205,10 @@ public class MessageBuffer {
 
 	/**
 	 * Get the current page for the player
-	 * @param player The player
-	 * @return	The current page for the player
+	 * 
+	 * @param player
+	 *            The player
+	 * @return The current page for the player
 	 */
 	static int getPage(Player player) {
 		return currentPage.get(name(player));
@@ -191,7 +217,8 @@ public class MessageBuffer {
 	/**
 	 * Display the current page for the player.
 	 * 
-	 * @param player	The player
+	 * @param player
+	 *            The player
 	 */
 	static void showPage(Player player) {
 		showPage(player, currentPage.get(name(player)));
@@ -200,8 +227,10 @@ public class MessageBuffer {
 	/**
 	 * Display the specified page for the player.
 	 * 
-	 * @param player	The player
-	 * @param pageStr	A string containing the page number to display
+	 * @param player
+	 *            The player
+	 * @param pageStr
+	 *            A string containing the page number to display
 	 */
 	static void showPage(Player player, String pageStr) {
 		try {
@@ -215,8 +244,10 @@ public class MessageBuffer {
 	/**
 	 * Display the specified page for the player.
 	 * 
-	 * @param player	The player
-	 * @param pageNum	The page number to display
+	 * @param player
+	 *            The player
+	 * @param pageNum
+	 *            The page number to display
 	 */
 	static void showPage(Player player, int pageNum) {
 		if (!bufferMap.containsKey(name(player))) {
@@ -230,18 +261,19 @@ public class MessageBuffer {
 			}
 
 			int nMessages = getSize(player);
-			ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(
-					(pageSize > nMessages ? nMessages : pageSize)
-					+ " of " + nMessages + " lines (page " + pageNum 
-					+ "/" + getPageCount(player) + ")", 310, '-'));
+			ChessUtils.statusMessage(
+					player,
+					ChatColor.GREEN
+							+ MinecraftChatStr.strPadCenterChat((pageSize > nMessages ? nMessages : pageSize) + " of "
+									+ nMessages + " lines (page " + pageNum + "/" + getPageCount(player) + ")", 310,
+									'-'));
 			int i = (pageNum - 1) * pageSize;
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
 				ChessUtils.statusMessage(player, getLine(player, i));
 			}
-				
+
 			ChessUtils.statusMessage(player, ChatColor.GREEN.toString()
-					+ (nMessages > pageSize * pageNum ? 
-							MinecraftChatStr.strPadCenterChat(footerBar, 310, '-') : bar));
+					+ (nMessages > pageSize * pageNum ? MinecraftChatStr.strPadCenterChat(footerBar, 310, '-') : bar));
 
 			setPage(player, pageNum);
 		} else {

@@ -183,8 +183,10 @@ public class ChessPlayerListener extends PlayerListener {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					ChessUtils.statusMessage(player, "Selected your &f" + what + "&- at &f" + Chess.sqiToStr(sqi) + "&-.");
-					ChessUtils.statusMessage(player, "&5-&- Left-click a square or another piece to move your &f" + what);
+					ChessUtils.statusMessage(player, "Selected your &f" + what + "&- at &f" + Chess.sqiToStr(sqi)
+							+ "&-.");
+					ChessUtils.statusMessage(player, "&5-&- Left-click a square or another piece to move your &f"
+							+ what);
 					ChessUtils.statusMessage(player, "&5-&- Left-click the &f" + what + "&- again to cancel.");
 				}
 			} else {
@@ -209,7 +211,8 @@ public class ChessPlayerListener extends PlayerListener {
 			game.doMove(player.getName(), sqi);
 			ChessUtils.statusMessage(player, "You played &f[" + game.getPosition().getLastMove().getLAN() + "]&-.");
 		} else {
-			ChessUtils.statusMessage(player, "Square &6[" + Chess.sqiToStr(sqi) + "]&-, board &6" + bv.getName() + "&-");
+			ChessUtils
+					.statusMessage(player, "Square &6[" + Chess.sqiToStr(sqi) + "]&-, board &6" + bv.getName() + "&-");
 		}
 	}
 
@@ -219,6 +222,7 @@ public class ChessPlayerListener extends PlayerListener {
 		list.add(style);
 		expecting.put(p.getName(), list);
 	}
+
 	private Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 
 	void playerLeft(String who) {

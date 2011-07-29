@@ -56,15 +56,18 @@ public class BoardView implements PositionListener {
 	private byte lastLevel;
 	private ControlPanel controlPanel;
 
-	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
+	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle)
+			throws ChessException {
 		_init(bName, plugin, where, bStyle, pStyle, false);
 	}
 
-	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException {
+	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting)
+			throws ChessException {
 		_init(bName, plugin, where, bStyle, pStyle, onlyTesting);
 	}
 
-	private void _init(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException {
+	private void _init(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle,
+			boolean onlyTesting) throws ChessException {
 		this.plugin = plugin;
 		boardStyle = bStyle;
 		pieceStyle = pStyle;
@@ -95,7 +98,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * Overall sanity checking on board/set parameters
-	 * @throws ChessException if anything about the board & pieces are bad
+	 * 
+	 * @throws ChessException
+	 *             if anything about the board & pieces are bad
 	 */
 	private void validateBoardParams() throws ChessException {
 		if (squareSize < 2) {
@@ -127,7 +132,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * Ensure this board doesn't intersect any other boards
-	 * @throws ChessException if an intersection would occur
+	 * 
+	 * @throws ChessException
+	 *             if an intersection would occur
 	 */
 	private void validateIntersections() throws ChessException {
 		Cuboid bounds = getBounds();
@@ -160,7 +167,7 @@ public class BoardView implements PositionListener {
 	public void save() {
 		plugin.persistence.saveBoard(this);
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -250,15 +257,13 @@ public class BoardView implements PositionListener {
 			}
 
 			if (styleMap.get("highlight_white_square") != null) {
-				highlightWhiteSquareMat =
-						new MaterialWithData((String) styleMap.get("highlight_white_square"));
+				highlightWhiteSquareMat = new MaterialWithData((String) styleMap.get("highlight_white_square"));
 			} else {
 				highlightWhiteSquareMat = null;
 			}
 
 			if (styleMap.get("highlight_black_square") != null) {
-				highlightBlackSquareMat =
-						new MaterialWithData((String) styleMap.get("highlight_black_square"));
+				highlightBlackSquareMat = new MaterialWithData((String) styleMap.get("highlight_black_square"));
 			} else {
 				highlightBlackSquareMat = null;
 			}
@@ -268,7 +273,8 @@ public class BoardView implements PositionListener {
 				try {
 					highlightStyle = HighlightStyle.getStyle(hs);
 				} catch (IllegalArgumentException e) {
-					ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
+					ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading "
+							+ getName());
 					highlightStyle = HighlightStyle.CORNERS;
 				}
 			} else {
@@ -277,7 +283,7 @@ public class BoardView implements PositionListener {
 
 			enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			ChessCraft.log(Level.SEVERE, "can't load board style " + style, e);
 			throw new ChessException("Board style '" + style + "' is not available.");
 		}
@@ -287,7 +293,9 @@ public class BoardView implements PositionListener {
 	 * Given a board origin (the block at the center of the A1 square),
 	 * calculate the southwest corner of the A1 square <br>
 	 * (which is also the southwest corner of the whole board)
-	 * @param where the center of the square to be A1
+	 * 
+	 * @param where
+	 *            the center of the square to be A1
 	 * @return southwest corner of the square
 	 */
 	private Location calcBaseSquare(Location where) {
@@ -311,8 +319,7 @@ public class BoardView implements PositionListener {
 	}
 
 	/**
-	 * paint whole board
-	 * (board, frame, enclosure, control panel, lighting)
+	 * paint whole board (board, frame, enclosure, control panel, lighting)
 	 */
 	public void paintAll() {
 		wipe();
@@ -342,11 +349,11 @@ public class BoardView implements PositionListener {
 		}
 		World w = a1Square.getWorld();
 
-		Cuboid walls[] = {new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)), // west
-			new Cuboid(new Location(w, x1, y1, z1), new Location(w, x2, y2, z1)), // east
-			new Cuboid(new Location(w, x1, y1, z1), new Location(w, x1, y2, z2)), // north
-			new Cuboid(new Location(w, x2, y1, z1), new Location(w, x2, y2, z2)), // south
-			new Cuboid(new Location(w, x1, y2, z1), new Location(w, x2, y2, z2)), // roof
+		Cuboid walls[] = { new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)), // west
+				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x2, y2, z1)), // east
+				new Cuboid(new Location(w, x1, y1, z1), new Location(w, x1, y2, z2)), // north
+				new Cuboid(new Location(w, x2, y1, z1), new Location(w, x2, y2, z2)), // south
+				new Cuboid(new Location(w, x1, y2, z1), new Location(w, x2, y2, z2)), // roof
 		};
 		for (Cuboid wall : walls) {
 			for (Location l : wall) {
@@ -366,10 +373,10 @@ public class BoardView implements PositionListener {
 		int x2 = bounds.getUpperSW().getBlockX();
 		int z2 = bounds.getUpperSW().getBlockZ();
 
-		Cuboid[] frameParts = {new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)), // east
-			new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)), // west
-			new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)), // north
-			new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)), // south
+		Cuboid[] frameParts = { new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)), // east
+				new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)), // west
+				new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)), // north
+				new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)), // south
 		};
 		for (Cuboid part : frameParts) {
 			for (Location l : part) {
@@ -469,26 +476,26 @@ public class BoardView implements PositionListener {
 		}
 		if (highlight) {
 			switch (highlightStyle) {
-				case EDGES:
-					for (Location loc : square.walls()) {
-						m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-						(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+			case EDGES:
+				for (Location loc : square.walls()) {
+					m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+					(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+				}
+				break;
+			case CORNERS:
+				for (Location loc : square.corners()) {
+					m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
+					(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
+				}
+				break;
+			case CHECKERED:
+			case CHEQUERED:
+				for (Location loc : square) {
+					if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
+						highlightMat.applyToBlock(loc.getBlock());
 					}
-					break;
-				case CORNERS:
-					for (Location loc : square.corners()) {
-						m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-						(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
-					}
-					break;
-				case CHECKERED:
-				case CHEQUERED:
-					for (Location loc : square) {
-						if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
-							highlightMat.applyToBlock(loc.getBlock());
-						}
-					}
-					break;
+				}
+				break;
 			}
 		}
 	}
@@ -502,23 +509,22 @@ public class BoardView implements PositionListener {
 			return;
 		}
 
-//        byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
-//        byte level = getBounds().shift(Direction.Up, height/2)
-//                .getUpperSW().getBlock().getLightLevel();
-//        Player jas = plugin.getServer().getPlayer("jascotty2");
-//        if(jas!=null && getName().contains("cave")){
-//            Cuboid c = getBounds().shift(Direction.Up, 2).
-//                inset(Direction.Horizontal, frameWidth + squareSize * 3)
-//                .expand(Direction.Up, height / 2);
-//            com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
-//                    new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
-//                    c.getUpperSW().getWorld(), c.getUpperSW(), c.getLowerNE());
-//            plugin.getWorldEdit().setSelection(jas, s);
-//        }
-		byte level = getBounds().shift(Direction.Up, 2).
-				inset(Direction.Horizontal, frameWidth + squareSize * 3).
-				expand(Direction.Up, height / 2).
-				averageLightLevel();
+		// byte level =
+		// getOuterBounds().getUpperSW().getBlock().getLightLevel();
+		// byte level = getBounds().shift(Direction.Up, height/2)
+		// .getUpperSW().getBlock().getLightLevel();
+		// Player jas = plugin.getServer().getPlayer("jascotty2");
+		// if(jas!=null && getName().contains("cave")){
+		// Cuboid c = getBounds().shift(Direction.Up, 2).
+		// inset(Direction.Horizontal, frameWidth + squareSize * 3)
+		// .expand(Direction.Up, height / 2);
+		// com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
+		// new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
+		// c.getUpperSW().getWorld(), c.getUpperSW(), c.getLowerNE());
+		// plugin.getWorldEdit().setSelection(jas, s);
+		// }
+		byte level = getBounds().shift(Direction.Up, 2).inset(Direction.Horizontal, frameWidth + squareSize * 3)
+				.expand(Direction.Up, height / 2).averageLightLevel();
 
 		if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
 			return;
@@ -605,10 +611,13 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * Use Bresenham's algorithm to draw line between two squares on the board
-	 *
-	 * @param from	Square index of the first square
-	 * @param to	Square index of the second square
-	 * @param isHighlighting	True if drawing a highlight, false if erasing it
+	 * 
+	 * @param from
+	 *            Square index of the first square
+	 * @param to
+	 *            Square index of the second square
+	 * @param isHighlighting
+	 *            True if drawing a highlight, false if erasing it
 	 */
 	private void drawHighlightLine(int from, int to, boolean isHighlighting) {
 		Location loc1 = rowColToWorldCenter(Chess.sqiToRow(from), Chess.sqiToCol(from));
@@ -622,7 +631,8 @@ public class BoardView implements PositionListener {
 
 		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
 			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
+			MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat
+					: blackSquareMat);
 			m.applyToBlock(loc1.getBlock());
 			int e2 = 2 * err;
 			if (e2 > -dz) {
@@ -638,6 +648,7 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * get the bounds of the board itself
+	 * 
 	 * @return the bounds of the chess board - the innermost ring of the frame
 	 */
 	public Cuboid getBounds() {
@@ -660,8 +671,9 @@ public class BoardView implements PositionListener {
 	}
 
 	/**
-	 * given a Chess row & col, get the location in world coords
-	 * of that square's NE block (smallest X & Z)
+	 * given a Chess row & col, get the location in world coords of that
+	 * square's NE block (smallest X & Z)
+	 * 
 	 * @param row
 	 * @param col
 	 * @return
@@ -671,8 +683,9 @@ public class BoardView implements PositionListener {
 	}
 
 	/**
-	 * given a Chess row & col, get the location in world coords
-	 * of that square's SW block (largest X & Z)
+	 * given a Chess row & col, get the location in world coords of that
+	 * square's SW block (largest X & Z)
+	 * 
 	 * @param row
 	 * @param col
 	 * @return
@@ -746,7 +759,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * check if this is a part of the board floor
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return true if the location is part of the board itself
 	 */
 	public boolean isOnBoard(Location loc) {
@@ -755,9 +770,11 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * check if this is a space within the board bounds, and above the board
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return true if the location is above the board <br>
-	 * AND within the board's height range
+	 *         AND within the board's height range
 	 */
 	public boolean isAboveBoard(Location loc) {
 		return isOnBoard(loc, 1, height);
@@ -765,9 +782,11 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * check if this is somewhere within the board bounds
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return true if the location is *anywhere* within the board <br>
-	 * including frame & enclosure
+	 *         including frame & enclosure
 	 */
 	public boolean isPartOfBoard(Location loc) {
 		return getOuterBounds().contains(loc);
@@ -927,7 +946,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * match if loc is any part of the board including the frame & enclosure
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView partOfChessBoard(Location loc) {
@@ -941,7 +962,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * match if loc is above a board square but below the roof
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView aboveChessBoard(Location loc) {
@@ -955,7 +978,9 @@ public class BoardView implements PositionListener {
 
 	/**
 	 * match if loc is part of a board square
-	 * @param loc location to check
+	 * 
+	 * @param loc
+	 *            location to check
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView onChessBoard(Location loc) {

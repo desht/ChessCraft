@@ -34,10 +34,10 @@ import org.bukkit.util.config.ConfigurationNode;
 public class ChessAI {
 
 	/**
-	 * special character ensures AI name cannot (easily) be faked/hacked
-	 * also adds another level of AI name visibility
-	 * user/admins should NOT be given control of this variable
-	 * - use something else to enable changing AI name colors, if wanted
+	 * special character ensures AI name cannot (easily) be faked/hacked also
+	 * adds another level of AI name visibility user/admins should NOT be given
+	 * control of this variable - use something else to enable changing AI name
+	 * colors, if wanted
 	 */
 	public final static String AI_PREFIX = ChatColor.WHITE.toString();
 	static ChessCraft plugin = null;
@@ -96,7 +96,7 @@ public class ChessAI {
 			return; // only init once
 		}
 		_game = new fr.free.jchecs.core.Game();
-		//_game.getPlayer(aiWhite)
+		// _game.getPlayer(aiWhite)
 		Player joueur = _game.getPlayer(!aiWhite);
 		joueur.setName("Human");
 		joueur.setEngine(null);
@@ -135,10 +135,11 @@ public class ChessAI {
 				if (n.getBoolean("enabled", true)) {
 					for (String name : d.getString("funName", a).split(",")) {
 						if ((name = name.trim()).length() > 0) {
-							availableAI.put(name.toLowerCase(),
+							availableAI.put(
+									name.toLowerCase(),
 									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-									d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0),
-									d.getString("comment")));
+											d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d
+													.getString("comment")));
 						}
 					}
 				}
@@ -167,8 +168,8 @@ public class ChessAI {
 			if (max == 0) {
 				throw new ChessException("AI games are disabled");
 			} else if (runningAI.size() >= max) {
-				throw new ChessException("there are no AI avaliable to play right now \n"
-						+ "(all " + max + " are currently playing games of their own)");
+				throw new ChessException("there are no AI avaliable to play right now \n" + "(all " + max
+						+ " are currently playing games of their own)");
 			}
 		}
 
@@ -244,15 +245,14 @@ public class ChessAI {
 	}
 
 	public void loadmove(int fromIndex, int toIndex) {
-		Square from = Square.valueOf(fromIndex),
-				to = Square.valueOf(toIndex);
+		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
 		_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
 		userToMove = !userToMove;
 	}
 
 	public void loadDone() {
 		if (!userToMove) {
-			//trick the other method into starting the ai thread
+			// trick the other method into starting the ai thread
 			userToMove = true;
 			setUserMove(false);
 		}
@@ -262,15 +262,16 @@ public class ChessAI {
 		if (!userToMove) {
 			return;
 		}
-		//System.out.println("user move: " + fromIndex + " to " + toIndex);
+		// System.out.println("user move: " + fromIndex + " to " + toIndex);
 
-		Square from = Square.valueOf(fromIndex),
-				to = Square.valueOf(toIndex);
+		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
 		// or?
-		//        Square from = Square.valueOf(chesspresso.Chess.sqiToRow(fromIndex), chesspresso.Chess.sqiToCol(fromIndex)),
-		//                to = Square.valueOf(chesspresso.Chess.sqiToRow(toIndex), chesspresso.Chess.sqiToCol(toIndex));
+		// Square from = Square.valueOf(chesspresso.Chess.sqiToRow(fromIndex),
+		// chesspresso.Chess.sqiToCol(fromIndex)),
+		// to = Square.valueOf(chesspresso.Chess.sqiToRow(toIndex),
+		// chesspresso.Chess.sqiToCol(toIndex));
 
-		//assume move is legal
+		// assume move is legal
 		_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
 
 		setUserMove(false);
@@ -280,7 +281,7 @@ public class ChessAI {
 		if (userToMove || _game == null) {
 			return;
 		}
-		//System.out.println("ai move: " + m);
+		// System.out.println("ai move: " + m);
 
 		try {
 			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
@@ -306,9 +307,12 @@ public class ChessAI {
 
 	/**
 	 * Get the AI definition for the given name
-	 * @param aiName	Name of the AI, either with or without the AI prefix string <br>
-	 * if null, will return a random free AI (or null, if none are free)
-	 * @return	The AI definition, or null if not found
+	 * 
+	 * @param aiName
+	 *            Name of the AI, either with or without the AI prefix string <br>
+	 *            if null, will return a random free AI (or null, if none are
+	 *            free)
+	 * @return The AI definition, or null if not found
 	 */
 	public static AI_Def getAI(String aiName) {
 		if (aiName == null) {
@@ -327,7 +331,7 @@ public class ChessAI {
 			}
 		}
 		// else, return one with a matching name
-		//          (if multiple, return one if its the only one free)
+		// (if multiple, return one if its the only one free)
 		aiName = ChatColor.stripColor(aiName.toLowerCase());
 		if (aiName.startsWith(getAIPrefix().toLowerCase())) {
 			aiName = aiName.substring(getAIPrefix().length());

@@ -39,7 +39,7 @@ public class Game {
 	private chesspresso.game.Game cpGame;
 	private BoardView view;
 	private String playerWhite, playerBlack;
-	private int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
+	private int promotionPiece[] = { Chess.QUEEN, Chess.QUEEN };
 	private String invited;
 	private GameState state;
 	private int fromSquare;
@@ -69,8 +69,7 @@ public class Game {
 		lastCheck = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
-		stake =	Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
-		       	         Economy.getBalance(playerName));
+		stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName));
 
 		setupChesspressoGame();
 
@@ -138,7 +137,7 @@ public class Game {
 		}
 		started = (Long) map.get("started");
 		if (map.containsKey("finished")) {
-			finished = (Long) map.get("finished");	
+			finished = (Long) map.get("finished");
 		} else {
 			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
 		}
@@ -167,7 +166,8 @@ public class Game {
 			// Replay the move history to restore the saved board position.
 			// We do this instead of just saving the position so that the
 			// Chesspresso Game model
-			// includes a history of the moves, suitable for creating a PGN file.
+			// includes a history of the moves, suitable for creating a PGN
+			// file.
 			for (short move : history) {
 				getPosition().doMove(move);
 			}
@@ -180,15 +180,16 @@ public class Game {
 			}
 		} catch (IllegalMoveException e) {
 			// should only get here if the save file was corrupted - the history
-			// is a list of moves which was already validated before the game was
+			// is a list of moves which was already validated before the game
+			// was
 			// saved
 			ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
 					+ " - move history corrupted?" + "  (game will be deleted)");
 			deletePermanently();
 			return false;
 		} catch (Exception e) {
-			ChessCraft.log(Level.WARNING, "Unexpected exception restoring game "
-					+ getName() + "\n" + e.getMessage() + "  (game will be deleted)");
+			ChessCraft.log(Level.WARNING, "Unexpected exception restoring game " + getName() + "\n" + e.getMessage()
+					+ "  (game will be deleted)");
 			// delete game
 			deletePermanently();
 			return false;
@@ -239,7 +240,7 @@ public class Game {
 
 	public void setState(GameState state) {
 		this.state = state;
-		
+
 		if (state == GameState.FINISHED) {
 			finished = System.currentTimeMillis();
 			if (aiPlayer != null) {
@@ -325,11 +326,12 @@ public class Game {
 				throw new ChessException("You don't have an invitation for this game.");
 			}
 			if (Economy.active() && !Economy.canAfford(playerName, getStake())) {
-				throw new ChessException("You can't afford the stake for this game (" + Economy.format(getStake()) + ").");
+				throw new ChessException("You can't afford the stake for this game (" + Economy.format(getStake())
+						+ ").");
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
-			} else {//if (playerWhite.isEmpty()) {
+			} else {// if (playerWhite.isEmpty()) {
 				playerWhite = playerName;
 			}
 		}
@@ -388,14 +390,12 @@ public class Game {
 		inviteSanityCheck(inviterName);
 		Bukkit.getServer().broadcastMessage(
 				ChessUtils.parseColourSpec("&e:: &6" + inviterName
-				+ "&e has created an open invitation to a chess game."));
+						+ "&e has created an open invitation to a chess game."));
 		if (Economy.active() && getStake() > 0.0) {
-			Bukkit.getServer().broadcastMessage(
-			    "&e:: This game has a stake of &f" + Economy.format(getStake()));
+			Bukkit.getServer().broadcastMessage("&e:: This game has a stake of &f" + Economy.format(getStake()));
 		}
 		Bukkit.getServer().broadcastMessage(
-				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName()
-				+ "&e to join."));
+				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
 		invited = "*";
 	}
 
@@ -523,6 +523,7 @@ public class Game {
 	 * Do a move for playerName to toSquare <br>
 	 * fromSquare should already be set, <br>
 	 * either from command-line, or from clicking a piece
+	 * 
 	 * @param playerName
 	 * @param toSquare
 	 * @throws IllegalMoveException
@@ -592,46 +593,50 @@ public class Game {
 
 	public String getPGNResult() {
 		switch (result) {
-			case Chess.RES_NOT_FINISHED:
-				return "*";
-			case Chess.RES_WHITE_WINS:
-				return "1-0";
-			case Chess.RES_BLACK_WINS:
-				return "0-1";
-			case Chess.RES_DRAW:
-				return "1/2-1/2";
-			default:
-				return "*";
+		case Chess.RES_NOT_FINISHED:
+			return "*";
+		case Chess.RES_WHITE_WINS:
+			return "1-0";
+		case Chess.RES_BLACK_WINS:
+			return "0-1";
+		case Chess.RES_DRAW:
+			return "1/2-1/2";
+		default:
+			return "*";
 		}
 	}
 
 	/**
 	 * Announce the result of the game to the server
-	 * @param p1 the winner
-	 * @param p2 the loser (unless it's a draw)
-	 * @param rt result to announce
+	 * 
+	 * @param p1
+	 *            the winner
+	 * @param p2
+	 *            the loser (unless it's a draw)
+	 * @param rt
+	 *            result to announce
 	 */
 	public void announceResult(String p1, String p2, GameResult rt) {
 		String msg = "";
 		switch (rt) {
-			case Checkmate:
-				msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!";
-				break;
-			case Stalemate:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!";
-				break;
-			case FiftyMoveRule:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!";
-				break;
-			case DrawAgreed:
-				msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!";
-				break;
-			case Resigned:
-				msg = "&6" + p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!";
-				break;
-			case Forfeited:
-				msg = "&6" + p1 + "&e beat &6" + p2 + "&e (forfeited) in a game of Chess!";
-				break;
+		case Checkmate:
+			msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!";
+			break;
+		case Stalemate:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!";
+			break;
+		case FiftyMoveRule:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!";
+			break;
+		case DrawAgreed:
+			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!";
+			break;
+		case Resigned:
+			msg = "&6" + p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!";
+			break;
+		case Forfeited:
+			msg = "&6" + p1 + "&e beat &6" + p2 + "&e (forfeited) in a game of Chess!";
+			break;
 		}
 		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) {
 			if (!msg.isEmpty()) {
@@ -694,7 +699,6 @@ public class Game {
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
-
 		getView().highlightSquares(-1, -1);
 		getView().setGame(null);
 		getView().paintAll();
@@ -703,8 +707,9 @@ public class Game {
 	}
 
 	/**
-	 * Called for a transitory deletion, where we expect the object to be shortly
-	 * restored, e.g. server reload, plugin disable, /chess reload persist command
+	 * Called for a transitory deletion, where we expect the object to be
+	 * shortly restored, e.g. server reload, plugin disable, /chess reload
+	 * persist command
 	 */
 	public void deleteTransitory() {
 		deleteCommon();
@@ -726,11 +731,14 @@ public class Game {
 	}
 
 	/**
-	 * Check if the move is really allowed
-	 * Also account for special cases: castling, en passant, pawn promotion
-	 * @param move move to check
+	 * Check if the move is really allowed Also account for special cases:
+	 * castling, en passant, pawn promotion
+	 * 
+	 * @param move
+	 *            move to check
 	 * @return move, if allowed
-	 * @throws IllegalMoveException if not allowed
+	 * @throws IllegalMoveException
+	 *             if not allowed
 	 */
 	private short checkMove(short move) throws IllegalMoveException {
 		int sqiFrom = Move.getFromSqi(move);
@@ -755,7 +763,7 @@ public class Game {
 			int fromCol = Chess.sqiToCol(sqiFrom);
 			if ((toCol == fromCol - 1 || toCol == fromCol + 1)
 					&& (Chess.sqiToRow(sqiFrom) == 4 && Chess.sqiToRow(sqiTo) == 5 || Chess.sqiToRow(sqiFrom) == 3
-					&& Chess.sqiToRow(sqiTo) == 2)) {
+							&& Chess.sqiToRow(sqiTo) == 2)) {
 				move = Move.getEPMove(sqiFrom, sqiTo);
 			}
 		}
@@ -780,6 +788,7 @@ public class Game {
 
 	/**
 	 * get PGN result
+	 * 
 	 * @return game result in PGN notation
 	 */
 	public String getResult() {
@@ -796,12 +805,12 @@ public class Game {
 
 	public static String getColour(int c) {
 		switch (c) {
-			case Chess.WHITE:
-				return "White";
-			case Chess.BLACK:
-				return "Black";
-			default:
-				return "???";
+		case Chess.WHITE:
+			return "White";
+		case Chess.BLACK:
+			return "Black";
+		default:
+			return "???";
 		}
 	}
 
@@ -870,9 +879,11 @@ public class Game {
 	}
 
 	/**
-	 * get PGN format of the date
-	 * (the version in chesspresso.pgn.PGN gets the month wrong :( )
-	 * @param date date to convert
+	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
+	 * month wrong :( )
+	 * 
+	 * @param date
+	 *            date to convert
 	 * @return PGN format of the date
 	 */
 	private static String dateToPGNDate(long when) {
@@ -897,28 +908,28 @@ public class Game {
 
 	public int getNextPromotionPiece(int colour) {
 		switch (promotionPiece[colour]) {
-			case Chess.QUEEN:
-				return Chess.KNIGHT;
-			case Chess.KNIGHT:
-				return Chess.BISHOP;
-			case Chess.BISHOP:
-				return Chess.ROOK;
-			case Chess.ROOK:
-				return Chess.QUEEN;
-			default:
-				return Chess.QUEEN;
+		case Chess.QUEEN:
+			return Chess.KNIGHT;
+		case Chess.KNIGHT:
+			return Chess.BISHOP;
+		case Chess.BISHOP:
+			return Chess.ROOK;
+		case Chess.ROOK:
+			return Chess.QUEEN;
+		default:
+			return Chess.QUEEN;
 		}
 	}
 
 	/**
-	 * Check if a game needs to be auto-deleted:
-	 * - Game that has not been started after a certain duration
-	 * - Game that has been finished for a certain duration
+	 * Check if a game needs to be auto-deleted: - Game that has not been
+	 * started after a certain duration - Game that has been finished for a
+	 * certain duration
 	 */
 	public void checkForAutoDelete() {
 		boolean mustDelete = false;
 		String alertStr = null;
-		
+
 		if (getState() == GameState.SETTING_UP) {
 			long elapsed = (System.currentTimeMillis() - started) / 1000;
 			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180);
@@ -934,7 +945,7 @@ public class Game {
 				alertStr = "Finished game auto-deleted";
 			}
 		}
-		
+
 		if (mustDelete) {
 			alert(alertStr);
 			ChessCraft.log(Level.INFO, alertStr);
@@ -964,8 +975,7 @@ public class Game {
 		if (isAIPlayer(playerName)) {
 			return true;
 		}
-		return stake <= 0.0 || !Economy.active()
-				|| Economy.canAfford(playerName, stake);
+		return stake <= 0.0 || !Economy.active() || Economy.canAfford(playerName, stake);
 	}
 
 	/*--------------------------------------------------------------------------------*/
@@ -1034,8 +1044,9 @@ public class Game {
 						return chessGames.get(keys[k]);
 					}
 				}
-				// TODO: if multiple matches, check if only one is waiting for more players
-				//          (and return that one)
+				// TODO: if multiple matches, check if only one is waiting for
+				// more players
+				// (and return that one)
 			}
 			throw new ChessException("No such game '" + name + "'");
 		}

@@ -1,6 +1,5 @@
 package me.desht.chesscraft;
 
-import org.bukkit.Location;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockListener;
@@ -23,13 +22,8 @@ public class ChessBlockListener extends BlockListener {
 			return;
 		}
 
-		Location loc = event.getBlock().getLocation();
-
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
 		}
 	}
 
@@ -42,13 +36,8 @@ public class ChessBlockListener extends BlockListener {
 			return;
 		}
 
-		Location loc = event.getBlock().getLocation();
-
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
 		}
 	}
 
@@ -61,13 +50,8 @@ public class ChessBlockListener extends BlockListener {
 			return;
 		}
 
-		Location loc = event.getBlock().getLocation();
-
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
-				event.setCancelled(true);
-				return;
-			}
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
 		}
 	}
 }

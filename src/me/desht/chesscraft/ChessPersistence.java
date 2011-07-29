@@ -80,11 +80,13 @@ public class ChessPersistence {
 	@SuppressWarnings("unchecked")
 	private void loadPersistedData() {
 		if (!loadOldPersistedData()) {
-			// load v0.3 or later saved data - they are in a subdirectory, one file per entry
+			// load v0.3 or later saved data - they are in a subdirectory, one
+			// file per entry
 			int nLoadedBoards = loadBoards();
 			int nLoadedGames = loadGames();
 
-			ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
+			ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames
+					+ " saved games.");
 
 			for (BoardView bv : BoardView.listBoardViews()) {
 				bv.paintAll();
@@ -105,7 +107,8 @@ public class ChessPersistence {
 					}
 				}
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
+				ChessCraft
+						.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
 				moveBackup(ChessConfig.getPersistFile());
 			}
 		} else {
@@ -114,8 +117,9 @@ public class ChessPersistence {
 	}
 
 	/**
-	 * old loading routine
-	 * if the old file is found, will load it, make a backup, then delete
+	 * old loading routine if the old file is found, will load it, make a
+	 * backup, then delete
+	 * 
 	 * @return true if the old file was found
 	 */
 	@SuppressWarnings("unchecked")
@@ -135,19 +139,22 @@ public class ChessPersistence {
 					nWantedBoards = boards.size();
 
 					/**
-					 * v0.2 or earlier saved boards - all in the main persist.yml file
-					 * @param boardList a list of the boards
+					 * v0.2 or earlier saved boards - all in the main
+					 * persist.yml file
+					 * 
+					 * @param boardList
+					 *            a list of the boards
 					 * @return the number of games that were sucessfully loaded
 					 */
 					for (Map<String, Object> boardMap : boards) {
 						String bvName = (String) boardMap.get("name");
 						List<Object> origin = (List<Object>) boardMap.get("origin");
 						World w = findWorld((String) origin.get(0));
-						Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
+						Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
+								(Integer) origin.get(3));
 						try {
-							BoardView.addBoardView(
-									new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"),
-									(String) boardMap.get("pieceStyle")));
+							BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, (String) boardMap
+									.get("boardStyle"), (String) boardMap.get("pieceStyle")));
 							++nLoadedBoards;
 						} catch (Exception e) {
 							ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -158,8 +165,11 @@ public class ChessPersistence {
 				if (games != null) {
 					nWantedGames = games.size();
 					/**
-					 * v0.2 or earlier saved games - all in the main persist.yml file
-					 * @param gameList a list of the map objects for each game
+					 * v0.2 or earlier saved games - all in the main persist.yml
+					 * file
+					 * 
+					 * @param gameList
+					 *            a list of the map objects for each game
 					 * @return the number of games that were sucessfully loaded
 					 */
 					for (Map<String, Object> gameMap : games) {
@@ -173,7 +183,8 @@ public class ChessPersistence {
 					ChessCraft.log(Level.INFO, "An error occurred while loading the saved data");
 				}
 
-				ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games from old file.");
+				ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames
+						+ " saved games from old file.");
 
 				for (BoardView bv : BoardView.listBoardViews()) {
 					bv.paintAll();
@@ -206,7 +217,9 @@ public class ChessPersistence {
 	/**
 	 * move to a backup & delete original <br>
 	 * (for if the file is considered corrupt)
-	 * @param original file to backup
+	 * 
+	 * @param original
+	 *            file to backup
 	 */
 	private void moveBackup(File original) {
 		File backup = getBackupFileName(original.getParentFile(), original.getName());
@@ -216,17 +229,21 @@ public class ChessPersistence {
 		original.renameTo(backup);
 	}
 
-//	private void makeBackup(File original) {
-//		try {
-//			File backup = getBackupFileName(original.getParentFile(), original.getName());
-//
-//			ChessCraft.log(Level.INFO, "An error occurred while loading the saved data, so a backup copy of " + original
-//					+ " is being created. The backup can be found at " + backup.getPath());
-//			copy(original, backup);
-//		} catch (IOException e) {
-//			ChessCraft.log(Level.SEVERE, "Error while trying to write backup file: " + e);
-//		}
-//	}
+	// private void makeBackup(File original) {
+	// try {
+	// File backup = getBackupFileName(original.getParentFile(),
+	// original.getName());
+	//
+	// ChessCraft.log(Level.INFO,
+	// "An error occurred while loading the saved data, so a backup copy of " +
+	// original
+	// + " is being created. The backup can be found at " + backup.getPath());
+	// copy(original, backup);
+	// } catch (IOException e) {
+	// ChessCraft.log(Level.SEVERE, "Error while trying to write backup file: "
+	// + e);
+	// }
+	// }
 
 	public static File getBackupFileName(File parentFile, String template) {
 		String ext = ".BACKUP.";
@@ -240,19 +257,19 @@ public class ChessPersistence {
 		return backup;
 	}
 
-//	public static void copy(File src, File dst) throws IOException {
-//		InputStream in = new FileInputStream(src);
-//		OutputStream out = new FileOutputStream(dst);
-//
-//		// Transfer bytes from in to out
-//		byte[] buf = new byte[1024];
-//		int len;
-//		while ((len = in.read(buf)) > 0) {
-//			out.write(buf, 0, len);
-//		}
-//		in.close();
-//		out.close();
-//	}
+	// public static void copy(File src, File dst) throws IOException {
+	// InputStream in = new FileInputStream(src);
+	// OutputStream out = new FileOutputStream(dst);
+	//
+	// // Transfer bytes from in to out
+	// byte[] buf = new byte[1024];
+	// int len;
+	// while ((len = in.read(buf)) > 0) {
+	// out.write(buf, 0, len);
+	// }
+	// in.close();
+	// out.close();
+	// }
 
 	@SuppressWarnings("unchecked")
 	private int loadBoards() {
@@ -265,10 +282,10 @@ public class ChessPersistence {
 				String bvName = conf.getString("name");
 				List<Object> origin = (List<Object>) conf.getProperty("origin");
 				World w = findWorld((String) origin.get(0));
-				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2), (Integer) origin.get(3));
-				BoardView.addBoardView(
-						new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"),
-						conf.getString("pieceStyle")));
+				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
+						(Integer) origin.get(3));
+				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"), conf
+						.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
 				ChessCraft.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
@@ -285,8 +302,7 @@ public class ChessPersistence {
 	}
 
 	public void saveBoard(BoardView board) {
-		Configuration conf = new Configuration(new File(
-				ChessConfig.getBoardPersistDirectory(),
+		Configuration conf = new Configuration(new File(ChessConfig.getBoardPersistDirectory(),
 				safeFileName(board.getName()) + ".yml"));
 		Map<String, Object> st = board.freeze();
 		for (String key : st.keySet()) {
@@ -296,7 +312,8 @@ public class ChessPersistence {
 	}
 
 	/**
-	 * v0.3 or later saved games - one save file per game in their own subdirectory
+	 * v0.3 or later saved games - one save file per game in their own
+	 * subdirectory
 	 * 
 	 * @return the number of games that were sucessfully loaded
 	 */
@@ -317,11 +334,13 @@ public class ChessPersistence {
 					int tstart = conf.getInt("started", 0);
 					int ostart = (Integer) toLoad.get(board).get("started");
 					if (ostart >= tstart) {
-						ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
+						ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName()
+								+ ": another game is using the same board");
 						moveBackup(f);
 					} else {
 						String fn = (String) toLoad.get(board).get("filename");
-						ChessCraft.log(Level.SEVERE, "can't load saved game " + fn + ": another game is using the same board");
+						ChessCraft.log(Level.SEVERE, "can't load saved game " + fn
+								+ ": another game is using the same board");
 						(new File(f.getParentFile(), fn)).renameTo(new File(f.getParentFile(), fn + ".bak"));
 						toLoad.put(board, conf.getAll());
 					}
@@ -358,15 +377,14 @@ public class ChessPersistence {
 		return false;
 	}
 
-	protected void saveGames(){
+	protected void saveGames() {
 		for (Game game : Game.listGames()) {
 			saveGame(game);
 		}
 	}
 
 	public void saveGame(Game game) {
-		Configuration gConf = new Configuration(new File(
-				ChessConfig.getGamesPersistDirectory(),
+		Configuration gConf = new Configuration(new File(ChessConfig.getGamesPersistDirectory(),
 				safeFileName(game.getName()) + ".yml"));
 		Map<String, Object> map = game.freeze();
 		for (Entry<String, Object> e : map.entrySet()) {
@@ -376,11 +394,9 @@ public class ChessPersistence {
 	}
 
 	protected static String safeFileName(String name) {
-		return name == null ? "" : name.replace("/", "-").
-				replace("\\", "-").replace("?", "-").replace(":", ";").
-				replace("%", "-").replace("|", ";").replace("\"", "'").
-				replace("<", ",").replace(">", ".").replace("+", "=").
-				replace("[", "(").replace("]", ")");
+		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";")
+				.replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".")
+				.replace("+", "=").replace("[", "(").replace("]", ")");
 	}
 
 	public void removeGameSavefile(Game game) {
@@ -389,6 +405,7 @@ public class ChessPersistence {
 			ChessCraft.log(Level.WARNING, "Can't delete game save file " + f);
 		}
 	}
+
 	public void removeBoardSavefile(BoardView board) {
 		File f = new File(ChessConfig.getBoardPersistDirectory(), board.getName() + ".yml");
 		if (!f.delete()) {
