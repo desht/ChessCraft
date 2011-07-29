@@ -1,7 +1,7 @@
 name: ChessCraft
 main: me.desht.chesscraft.ChessCraft
-version: 0.3pre
-softdepend: [ Permissions, WorldEdit, iConomy ]
+version: 0.3
+softdepend: [ Permissions, WorldEdit, iConomy, BOSeconomy, Essentials, currency ]
 commands:
   chess:
     description: Play Chess
@@ -10,20 +10,21 @@ commands:
       /chess create game [<gamename>] [<boardname>]
       /chess delete (board|game) <name>
       /chess list (board|game> [<name>]
-      /chess play [<gamename>]
-      /chess invite <playername>
-      /chess join
+      /chess game [<gamename>]
+      /chess invite [<playername>]
+      /chess join [<gamename>]
       /chess start
       /chess move <move>
       /chess resign
+      /chess promote <N|B|R|Q>
+      /chess win
       /chess offer (draw|swap)
-      /chess yes
-      /chess no
+      /chess (yes|no)
       /chess tp [<gamename>]
       /chess redraw
       /chess save
       /chess reload
-      /chess page <page-number>
+      /chess page [<page#|n|p>]
       /chess setcfg <item> <value>
       /chess getcfg [<item>]
 permissions:
@@ -56,6 +57,12 @@ permissions:
       chesscraft.commands.archive: true
       chesscraft.commands.tp: true
       chesscraft.commands.win: true
+      chesscraft.commands.start: true
+      chesscraft.commands.promote: true
+      chesscraft.commands.stake: true
+      chesscraft.commands.list.board: true
+      chesscraft.commands.list.game: true
+      chesscraft.commands.list.ai: true
   chesscraft.commands.create.board:
     description: Allows you to create chessboards
     default: op
