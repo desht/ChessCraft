@@ -15,20 +15,20 @@ public class Economy {
 
 	public static void pluginEnable(Plugin p) {
 		if (!_econMethods.hasMethod()) {
-            if(_econMethods.setMethod(p)) {
-                economyMethod = _econMethods.getMethod();
-				ChessCraft.log("Using " + economyMethod.getName() + " v" + economyMethod.getVersion() +" for economy");
+			if (_econMethods.setMethod(p)) {
+				economyMethod = _econMethods.getMethod();
+				ChessCraft.log("Using " + economyMethod.getName() + " v" + economyMethod.getVersion() + " for economy");
 			}
-        }
+		}
 	}
 
 	public static void pluginDisable(Plugin p) {
-        // Check to see if the plugin thats being disabled is the one we are using
-        if (_econMethods != null && _econMethods.hasMethod()
-				&& _econMethods.checkDisabled(p)) {
-                economyMethod = null;
-				ChessCraft.log(Level.INFO, " Economy Plugin was disabled.");
-        }
+		// Check to see if the plugin thats being disabled is the one we are
+		// using
+		if (_econMethods != null && _econMethods.hasMethod() && _econMethods.checkDisabled(p)) {
+			economyMethod = null;
+			ChessCraft.log(Level.INFO, " Economy Plugin was disabled.");
+		}
 	}
 
 	static boolean active() {
@@ -44,7 +44,7 @@ public class Economy {
 	}
 
 	public static double getBalance(String playerName) {
-		if(economyMethod != null && economyMethod.hasAccount(playerName)){
+		if (economyMethod != null && economyMethod.hasAccount(playerName)) {
 			return economyMethod.getAccount(playerName).balance();
 		}
 		return 0;
@@ -55,8 +55,8 @@ public class Economy {
 	}
 
 	public static void addMoney(String playerName, double amt) {
-		if(economyMethod != null){
-			if(!economyMethod.hasAccount(playerName)){
+		if (economyMethod != null) {
+			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
 				return;
 			}
@@ -69,8 +69,8 @@ public class Economy {
 	}
 
 	public static void subtractMoney(String playerName, double amt) {
-		if(economyMethod != null){
-			if(!economyMethod.hasAccount(playerName)){
+		if (economyMethod != null) {
+			if (!economyMethod.hasAccount(playerName)) {
 				// TODO? add methods for creating an account
 				return;
 			}
@@ -79,7 +79,7 @@ public class Economy {
 	}
 
 	public static String format(double amt) {
-		if(economyMethod != null){
+		if (economyMethod != null) {
 			return economyMethod.format(amt);
 		}
 		return String.format("%.2f", amt);
