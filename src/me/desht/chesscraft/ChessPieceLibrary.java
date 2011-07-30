@@ -1,7 +1,7 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.blocks.PieceTemplate;
-import me.desht.chesscraft.blocks.ChessStone;
+import me.desht.chesscraft.chess.pieces.PieceTemplate;
+import me.desht.chesscraft.chess.pieces.ChessStone;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -73,11 +74,11 @@ public class ChessPieceLibrary {
 				pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
 			}
 			templates.put(setName, pieces);
-			ChessCraft.log(Level.INFO, "loaded set " + setName + " OK.");
+			ChessCraftLogger.log(Level.INFO, "loaded set " + setName + " OK.");
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
-			ChessCraft.log(Level.SEVERE, "can't load chess set " + setName + ": " + e);
+			ChessCraftLogger.log(Level.SEVERE, "can't load chess set " + setName + ": " + e);
 		}
 	}
 
