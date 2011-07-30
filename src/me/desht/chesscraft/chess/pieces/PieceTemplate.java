@@ -1,10 +1,11 @@
-package me.desht.chesscraft.blocks;
+package me.desht.chesscraft.chess.pieces;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import me.desht.chesscraft.blocks.MaterialWithData;
 
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -43,26 +44,31 @@ public class PieceTemplate {
 
 	// create a blank template
 	public PieceTemplate(int sizeX, int sizeY, int sizeZ) {
-		this.sizeX = sizeX;
-		this.sizeY = sizeY;
-		this.sizeZ = sizeZ;
+		this.sizeX = sizeX < 0 ? 0 : sizeX;
+		this.sizeY = sizeY < 0 ? 0 : sizeY;
+		this.sizeZ = sizeZ < 0 ? 0 : sizeZ;
 
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 	}
 
 	// copy constructor
 	public PieceTemplate(PieceTemplate t) {
-		sizeX = t.getSizeX();
-		sizeY = t.getSizeY();
-		sizeZ = t.getSizeZ();
-		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+		if (t != null) {
+			sizeX = t.getSizeX();
+			sizeY = t.getSizeY();
+			sizeZ = t.getSizeZ();
+			pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
-		for (int x = 0; x < sizeX; ++x) {
-			for (int y = 0; y < sizeY; ++y) {
-				for (int z = 0; z < sizeZ; ++z) {
-					pieceArray[x][y][z] = new MaterialWithData(t.getMaterial(x, y, z));
+			for (int x = 0; x < sizeX; ++x) {
+				for (int y = 0; y < sizeY; ++y) {
+					for (int z = 0; z < sizeZ; ++z) {
+						pieceArray[x][y][z] = new MaterialWithData(t.getMaterial(x, y, z));
+					}
 				}
 			}
+		} else {
+			sizeX = sizeY = sizeZ = 0;
+			pieceArray = new MaterialWithData[0][0][0];
 		}
 	}
 
@@ -79,11 +85,20 @@ public class PieceTemplate {
 	}
 
 	public MaterialWithData getMaterial(int x, int y, int z) {
-		return pieceArray[x][y][z];
+		return x >= 0 && y >= 0 && z >= 0
+				&& pieceArray.length < x
+				&& pieceArray[x].length < y
+				&& pieceArray[x][y].length < z
+				? pieceArray[x][y][z] : null;
 	}
 
 	public void setMaterial(int x, int y, int z, MaterialWithData mwd) {
-		pieceArray[x][y][z] = mwd;
+		if (x >= 0 && y >= 0 && z >= 0
+				&& pieceArray.length < x
+				&& pieceArray[x].length < y
+				&& pieceArray[x][y].length < z) {
+			pieceArray[x][y][z] = mwd;
+		}
 	}
 
 	public List<List<String>> getData() {

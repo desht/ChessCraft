@@ -1,6 +1,7 @@
 package me.desht.chesscraft;
 
 import java.util.logging.Level;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 import me.desht.chesscraft.register.payment.Method;
 import me.desht.chesscraft.register.payment.Methods;
@@ -17,7 +18,7 @@ public class Economy {
 		if (!_econMethods.hasMethod()) {
 			if (_econMethods.setMethod(p)) {
 				economyMethod = _econMethods.getMethod();
-				ChessCraft.log("Using " + economyMethod.getName() + " v" + economyMethod.getVersion() + " for economy");
+				ChessCraftLogger.log("Using " + economyMethod.getName() + " v" + economyMethod.getVersion() + " for economy");
 			}
 		}
 	}
@@ -27,7 +28,7 @@ public class Economy {
 		// using
 		if (_econMethods != null && _econMethods.hasMethod() && _econMethods.checkDisabled(p)) {
 			economyMethod = null;
-			ChessCraft.log(Level.INFO, " Economy Plugin was disabled.");
+			ChessCraftLogger.log(Level.INFO, " Economy Plugin was disabled.");
 		}
 	}
 

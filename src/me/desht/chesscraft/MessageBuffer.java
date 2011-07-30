@@ -71,16 +71,15 @@ public class MessageBuffer {
 
 	static void add(Player p, List<String> lines) {
 		init(p);
-		// TODO: apply MinecraftChatStr.alignTags(lines, true)
-		// in pagesize segments before adding to buffer
-
-		if (lines.size() > pageSize) {
-			// block is bigger than a page, just add it
-		} else if ((getSize(p) % pageSize) + lines.size() > pageSize) {
-			// add padding to keep the block on one page
-			int amount = pageSize - (getSize(p) % pageSize);
-			for (int i = 1; i <= amount; i++) {
-				System.out.println("pad " + i);
+		//TODO: apply MinecraftChatStr.alignTags(lines, true)
+		//		in pagesize segments before adding to buffer
+		
+		// if block is bigger than a page, just add it
+		if (lines.size() <= pageSize
+				&& (getSize(p) % pageSize) + lines.size() > pageSize) {
+			// else, add padding above to keep the block on one page
+			for (int i = pageSize - (getSize(p) % pageSize); i <= pageSize; ++i) {
+				//System.out.println("pad " + i);
 				bufferMap.get(name(p)).add("");
 			}
 		}

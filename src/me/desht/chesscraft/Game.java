@@ -28,6 +28,7 @@ import chesspresso.position.Position;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class Game {
 
@@ -117,18 +118,18 @@ public class Game {
 		return map;
 	}
 
-	void save() {
+	public void save() {
 		plugin.persistence.saveGame(this);
 	}
 
-	void autoSave() {
+	public void autoSave() {
 		if (plugin.getConfiguration().getBoolean("autosave", true)) {
 			save();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	boolean thaw(Map<String, Object> map) {
+	boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
 		playerWhite = (String) map.get("playerWhite");
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
@@ -156,48 +157,45 @@ public class Game {
 			stake = (Double) map.get("stake");
 		}
 
-		try {
-			if (isAIPlayer(playerWhite)) {
-				aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
-				playerWhite = aiPlayer.getName();
-				aiPlayer.init(true);
-			} else if (isAIPlayer(playerBlack)) {
-				aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
-				playerBlack = aiPlayer.getName();
-				aiPlayer.init(false);
-			}
-
-			// Replay the move history to restore the saved board position.
-			// We do this instead of just saving the position so that the
-			// Chesspresso Game model
-			// includes a history of the moves, suitable for creating a PGN
-			// file.
-			for (short move : history) {
-				getPosition().doMove(move);
-			}
-			// repeat for the ai engine (doesn't support loading from fen)
-			if (aiPlayer != null) {
-				for (short move : history) {
-					aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-				}
-				aiPlayer.loadDone(); // tell ai to start on next move
-			}
-		} catch (IllegalMoveException e) {
-			// should only get here if the save file was corrupted - the history
-			// is a list of moves which was already validated before the game
-			// was
-			// saved
-			ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
-					+ " - move history corrupted?" + "  (game will be deleted)");
-			deletePermanently();
-			return false;
-		} catch (Exception e) {
-			ChessCraft.log(Level.WARNING, "Unexpected exception restoring game " + getName() + "\n" + e.getMessage()
-					+ "  (game will be deleted)");
-			// delete game
-			deletePermanently();
-			return false;
+		//try {
+		if (isAIPlayer(playerWhite)) {
+			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+			playerWhite = aiPlayer.getName();
+			aiPlayer.init(true);
+		} else if (isAIPlayer(playerBlack)) {
+			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+			playerBlack = aiPlayer.getName();
+			aiPlayer.init(false);
 		}
+
+		// Replay the move history to restore the saved board position.
+		// We do this instead of just saving the position so that the
+		// Chesspresso Game model
+		// includes a history of the moves, suitable for creating a PGN file.
+		for (short move : history) {
+			getPosition().doMove(move);
+		}
+		// repeat for the ai engine (doesn't support loading from fen)
+		if (aiPlayer != null) {
+			for (short move : history) {
+				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+			}
+			aiPlayer.loadDone(); // tell ai to start on next move
+		}
+//		} catch (IllegalMoveException e) {
+//			// should only get here if the save file was corrupted - the history
+//			// is a list of moves which was already validated before the game was saved
+//			ChessCraftLogger.log(Level.WARNING, "can't restore move history for game " + getName()
+//					+ " - move history corrupted?" + "  (game will be deleted)");
+//			deletePermanently();
+//			return false;
+//		} catch (Exception e) {
+//			ChessCraftLogger.log(Level.WARNING, "Unexpected exception restoring game "
+//					+ getName() + "\n" + e.getMessage() + "  (game will be deleted)");
+//			// delete game
+//			deletePermanently();
+//			return false;
+//		}
 
 		setupChesspressoGame();
 
@@ -396,7 +394,8 @@ public class Game {
 				ChessUtils.parseColourSpec("&e:: &6" + inviterName
 						+ "&e has created an open invitation to a chess game."));
 		if (Economy.active() && getStake() > 0.0) {
-			Bukkit.getServer().broadcastMessage("&e:: This game has a stake of &f" + Economy.format(getStake()));
+			Bukkit.getServer().broadcastMessage(
+					"&e:: This game has a stake of &f" + Economy.format(getStake()));
 		}
 		Bukkit.getServer().broadcastMessage(
 				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
@@ -672,7 +671,7 @@ public class Game {
 						winnings = stake * (1.0 + ai.getPayoutMultiplier());
 					} else {
 						winnings = stake * 2.0;
-						ChessCraft.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
+						ChessCraftLogger.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
 					}
 				} else {
 					winnings = stake * 2.0;
@@ -730,7 +729,7 @@ public class Game {
 		try {
 			Game.removeGame(getName());
 		} catch (ChessException e) {
-			ChessCraft.log(Level.WARNING, e.getMessage());
+			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
 	}
 
@@ -952,7 +951,7 @@ public class Game {
 
 		if (mustDelete) {
 			alert(alertStr);
-			ChessCraft.log(Level.INFO, alertStr);
+			ChessCraftLogger.log(Level.INFO, alertStr);
 			deletePermanently();
 		}
 	}

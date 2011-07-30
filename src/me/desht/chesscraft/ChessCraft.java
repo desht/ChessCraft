@@ -1,10 +1,8 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.expector.ExpectResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -14,13 +12,14 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.desht.chesscraft.enums.ChessPermission;
+import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.expector.ExpectResponse;
+
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public class ChessCraft extends JavaPlugin {
 
-	static final Logger logger = Logger.getLogger("Minecraft");
-	static final String name = "ChessCraft";
 	private static PluginDescriptionFile description;
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	protected ChessPlayerListener playerListener;
@@ -28,7 +27,6 @@ public class ChessCraft extends JavaPlugin {
 	protected ChessEntityListener entityListener;
 	protected ChessCommandExecutor commandExecutor;
 	protected ChessPersistence persistence;
-	protected ChessPieceLibrary library;
 	protected ExpectResponse expecter;
 	protected ChessServerListener pluginListener = new ChessServerListener();
 	public ChessConfig config = null;
@@ -47,15 +45,14 @@ public class ChessCraft extends JavaPlugin {
 		entityListener = new ChessEntityListener(this);
 		commandExecutor = new ChessCommandExecutor(this);
 
-		library = new ChessPieceLibrary(this);
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
 
 		setupWorldEdit();
 		if (ChessPermission.setupPermissions(this.getServer())) {
-			log(Level.INFO, "Permissions detected");
+			ChessCraftLogger.log(Level.INFO, "Permissions detected");
 		} else {
-			log(Level.INFO, "Permissions not detected, using Bukkit superperms");
+			ChessCraftLogger.log(Level.INFO, "Permissions not detected, using Bukkit superperms");
 		}
 		ChessAI.initThreading(this);
 
@@ -83,13 +80,13 @@ public class ChessCraft extends JavaPlugin {
 				util.setupRepeatingTask(2);
 			}
 		}) == -1) {
-			log(Level.WARNING, "Couldn't schedule persisted data reloading.  Loading immediately, but multi-world"
+			ChessCraftLogger.warning("Couldn't schedule persisted data reloading.  Loading immediately, but multi-world"
 					+ "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
 			persistence.reload();
 			util.setupRepeatingTask(2);
 		}
 
-		log("Version " + description.getVersion() + " is enabled!");
+		ChessCraftLogger.log("Version " + description.getVersion() + " is enabled!");
 	}
 
 	@Override
@@ -106,35 +103,21 @@ public class ChessCraft extends JavaPlugin {
 		for (BoardView view : BoardView.listBoardViews()) {
 			view.delete();
 		}
-		log("disabled!");
+		ChessCraftLogger.log("disabled!");
 	}
 
 	private void setupWorldEdit() {
 		Plugin p = this.getServer().getPluginManager().getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
-			log(Level.INFO, "WorldEdit plugin detected - chess board terrain saving enabled.");
+			ChessCraftLogger.log("WorldEdit plugin detected - chess board terrain saving enabled.");
 		} else {
-			log(Level.INFO, "WorldEdit plugin not detected - chess board terrain saving disabled.");
+			ChessCraftLogger.log("WorldEdit plugin not detected - chess board terrain saving disabled.");
 		}
 	}
 
 	public WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
-	}
-
-	/*-----------------------------------------------------------------*/
-	protected static void log(String message) {
-		logger.log(Level.INFO, String.format("%s: %s", name, message));
-	}
-
-	protected static void log(Level level, String message) {
-		logger.log(level, String.format("%s: %s", name, message));
-	}
-
-	protected static void log(Level level, String message, Exception err) {
-		logger.log(level,
-				String.format("%s: %s", name, message == null ? (err == null ? "?" : err.getMessage()) : message), err);
 	}
 
 	/*-----------------------------------------------------------------*/
@@ -147,6 +130,10 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
+
+    public ChessPersistence getSaveDatabase(){
+        return persistence;
+    }
 
 	ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;

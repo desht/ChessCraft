@@ -17,6 +17,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class TerrainBackup {
 
@@ -53,7 +54,7 @@ public class TerrainBackup {
 			saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(),
 					"schematic", new String[] { "schematic" });
 		} catch (FilenameException ex) {
-			ChessCraft.log(Level.WARNING, ex.getMessage());
+			ChessCraftLogger.log(Level.WARNING, ex.getMessage());
 		}
 	}
 
@@ -88,7 +89,7 @@ public class TerrainBackup {
 			editSession.flushQueue();
 			we.flushBlockBag(localPlayer, editSession);
 			if (!saveFile.delete()) {
-				ChessCraft.log(Level.WARNING, "Could not delete " + saveFile);
+				ChessCraftLogger.log(Level.WARNING, "Could not delete " + saveFile);
 			}
 		} catch (Exception e) {
 			// DataException, IOException, EmptyClipboardException,
@@ -103,7 +104,7 @@ public class TerrainBackup {
 			TerrainBackup tb = new TerrainBackup(plugin, player, view);
 			tb.saveTerrain();
 		} catch (FilenameException e) {
-			ChessCraft.log(Level.WARNING, e.getMessage());
+			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
 	}
 
@@ -112,7 +113,7 @@ public class TerrainBackup {
 			TerrainBackup tb = new TerrainBackup(plugin, player, view);
 			tb.reloadTerrain();
 		} catch (FilenameException e) {
-			ChessCraft.log(Level.WARNING, e.getMessage());
+			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 			// can't restore the terrain, so just replace with air
 			view.wipe();
 		}

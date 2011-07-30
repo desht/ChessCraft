@@ -1,5 +1,6 @@
 package me.desht.chesscraft.blocks;
 
+import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -20,8 +21,10 @@ public class MaterialWithData {
 	}
 
 	public MaterialWithData(MaterialWithData m) {
-		material = m.material;
-		data = m.data;
+		if (m != null) {
+			material = m.material;
+			data = m.data;
+		}
 	}
 
 	public MaterialWithData(String string) {
@@ -68,6 +71,16 @@ public class MaterialWithData {
 				b.setTypeIdAndData(material, data, false);
 			} else {
 				b.setTypeId(material);
+			}
+		}
+	}
+
+	public void applyToCuboid(Cuboid c) {
+		if (c != null) {
+			if (data >= 0) {
+				c.set(material, data);
+			} else {
+				c.set(material);
 			}
 		}
 	}
