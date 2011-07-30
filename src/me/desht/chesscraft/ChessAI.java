@@ -21,6 +21,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.log.ChessCraftLogger;
 import me.jascotty2.util.Rand;
 
 import org.bukkit.ChatColor;
@@ -118,7 +119,7 @@ public class ChessAI {
 		try {
 			File aiFile = new File(ChessConfig.getPluginDirectory(), "AI_settings.yml");
 			if (!aiFile.exists()) {
-				ChessCraft.log(Level.SEVERE, "AI Loading Error: file not found");
+				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found");
 				return;
 			}
 			Configuration config = new Configuration(aiFile);
@@ -126,7 +127,7 @@ public class ChessAI {
 			ConfigurationNode n = config.getNode("AI");
 
 			if (n == null) {
-				ChessCraft.log(Level.SEVERE, "AI Loading Error: AI definitions not found");
+				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: AI definitions not found");
 				return;
 			}
 
@@ -144,7 +145,7 @@ public class ChessAI {
 				}
 			}
 		} catch (Exception ex) {
-			ChessCraft.log(Level.SEVERE, "AI Loading Error", ex);
+			ChessCraftLogger.log(Level.SEVERE, "AI Loading Error", ex);
 		}
 	}
 
@@ -288,7 +289,7 @@ public class ChessAI {
 				_game.moveFromCurrent(m);
 			}
 		} catch (Exception ex) {
-			ChessCraft.log(Level.SEVERE, "Unexpected Exception in AI", ex);
+			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex);
 			callback.alert("Unexpected Exception in AI: " + ex.getMessage());
 		}
 

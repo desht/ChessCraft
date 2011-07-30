@@ -41,9 +41,12 @@ public class ControlPanel {
 		buttonLocs = new HashMap<Location, SignButton>();
 
 		Cuboid bounds = view.getBounds();
+		
+		//TODO: apply applicable rotation
+
 		int x = bounds.getUpperSW().getBlockX() - (4 * view.getSquareSize() - 3);
 		int y = view.getA1Square().getBlockY() + 1;
-		int z = bounds.getUpperSW().getBlockZ() + 1;
+		int z = bounds.getUpperSW().getBlockZ() + (int) Math.ceil(view.getFrameWidth() / 2.);
 
 		panelBlocks = new Cuboid(new Location(view.getA1Square().getWorld(), x, y, z));
 		panelBlocks.expand(Direction.North, 7).expand(Direction.Up, 2);

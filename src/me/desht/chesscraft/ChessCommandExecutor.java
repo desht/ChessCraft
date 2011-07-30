@@ -359,7 +359,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		if (args.length >= 2) {
 			BoardView b = BoardView.getBoardView(args[1]);
-			b.loadStyle(b.getBoardStyle());
+			b.reloadStyle();
 			b.paintAll();
 			ChessUtils.statusMessage(player, "Board " + b.getName() + " has been redrawn.");
 		} else {
@@ -677,14 +677,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		MessageBuffer.clear(player);
 		MessageBuffer.add(player, ChatColor.YELLOW + "Board " + boardName + ":");
-		MessageBuffer.add(player, bullet + "Lower NE corner: " + w + ChessUtils.formatLoc(bounds.getLowerNE()));
-		MessageBuffer.add(player, bullet + "Upper SW corner: " + w + ChessUtils.formatLoc(bounds.getUpperSW()));
+		MessageBuffer.add(player, bullet + "Lower NE corner: "
+				+ w + ChessUtils.formatLoc(bounds.getLowerNE()));
+		MessageBuffer.add(player, bullet + "Upper SW corner: "
+				+ w + ChessUtils.formatLoc(bounds.getUpperSW()));
 		MessageBuffer.add(player, bullet + "Game: " + w + gameName);
 		MessageBuffer.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
 		MessageBuffer.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
-		MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() + " (" + bv.getWhiteSquareMat() + "/"
-				+ bv.getBlackSquareMat() + ")");
-		MessageBuffer.add(player, bullet + "Frame width: " + w + bv.getFrameWidth() + " (" + bv.getFrameMat() + ")");
+		MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() 
+				+ " (" + bv.getWhiteSquareMat() + "/" + bv.getBlackSquareMat() + ")");
+		MessageBuffer.add(player, bullet + "Frame width: " + w + bv.getFrameWidth()
+				+ " (" + bv.getFrameMat() + ")");
 		MessageBuffer.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
 		MessageBuffer.add(player, bullet + "Height: " + w + bv.getHeight());
 		MessageBuffer.add(player, bullet + "Lit: " + w + bv.getIsLit());
@@ -792,7 +795,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String pieceStyle = options.get("pstyle");
 		@SuppressWarnings("unused")
 		// we create this temporary board only to check that the style & piece styles are valid & compatible
-		BoardView testBoard = new BoardView(name, plugin, player.getLocation(), style, pieceStyle, true);
+		BoardView testBoard = new BoardView(name, plugin, null, style, pieceStyle);
 
 		ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
 		ChessUtils.statusMessage(player, "This block will become the centre of the board's A1 square.");

@@ -1,36 +1,24 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.regions.Cuboid;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.yaml.snakeyaml.Yaml;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.blocks.ChessStone;
-import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.blocks.BlockType;
-import me.desht.chesscraft.chess.ChessBoard;
-import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.enums.HighlightStyle;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.util.config.Configuration;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.chesscraft.chess.ChessBoard;
+import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.Direction;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener {
 
@@ -39,80 +27,41 @@ public class BoardView implements PositionListener {
 	private String name;
 	// null indicates board not used by any game yet
 	private Game game = null;
-	// if highlight_last_move, what squares are highlighted
-	private int fromSquare = -1, toSquare = -1;
-	private byte lastLevel;
 	private ControlPanel controlPanel;
-	private ChessBoard boardSettings = null;
+	private ChessBoard chessBoard = null;
+	// for lighting updates
+	private byte lastLevel = -1;
+
+	public BoardView(String bName, ChessCraft plugin, String bStyle) throws ChessException {
+		this(bName, plugin, null, bStyle, null);
+	}
+
+	public BoardView(String bName, ChessCraft plugin, String bStyle, String pStyle) throws ChessException {
+		this(bName, plugin, null, bStyle, pStyle);
+	}
 
 	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
-		_init(bName, plugin, where, bStyle, pStyle, false);
-	}
-
-	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException {
-		_init(bName, plugin, where, bStyle, pStyle, onlyTesting);
-	}
-
-	private void _init(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle, boolean onlyTesting) throws ChessException {
 		this.plugin = plugin;
-		boardStyle = bStyle;
-		pieceStyle = pStyle;
-
-		name = bName;
-		if (BoardView.checkBoardView(name)) {
+		this.name = bName;
+		if (BoardView.boardViewExists(name)) {
 			throw new ChessException("A board with this name already exists.");
 		}
-		
-		boardSettings = new ChessBoard();
-		if (boardStyle == null) {
-			boardStyle = "Standard";
-		}
-		loadStyle(boardStyle);
-		origin = where;
-		a1Square = calcBaseSquare(where);
-		if (!onlyTesting) {
+		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
+				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
+
+		setA1Center(where);
+
+	}
+
+	public final void setA1Center(Location loc) throws ChessException {
+		// only allow the board center to be set once (?)
+		if (loc != null && chessBoard.getA1Center() == null) {
+
+			chessBoard.setA1Center(loc, BoardOrientation.NORTH);
+
 			validateIntersections();
-		}
-		stones = createStones(pieceStyle);
-		validateBoardParams();
-		lastLevel = -1;
 
-		if (!onlyTesting) {
 			controlPanel = new ControlPanel(plugin, this);
-		}
-	}
-
-	public static void validateBoardCreation(String bName, Location where, String bStyle, String pStyle) throws ChessException {
-		if (checkBoardView(bName)) {
-			throw new ChessException("A board with this name already exists.");
-		}
-		int squares = checkStyle(bStyle != null ? bStyle : "Standard");
-
-		Location a1 = calcBaseSquare(where, squares);
-
-		validateIntersections(getBounds(a1, squares));
-
-		createStones(pieceStyle);
-		validateBoardParams();
-	}
-
-	/**
-	 * Overall sanity checking on board/set parameters
-	 * @throws ChessException if anything about the board & pieces are bad
-	 */
-	private static void validateBoardParams(int squareSize, int height, Map<Integer, ChessStone> stones) throws ChessException {
-
-		int maxH = -1, maxV = -1;
-		for (Entry<Integer, ChessStone> entry : stones.entrySet()) {
-			maxH = Math.max(maxH, entry.getValue().getSizeX());
-			maxH = Math.max(maxH, entry.getValue().getSizeZ());
-			maxV = Math.max(maxV, entry.getValue().getSizeY());
-		}
-		if (maxH > squareSize) {
-			throw new ChessException("Set '" + pieceStyle + "' is too wide for this board!");
-		}
-		if (maxV > height) {
-			throw new ChessException("Set '" + pieceStyle + "' is too tall for this board!");
 		}
 	}
 
@@ -125,11 +74,6 @@ public class BoardView implements PositionListener {
 
 		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
 		bounds.expand(Direction.Up, getHeight() + 1);
-
-		validateIntersections(getBounds());
-	}
-
-	private static void validateIntersections(Cuboid bounds) throws ChessException {
 
 		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
 			throw new ChessException("Board altitude is too high - roof would be above top of world");
@@ -150,9 +94,9 @@ public class BoardView implements PositionListener {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", name);
 		result.put("game", game == null ? "" : game.getName());
-		result.put("pieceStyle", pieceStyle);
-		result.put("boardStyle", boardStyle);
-		result.put("origin", ChessPersistence.makeBlockList(origin));
+		result.put("pieceStyle", chessBoard.getPieceStyleStr());
+		result.put("boardStyle", chessBoard.getBoardStyleStr());
+		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center()));
 
 		return result;
 	}
@@ -172,11 +116,11 @@ public class BoardView implements PositionListener {
 	}
 
 	public String getBoardStyle() {
-		return boardStyle;
+		return chessBoard.getBoardStyleStr();
 	}
 
 	public String getPieceStyle() {
-		return pieceStyle;
+		return chessBoard.getPieceStyleStr();
 	}
 
 	public Game getGame() {
@@ -184,23 +128,23 @@ public class BoardView implements PositionListener {
 	}
 
 	public Location getA1Square() {
-		return a1Square;
+		return chessBoard.getA1Corner();
 	}
 
 	public int getFrameWidth() {
-		return frameWidth;
+		return chessBoard.getBoardStyle().getFrameWidth();
 	}
 
 	public int getSquareSize() {
-		return squareSize;
+		return chessBoard.getBoardStyle().getSquareSize();
 	}
 
 	public int getHeight() {
-		return height;
+		return chessBoard.getBoardStyle().getHeight();
 	}
 
 	public Boolean getIsLit() {
-		return isLit;
+		return chessBoard.getBoardStyle().getIsLit();
 	}
 
 	public ControlPanel getControlPanel() {
@@ -208,324 +152,37 @@ public class BoardView implements PositionListener {
 	}
 
 	public MaterialWithData getBlackSquareMat() {
-		return blackSquareMat;
+		return chessBoard.getBoardStyle().getBlackSquareMaterial();
 	}
 
 	public MaterialWithData getWhiteSquareMat() {
-		return whiteSquareMat;
+		return chessBoard.getBoardStyle().getWhiteSquareMaterial();
 	}
 
 	public MaterialWithData getFrameMat() {
-		return frameMat;
+		return chessBoard.getBoardStyle().getFrameMaterial();
 	}
 
 	public MaterialWithData getControlPanelMat() {
-		return controlPanelMat == null ? frameMat : controlPanelMat;
+		return chessBoard.getBoardStyle().getControlPanelMaterial();
 	}
 
 	public MaterialWithData getEnclosureMat() {
-		return enclosureMat;
+		return chessBoard.getBoardStyle().getEnclosureMaterial();
 	}
 
-	/**
-	 * check if there is no problem with the given board style
-	 * @param style style to validate
-	 * @return the size of a square
-	 * @throws ChessException if there is a problem with the file
-	 */
-	public static int checkStyle(String style) throws ChessException {
-		//Yaml yaml = new Yaml();
-		File f = new File(ChessConfig.getBoardStyleDirectory(), style + ".yml");
-		if (!f.exists()) {
-			throw new ChessException("board style \"" + style + "\" was not found");
-		}
-		try {
-			Configuration c = new Configuration(f);
-			c.load();
-			//Map<String, Object> styleMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
-			for (String k : new String[]{"square_size", "frame_width", "height",
-						"lit", "black_square", "white_square", "frame", "enclosure"}) {
-				if (c.getProperty(k) == null) {
-					throw new ChessException("required field '" + k + "' is missing");
-				}
-			}
-			if (c.getInt("square_size", 0) < 2) {
-				throw new ChessException("Board's square size is too small (minimum 2)!");
-			}else if (c.getInt("height", 0) < 3) {
-				throw new ChessException("Board does not have enough vertical space (minimum 3)!");
-			} else if (c.getInt("frame_width", 0) < 2) {
-				throw new ChessException("Frame width is too narrow (minimum 2)");
-			}
-
-			return c.getInt("square_size", 0);
-		} catch (Exception e) {
-			ChessCraft.log(Level.SEVERE, "can't load board style " + style, e);
-			throw new ChessException("Board style '" + style + "' cannot be loaded: " + e.getMessage());
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public final void loadStyle(String style) throws ChessException {
-		Yaml yaml = new Yaml();
-
-		File f = new File(ChessConfig.getBoardStyleDirectory(), style + ".yml");
-		try {
-			Map<String, Object> styleMap = (Map<String, Object>) yaml.load(new FileInputStream(f));
-
-			squareSize = (Integer) styleMap.get("square_size");
-			frameWidth = (Integer) styleMap.get("frame_width");
-			height = (Integer) styleMap.get("height");
-			isLit = (Boolean) styleMap.get("lit");
-			if (pieceStyle == null) {
-				pieceStyle = (String) styleMap.get("piece_style");
-			}
-
-			blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
-			whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
-			frameMat = new MaterialWithData((String) styleMap.get("frame"));
-			if (styleMap.get("panel") != null) {
-				controlPanelMat = new MaterialWithData((String) styleMap.get("panel"));
-			}
-			if (styleMap.get("highlight") != null) {
-				highlightMat = new MaterialWithData((String) styleMap.get("highlight"));
-			} else {
-				highlightMat = new MaterialWithData(89);
-			}
-
-			if (styleMap.get("highlight_white_square") != null) {
-				highlightWhiteSquareMat =
-						new MaterialWithData((String) styleMap.get("highlight_white_square"));
-			} else {
-				highlightWhiteSquareMat = null;
-			}
-
-			if (styleMap.get("highlight_black_square") != null) {
-				highlightBlackSquareMat =
-						new MaterialWithData((String) styleMap.get("highlight_black_square"));
-			} else {
-				highlightBlackSquareMat = null;
-			}
-
-			if (styleMap.get("highlight_style") != null) {
-				String hs = (String) styleMap.get("highlight_style");
-				try {
-					highlightStyle = HighlightStyle.getStyle(hs);
-				} catch (IllegalArgumentException e) {
-					ChessCraft.log(Level.WARNING, "unknown highlight_style definition '" + hs + "' when loading " + getName());
-					highlightStyle = HighlightStyle.CORNERS;
-				}
-			} else {
-				highlightStyle = HighlightStyle.CORNERS;
-			}
-
-			enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
-		} catch (Exception e) {
-			//e.printStackTrace();
-			ChessCraft.log(Level.SEVERE, "can't load board style " + style, e);
-			throw new ChessException("Board style '" + style + "' is not available.");
-		}
-	}
-
-	/**
-	 * Given a board origin (the block at the center of the A1 square),
-	 * calculate the southwest corner of the A1 square <br>
-	 * (which is also the southwest corner of the whole board)
-	 * @param where the center of the square to be A1
-	 * @return southwest corner of the square
-	 */
-	private Location calcBaseSquare(Location where) {
-		int xOff = squareSize / 2;
-		int zOff = squareSize / 2;
-		return new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
-	}
-
-	private static Location calcBaseSquare(Location where, int square) {
-		int xOff = square / 2;
-		int zOff = square / 2;
-		return new Location(where.getWorld(), where.getBlockX() + xOff, where.getBlockY(), where.getBlockZ() + zOff);
-	}
-
-	/**
-	 * paint whole board
-	 * (board, frame, enclosure, control panel, lighting)
-	 */
 	public void paintAll() {
-		wipe();
-		paintEnclosure();
-		paintBoard();
-		paintFrame();
-		controlPanel.repaint();
-		if (fromSquare >= 0 || toSquare >= 0) {
-			highlightSquares(fromSquare, toSquare);
-		} else {
-			doLighting(true); // force a lighting update
-		}
-	}
-
-	private void paintEnclosure() {
-		Cuboid bounds = getBounds();
-		int fw = frameWidth - 1;
-		int x1 = bounds.getLowerNE().getBlockX() - fw;
-		int z1 = bounds.getLowerNE().getBlockZ() - fw;
-		int x2 = bounds.getUpperSW().getBlockX() + fw;
-		int z2 = bounds.getUpperSW().getBlockZ() + fw;
-		// (x1,z1) & (x2,z2) are now the outermost corners of the frame
-		int y1 = a1Square.getBlockY() + 1;
-		int y2 = a1Square.getBlockY() + 1 + height;
-		if (y2 > 127) {
-			y2 = 127;
-		}
-		World w = a1Square.getWorld();
-
-		Cuboid walls[] = {new Cuboid(new Location(w, x1, y1, z2), new Location(w, x2, y2, z2)), // west
-			new Cuboid(new Location(w, x1, y1, z1), new Location(w, x2, y2, z1)), // east
-			new Cuboid(new Location(w, x1, y1, z1), new Location(w, x1, y2, z2)), // north
-			new Cuboid(new Location(w, x2, y1, z1), new Location(w, x2, y2, z2)), // south
-			new Cuboid(new Location(w, x1, y2, z1), new Location(w, x2, y2, z2)), // roof
-		};
-		for (Cuboid wall : walls) {
-			for (Location l : wall) {
-				enclosureMat.applyToBlock(w.getBlockAt(l));
-			}
-		}
-	}
-
-	private void paintFrame() {
-		Cuboid bounds = getBounds();
-
-		World w = a1Square.getWorld();
-		int y = a1Square.getBlockY();
-		int fw = frameWidth - 1;
-		int x1 = bounds.getLowerNE().getBlockX();
-		int z1 = bounds.getLowerNE().getBlockZ();
-		int x2 = bounds.getUpperSW().getBlockX();
-		int z2 = bounds.getUpperSW().getBlockZ();
-
-		Cuboid[] frameParts = {new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x2 + fw, y, z1)), // east
-			new Cuboid(new Location(w, x1 - fw, y, z2), new Location(w, x2 + fw, y, z2 + fw)), // west
-			new Cuboid(new Location(w, x1 - fw, y, z1 - fw), new Location(w, x1, y, z2 + fw)), // north
-			new Cuboid(new Location(w, x2, y, z1 - fw), new Location(w, x2 + fw, y, z2 + fw)), // south
-		};
-		for (Cuboid part : frameParts) {
-			for (Location l : part) {
-				frameMat.applyToBlock(w.getBlockAt(l));
-			}
-		}
-	}
-
-	private void paintBoard() {
-		for (int i = 0; i < Chess.NUM_OF_SQUARES; ++i) {
-			paintSquareAt(i);
-			int stone = game != null ? game.getPosition().getStone(i) : Chess.NO_STONE;
-			paintStoneAt(i, stone);
+		chessBoard.paintAll();
+		if (controlPanel != null) {
+			controlPanel.repaint();
 		}
 	}
 
 	private void paintStoneAt(int sqi, int stone) {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
-		Location l = rowColToWorld(row, col, 0, 0);
 
-		World w = a1Square.getWorld();
-		if (stone == Chess.NO_STONE) {
-
-			// first remove blocks that might pop off & leave a drop
-			Block b = null;
-			for (int x = 0; x < squareSize; ++x) {
-				for (int y = 1; y <= height; ++y) {
-					for (int z = 0; z < squareSize; ++z) {
-						b = w.getBlockAt(l.getBlockX() - x, l.getBlockY() + y, l.getBlockZ() - z);
-						if (BlockType.shouldPlaceLast(b.getTypeId())) {
-							b.setTypeId(0);
-						}
-					}
-				}
-			}
-			for (int x = 0; x < squareSize; ++x) {
-				for (int y = 1; y <= height; ++y) {
-					for (int z = 0; z < squareSize; ++z) {
-						w.getBlockAt(l.getBlockX() - x, l.getBlockY() + y, l.getBlockZ() - z).setTypeId(0);
-					}
-				}
-			}
-		} else {
-			MaterialWithData air = new MaterialWithData(0, (byte) 0);
-			ChessStone cStone = stones.get(stone);
-			int xOff = (squareSize - cStone.getSizeX()) / 2;
-			int zOff = (squareSize - cStone.getSizeZ()) / 2;
-			boolean secondPassNeeded = false;
-			for (int x = 0; x < cStone.getSizeX(); ++x) {
-				for (int y = 0; y < height; ++y) {
-					for (int z = 0; z < cStone.getSizeZ(); ++z) {
-						MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
-						if (!BlockType.shouldPlaceLast(mat.getMaterial())) {
-							mat.applyToBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
-									(l.getBlockZ() - zOff) - z));
-						} else {
-							secondPassNeeded = true;
-						}
-					}
-				}
-			}
-			if (secondPassNeeded) {
-				for (int x = 0; x < cStone.getSizeX(); ++x) {
-					for (int y = 0; y < height; ++y) {
-						for (int z = 0; z < cStone.getSizeZ(); ++z) {
-							MaterialWithData mat = y >= cStone.getSizeY() ? air : cStone.getMaterial(x, y, z);
-							if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-								mat.applyToBlock(w.getBlockAt((l.getBlockX() - xOff) - x, l.getBlockY() + y + 1,
-										(l.getBlockZ() - zOff) - z));
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private void paintSquareAt(int sqi) {
-		paintSquareAt(sqi, false);
-	}
-
-	private void paintSquareAt(int sqi, boolean highlight) {
-		int col = Chess.sqiToCol(sqi);
-		int row = Chess.sqiToRow(sqi);
-		if (!(row >= 0 && row < 8 && col >= 0 && col < 8)) {
-			return;
-		}
-		Location locNE = rowColToWorldNE(row, col);
-		MaterialWithData m = new MaterialWithData(Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
-		Cuboid square = new Cuboid(locNE, locNE);
-		square.expand(Direction.South, squareSize - 1);
-		square.expand(Direction.West, squareSize - 1);
-
-		for (Location loc : square) {
-			m.applyToBlock(loc.getBlock());
-		}
-		if (highlight) {
-			switch (highlightStyle) {
-				case EDGES:
-					for (Location loc : square.walls()) {
-						m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-						(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
-					}
-					break;
-				case CORNERS:
-					for (Location loc : square.corners()) {
-						m = Chess.isWhiteSquare(sqi) ? highlightWhiteSquareMat : highlightBlackSquareMat;
-						(m == null ? highlightMat : m).applyToBlock(loc.getBlock());
-					}
-					break;
-				case CHECKERED:
-				case CHEQUERED:
-					for (Location loc : square) {
-						if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
-							highlightMat.applyToBlock(loc.getBlock());
-						}
-					}
-					break;
-			}
-		}
+		chessBoard.paintChessPiece(row, col, stone);
 	}
 
 	public void doLighting() {
@@ -533,7 +190,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public void doLighting(boolean force) {
-		if (!isLit) {
+		if (getBounds() == null || !chessBoard.getBoardStyle().getIsLit()) {
 			return;
 		}
 
@@ -551,8 +208,8 @@ public class BoardView implements PositionListener {
 //            plugin.getWorldEdit().setSelection(jas, s);
 //        }
 		byte level = getBounds().shift(Direction.Up, 2).
-				inset(Direction.Horizontal, frameWidth + squareSize * 3).
-				expand(Direction.Up, height / 2).
+				inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
+				expand(Direction.Up, getHeight() / 2).
 				averageLightLevel();
 
 		if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
@@ -560,48 +217,7 @@ public class BoardView implements PositionListener {
 		}
 		lastLevel = level;
 
-		if (isBright(level)) {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; ++sqi) {
-				int col = Chess.sqiToCol(sqi);
-				int row = Chess.sqiToRow(sqi);
-				Location locNE = rowColToWorldNE(row, col);
-				if (locNE.getBlock().getTypeId() == 89) {
-					(Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat).applyToBlock(locNE.getBlock());
-				}
-			}
-			setFrameLights(frameMat);
-		} else {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; ++sqi) {
-				// todo: this code could be better optimized
-				int col = Chess.sqiToCol(sqi);
-				int row = Chess.sqiToRow(sqi);
-				Location locNE = rowColToWorldNE(row, col);
-				locNE.getBlock().setTypeId(89);
-			}
-			setFrameLights(new MaterialWithData(89, (byte) -1));
-		}
-	}
-
-	private void setFrameLights(MaterialWithData mat) {
-		Location l = getBounds().getLowerNE();
-		l.add(squareSize / 2 + 1, 0, 0);
-		int boardSize = squareSize * 8 + 1;
-		// east & west sides
-		for (int i = 0; i < 8; ++i) {
-			mat.applyToBlock(l.getBlock());
-			l.add(0, 0, boardSize);
-			mat.applyToBlock(l.getBlock());
-			l.add(squareSize, 0, -boardSize);
-		}
-		// north & south sides
-		l = getBounds().getLowerNE();
-		l.add(0, 0, squareSize / 2 + 1);
-		for (int i = 0; i < 8; ++i) {
-			mat.applyToBlock(l.getBlock());
-			l.add(boardSize, 0, 0);
-			mat.applyToBlock(l.getBlock());
-			l.add(-boardSize, 0, squareSize);
-		}
+		chessBoard.lightBoard(!isBright(level));
 	}
 
 	private boolean isBright(byte level) {
@@ -612,145 +228,16 @@ public class BoardView implements PositionListener {
 		}
 	}
 
-	public void highlightSquares(int from, int to) {
-		if (highlightStyle == HighlightStyle.NONE) {
-			return;
-		}
-
-		if (fromSquare >= 0 || toSquare >= 0) {
-			if (highlightStyle == HighlightStyle.LINE) {
-				drawHighlightLine(fromSquare, toSquare, false);
-			} else {
-				paintSquareAt(fromSquare);
-				paintSquareAt(toSquare);
-			}
-		}
-		fromSquare = from;
-		toSquare = to;
-
-		doLighting(true);
-
-		if (highlightStyle == HighlightStyle.LINE) {
-			drawHighlightLine(fromSquare, toSquare, true);
-		} else {
-			paintSquareAt(fromSquare, true);
-			paintSquareAt(toSquare, true);
-		}
-	}
-
-	/**
-	 * Use Bresenham's algorithm to draw line between two squares on the board
-	 *
-	 * @param from	Square index of the first square
-	 * @param to	Square index of the second square
-	 * @param isHighlighting	True if drawing a highlight, false if erasing it
-	 */
-	private void drawHighlightLine(int from, int to, boolean isHighlighting) {
-		Location loc1 = rowColToWorldCenter(Chess.sqiToRow(from), Chess.sqiToCol(from));
-		Location loc2 = rowColToWorldCenter(Chess.sqiToRow(to), Chess.sqiToCol(to));
-
-		int dx = Math.abs(loc1.getBlockX() - loc2.getBlockX());
-		int dz = Math.abs(loc1.getBlockZ() - loc2.getBlockZ());
-		int sx = loc1.getBlockX() < loc2.getBlockX() ? 1 : -1;
-		int sz = loc1.getBlockZ() < loc2.getBlockZ() ? 1 : -1;
-		int err = dx - dz;
-
-		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
-			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ? highlightMat : (Chess.isWhiteSquare(sqi) ? whiteSquareMat : blackSquareMat);
-			m.applyToBlock(loc1.getBlock());
-			int e2 = 2 * err;
-			if (e2 > -dz) {
-				err -= dz;
-				loc1.add(sx, 0, 0);
-			}
-			if (e2 < dx) {
-				err += dx;
-				loc1.add(0, 0, sz);
-			}
-		}
-	}
-
 	/**
 	 * get the bounds of the board itself
 	 * @return the bounds of the chess board - the innermost ring of the frame
 	 */
 	public Cuboid getBounds() {
-		Location a1 = rowColToWorldSW(0, 0);
-		Location h8 = rowColToWorldNE(7, 7);
-
-		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
-		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
-
-		World w = a1Square.getWorld();
-		int y = a1Square.getBlockY();
-		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, 1);
-	}
-
-	static Cuboid getBounds(Location a1Center, int square) {
-		Location a1 = rowColToWorldSW(a1Center, square, 0, 0);
-		Location h8 = rowColToWorldNE(a1Center, square, 7, 7);
-
-		int x1 = h8.getBlockX(), z2 = h8.getBlockZ();
-		int x2 = a1.getBlockX(), z1 = a1.getBlockZ();
-
-		World w = a1Center.getWorld();
-		int y = a1Center.getBlockY();
-		return new Cuboid(new Location(w, x1, y, z1), new Location(w, x2, y, z2)).outset(Direction.Horizontal, 1);
+		return chessBoard.getBoard();
 	}
 
 	public Cuboid getOuterBounds() {
-		Cuboid res = getBounds();
-		res.outset(Direction.Horizontal, getFrameWidth() - 1);
-		res.expand(Direction.Up, getHeight() + 1);
-		return res;
-	}
-
-	/**
-	 * given a Chess row & col, get the location in world coords
-	 * of that square's NE block (smallest X & Z)
-	 * @param row
-	 * @param col
-	 * @return
-	 */
-	public Location rowColToWorldNE(int row, int col) {
-		return rowColToWorld(row, col, squareSize - 1, squareSize - 1);
-	}
-
-	static Location rowColToWorldNE(Location a1, int square, int row, int col) {
-		return rowColToWorld(a1, square, row, col, square - 1, square - 1);
-	}
-
-	/**
-	 * given a Chess row & col, get the location in world coords
-	 * of that square's SW block (largest X & Z)
-	 * @param row
-	 * @param col
-	 * @return
-	 */
-	public Location rowColToWorldSW(int row, int col) {
-		return rowColToWorld(row, col, 0, 0);
-	}
-
-	static Location rowColToWorldSW(Location a1, int square, int row, int col) {
-		return rowColToWorld(a1, square, row, col, 0, 0);
-	}
-
-	public Location rowColToWorldCenter(int row, int col) {
-		return rowColToWorld(row, col, squareSize / 2, squareSize / 2);
-	}
-
-	public Location rowColToWorld(int row, int col, int xOff, int zOff) {
-		Location a1 = a1Square;
-		xOff += row * squareSize;
-		zOff += col * squareSize;
-		return new Location(a1.getWorld(), a1.getX() - xOff, a1.getY(), a1.getZ() - zOff);
-	}
-
-	static Location rowColToWorld(Location a1, int square, int row, int col, int xOff, int zOff) {
-		xOff += row * square;
-		zOff += col * square;
-		return new Location(a1.getWorld(), a1.getX() - xOff, a1.getY(), a1.getZ() - zOff);
+		return chessBoard.getFullBoard();
 	}
 
 	@Override
@@ -799,6 +286,9 @@ public class BoardView implements PositionListener {
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
 		Cuboid bounds = getBounds();
+		if (bounds == null) {
+			return false;
+		}
 		bounds.inset(Direction.Horizontal, 1);
 		bounds.shift(Direction.Up, minHeight);
 		bounds.expand(Direction.Up, maxHeight - minHeight);
@@ -821,7 +311,7 @@ public class BoardView implements PositionListener {
 	 * AND within the board's height range
 	 */
 	public boolean isAboveBoard(Location loc) {
-		return isOnBoard(loc, 1, height);
+		return isOnBoard(loc, 1, chessBoard.getBoardStyle().getHeight());
 	}
 
 	/**
@@ -831,7 +321,8 @@ public class BoardView implements PositionListener {
 	 * including frame & enclosure
 	 */
 	public boolean isPartOfBoard(Location loc) {
-		return getOuterBounds().contains(loc);
+		Cuboid o = chessBoard.getFullBoard();
+		return o != null && o.contains(loc);
 	}
 
 	public boolean isControlPanel(Location loc) {
@@ -839,12 +330,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public int getSquareAt(Location loc) {
-		if (!isOnBoard(loc, 0, height)) {
-			return Chess.NO_SQUARE;
-		}
-		int row = (a1Square.getBlockX() - loc.getBlockX()) / squareSize;
-		int col = (a1Square.getBlockZ() - loc.getBlockZ()) / squareSize;
-		return Chess.coorToSqi(col, row);
+		return chessBoard.getSquareAt(loc);
 	}
 
 	public void delete() {
@@ -858,36 +344,8 @@ public class BoardView implements PositionListener {
 		BoardView.removeBoardView(getName());
 	}
 
-	/**
-	 * delete blocks in bounds, but don't allow items to drop (paintings are not
-	 * blocks, and are not included...) also does not scan the faces of the
-	 * region for drops when the region is cleared
-	 */
-	public void wipe() {
-		Block b = null;
-		// first remove blocks that might pop off & leave a drop
-		for (Location l : getOuterBounds()) {
-			b = l.getBlock();
-			if (BlockType.shouldPlaceLast(b.getTypeId())) {
-				b.setTypeId(0);
-			}// also check if this is a container
-			else if (BlockType.isContainerBlock(b.getTypeId())) {
-				BlockState state = b.getState();
-				if (state instanceof org.bukkit.block.ContainerBlock) {
-					org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock) state;
-					Inventory inven = chest.getInventory();
-					inven.clear();
-				}
-			}
-		}
-		// now wipe all (remaining) blocks
-		for (Location l : getOuterBounds()) {
-			l.getBlock().setTypeId(0);
-		}
-	}
-
 	public void restoreTerrain(Player player) {
-		wipe();
+		chessBoard.clearAll();
 		if (plugin.getWorldEdit() != null) {
 			TerrainBackup.reload(plugin, player, this);
 		}
@@ -926,7 +384,7 @@ public class BoardView implements PositionListener {
 		chessBoards.clear();
 	}
 
-	public static Boolean checkBoardView(String name) {
+	public static boolean boardViewExists(String name) {
 		return chessBoards.containsKey(name);
 	}
 
@@ -959,6 +417,10 @@ public class BoardView implements PositionListener {
 		return chessBoards.get(name);
 	}
 
+	public static List<BoardView> listBoardViews() {
+		return listBoardViews(false);
+	}
+
 	public static List<BoardView> listBoardViews(boolean isSorted) {
 		if (isSorted) {
 			SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
@@ -973,10 +435,11 @@ public class BoardView implements PositionListener {
 
 	}
 
-	public static List<BoardView> listBoardViews() {
-		return listBoardViews(false);
-	}
-
+	/**
+	 * get a board that does not have a game running
+	 * @return the first free board found
+	 * @throws ChessException if no free board was found
+	 */
 	public static BoardView getFreeBoard() throws ChessException {
 		for (BoardView bv : listBoardViews()) {
 			if (bv.getGame() == null) {
@@ -1026,5 +489,17 @@ public class BoardView implements PositionListener {
 			}
 		}
 		return null;
+	}
+
+	public void wipe() {
+		chessBoard.clearAll();
+	}
+
+	void highlightSquares(int fromSquare, int toSquare) {
+		chessBoard.highlightSquares(fromSquare, toSquare);
+	}
+
+	void reloadStyle() throws ChessException {
+		chessBoard.reloadStyles(ChessConfig.getBoardStyleDirectory(), ChessConfig.getPieceStyleDirectory());
 	}
 }

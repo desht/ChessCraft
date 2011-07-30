@@ -10,6 +10,7 @@ import chesspresso.Chess;
 import com.sk89q.util.StringUtil;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import me.desht.chesscraft.log.ChessCraftLogger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -78,7 +79,7 @@ public class ChessUtils {
 		if (player != null) {
 			player.sendMessage(parseColourSpec(string));
 		} else {
-			ChessCraft.log(level, string);
+			ChessCraftLogger.log(level, string);
 		}
 	}
 
@@ -86,7 +87,7 @@ public class ChessUtils {
 		if (player != null) {
 			player.sendMessage(colour + parseColourSpec(string));
 		} else {
-			ChessCraft.log(level, string);
+			ChessCraftLogger.log(level, string);
 		}
 	}
 

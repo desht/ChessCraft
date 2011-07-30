@@ -29,6 +29,7 @@ import chesspresso.position.Position;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class Game {
 
@@ -72,8 +73,8 @@ public class Game {
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
 //		delTask = -1;
-		stake =	Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
-		       	         Economy.getBalance(playerName));
+		stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0),
+				Economy.getBalance(playerName));
 
 		setupChesspressoGame();
 
@@ -129,7 +130,7 @@ public class Game {
 	}
 
 	@SuppressWarnings("unchecked")
-	boolean thaw(Map<String, Object> map) {
+	boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
 		playerWhite = (String) map.get("playerWhite");
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
@@ -141,7 +142,12 @@ public class Game {
 		}
 		started = (Long) map.get("started");
 		if (map.containsKey("finished")) {
-			finished = (Long) map.get("finished");	
+			try {
+				finished = (Long) map.get("finished");
+			} catch (Exception e) {
+				// don't know why i suddenly needed this..
+				finished = 0;
+			}
 		} else {
 			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
 		}
@@ -156,46 +162,45 @@ public class Game {
 			stake = (Double) map.get("stake");
 		}
 
-		try {
-			if (isAIPlayer(playerWhite)) {
-				aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
-				playerWhite = aiPlayer.getName();
-				aiPlayer.init(true);
-			} else if (isAIPlayer(playerBlack)) {
-				aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
-				playerBlack = aiPlayer.getName();
-				aiPlayer.init(false);
-			}
-
-			// Replay the move history to restore the saved board position.
-			// We do this instead of just saving the position so that the
-			// Chesspresso Game model
-			// includes a history of the moves, suitable for creating a PGN file.
-			for (short move : history) {
-				getPosition().doMove(move);
-			}
-			// repeat for the ai engine (doesn't support loading from fen)
-			if (aiPlayer != null) {
-				for (short move : history) {
-					aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-				}
-				aiPlayer.loadDone(); // tell ai to start on next move
-			}
-		} catch (IllegalMoveException e) {
-			// should only get here if the save file was corrupted - the history
-			// is a list of moves which was already validated before the game was
-			// saved
-			ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
-					+ " - move history corrupted?" + "  (game will be deleted)");
-			deletePermanently();
-			return false;
-		} catch (Exception e) {
-			ChessCraft.log(Level.WARNING, "Unexpected exception restoring game "
-					+ getName() + "\n" + e.getMessage() + "  (game will be deleted)");
-			// delete game
-			deletePermanently();
-			return false;
+		//try {
+		if (isAIPlayer(playerWhite)) {
+			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+			playerWhite = aiPlayer.getName();
+			aiPlayer.init(true);
+		} else if (isAIPlayer(playerBlack)) {
+			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+			playerBlack = aiPlayer.getName();
+			aiPlayer.init(false);
 		}
+
+		// Replay the move history to restore the saved board position.
+		// We do this instead of just saving the position so that the
+		// Chesspresso Game model
+		// includes a history of the moves, suitable for creating a PGN file.
+		for (short move : history) {
+			getPosition().doMove(move);
+		}
+		// repeat for the ai engine (doesn't support loading from fen)
+		if (aiPlayer != null) {
+			for (short move : history) {
+				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+			}
+			aiPlayer.loadDone(); // tell ai to start on next move
+		}
+//		} catch (IllegalMoveException e) {
+//			// should only get here if the save file was corrupted - the history
+//			// is a list of moves which was already validated before the game was saved
+//			ChessCraftLogger.log(Level.WARNING, "can't restore move history for game " + getName()
+//					+ " - move history corrupted?" + "  (game will be deleted)");
+//			deletePermanently();
+//			return false;
+//		} catch (Exception e) {
+//			ChessCraftLogger.log(Level.WARNING, "Unexpected exception restoring game "
+//					+ getName() + "\n" + e.getMessage() + "  (game will be deleted)");
+//			// delete game
+//			deletePermanently();
+//			return false;
+//		}
 
 		setupChesspressoGame();
 
@@ -242,7 +247,7 @@ public class Game {
 
 	public void setState(GameState state) {
 		this.state = state;
-		
+
 		if (state == GameState.FINISHED) {
 			finished = System.currentTimeMillis();
 			if (aiPlayer != null) {
@@ -394,7 +399,7 @@ public class Game {
 				+ "&e has created an open invitation to a chess game."));
 		if (Economy.active() && getStake() > 0.0) {
 			Bukkit.getServer().broadcastMessage(
-			    "&e:: This game has a stake of &f" + Economy.format(getStake()));
+					"&e:: This game has a stake of &f" + Economy.format(getStake()));
 		}
 		Bukkit.getServer().broadcastMessage(
 				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName()
@@ -668,7 +673,7 @@ public class Game {
 						winnings = stake * (1.0 + ai.getPayoutMultiplier());
 					} else {
 						winnings = stake * 2.0;
-						ChessCraft.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
+						ChessCraftLogger.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
 					}
 				} else {
 					winnings = stake * 2.0;
@@ -716,7 +721,6 @@ public class Game {
 //		Bukkit.getServer().getScheduler().cancelTask(delTask);
 //		delTask = -1;
 //	}
-
 	/**
 	 * Called when a game is permanently deleted.
 	 */
@@ -753,7 +757,7 @@ public class Game {
 		try {
 			Game.removeGame(getName());
 		} catch (ChessException e) {
-			ChessCraft.log(Level.WARNING, e.getMessage());
+			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
 	}
 
@@ -910,7 +914,7 @@ public class Game {
 	private static String dateToPGNDate(long when) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(when);
-		
+
 		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when));
 	}
 
@@ -953,7 +957,7 @@ public class Game {
 	public void checkForAutoDelete() {
 		boolean mustDelete = false;
 		String alertStr = null;
-		
+
 		if (getState() == GameState.SETTING_UP) {
 			long elapsed = (System.currentTimeMillis() - started) / 1000;
 			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180);
@@ -969,10 +973,10 @@ public class Game {
 				alertStr = "Finished game auto-deleted";
 			}
 		}
-		
+
 		if (mustDelete) {
 			alert(alertStr);
-			ChessCraft.log(Level.INFO, alertStr);
+			ChessCraftLogger.log(Level.INFO, alertStr);
 			deletePermanently();
 		}
 	}

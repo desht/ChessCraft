@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -84,7 +85,7 @@ public class ChessPersistence {
 			int nLoadedBoards = loadBoards();
 			int nLoadedGames = loadGames();
 
-			ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
+			ChessCraftLogger.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
 
 			for (BoardView bv : BoardView.listBoardViews()) {
 				bv.paintAll();
@@ -99,13 +100,13 @@ public class ChessPersistence {
 						try {
 							Game.setCurrentGame(entry.getKey(), entry.getValue());
 						} catch (ChessException e) {
-							ChessCraft.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
+							ChessCraftLogger.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
 									+ e.getMessage());
 						}
 					}
 				}
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
+				ChessCraftLogger.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
 				moveBackup(ChessConfig.getPersistFile());
 			}
 		} else {
@@ -150,7 +151,7 @@ public class ChessPersistence {
 									(String) boardMap.get("pieceStyle")));
 							++nLoadedBoards;
 						} catch (Exception e) {
-							ChessCraft.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
+							ChessCraftLogger.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
 						}
 					}
 				}
@@ -170,10 +171,10 @@ public class ChessPersistence {
 				}
 
 				if (nWantedBoards != nLoadedBoards || nWantedGames != nLoadedGames) {
-					ChessCraft.log(Level.INFO, "An error occurred while loading the saved data");
+					ChessCraftLogger.log(Level.INFO, "An error occurred while loading the saved data");
 				}
 
-				ChessCraft.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games from old file.");
+				ChessCraftLogger.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games from old file.");
 
 				for (BoardView bv : BoardView.listBoardViews()) {
 					bv.paintAll();
@@ -185,15 +186,15 @@ public class ChessPersistence {
 						try {
 							Game.setCurrentGame(entry.getKey(), entry.getValue());
 						} catch (ChessException e) {
-							ChessCraft.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
+							ChessCraftLogger.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
 									+ e.getMessage());
 						}
 					}
 				}
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "Unexpected Error while loading the saved data: " + e.getMessage());
+				ChessCraftLogger.log(Level.SEVERE, "Unexpected Error while loading the saved data: " + e.getMessage());
 			}
-			ChessCraft.log(Level.INFO, "old file will be backed up, just in case");
+			ChessCraftLogger.log(Level.INFO, "old file will be backed up, just in case");
 			File backup = getBackupFileName(f.getParentFile(), oldPersistFilename);
 			// rename much easier than copy & delete :)
 			f.renameTo(backup);
@@ -211,7 +212,7 @@ public class ChessPersistence {
 	private void moveBackup(File original) {
 		File backup = getBackupFileName(original.getParentFile(), original.getName());
 
-		ChessCraft.log(Level.INFO, "An error occurred while loading " + original.getName() + ":\n"
+		ChessCraftLogger.log(Level.INFO, "An error occurred while loading " + original.getName() + ":\n"
 				+ "a backup copy has been saved to " + backup.getPath());
 		original.renameTo(backup);
 	}
@@ -271,7 +272,7 @@ public class ChessPersistence {
 						conf.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
+				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
 				moveBackup(f);
 			}
 		}
@@ -310,18 +311,18 @@ public class ChessPersistence {
 				conf.setProperty("filename", f.getName());
 				String board = conf.getString("boardview");
 				if (board == null) {
-					ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName() + ": boardview is null");
+					ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + f.getName() + ": boardview is null");
 					moveBackup(f);
 				} else if (toLoad.containsKey(board)) {
 					// only load the newer game
 					int tstart = conf.getInt("started", 0);
 					int ostart = (Integer) toLoad.get(board).get("started");
 					if (ostart >= tstart) {
-						ChessCraft.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
+						ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
 						moveBackup(f);
 					} else {
 						String fn = (String) toLoad.get(board).get("filename");
-						ChessCraft.log(Level.SEVERE, "can't load saved game " + fn + ": another game is using the same board");
+						ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + fn + ": another game is using the same board");
 						(new File(f.getParentFile(), fn)).renameTo(new File(f.getParentFile(), fn + ".bak"));
 						toLoad.put(board, conf.getAll());
 					}
@@ -329,7 +330,7 @@ public class ChessPersistence {
 					toLoad.put(board, conf.getAll());
 				}
 			} catch (Exception e) {
-				ChessCraft.log(Level.SEVERE, "Error loading " + f.getName(), e);
+				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName(), e);
 				moveBackup(f);
 			}
 		}
@@ -338,6 +339,8 @@ public class ChessPersistence {
 		for (Map<String, Object> gameMap : toLoad.values()) {
 			if (loadGame(gameMap)) {
 				++nLoaded;
+			} else{
+				moveBackup(new File(ChessConfig.getGamesPersistDirectory(), (String) gameMap.get("filename")));
 			}
 		}
 		return nLoaded;
@@ -353,7 +356,7 @@ public class ChessPersistence {
 				return true;
 			}
 		} catch (Exception e) {
-			ChessCraft.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage());
+			ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + gameName + ": " + e.getMessage(), e);
 		}
 		return false;
 	}
@@ -386,13 +389,13 @@ public class ChessPersistence {
 	public void removeGameSavefile(Game game) {
 		File f = new File(ChessConfig.getGamesPersistDirectory(), game.getName() + ".yml");
 		if (!f.delete()) {
-			ChessCraft.log(Level.WARNING, "Can't delete game save file " + f);
+			ChessCraftLogger.log(Level.WARNING, "Can't delete game save file " + f);
 		}
 	}
 	public void removeBoardSavefile(BoardView board) {
 		File f = new File(ChessConfig.getBoardPersistDirectory(), board.getName() + ".yml");
 		if (!f.delete()) {
-			ChessCraft.log(Level.WARNING, "Can't delete board save file " + f);
+			ChessCraftLogger.log(Level.WARNING, "Can't delete board save file " + f);
 		}
 	}
 }

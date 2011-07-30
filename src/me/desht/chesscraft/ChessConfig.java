@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import me.desht.chesscraft.log.ChessCraftLogger;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
@@ -146,7 +147,7 @@ public class ChessConfig {
 		File oldSchematicsDir = new File (pluginDir, "schematics");
 		if (oldSchematicsDir.isDirectory()) {
 			if (!oldSchematicsDir.renameTo(schematicsDir)) {
-				ChessCraft.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir);
+				ChessCraftLogger.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir);
 			}
 		} else {
 			// [plugins]/ChessCraft/data/boards/schematics
@@ -171,7 +172,7 @@ public class ChessConfig {
 			return;
 		}
 		if (!dir.mkdir()) {
-			ChessCraft.log(Level.WARNING, "Can't make directory " + dir.getName());
+			ChessCraftLogger.log(Level.WARNING, "Can't make directory " + dir.getName());
 		}
 	}
 
@@ -185,7 +186,7 @@ public class ChessConfig {
 		try {
 			InputStream in = ChessCraft.class.getResourceAsStream(from);
 			if (in == null) {
-				ChessCraft.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR");
+				ChessCraftLogger.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR");
 			} else {
 				out = new FileOutputStream(of);
 				byte[] buf = new byte[1024];
@@ -197,9 +198,9 @@ public class ChessConfig {
 				out.close();
 			}
 		} catch (FileNotFoundException ex) {
-			ChessCraft.log(Level.SEVERE, null, ex);
+			ChessCraftLogger.log(Level.SEVERE, null, ex);
 		} catch (IOException ex) {
-			ChessCraft.log(Level.SEVERE, null, ex);
+			ChessCraftLogger.log(Level.SEVERE, null, ex);
 		} finally {
 			try {
 				if (out != null) {

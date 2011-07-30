@@ -7,26 +7,37 @@ import me.desht.chesscraft.enums.Direction;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+// imports for clear()
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.inventory.Inventory;
+import me.desht.chesscraft.blocks.BlockType;
 
-public class Cuboid implements Iterable<Location> {
+public class Cuboid implements Iterable<Location>, Cloneable {
 
-	private Location lowerNE; // min x,y,z
-	private Location upperSW; // max x,y,z
+	protected Location lowerNE; // min x,y,z
+	protected Location upperSW; // max x,y,z
 
 	public Cuboid(Location l1, Location l2) {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
 		}
 
-		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()), Math.min(l1.getY(), l2.getY()), Math.min(
-				l1.getZ(), l2.getZ()));
-		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()), Math.max(l1.getY(), l2.getY()), Math.max(
-				l1.getZ(), l2.getZ()));
+		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()),
+				Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
+		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()),
+				Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
+
 	}
 
 	public Cuboid(Location l1) {
-		lowerNE = new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
-		upperSW = new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+		lowerNE = l1.clone();//new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+		upperSW = l1.clone();//new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+	}
+
+	public Cuboid(Cuboid copy) {
+		this.lowerNE = copy.lowerNE.clone();
+		this.upperSW = copy.upperSW.clone();
 	}
 
 	public Location getLowerNE() {
@@ -36,8 +47,8 @@ public class Cuboid implements Iterable<Location> {
 	public Location getUpperSW() {
 		return upperSW;
 	}
-	
-	public World getWorld(){
+
+	public World getWorld() {
 		return lowerNE == null ? (upperSW == null ? null : upperSW.getWorld()) : lowerNE.getWorld();
 	}
 
@@ -76,7 +87,6 @@ public class Cuboid implements Iterable<Location> {
 			}
 		}
 		return res;
-
 	}
 
 	public Cuboid expand(Direction dir, int amount) {
@@ -189,9 +199,94 @@ public class Cuboid implements Iterable<Location> {
 		return (byte) (total / n);
 	}
 
+	/**
+	 * delete blocks in bounds, but don't allow items to drop (paintings are not
+	 * blocks, and are not included...) also does not scan the faces of the
+	 * region for drops when the region is cleared
+	 */
+	public void clear() {
+		// first remove blocks that might pop off & leave a drop
+		for (Location l : this) {
+			Block b = l.getBlock();
+			if (BlockType.shouldPlaceLast(b.getTypeId())) {
+				b.setTypeId(0);
+			}// also check if this is a container
+			else if (BlockType.isContainerBlock(b.getTypeId())) {
+				BlockState state = b.getState();
+				if (state instanceof org.bukkit.block.ContainerBlock) {
+					org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock) state;
+					Inventory inven = chest.getInventory();
+					inven.clear();
+				}
+			}
+		}
+		// now wipe all (remaining) blocks
+		for (Location l : this) {
+			l.getBlock().setTypeId(0);
+		}
+	}
+
+	public void set(int blockID) {
+		if (blockID == 0) {
+			clear();
+		} else {
+			for (Location l : this) {
+				l.getBlock().setTypeId(blockID);
+			}
+		}
+	}
+
+	public void set(int blockID, byte data) {
+		if (blockID == 0) {
+			clear();
+		} else {
+			for (Location l : this) {
+				l.getBlock().setTypeIdAndData(blockID, data, true);
+			}
+		}
+	}
+
+	public void setWalls(int blockID) {
+		setWalls(blockID, (byte) 0);
+	}
+
+	public void setWalls(int blockID, byte data) {
+		World w = lowerNE.getWorld();
+		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
+		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
+		for (int x = minX; x <= maxX; ++x) {
+			for (int y = minY; y <= maxY; ++y) {
+				(new Location(w, x, y, minZ)).getBlock().setTypeIdAndData(blockID, data, true);
+				(new Location(w, x, y, maxZ)).getBlock().setTypeIdAndData(blockID, data, true);
+			}
+		}
+		for (int z = minZ; z <= maxZ; ++z) {
+			for (int y = minY; y <= maxY; ++y) {
+				(new Location(w, minX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+				(new Location(w, maxX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+			}
+		}
+	}
+
+	/**
+	 * get a block relative to the lower NE point of this cuboid
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public Block getRelativeBlock(int x, int y, int z) {
+		return lowerNE.clone().add(x, y, z).getBlock();
+	}
+
 	@Override
 	public Iterator<Location> iterator() {
 		return new CuboidIterator(lowerNE, upperSW);
+	}
+
+	@Override
+	public Cuboid clone() {
+		return new Cuboid(this);
 	}
 
 	@Override
@@ -209,5 +304,29 @@ public class Cuboid implements Iterable<Location> {
 
 	public int getSizeZ() {
 		return (upperSW.getBlockZ() - lowerNE.getBlockZ()) + 1;
+	}
+
+	public int getLowerX() {
+		return lowerNE.getBlockX();
+	}
+
+	public int getLowerY() {
+		return lowerNE.getBlockY();
+	}
+
+	public int getLowerZ() {
+		return lowerNE.getBlockZ();
+	}
+
+	public int getUpperX() {
+		return upperSW.getBlockX();
+	}
+
+	public int getUpperY() {
+		return upperSW.getBlockY();
+	}
+
+	public int getUpperZ() {
+		return upperSW.getBlockZ();
 	}
 }
