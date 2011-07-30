@@ -97,14 +97,9 @@ public class ChessEntityListener extends EntityListener {
 			Location defenderLoc = event.getEntity().getLocation();
 			for (BoardView bv : BoardView.listBoardViews()) {
 				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-					event.setCancelled(true); // don't allow players to attack
-												// from safety of chessboard
-					if ((event.getEntity() instanceof Player) && // victim is a
-																	// player
-							!(dbeEvent.getDamager() instanceof Player) // and
-																		// attacker
-																		// is a
-																		// monster
+					event.setCancelled(true); // don't allow players to attack from safety of chessboard
+					if ((event.getEntity() instanceof Player) && // victim is a player
+							!(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
 							&& dbeEvent.getDamager() instanceof LivingEntity) {
 						dbeEvent.getDamager().remove(); // remove monster
 					}
@@ -126,12 +121,8 @@ public class ChessEntityListener extends EntityListener {
 			for (BoardView bv : BoardView.listBoardViews()) {
 				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
 					event.setCancelled(true);
-					if ((event.getEntity() instanceof Player) && // victim is a
-																	// player
-							!(dbeEvent.getDamager() instanceof Player) // and
-																		// attacker
-																		// is a
-																		// monster
+					if ((event.getEntity() instanceof Player) && // victim is a player
+							!(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
 							&& dbeEvent.getDamager() instanceof LivingEntity) {
 						dbeEvent.getDamager().remove();
 					}
