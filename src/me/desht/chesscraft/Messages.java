@@ -6,8 +6,7 @@ import java.util.ResourceBundle;
 public class Messages {
 	private static final String BUNDLE_NAME = "datafiles.messages"; //$NON-NLS-1$
 
-//	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-	private static ResourceBundle RESOURCE_BUNDLE;
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	
 	private Messages() {
 	}
@@ -18,10 +17,5 @@ public class Messages {
 		} catch (MissingResourceException e) {
 			return '!' + key + '!';
 		}
-	}
-
-	public static void init() {
-		 RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-		
 	}
 }
