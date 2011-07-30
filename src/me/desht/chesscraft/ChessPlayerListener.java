@@ -3,6 +3,8 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.blocks.MaterialWithData;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +54,7 @@ public class ChessPlayerListener extends PlayerListener {
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
-					ChessUtils.statusMessage(player, "Board creation cancelled.");
+					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -64,7 +66,7 @@ public class ChessPlayerListener extends PlayerListener {
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player,
-							ExpectAction.BoardCreation);
+																							ExpectAction.BoardCreation);
 					a.setLocation(b.getLocation());
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					event.setCancelled(true);
@@ -80,7 +82,7 @@ public class ChessPlayerListener extends PlayerListener {
 			ChessUtils.errorMessage(player, e.getMessage());
 			if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 				plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
-				ChessUtils.errorMessage(player, "Board creation cancelled.");
+				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
 	}
@@ -93,7 +95,7 @@ public class ChessPlayerListener extends PlayerListener {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				String wand = plugin.getConfiguration().getString("wand_item");
+				String wand = plugin.getConfiguration().getString("wand_item"); //$NON-NLS-1$
 				int wandId = (new MaterialWithData(wand)).getMaterial();
 				if (player.getItemInHand().getTypeId() == wandId) {
 					HashSet<Byte> transparent = new HashSet<Byte>();
@@ -122,7 +124,7 @@ public class ChessPlayerListener extends PlayerListener {
 			if (targetBlock != null) {
 				cancelMove(targetBlock.getLocation());
 			}
-			ChessUtils.errorMessage(player, e.getMessage() + ".  Move cancelled.");
+			ChessUtils.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
 		}
 
 	}
@@ -134,25 +136,27 @@ public class ChessPlayerListener extends PlayerListener {
 		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				playerRejoined(who);
-				game.alert(game.getOtherPlayer(who), who + " is back in the game!");
-				games.append(" ").append(game.getName());
+				game.alert(game.getOtherPlayer(who),
+				           MessageFormat.format(Messages.getString("ChessPlayerListener.playerBack"), who)); //$NON-NLS-1$
+				games.append(" ").append(game.getName()); //$NON-NLS-1$
 			}
 		}
 		if (games.length() > 0) {
-			ChessUtils.alertMessage(event.getPlayer(), "Your current chess games: " + games);
+			ChessUtils.alertMessage(event.getPlayer(), MessageFormat.format(Messages.getString("ChessPlayerListener.currentGames"), games)); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
-		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
+		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60); //$NON-NLS-1$
 		for (Game game : Game.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
-					game.alert(who + " quit.  If they don't rejoin within " + timeout
-							+ " seconds, you can type &f/chess win&- to win by default.");
+					game
+							.alert(MessageFormat
+									.format(Messages.getString("ChessPlayerListener.playerQuit"), who, timeout)); //$NON-NLS-1$
 				}
 			}
 		}
@@ -183,24 +187,22 @@ public class ChessPlayerListener extends PlayerListener {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					ChessUtils.statusMessage(player, "Selected your &f" + what + "&- at &f" + Chess.sqiToStr(sqi)
-							+ "&-.");
-					ChessUtils.statusMessage(player, "&5-&- Left-click a square or another piece to move your &f"
-							+ what);
-					ChessUtils.statusMessage(player, "&5-&- Left-click the &f" + what + "&- again to cancel.");
+					ChessUtils.statusMessage(player, MessageFormat.format(Messages
+							.getString("ChessPlayerListener.pieceSelected"), what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
 				if (sqi == game.getFromSquare()) {
 					game.setFromSquare(Chess.NO_SQUARE);
-					ChessUtils.statusMessage(player, "Move cancelled.");
+					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					game.doMove(player.getName(), sqi);
-					ChessUtils.statusMessage(player, "You played " + game.getPosition().getLastMove().getLAN() + ".");
+					ChessUtils.statusMessage(player, MessageFormat.format(Messages.getString("ChessPlayerListener.youPlayed"),
+					                                                      game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
-			ChessUtils.errorMessage(player, "It is not your turn!");
+			ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
 		}
 	}
 
@@ -209,10 +211,11 @@ public class ChessPlayerListener extends PlayerListener {
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
-			ChessUtils.statusMessage(player, "You played &f[" + game.getPosition().getLastMove().getLAN() + "]&-.");
+			ChessUtils.statusMessage(player,MessageFormat.format(Messages.getString("ChessPlayerListener.youPlayed"), //$NON-NLS-1$
+			                                                     game.getPosition().getLastMove().getLAN()));
 		} else {
-			ChessUtils
-					.statusMessage(player, "Square &6[" + Chess.sqiToStr(sqi) + "]&-, board &6" + bv.getName() + "&-");
+			ChessUtils.statusMessage(player,MessageFormat.format(Messages.getString("ChessPlayerListener.squareMessage"), //$NON-NLS-1$
+			                                                     Chess.sqiToStr(sqi), bv.getName())); 
 		}
 	}
 

@@ -92,49 +92,49 @@ public class ControlPanel {
 		boolean hasWhite = game != null && !game.getPlayerWhite().isEmpty();
 		boolean hasBlack = game != null && !game.getPlayerBlack().isEmpty();
 
-		createSignButton(0, 2, "board-info", ";Board;Info", eastFacingWallSign, true);
-		createSignButton(0, 1, "teleport", ";Teleport;Out", eastFacingWallSign, true);
+		createSignButton(0, 2, "board-info", Messages.getString("ControlPanel.boardInfoBtn"), eastFacingWallSign, true); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 1, "teleport", Messages.getString("ControlPanel.teleportOutBtn"), eastFacingWallSign, true); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Economy.active()) {
-			createSignButton(7, 1, "stake", getStakeStr(game), eastFacingWallSign, game != null);
+			createSignButton(7, 1, "stake", getStakeStr(game), eastFacingWallSign, game != null); //$NON-NLS-1$
 		}
 
-		createSignButton(1, 2, "create-game", ";Create;Game", eastFacingWallSign, game == null);
-		createSignButton(2, 2, "invite-player", ";Invite;Player", eastFacingWallSign, settingUp
+		createSignButton(1, 2, "create-game", Messages.getString("ControlPanel.createGameBtn"), eastFacingWallSign, game == null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(2, 2, "invite-player", Messages.getString("ControlPanel.invitePlayerBtn"), eastFacingWallSign, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(3, 2, "invite-anyone", ";Invite;ANYONE", eastFacingWallSign, settingUp
+		createSignButton(3, 2, "invite-anyone", Messages.getString("ControlPanel.inviteAnyoneBtn"), eastFacingWallSign, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(4, 2, "start", ";Start;Game", eastFacingWallSign, settingUp);// &&
+		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), eastFacingWallSign, settingUp);// && //$NON-NLS-1$ //$NON-NLS-2$
 																						// hasWhite
 																						// &&
 																						// hasBlack);
-		createSignButton(5, 2, "offer-draw", ";Offer;Draw", eastFacingWallSign, running);
-		createSignButton(6, 2, "resign", ";Resign", eastFacingWallSign, running);
-		createSignButton(7, 2, "game-info", ";Game;Info", eastFacingWallSign, game != null);
+		createSignButton(5, 2, "offer-draw", Messages.getString("ControlPanel.offerDrawBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 2, "resign", Messages.getString("ControlPanel.resignBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 2, "game-info", Messages.getString("ControlPanel.gameInfoBtn"), eastFacingWallSign, game != null); //$NON-NLS-1$ //$NON-NLS-2$
 
-		createSignButton(1, 1, "white-promote", "White Pawn;Promotion;;&4" + getPromoStr(game, Chess.WHITE),
+		createSignButton(1, 1, "white-promote", Messages.getString("ControlPanel.whitePawnPromotionBtn") + getPromoStr(game, Chess.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
 				eastFacingWallSign, hasWhite);
-		createSignButton(6, 1, "black-promote", "Black Pawn;Promotion;;&4" + getPromoStr(game, Chess.BLACK),
+		createSignButton(6, 1, "black-promote", Messages.getString("ControlPanel.blackPawnPromotionBtn") + getPromoStr(game, Chess.BLACK), //$NON-NLS-1$ //$NON-NLS-2$
 				eastFacingWallSign, hasBlack);
 
 		Player pw = game == null ? null : plugin.getServer().getPlayer(game.getPlayerWhite());
 		String offerw = getOfferText(pw);
-		createSignButton(0, 0, "white-yes", offerw + ";;Yes", eastFacingWallSign, !offerw.isEmpty());
-		createSignButton(1, 0, "white-no", offerw + ";;No", eastFacingWallSign, !offerw.isEmpty());
+		createSignButton(0, 0, "white-yes", offerw + Messages.getString("ControlPanel.yesBtn"), eastFacingWallSign, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 0, "white-no", offerw + Messages.getString("ControlPanel.noBtn"), eastFacingWallSign, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 		Player pb = game == null ? null : plugin.getServer().getPlayer(game.getPlayerBlack());
 		String offerb = getOfferText(pb);
-		createSignButton(6, 0, "black-yes", offerb + ";;Yes", eastFacingWallSign, !offerb.isEmpty());
-		createSignButton(7, 0, "black-no", offerb + ";;No", eastFacingWallSign, !offerb.isEmpty());
+		createSignButton(6, 0, "black-yes", offerb + ";;Yes", eastFacingWallSign, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 0, "black-no", offerb + ";;No", eastFacingWallSign, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private String getOfferText(Player p) {
 		if (p == null) {
-			return "";
+			return ""; //$NON-NLS-1$
 		} else if (plugin.expecter.isExpecting(p, ExpectAction.DrawResponse)) {
-			return "Accept Draw?";
+			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
 		} else if (plugin.expecter.isExpecting(p, ExpectAction.SwapResponse)) {
-			return "Accept Swap?";
+			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
 		} else {
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 	}
 
@@ -190,48 +190,48 @@ public class ControlPanel {
 		}
 
 		String name = button.getName();
-		if (name.equals("create-game")) {
+		if (name.equals("create-game")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryCreateGame(player, null, view.getName());
-		} else if (name.equals("start")) {
+		} else if (name.equals("start")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryStartGame(player, game);
-		} else if (name.equals("resign")) {
+		} else if (name.equals("resign")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryResignGame(player, game);
-		} else if (name.equals("offer-draw")) {
+		} else if (name.equals("offer-draw")) { //$NON-NLS-1$
 			if (game != null) {
 				plugin.getCommandExecutor().tryOfferDraw(player, game);
 			}
-		} else if (name.equals("game-info")) {
+		} else if (name.equals("game-info")) { //$NON-NLS-1$
 			if (game != null) {
 				plugin.getCommandExecutor().showGameDetail(player, game.getName());
 			}
-		} else if (name.equals("board-info")) {
+		} else if (name.equals("board-info")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().showBoardDetail(player, view.getName());
-		} else if (name.equals("invite-player")) {
+		} else if (name.equals("invite-player")) { //$NON-NLS-1$
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
-				ChessUtils.statusMessage(player, "Type &f/chess invite <playername>&- to invite someone");
+				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInviteReminder")); //$NON-NLS-1$
 			}
-		} else if (name.equals("invite-anyone")) {
+		} else if (name.equals("invite-anyone")) { //$NON-NLS-1$
 			if (game != null) {
 				plugin.getCommandExecutor().tryInvitePlayer(player, game, null);
 			}
-		} else if (name.equals("teleport")) {
+		} else if (name.equals("teleport")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryTeleportOut(player);
-		} else if (name.equals("white-promote")) {
+		} else if (name.equals("white-promote")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.WHITE, game);
-			view.getControlPanel().updateSignButtonText("white-promote", "=;=;;&4" + getPromoStr(game, Chess.WHITE));
-		} else if (name.equals("black-promote")) {
+			view.getControlPanel().updateSignButtonText("white-promote", "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (name.equals("black-promote")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.BLACK, game);
-			view.getControlPanel().updateSignButtonText("black-promote", "=;=;;&4" + getPromoStr(game, Chess.BLACK));
-		} else if (name.equals("white-yes") || name.equals("black-yes")) {
+			view.getControlPanel().updateSignButtonText("black-promote", "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (name.equals("white-yes") || name.equals("black-yes")) { //$NON-NLS-1$ //$NON-NLS-2$
 			plugin.getCommandExecutor().doResponse(player, true);
-		} else if (name.equals("white-no") || name.equals("black-no")) {
+		} else if (name.equals("white-no") || name.equals("black-no")) { //$NON-NLS-1$ //$NON-NLS-2$
 			plugin.getCommandExecutor().doResponse(player, false);
-		} else if (name.equals("stake") && Economy.active()) {
+		} else if (name.equals("stake") && Economy.active()) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
-				stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0);
+				stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0); //$NON-NLS-1$
 			} else {
-				stakeIncr = plugin.getConfiguration().getDouble("stake.largeIncrement", 1.0);
+				stakeIncr = plugin.getConfiguration().getDouble("stake.largeIncrement", 1.0); //$NON-NLS-1$
 			}
 			if (action == Action.RIGHT_CLICK_BLOCK) {
 				stakeIncr = -stakeIncr;
@@ -240,26 +240,26 @@ public class ControlPanel {
 				return;
 			}
 			plugin.getCommandExecutor().tryChangeStake(player, game, stakeIncr);
-			view.getControlPanel().updateSignButtonText("stake", getStakeStr(game));
+			view.getControlPanel().updateSignButtonText("stake", getStakeStr(game)); //$NON-NLS-1$
 		}
 	}
 
 	private String getStakeStr(Game game) {
 		if (game == null) {
-			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0);
-			String stakeStr = Economy.format(stake).replaceFirst(" ", ";");
-			return "Stake;;" + stakeStr;
+			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0); //$NON-NLS-1$
+			String stakeStr = Economy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			return Messages.getString("ControlPanel.stakeBtn") + stakeStr; //$NON-NLS-1$
 		} else {
 			double stake = game.getStake();
-			String stakeStr = Economy.format(stake).replaceFirst(" ", ";&4");
-			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0";
-			return col + "Stake;;&4" + stakeStr;
+			String stakeStr = Economy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
+			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
+			return col + "Stake;;&4" + stakeStr; //$NON-NLS-1$
 		}
 	}
 
 	private String getPromoStr(Game game, int colour) {
 		if (game == null) {
-			return "?";
+			return "?"; //$NON-NLS-1$
 		}
 		return ChessUtils.pieceToStr(game.getPromotionPiece(colour));
 	}
@@ -273,8 +273,8 @@ public class ControlPanel {
 	public void updatePlyCount(int playNumber) {
 		if (plyCountSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) plyCountSign.getBlock().getState();
-			s.setLine(1, "Play Number");
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber));
+			s.setLine(1, Messages.getString("ControlPanel.playNumber")); //$NON-NLS-1$
+			s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber)); //$NON-NLS-1$
 			s.update();
 		}
 
@@ -283,8 +283,8 @@ public class ControlPanel {
 	public void updateHalfMoveClock(int halfMoveClock) {
 		if (halfMoveClockSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) halfMoveClockSign.getBlock().getState();
-			s.setLine(1, "Halfmove Clock");
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + halfMoveClock));
+			s.setLine(1, Messages.getString("ControlPanel.halfmoveClock")); //$NON-NLS-1$
+			s.setLine(2, ChessUtils.parseColourSpec("&4" + halfMoveClock)); //$NON-NLS-1$
 			s.update();
 		}
 	}
@@ -299,7 +299,7 @@ public class ControlPanel {
 		if (l.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) l.getBlock().getState();
 			s.setLine(1, Game.getColour(colour));
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + Game.secondsToHMS(t)));
+			s.setLine(2, ChessUtils.parseColourSpec("&4" + Game.secondsToHMS(t))); //$NON-NLS-1$
 			s.update();
 		}
 	}
