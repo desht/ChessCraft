@@ -86,6 +86,9 @@ public class ChessEntityListener extends EntityListener {
 		if (event instanceof EntityDamageByProjectileEvent) {
 
 			EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
+			if (dbeEvent.getDamager() == null) {
+				return;
+			}
 			if (isAllowedPlayerAttack(dbeEvent.getDamager()) || isAllowedMonsterAttack(dbeEvent.getDamager())) {
 				return;
 			}
@@ -111,6 +114,9 @@ public class ChessEntityListener extends EntityListener {
 
 		} else if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
+			if (dbeEvent.getDamager() == null) {
+				return;
+			}
 			if (isAllowedPlayerAttack(dbeEvent.getDamager()) || isAllowedMonsterAttack(dbeEvent.getDamager())) {
 				return;
 			}
