@@ -75,18 +75,22 @@ public class ChessUtils {
 	}
 
 	private static void message(Player player, String string, Level level) {
-		if (player != null) {
-			player.sendMessage(parseColourSpec(string));
-		} else {
-			ChessCraftLogger.log(level, string);
+		for (String line : string.split("\\n")) {
+			if (player != null) {
+				player.sendMessage(parseColourSpec(line));
+			} else {
+				ChessCraftLogger.log(level, line);
+			}
 		}
 	}
 
 	private static void message(Player player, String string, ChatColor colour, Level level) {
-		if (player != null) {
-			player.sendMessage(colour + parseColourSpec(string));
-		} else {
-			ChessCraftLogger.log(level, string);
+		for (String line : string.split("\\n")) {
+			if (player != null) {
+				player.sendMessage(colour + parseColourSpec(line));
+			} else {
+				ChessCraftLogger.log(level, line);
+			}
 		}
 	}
 
