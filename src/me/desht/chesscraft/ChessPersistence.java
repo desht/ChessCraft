@@ -88,9 +88,6 @@ public class ChessPersistence {
 
 			ChessCraftLogger.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
 
-			for (BoardView bv : BoardView.listBoardViews()) {
-				bv.paintAll();
-			}
 			try {
 				Configuration conf = new Configuration(ChessConfig.getPersistFile());
 				conf.load();
@@ -152,8 +149,7 @@ public class ChessPersistence {
 						Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
 								(Integer) origin.get(3));
 						try {
-							BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, (String) boardMap
-									.get("boardStyle"), (String) boardMap.get("pieceStyle")));
+							BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"), (String) boardMap.get("pieceStyle")));
 							++nLoadedBoards;
 						} catch (Exception e) {
 							ChessCraftLogger.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -252,8 +248,8 @@ public class ChessPersistence {
 				World w = findWorld((String) origin.get(0));
 				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
 						(Integer) origin.get(3));
-				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"), conf
-						.getString("pieceStyle")));
+				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"),
+						conf.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
 				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
@@ -323,7 +319,7 @@ public class ChessPersistence {
 		for (Map<String, Object> gameMap : toLoad.values()) {
 			if (loadGame(gameMap)) {
 				++nLoaded;
-			} else{
+			} else {
 				moveBackup(new File(ChessConfig.getGamesPersistDirectory(), (String) gameMap.get("filename")));
 			}
 		}
@@ -362,9 +358,7 @@ public class ChessPersistence {
 	}
 
 	protected static String safeFileName(String name) {
-		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";")
-				.replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".")
-				.replace("+", "=").replace("[", "(").replace("]", ")");
+		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";").replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".").replace("+", "=").replace("[", "(").replace("]", ")");
 	}
 
 	public void removeGameSavefile(Game game) {

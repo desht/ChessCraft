@@ -26,7 +26,8 @@ public class BoardStyle {
 	protected MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
 	protected HighlightStyle highlightStyle;
 	public boolean isLit;
-	protected String boardStyleStr;
+	protected String styleName;
+	protected File boardStyleFile;
 	public String pieceStyleStr;
 
 	// protected - have to use BoardStyle.loadNewStyle to get a new one..
@@ -34,7 +35,7 @@ public class BoardStyle {
 	}
 
 	public String getName() {
-		return boardStyleStr;
+		return styleName;
 	}
 
 	public int getFrameWidth() {
@@ -91,6 +92,10 @@ public class BoardStyle {
 
 	public MaterialWithData getWhiteSquareHighlightMaterial() {
 		return highlightWhiteSquareMat == null ? highlightMat : highlightWhiteSquareMat;
+	}
+
+	public File getBoardStyleFile() {
+		return boardStyleFile;
 	}
 
 	public void setBlackSquareMaterial(MaterialWithData blackSquareMat) {
@@ -172,15 +177,19 @@ public class BoardStyle {
 		this.highlightBlackSquareMat = st.highlightBlackSquareMat;
 		this.highlightStyle = st.highlightStyle;
 		this.isLit = st.isLit;
-		this.boardStyleStr = st.boardStyleStr;
+		this.styleName = st.styleName;
 		this.pieceStyleStr = st.pieceStyleStr;
+		this.boardStyleFile = st.boardStyleFile;
 	}
 
 	public static BoardStyle loadNewStyle(File boardStyleFolder, String boardStyle)
 			throws FileNotFoundException, ChessException {
+		return loadNewStyle(new File(boardStyleFolder, boardStyle + ".yml"));
+	}
+	
+	public static BoardStyle loadNewStyle(File f)
+			throws FileNotFoundException, ChessException {
 		Yaml yaml = new Yaml();
-
-		File f = new File(boardStyleFolder, boardStyle + ".yml");
 
 		FileInputStream in = new FileInputStream(f);
 		@SuppressWarnings("unchecked")
@@ -192,9 +201,9 @@ public class BoardStyle {
 				throw new ChessException("required field '" + k + "' is missing");
 			}
 		}
-
 		BoardStyle style = new BoardStyle();
-		style.boardStyleStr = boardStyle;
+		style.boardStyleFile = f;
+		style.styleName = f.getName().replaceFirst("\\.yml$", "");
 
 		style.setSquareSize((Integer) styleMap.get("square_size"));
 		style.setFrameWidth((Integer) styleMap.get("frame_width"));

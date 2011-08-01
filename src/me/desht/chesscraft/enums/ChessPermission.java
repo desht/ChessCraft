@@ -152,7 +152,7 @@ public enum ChessPermission {
 	}
 
 	public static boolean isAllowedTo(Player player, ChessPermission node) {
-		if (player == null /* || player.isOp() */) {
+		if (player == null || player.isOp()) { /* allow OPs to override permissions checks */
 			return true;
 		}
 		// if Permissions is in force, then it overrides Bukkit's built-in superperms... for now
