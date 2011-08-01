@@ -72,7 +72,7 @@ public class ChessAI {
 
 	public ChessAI(AI_Def ai) throws ChessException {
 		if (ai == null) {
-			throw new ChessException(Messages.getString("ChessAI.AInotFOund")); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
 		} else if (runningAI.containsKey(ai.name.toLowerCase())) {
 			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
 		}

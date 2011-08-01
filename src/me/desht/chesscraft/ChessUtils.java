@@ -24,7 +24,7 @@ public class ChessUtils {
 
 	private int tickTaskId = -1;
 	static ChessCraft plugin = null;
-	private static String prevColour = "";
+	private static String prevColour = ""; //$NON-NLS-1$
 
 	public ChessUtils(ChessCraft plugin) {
 		ChessUtils.plugin = plugin;
@@ -50,7 +50,7 @@ public class ChessUtils {
 					game.checkForAutoDelete();
 				}
 			}
-		}, 20L * initialDelay, 20L * plugin.getConfiguration().getInt("tick_interval", 1));
+		}, 20L * initialDelay, 20L * plugin.getConfiguration().getInt("tick_interval", 1)); //$NON-NLS-1$
 	}
 
 	public static void errorMessage(Player player, String string) {
@@ -78,11 +78,11 @@ public class ChessUtils {
 	
 	public static void broadcastMessage(String string) {
 		prevColour = ChatColor.YELLOW.toString();
-		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec("&4::&-" + string));
+		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec("&4::&-" + string)); //$NON-NLS-1$
 	}
 
 	private static void message(Player player, String string, Level level) {
-		for (String line : string.split("\\n")) {
+		for (String line : string.split("\\n")) { //$NON-NLS-1$
 			if (player != null) {
 				player.sendMessage(parseColourSpec(line));
 			} else {
@@ -92,7 +92,7 @@ public class ChessUtils {
 	}
 
 	private static void message(Player player, String string, ChatColor colour, Level level) {
-		for (String line : string.split("\\n")) {
+		for (String line : string.split("\\n")) { //$NON-NLS-1$
 			if (player != null) {
 				player.sendMessage(colour + parseColourSpec(line));
 			} else {
@@ -102,32 +102,32 @@ public class ChessUtils {
 	}
 
 	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7");
-		return res.replace("&-", prevColour).replace("&&", "&");
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
+		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public static String formatLoc(Location loc) {
-		String str = "<" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + ","
-				+ loc.getWorld().getName() + ">";
+		String str = "<" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				+ loc.getWorld().getName() + ">"; //$NON-NLS-1$
 		return str;
 	}
 
 	public static String pieceToStr(int piece) {
 		switch (piece) {
 		case Chess.PAWN:
-			return "Pawn";
+			return Messages.getString("ChessUtils.pawn"); //$NON-NLS-1$
 		case Chess.ROOK:
-			return "Rook";
+			return Messages.getString("ChessUtils.rook"); //$NON-NLS-1$
 		case Chess.KNIGHT:
-			return "Knight";
+			return Messages.getString("ChessUtils.knight"); //$NON-NLS-1$
 		case Chess.BISHOP:
-			return "Bishop";
+			return Messages.getString("ChessUtils.bishop"); //$NON-NLS-1$
 		case Chess.KING:
-			return "King";
+			return Messages.getString("ChessUtils.king"); //$NON-NLS-1$
 		case Chess.QUEEN:
-			return "Queen";
+			return Messages.getString("ChessUtils.queen"); //$NON-NLS-1$
 		default:
-			return "(unknown)";
+			return "???"; //$NON-NLS-1$
 		}
 	}
 
@@ -163,7 +163,7 @@ public class ChessUtils {
 	 */
 	public static int getLevenshteinDistance(String s, String t) {
 		if (s == null || t == null) {
-			throw new IllegalArgumentException("Strings must not be null");
+			throw new IllegalArgumentException("Strings must not be null"); //$NON-NLS-1$
 		}
 
 		/*

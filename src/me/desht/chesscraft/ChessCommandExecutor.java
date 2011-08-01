@@ -45,58 +45,58 @@ public class ChessCommandExecutor implements CommandExecutor {
 			player = (Player) sender;
 		}
 
-		if (label.equalsIgnoreCase("chess")) {
+		if (label.equalsIgnoreCase("chess")) { //$NON-NLS-1$
 			if (args.length == 0) {
 				return false;
 			}
 			try {
-				if (partialMatch(args[0], "ga")) { // game
+				if (partialMatch(args[0], "ga")) { // game //$NON-NLS-1$
 					gameCommand(player, args);
-				} else if (partialMatch(args[0], "c")) { // create
+				} else if (partialMatch(args[0], "c")) { // create //$NON-NLS-1$
 					createCommands(player, args);
-				} else if (partialMatch(args[0], "d")) { // delete
+				} else if (partialMatch(args[0], "d")) { // delete //$NON-NLS-1$
 					deleteCommands(player, args);
-				} else if (partialMatch(args[0], "l")) { // list
+				} else if (partialMatch(args[0], "l")) { // list //$NON-NLS-1$
 					listCommands(player, args);
-				} else if (partialMatch(args[0], "i")) { // invite
+				} else if (partialMatch(args[0], "i")) { // invite //$NON-NLS-1$
 					inviteCommand(player, args);
-				} else if (partialMatch(args[0], "j")) { // join
+				} else if (partialMatch(args[0], "j")) { // join //$NON-NLS-1$
 					joinCommand(player, args);
-				} else if (partialMatch(args[0], "star")) { // start
+				} else if (partialMatch(args[0], "star")) { // start //$NON-NLS-1$
 					startCommand(player, args);
-				} else if (partialMatch(args[0], "stak")) { // stake
+				} else if (partialMatch(args[0], "stak")) { // stake //$NON-NLS-1$
 					stakeCommand(player, args);
-				} else if (partialMatch(args[0], "res")) { // resign
+				} else if (partialMatch(args[0], "res")) { // resign //$NON-NLS-1$
 					resignCommand(player, args);
-				} else if (partialMatch(args[0], "red")) { // redraw
+				} else if (partialMatch(args[0], "red")) { // redraw //$NON-NLS-1$
 					redrawCommand(player, args);
-				} else if (partialMatch(args[0], "m")) { // move
+				} else if (partialMatch(args[0], "m")) { // move //$NON-NLS-1$
 					moveCommand(player, args);
-				} else if (partialMatch(args[0], "pa")) { // page
+				} else if (partialMatch(args[0], "pa")) { // page //$NON-NLS-1$
 					pageCommand(player, args);
-				} else if (partialMatch(args[0], "pr")) { // promotion
+				} else if (partialMatch(args[0], "pr")) { // promotion //$NON-NLS-1$
 					promoCommand(player, args);
-				} else if (partialMatch(args[0], "sa")) { // save
+				} else if (partialMatch(args[0], "sa")) { // save //$NON-NLS-1$
 					saveCommand(player, args);
-				} else if (partialMatch(args[0], "rel")) { // reload
+				} else if (partialMatch(args[0], "rel")) { // reload //$NON-NLS-1$
 					reloadCommand(player, args);
-				} else if (partialMatch(args[0], "t")) { // tp
+				} else if (partialMatch(args[0], "t")) { // tp //$NON-NLS-1$
 					teleportCommand(player, args);
-				} else if (partialMatch(args[0], "a")) { // archive
+				} else if (partialMatch(args[0], "a")) { // archive //$NON-NLS-1$
 					archiveCommand(player, args);
-				} else if (partialMatch(args[0], "o")) { // offer
+				} else if (partialMatch(args[0], "o")) { // offer //$NON-NLS-1$
 					offerCommand(player, args);
-				} else if (partialMatch(args[0], "y")) { // yes
+				} else if (partialMatch(args[0], "y")) { // yes //$NON-NLS-1$
 					responseCommand(player, args);
-				} else if (partialMatch(args[0], "n")) { // no
+				} else if (partialMatch(args[0], "n")) { // no //$NON-NLS-1$
 					responseCommand(player, args);
-				} else if (partialMatch(args[0], "set")) { // setcfg
+				} else if (partialMatch(args[0], "set")) { // setcfg //$NON-NLS-1$
 					setcfgCommand(player, args);
-				} else if (partialMatch(args[0], "get")) { // getcfg
+				} else if (partialMatch(args[0], "get")) { // getcfg //$NON-NLS-1$
 					getcfgCommand(player, args);
-				} else if (partialMatch(args[0], "fen")) { // fen
+				} else if (partialMatch(args[0], "fen")) { // fen //$NON-NLS-1$
 					fenCommand(player, args);
-				} else if (partialMatch(args[0], "w")) { // win
+				} else if (partialMatch(args[0], "w")) { // win //$NON-NLS-1$
 					claimVictoryCommand(player, args);
 				} else {
 					return false;
@@ -127,17 +127,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60);
+		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60); //$NON-NLS-1$
 		long leftAt = plugin.playerListener.getPlayerLeftAt(other);
 		if (leftAt == 0) {
-			throw new ChessException("You can only do this if the other player has gone offline.");
+			throw new ChessException(Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline")); //$NON-NLS-1$
 		}
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
 		if (elapsed >= timeout) {
 			game.winByDefault(player.getName());
 		} else {
-			ChessUtils.statusMessage(player, "You need to wait " + (timeout - elapsed) + " seconds more.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
 		}
 	}
 
@@ -152,9 +152,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		game.setFen(combine(args, 1));
 
-		ChessUtils.statusMessage(player, "Game position for &6" + game.getName() + "&- has been updated.");
-		ChessUtils.statusMessage(player, "&f" + Game.getColour(game.getPosition().getToPlay()) + "&- to play.");
-		ChessUtils.statusMessage(player, "&4NOTE: &-move history invalidated, this game can no longer be saved.");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
+		                                                    game.getName(), Game.getColour(game.getPosition().getToPlay())));
 	}
 
 	private void gameCommand(Player player, String[] args) throws ChessException {
@@ -163,49 +162,49 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		if (args.length >= 2) {
 			Game.setCurrentGame(player.getName(), args[1]);
-			ChessUtils.statusMessage(player, "Your active game is now '" + args[1] + "'.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.activeGameChanged", args[1])); //$NON-NLS-1$
 		} else {
 			Game game = Game.getCurrentGame(player, false);
 			if (game == null) {
-				ChessUtils.statusMessage(player, "You have no active game. Use &f/chess game <name>&- to set one.");
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noActiveGame")); //$NON-NLS-1$
 			} else {
-				ChessUtils.statusMessage(player, "Your active game is &6" + game.getName() + "&-.");
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.activeGameIs", game.getName())); //$NON-NLS-1$
 			}
 		}
 	}
 
 	private void listCommands(Player player, String[] args) throws ChessException {
 
-		if (partialMatch(args, 1, "g")) { // game
+		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			if (args.length > 2) {
 				showGameDetail(player, args[2]);
 			} else {
 				listGames(player);
 			}
-		} else if (partialMatch(args, 1, "b")) { // board
+		} else if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 			if (args.length > 2) {
 				showBoardDetail(player, args[2]);
 			} else {
 				listBoards(player);
 			}
-		} else if (partialMatch(args, 1, "a")) { // ai
+		} else if (partialMatch(args, 1, "a")) { // ai //$NON-NLS-1$
 			listAIs(player);
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess list board");
-			ChessUtils.errorMessage(player, "       /chess list game");
+			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
+			ChessUtils.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
 		}
 	}
 
 	private void deleteCommands(Player player, String[] args) throws ChessException {
 
-		if (partialMatch(args, 1, "g")) { // game
+		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			tryDeleteGame(player, args);
 		} else {
-			if (partialMatch(args, 1, "b")) { // board
+			if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 				tryDeleteBoard(player, args);
 			} else {
-				ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>");
-				ChessUtils.errorMessage(player, "       /chess delete game <game-name>");
+				ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>"); //$NON-NLS-1$
+				ChessUtils.errorMessage(player, "       /chess delete game <game-name>"); //$NON-NLS-1$
 			}
 		}
 	}
@@ -213,15 +212,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void createCommands(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 
-		if (partialMatch(args, 1, "g")) { // game
+		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			String gameName = args.length >= 3 ? args[2] : null;
 			String boardName = args.length >= 4 ? args[3] : null;
 			tryCreateGame(player, gameName, boardName);
-		} else if (partialMatch(args, 1, "b")) { // board
+		} else if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 			tryCreateBoard(player, args);
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>]");
-			ChessUtils.errorMessage(player, "       /chess create game [<game-name>] [<board-name>]");
+			ChessUtils.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>]"); //$NON-NLS-1$
+			ChessUtils.errorMessage(player, "       /chess create game [<game-name>] [<board-name>]"); //$NON-NLS-1$
 		}
 	}
 
@@ -229,7 +228,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_SAVE);
 
 		plugin.persistence.save();
-		ChessUtils.statusMessage(player, "Chess boards & games have been saved.");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.chessSaved")); //$NON-NLS-1$
 	}
 
 	private void reloadCommand(Player player, String[] args) throws ChessException {
@@ -239,27 +238,27 @@ public class ChessCommandExecutor implements CommandExecutor {
 		boolean reloadAI = false;
 		boolean reloadConfig = false;
 
-		if (partialMatch(args, 1, "a")) {
+		if (partialMatch(args, 1, "a")) { //$NON-NLS-1$
 			reloadAI = true;
-		} else if (partialMatch(args, 1, "c")) {
+		} else if (partialMatch(args, 1, "c")) { //$NON-NLS-1$
 			reloadConfig = true;
-		} else if (partialMatch(args, 1, "p")) {
+		} else if (partialMatch(args, 1, "p")) { //$NON-NLS-1$
 			reloadPersisted = true;
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>");
+			ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>"); //$NON-NLS-1$
 		}
 
 		if (reloadConfig) {
 			plugin.getConfiguration().load();
-			ChessUtils.statusMessage(player, "Configuration (config.yml) has been reloaded");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
 			ChessAI.initAI_Names();
-			ChessUtils.statusMessage(player, "AI definitions have been reloaded.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {
 			plugin.persistence.reload();
-			ChessUtils.statusMessage(player, "Persisted board and game data has been reloaded");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 	}
 
@@ -286,25 +285,25 @@ public class ChessCommandExecutor implements CommandExecutor {
 		notFromConsole(player);
 
 		if (args.length < 2) {
-			ChessUtils.errorMessage(player, "Usage: /chess move <from> <to>" + ChatColor.DARK_PURPLE
-					+ " (standard algebraic notation)");
+			ChessUtils.errorMessage(player, "Usage: /chess move <from> <to>" //$NON-NLS-1$
+					+ Messages.getString("ChessCommandExecutor.algebraicNotation")); //$NON-NLS-1$
 			return;
 		}
 		Game game = Game.getCurrentGame(player, true);
 
-		String move = combine(args, 1).replaceFirst(" ", "");
+		String move = combine(args, 1).replaceFirst(" ", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (move.length() != 4) {
-			ChessUtils.errorMessage(player, "Invalid move string '" + move + "'.");
+			ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidMoveString", move)); //$NON-NLS-1$ 
 			return;
 		}
 		int from = Chess.strToSqi(move.substring(0, 2));
 		if (from == Chess.NO_SQUARE) {
-			ChessUtils.errorMessage(player, "Invalid FROM square in '" + move + "'.");
+			ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidFromSquare", move)); //$NON-NLS-1$
 			return;
 		}
 		int to = Chess.strToSqi(move.substring(2, 4));
 		if (to == Chess.NO_SQUARE) {
-			ChessUtils.errorMessage(player, "Invalid TO square in '" + move + "'.");
+			ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidToSquare", move)); //$NON-NLS-1$
 			return;
 		}
 		game.setFromSquare(from);
@@ -336,21 +335,21 @@ public class ChessCommandExecutor implements CommandExecutor {
 				}
 			}
 			if (gameName == null) {
-				throw new ChessException("You don't have any pending invitations right now.");
+				throw new ChessException(Messages.getString("ChessCommandExecutor.noPendingInvitation")); //$NON-NLS-1$
 			}
 		}
 
 		Game game = Game.getGame(gameName);
 		Game.setCurrentGame(player.getName(), game);
 		int playingAs = game.playingAs(player.getName());
-		ChessUtils.statusMessage(player, "You have joined the chess game &6" + game.getName() + "&-.");
-		ChessUtils.statusMessage(player, "You will be playing as &f" + Game.getColour(playingAs) + "&-.");
-
-		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
+		                                                    game.getName(), Game.getColour(playingAs)));
+		
+		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) { //$NON-NLS-1$
 			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerWhite()), game);
 			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerBlack()), game);
 		} else {
-			ChessUtils.statusMessage(player, "You can teleport to your game with &f/chess tp " + game.getName());
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
 		}
 	}
 
@@ -361,12 +360,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 			BoardView b = BoardView.getBoardView(args[1]);
 			b.reloadStyle();
 			b.paintAll();
-			ChessUtils.statusMessage(player, "Board " + b.getName() + " has been redrawn.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardRedrawn", b.getName())); //$NON-NLS-1$
 		} else {
 			for (BoardView bv : BoardView.listBoardViews()) {
 				bv.paintAll();
 			}
-			ChessUtils.statusMessage(player, "All boards have been redrawn.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.allBoardsRedrawn")); //$NON-NLS-1$
 		}
 	}
 
@@ -397,18 +396,18 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		Game game = Game.getCurrentGame(player, true);
 
-		if (partialMatch(args, 1, "d")) { // draw
+		if (partialMatch(args, 1, "d")) { // draw //$NON-NLS-1$
 			tryOfferDraw(player, game);
-		} else if (partialMatch(args, 1, "s")) { // swap sides
+		} else if (partialMatch(args, 1, "s")) { // swap sides //$NON-NLS-1$
 			tryOfferSwap(player, game);
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess offer (draw|swap)");
+			ChessUtils.errorMessage(player, "Usage: /chess offer (draw|swap)"); //$NON-NLS-1$
 			return;
 		}
 	}
 
 	private void responseCommand(Player player, String[] args) throws ChessException {
-		boolean isAccepted = partialMatch(args, 0, "y") ? true : false;
+		boolean isAccepted = partialMatch(args, 0, "y") ? true : false; //$NON-NLS-1$
 
 		doResponse(player, isAccepted);
 	}
@@ -421,11 +420,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 			Game game = Game.getCurrentGame(player, true);
 			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
 			game.setPromotionPiece(player.getName(), piece);
-			ChessUtils.statusMessage(player, "Promotion piece for game &6" + game.getName() + "&- has been set to "
-					+ ChessUtils.pieceToStr(piece).toUpperCase());
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.promotionPieceSet", //$NON-NLS-1$
+			                                                    game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
 			game.getView().getControlPanel().repaintSignButtons();
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess promote <Q|N|B|R>");
+			ChessUtils.errorMessage(player, "Usage: /chess promote <Q|N|B|R>"); //$NON-NLS-1$
 		}
 	}
 
@@ -438,19 +437,19 @@ public class ChessCommandExecutor implements CommandExecutor {
 				Game game = Game.getCurrentGame(player);
 				double amount = Double.parseDouble(args[1]);
 				if (amount <= 0.0) {
-					throw new ChessException("Negative stakes are not permitted!");
+					throw new ChessException(Messages.getString("ChessCommandExecutor.noNegativeStakes")); //$NON-NLS-1$
 				}
 				if (!Economy.canAfford(player.getName(), amount)) {
-					throw new ChessException("You can't afford that stake!");
+					throw new ChessException(Messages.getString("ChessCommandExecutor.cantAffordStake")); //$NON-NLS-1$
 				}
 				game.setStake(amount);
 				game.getView().getControlPanel().repaintSignButtons();
-				ChessUtils.statusMessage(player, "Stake for this game is now " + Economy.format(amount));
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", Economy.format(amount))); //$NON-NLS-1$
 			} catch (NumberFormatException e) {
-				throw new ChessException("Invalid numeric value: " + args[1]);
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", args[1])); //$NON-NLS-1$
 			}
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess stake <stake-amount>");
+			ChessUtils.errorMessage(player, "Usage: /chess stake <stake-amount>"); //$NON-NLS-1$
 		}
 	}
 
@@ -466,9 +465,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			String res = plugin.getConfiguration().getString(args[1]);
 			if (res != null) {
-				ChessUtils.statusMessage(player, args[1] + " = '" + res + "'");
+				ChessUtils.statusMessage(player, args[1] + " = '" + res + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				ChessUtils.errorMessage(player, "No such config item " + args[1]);
+				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[1])); //$NON-NLS-1$
 			}
 		}
 	}
@@ -477,11 +476,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_SETCONFIG);
 
 		if (args.length < 3) {
-			ChessUtils.errorMessage(player, "Usage: /chess setcfg <key> <value>");
+			ChessUtils.errorMessage(player, "Usage: /chess setcfg <key> <value>"); //$NON-NLS-1$
 		} else {
 			String key = args[1], val = combine(args, 2);
 			ChessConfig.setConfigItem(player, key, val);
-			ChessUtils.statusMessage(player, key + " is now set to: " + val);
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, val)); //$NON-NLS-1$
 		}
 	}
 
@@ -490,10 +489,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 			// default is to advance one page and display
 			MessageBuffer.nextPage(player);
 			MessageBuffer.showPage(player);
-		} else if (partialMatch(args, 1, "n")) {
+		} else if (partialMatch(args, 1, "n")) { //$NON-NLS-1$
 			MessageBuffer.nextPage(player);
 			MessageBuffer.showPage(player);
-		} else if (partialMatch(args, 1, "p")) {
+		} else if (partialMatch(args, 1, "p")) { //$NON-NLS-1$
 			MessageBuffer.prevPage(player);
 			MessageBuffer.showPage(player);
 		} else {
@@ -501,7 +500,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 				int pageNum = Integer.parseInt(args[1]);
 				MessageBuffer.showPage(player, pageNum);
 			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, "invalid argument '" + args[1] + "'");
+				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[1])); //$NON-NLS-1$
 			}
 		}
 	}
@@ -531,9 +530,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 			loc.setYaw(0.0f);
 			loc.add(4.5 * bv.getSquareSize(), 1.0, 1.0);
 		}
-		System.out.println("teleport to " + loc);
+		System.out.println("teleport to " + loc); //$NON-NLS-1$
 		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
-			throw new ChessException("Teleport destination obstructed!");
+			throw new ChessException(Messages.getString("ChessCommandExecutor.teleportDestObstructed")); //$NON-NLS-1$
 		}
 		doTeleport(player, loc);
 		Game.setCurrentGame(player.getName(), game);
@@ -551,13 +550,13 @@ public class ChessCommandExecutor implements CommandExecutor {
 				doTeleport(player, loc);
 			} else {
 				doTeleport(player, player.getWorld().getSpawnLocation());
-				ChessUtils.errorMessage(player, "Can't find a safe place to send you - going to spawn point.");
+				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
 			}
 		} else if (prev != null) {
 			// go back to previous location
 			doTeleport(player, prev);
 		} else {
-			ChessUtils.errorMessage(player, "Not on a chessboard!");
+			ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
 	}
 
@@ -573,9 +572,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			plugin.expecter.expectingResponse(player, ExpectAction.SwapResponse, new ExpectYesNoOffer(plugin, game,
 					player.getName(), other), other);
-			ChessUtils.statusMessage(player, "You have offered to swap sides with &6" + other + "&-.");
-			game.alert(other, "&6" + player.getName() + "&- has offered to swap sides.");
-			game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", other)); //$NON-NLS-1$ 
+			game.alert(other, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", player.getName())); //$NON-NLS-1$ 
+			game.alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		}
 		game.getView().getControlPanel().repaintSignButtons();
 	}
@@ -590,9 +589,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String other = game.getOtherPlayer(player.getName());
 		plugin.expecter.expectingResponse(player, ExpectAction.DrawResponse,
 				new ExpectYesNoOffer(plugin, game, player.getName(), other), other);
-		ChessUtils.statusMessage(player, "You have offered a draw to &6" + other + "&-.");
-		game.alert(other, "&6" + player.getName() + "&- has offered a draw.");
-		game.alert(other, "Type &f/chess yes&- to accept, or &f/chess no&- to decline.");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", other)); //$NON-NLS-1$
+		game.alert(other, Messages.getString("ChessCommandExecutor.drawOfferedOther", player.getName())); //$NON-NLS-1$
+		game.alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		game.getView().getControlPanel().repaintSignButtons();
 	}
 
@@ -600,25 +599,25 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTGAMES);
 
 		if (Game.listGames().isEmpty()) {
-			ChessUtils.statusMessage(player, "There are currently no games.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
 			return;
 		}
 
 		MessageBuffer.clear(player);
 		for (Game game : Game.listGames(true)) {
 			String name = game.getName();
-			String curGameMarker = "  ";
+			String curGameMarker = "  "; //$NON-NLS-1$
 			if (player != null) {
-				curGameMarker = game == Game.getCurrentGame(player) ? "+ " : "  ";
+				curGameMarker = game == Game.getCurrentGame(player) ? "+ " : "  "; //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? "&4*&-" : "";
-			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? "&4*&-" : "";
-			String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
-			String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
-			StringBuilder info = new StringBuilder(": &f" + curMoveW + white + " (W) v " + curMoveB + black + " (B) ");
-			info.append("&e[").append(game.getState()).append("]");
+			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
+			String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite(); //$NON-NLS-1$
+			String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack(); //$NON-NLS-1$
+			StringBuilder info = new StringBuilder(": &f" + curMoveW + white + " (W) v " + curMoveB + black + " (B) "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			info.append("&e[").append(game.getState()).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (game.getInvited().length() > 0) {
-				info.append(" invited: &6").append(game.getInvited());
+				info.append(Messages.getString("ChessCommandExecutor.invited", game.getInvited())); //$NON-NLS-1$
 			}
 			MessageBuffer.add(player, curGameMarker + name + info);
 		}
@@ -630,36 +629,37 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		Game game = Game.getGame(gameName);
 
-		String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite();
-		String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack();
+		String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite(); //$NON-NLS-1$
+		String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack(); //$NON-NLS-1$
 
-		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA;
+		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
 		MessageBuffer.clear(player);
-		MessageBuffer.add(player, "&eGame " + gameName + " [" + game.getState() + "] :");
-		MessageBuffer.add(player, bullet + "&6" + white + "&- (White) vs. &6" + black + "&- (Black) on board &6"
-				+ game.getView().getName());
-		MessageBuffer.add(player, bullet + game.getHistory().size() + " half-moves made");
+		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.name", gameName, game.getState())); //$NON-NLS-1$ 
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, game.getView().getName())); //$NON-NLS-1$ 
+		MessageBuffer.add(player, bullet +  Messages.getString("ChessCommandExecutor.gameDetails.halfMoves", game.getHistory().size())); //$NON-NLS-1$
 		if (Economy.active()) {
-			MessageBuffer.add(player, bullet + "Stake: " + Economy.format(game.getStake()));
+			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", Economy.format(game.getStake()))); //$NON-NLS-1$
 		}
-		MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? "White" : "Black")
-				+ " to play");
+		MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? 
+				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
+				Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 		if (game.getState() == GameState.RUNNING) {
-			MessageBuffer.add(player, bullet + "Clock: White: " + Game.secondsToHMS(game.getTimeWhite()) + ", Black: "
-					+ Game.secondsToHMS(game.getTimeBlack()));
+			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock",
+			                                                      Game.secondsToHMS(game.getTimeWhite()),
+			                                                      Game.secondsToHMS(game.getTimeBlack())));
 		}
-		if (game.getInvited().equals("*")) {
-			MessageBuffer.add(player, bullet + "Game has an open invitation");
+		if (game.getInvited().equals("*")) { //$NON-NLS-1$
+			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
 		} else if (!game.getInvited().isEmpty()) {
-			MessageBuffer.add(player, bullet + "&6" + game.getInvited() + "&- has been invited.  Awaiting response.");
+			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", game.getInvited())); //$NON-NLS-1$
 		}
-		MessageBuffer.add(player, "&eMove history:");
+		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
 		List<Short> h = game.getHistory();
 		for (int i = 0; i < h.size(); i += 2) {
-			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1));
+			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1)); //$NON-NLS-1$
 			sb.append(Move.getString(h.get(i)));
 			if (i < h.size() - 1) {
-				sb.append("  ").append(Move.getString(h.get(i + 1)));
+				sb.append("  ").append(Move.getString(h.get(i + 1))); //$NON-NLS-1$
 			}
 			MessageBuffer.add(player, sb.toString());
 		}
@@ -672,27 +672,26 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		BoardView bv = BoardView.getBoardView(boardName);
 
-		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA;
-		String w = ChatColor.WHITE.toString();
+		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
 		Cuboid bounds = bv.getOuterBounds();
-		String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
+		String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 
 		MessageBuffer.clear(player);
-		MessageBuffer.add(player, ChatColor.YELLOW + "Board " + boardName + ":");
-		MessageBuffer.add(player, bullet + "Lower NE corner: "
-				+ w + ChessUtils.formatLoc(bounds.getLowerNE()));
-		MessageBuffer.add(player, bullet + "Upper SW corner: "
-				+ w + ChessUtils.formatLoc(bounds.getUpperSW()));
-		MessageBuffer.add(player, bullet + "Game: " + w + gameName);
-		MessageBuffer.add(player, bullet + "Board Style: " + w + bv.getBoardStyle());
-		MessageBuffer.add(player, bullet + "Piece Style: " + w + bv.getPieceStyle());
-		MessageBuffer.add(player, bullet + "Square size: " + w + bv.getSquareSize() 
-				+ " (" + bv.getWhiteSquareMat() + "/" + bv.getBlackSquareMat() + ")");
-		MessageBuffer.add(player, bullet + "Frame width: " + w + bv.getFrameWidth()
-				+ " (" + bv.getFrameMat() + ")");
-		MessageBuffer.add(player, bullet + "Enclosure: " + w + bv.getEnclosureMat());
-		MessageBuffer.add(player, bullet + "Height: " + w + bv.getHeight());
-		MessageBuffer.add(player, bullet + "Lit: " + w + bv.getIsLit());
+		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardDetail.board", boardName)); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.lowerNE", //$NON-NLS-1$
+		                                                      ChessUtils.formatLoc(bounds.getLowerNE())));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.upperSW", //$NON-NLS-1$
+		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", bv.getBoardStyle())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", bv.getPieceStyle())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", bv.getSquareSize(),  //$NON-NLS-1$
+		                                                      bv.getWhiteSquareMat(), bv.getBlackSquareMat()));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", bv.getFrameWidth(), //$NON-NLS-1$
+		                                                      bv.getFrameMat()));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", bv.getEnclosureMat())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.Height", bv.getHeight())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", bv.getIsLit())); //$NON-NLS-1$
 
 		MessageBuffer.showPage(player);
 	}
@@ -701,15 +700,15 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTBOARDS);
 
 		if (BoardView.listBoardViews().isEmpty()) {
-			ChessUtils.statusMessage(player, "There are currently no boards.");
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noBoards")); //$NON-NLS-1$
 			return;
 		}
 
 		MessageBuffer.clear(player);
 		for (BoardView bv : BoardView.listBoardViews(true)) {
-			String gameName = bv.getGame() != null ? bv.getGame().getName() : "(none)";
-			MessageBuffer.add(player, "&6" + bv.getName() + ": &-loc=&f" + ChessUtils.formatLoc(bv.getA1Square())
-					+ "&-, style=&6" + bv.getBoardStyle() + "&-, game=&6" + gameName);
+			String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
+			MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardList", bv.getName(), ChessUtils.formatLoc(bv.getA1Square()), //$NON-NLS-1$
+			                                             bv.getBoardStyle(), gameName));
 		}
 		MessageBuffer.showPage(player);
 	}
@@ -720,20 +719,19 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.clear(player);
 		LinkedList<String> lines = new LinkedList<String>();
 		for (AI_Def ai : ChessAI.listAIs(true)) {
-			StringBuilder sb = new StringBuilder("&6" + ai.getName() + ": &f" + ai.getEngine() + ":"
-					+ ai.getSearchDepth());
+			StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList", //$NON-NLS-1$
+			                                                        ai.getName(), ai.getEngine(), ai.getSearchDepth()));
 			if (Economy.active()) {
-				sb.append(player != null ? "<l>" : ", ");
-				sb.append("payout=").append((int) (ai.getPayoutMultiplier() * 100)).append("%");
+				sb.append(player != null ? "<l>" : ", "); //$NON-NLS-1$ //$NON-NLS-2$
+				sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (ai.getPayoutMultiplier() * 100))); //$NON-NLS-1$
 			}
 
 			if (ai.getComment() != null && player != null && ((lines.size() + 1) % MessageBuffer.getPageSize()) == 0) {
-				lines.add(""); // ensure description and comment are on the same
-								// page
+				lines.add(""); // ensure description and comment are on the same page  $NON-NLS-1$
 			}
 			lines.add(sb.toString());
 			if (ai.getComment() != null) {
-				lines.add("  &2 - " + ai.getComment());
+				lines.add("  &2 - " + ai.getComment()); //$NON-NLS-1$
 			}
 		}
 		lines = MinecraftChatStr.alignTags(lines, true);
@@ -763,10 +761,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		// plugin.persistence.saveGame(game);
 		game.autoSave();
 
-		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been created on board &6" + bv.getName()
-				+ "&-.");
-		ChessUtils.statusMessage(player, "Now type &f/chess invite <playername>&- to invite someone,");
-		ChessUtils.statusMessage(player, "or &f/chess invite&- to create an open invitation.");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", gameName, bv.getName())); //$NON-NLS-1$ 
 	}
 
 	void tryDeleteGame(Player player, String[] args) throws ChessException {
@@ -777,10 +772,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (!game.playerCanDelete(player)) {
 			ChessPermission.requirePerms(player, ChessPermission.COMMAND_DELGAME);
 		}
-		String deleter = player == null ? "CONSOLE" : player.getName();
-		game.alert("Game deleted by " + deleter + "!");
+		String deleter = player == null ? "CONSOLE" : player.getName(); //$NON-NLS-1$
+		game.alert(Messages.getString("ChessCommandExecutor.gameDeletedAlert", deleter)); //$NON-NLS-1$
 		game.deletePermanently();
-		ChessUtils.statusMessage(player, "Game &6" + gameName + "&- has been deleted.");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDeleted", gameName)); //$NON-NLS-1$
 	}
 
 	void tryCreateBoard(Player player, String[] args) throws ChessException {
@@ -792,18 +787,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (args.length >= 3) {
 			name = args[2];
 		} else {
-			throw new ChessException("Usage: /chess create board <name> [<options>]");
+			throw new ChessException("Usage: /chess create board <name> [<options>]"); //$NON-NLS-1$
 		}
-		String style = options.get("style");
-		String pieceStyle = options.get("pstyle");
+		String style = options.get("style"); //$NON-NLS-1$
+		String pieceStyle = options.get("pstyle"); //$NON-NLS-1$
 		@SuppressWarnings("unused")
 		// we create this temporary board only to check that the style & piece styles are valid & compatible
 		BoardView testBoard = new BoardView(name, plugin, null, style, pieceStyle);
 
-		ChessUtils.statusMessage(player, "Left-click a block: create board &6" + name + "&-. Right-click: cancel.");
-		ChessUtils.statusMessage(player, "This block will become the centre of the board's A1 square.");
-		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation, new ExpectBoardCreation(plugin, name,
-				style, pieceStyle));
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
+		plugin.expecter.expectingResponse(player, ExpectAction.BoardCreation,
+		                                  new ExpectBoardCreation(plugin, name,style, pieceStyle));
 	}
 
 	void tryDeleteBoard(Player player, String[] args) throws ChessException {
@@ -816,10 +810,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 				view.restoreTerrain(player);
 				BoardView.removeBoardView(name);
 				plugin.persistence.removeBoardSavefile(view);
-				ChessUtils.statusMessage(player, "Deleted board &6" + name + "&-.");
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardDeleted", name)); //$NON-NLS-1$
 			} else {
-				ChessUtils.errorMessage(player, "Cannot delete board '" + name + "': it is being used by game '"
-						+ view.getGame().getName() + "'.");
+				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.boardCantBeDeleted", //$NON-NLS-1$
+				                                                   name, view.getGame().getName()));
 			}
 		}
 	}
@@ -884,7 +878,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_ARCHIVE);
 
 		File written = game.writePGN(false);
-		ChessUtils.statusMessage(player, "Wrote PGN archive to " + written.getName() + ".");
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.PGNarchiveWritten", written.getName())); //$NON-NLS-1$
 	}
 
 	void tryChangeStake(Player player, Game game, double stakeIncr) throws ChessException {
@@ -909,7 +903,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		for (int i = idx1; i <= idx2; ++i) {
 			result.append(args[i]);
 			if (i < idx2) {
-				result.append(" ");
+				result.append(" "); //$NON-NLS-1$
 			}
 		}
 		return result.toString();
@@ -932,14 +926,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void notFromConsole(Player p) throws ChessException {
 		if (p == null) {
-			throw new ChessException("This command cannot be run from the console");
+			throw new ChessException(Messages.getString("ChessCommandExecutor.notFromConsole")); //$NON-NLS-1$
 		}
 	}
 
 	private Map<String, String> parseCommand(String[] args, int start) {
 		Map<String, String> res = new HashMap<String, String>();
 
-		Pattern pattern = Pattern.compile("^-(.+)");
+		Pattern pattern = Pattern.compile("^-(.+)"); //$NON-NLS-1$
 
 		for (int i = start; i < args.length; ++i) {
 			Matcher matcher = pattern.matcher(args[i]);
