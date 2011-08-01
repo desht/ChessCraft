@@ -74,14 +74,16 @@ public class Game {
 		} else {
 			stake = 0.0;
 		}
+
+		cpGame = new chesspresso.game.Game();
 		setupChesspressoGame();
 
+		view.setGame(this);
+		
 		getPosition().addPositionListener(view);
 	}
 
 	private void setupChesspressoGame() {
-		cpGame = new chesspresso.game.Game();
-
 		// seven tag roster
 		cpGame.setTag(PGN.TAG_EVENT, getName());
 		cpGame.setTag(PGN.TAG_SITE, getView().getName() + " in Minecraftia");
@@ -128,7 +130,7 @@ public class Game {
 	}
 
 	@SuppressWarnings("unchecked")
-	boolean thaw(Map<String, Object> map) {
+	boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
 		playerWhite = (String) map.get("playerWhite");
 		playerBlack = (String) map.get("playerBlack");
 		state = GameState.valueOf((String) map.get("state"));
@@ -156,50 +158,31 @@ public class Game {
 			stake = (Double) map.get("stake");
 		}
 
-		try {
-			if (isAIPlayer(playerWhite)) {
-				aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
-				playerWhite = aiPlayer.getName();
-				aiPlayer.init(true);
-			} else if (isAIPlayer(playerBlack)) {
-				aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
-				playerBlack = aiPlayer.getName();
-				aiPlayer.init(false);
-			}
-
-			// Replay the move history to restore the saved board position.
-			// We do this instead of just saving the position so that the
-			// Chesspresso Game model
-			// includes a history of the moves, suitable for creating a PGN
-			// file.
-			for (short move : history) {
-				getPosition().doMove(move);
-			}
-			// repeat for the ai engine (doesn't support loading from fen)
-			if (aiPlayer != null) {
-				for (short move : history) {
-					aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-				}
-				aiPlayer.loadDone(); // tell ai to start on next move
-			}
-		} catch (IllegalMoveException e) {
-			// should only get here if the save file was corrupted - the history
-			// is a list of moves which was already validated before the game
-			// was
-			// saved
-			ChessCraft.log(Level.WARNING, "can't restore move history for game " + getName()
-					+ " - move history corrupted?" + "  (game will be deleted)");
-			deletePermanently();
-			return false;
-		} catch (Exception e) {
-			ChessCraft.log(Level.WARNING, "Unexpected exception restoring game " + getName() + "\n" + e.getMessage()
-					+ "  (game will be deleted)");
-			// delete game
-			deletePermanently();
-			return false;
+		if (isAIPlayer(playerWhite)) {
+			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+			playerWhite = aiPlayer.getName();
+			aiPlayer.init(true);
+		} else if (isAIPlayer(playerBlack)) {
+			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+			playerBlack = aiPlayer.getName();
+			aiPlayer.init(false);
 		}
 
 		setupChesspressoGame();
+		
+		// Replay the move history to restore the saved board position.  We do this
+		// instead of just saving the position so that the Chesspresso Game model 
+		// includes a history of the moves, suitable for creating a PGN file.
+		for (short move : history) {
+			getPosition().doMove(move);
+		}
+		// repeat for the ai engine (doesn't support loading from FEN)
+		if (aiPlayer != null) {
+			for (short move : history) {
+				getPosition().doMove(move);
+			}
+			aiPlayer.loadDone(); // tell ai to start on next move
+		}
 
 		getPosition().addPositionListener(view);
 
