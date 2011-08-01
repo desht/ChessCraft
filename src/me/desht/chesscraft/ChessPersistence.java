@@ -86,6 +86,10 @@ public class ChessPersistence {
 			int nLoadedBoards = loadBoards();
 			int nLoadedGames = loadGames();
 
+			for (BoardView bv : BoardView.listBoardViews()) {
+				bv.getControlPanel().repaintSignButtons();
+			}
+			
 			ChessCraftLogger.log(Level.INFO, "loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
 
 			try {
