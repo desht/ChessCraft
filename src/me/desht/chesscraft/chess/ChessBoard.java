@@ -464,13 +464,21 @@ public class ChessBoard {
 		}
 	}
 
+	public void lightBoard(boolean light) {
+		lightBoard(light, false);
+	}
+	
 	/**
 	 * applies lighting to the board <br>
 	 * - overrides the boardStyle's preference
 	 * @param light if the board is lit up
+	 * @param force force lighting to be redone even it doesn't seem to have changed
 	 */
-	public void lightBoard(boolean light) {
-		if (isLighted == light || board == null) {
+	public void lightBoard(boolean light, boolean force) {
+		if (board == null) {
+			return;
+		}
+		if (isLighted == light && force == false) {
 			return;
 		}
 		isLighted = light;
@@ -524,12 +532,15 @@ public class ChessBoard {
 	}
 
 	/**
-	 * re-run the previous lighting update action
+	 * Force lighting update - if lighting is on for the board, force
+	 * all lights to be redrawn.  This would be done after any operation
+	 * that overwrote squares on the board (e.g. full repaint, square
+	 * highlight repaint...)
 	 */
 	public void forceLightUpdate() {
 		if (isLighted) {
 			// force a lighting update
-			lightBoard(isLighted = false);
+			lightBoard(true, true);
 		}
 	}
 
