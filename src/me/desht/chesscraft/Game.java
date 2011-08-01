@@ -179,7 +179,7 @@ public class Game {
 		// repeat for the ai engine (doesn't support loading from FEN)
 		if (aiPlayer != null) {
 			for (short move : history) {
-				getPosition().doMove(move);
+				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
 			}
 			aiPlayer.loadDone(); // tell ai to start on next move
 		}
