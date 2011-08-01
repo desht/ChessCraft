@@ -44,7 +44,7 @@ public class BoardView implements PositionListener {
 		this.plugin = plugin;
 		this.name = bName;
 		if (BoardView.boardViewExists(name)) {
-			throw new ChessException("A board with this name already exists.");
+			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
 				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
@@ -80,7 +80,7 @@ public class BoardView implements PositionListener {
 		bounds.expand(Direction.Up, getHeight() + 1);
 
 		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
-			throw new ChessException("Board altitude is too high - roof would be above top of world");
+			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
 		}
 		for (BoardView bv : BoardView.listBoardViews()) {
 			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
@@ -88,7 +88,7 @@ public class BoardView implements PositionListener {
 			}
 			for (Location l : bounds.corners()) {
 				if (bv.getOuterBounds().contains(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
-					throw new ChessException("Board would intersect existing board " + bv.getName());
+					throw new ChessException(Messages.getString("BoardView.boardWouldIntersect", bv.getName())); //$NON-NLS-1$
 				}
 			}
 		}
@@ -96,11 +96,11 @@ public class BoardView implements PositionListener {
 
 	public Map<String, Object> freeze() {
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("name", name);
-		result.put("game", game == null ? "" : game.getName());
-		result.put("pieceStyle", chessBoard.getPieceStyleStr());
-		result.put("boardStyle", chessBoard.getBoardStyleStr());
-		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center()));
+		result.put("name", name); //$NON-NLS-1$
+		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
+		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
+		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center())); //$NON-NLS-1$
 
 		return result;
 	}
@@ -110,7 +110,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public void autoSave() {
-		if (plugin.getConfiguration().getBoolean("autosave", true)) {
+		if (plugin.getConfiguration().getBoolean("autosave", true)) { //$NON-NLS-1$
 			save();
 		}
 	}
@@ -223,7 +223,6 @@ public class BoardView implements PositionListener {
 			return;
 		}
 		lastLevel = level;
-
 		chessBoard.lightBoard(!isBright(level));
 	}
 
@@ -431,7 +430,7 @@ public class BoardView implements PositionListener {
 					}
 				}
 			}
-			throw new ChessException("No such board '" + name + "'");
+			throw new ChessException(Messages.getString("BoardView.noSuchBoard", name)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return chessBoards.get(name);
 	}
@@ -465,7 +464,7 @@ public class BoardView implements PositionListener {
 				return bv;
 			}
 		}
-		throw new ChessException("There are no free boards to create a game on.");
+		throw new ChessException(Messages.getString("BoardView.noFreeBoards")); //$NON-NLS-1$
 	}
 
 	/**

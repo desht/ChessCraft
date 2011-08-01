@@ -16,7 +16,6 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
@@ -34,7 +33,7 @@ public class Game {
 
 	private static final Map<String, Game> chessGames = new HashMap<String, Game>();
 	private static final Map<String, Game> currentGame = new HashMap<String, Game>();
-	private static final String archiveDir = "pgn";
+	private static final String archiveDir = "pgn"; //$NON-NLS-1$
 	private ChessCraft plugin;
 	private String name;
 	private chesspresso.game.Game cpGame;
@@ -57,20 +56,20 @@ public class Game {
 		this.view = view;
 		this.name = name;
 		if (view.getGame() != null) {
-			throw new ChessException("That board already has a game on it.");
+			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
 		}
-		playerWhite = playerName == null ? "" : playerName;
-		playerBlack = "";
+		playerWhite = playerName == null ? "" : playerName; //$NON-NLS-1$
+		playerBlack = ""; //$NON-NLS-1$
 		timeWhite = timeBlack = 0;
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
-		invited = "";
+		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
 		lastCheck = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null) {
-			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName));
+			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName)); //$NON-NLS-1$
 		} else {
 			stake = 0.0;
 		}
@@ -86,9 +85,9 @@ public class Game {
 	private void setupChesspressoGame() {
 		// seven tag roster
 		cpGame.setTag(PGN.TAG_EVENT, getName());
-		cpGame.setTag(PGN.TAG_SITE, getView().getName() + " in Minecraftia");
+		cpGame.setTag(PGN.TAG_SITE, getView().getName() + Messages.getString("Game.sitePGN")); //$NON-NLS-1$
 		cpGame.setTag(PGN.TAG_DATE, dateToPGNDate(started));
-		cpGame.setTag(PGN.TAG_ROUND, "?");
+		cpGame.setTag(PGN.TAG_ROUND, "?"); //$NON-NLS-1$
 		cpGame.setTag(PGN.TAG_WHITE, getPlayerWhite());
 		cpGame.setTag(PGN.TAG_BLACK, getPlayerBlack());
 		cpGame.setTag(PGN.TAG_RESULT, getPGNResult());
@@ -100,21 +99,21 @@ public class Game {
 	Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 
-		map.put("name", name);
-		map.put("boardview", view.getName());
-		map.put("playerWhite", playerWhite);
-		map.put("playerBlack", playerBlack);
-		map.put("state", state.toString());
-		map.put("invited", invited);
-		map.put("moves", history);
-		map.put("started", started);
-		map.put("finished", finished);
-		map.put("result", result);
-		map.put("promotionWhite", promotionPiece[Chess.WHITE]);
-		map.put("promotionBlack", promotionPiece[Chess.BLACK]);
-		map.put("timeWhite", timeWhite);
-		map.put("timeBlack", timeBlack);
-		map.put("stake", stake);
+		map.put("name", name); //$NON-NLS-1$
+		map.put("boardview", view.getName()); //$NON-NLS-1$
+		map.put("playerWhite", playerWhite); //$NON-NLS-1$
+		map.put("playerBlack", playerBlack); //$NON-NLS-1$
+		map.put("state", state.toString()); //$NON-NLS-1$
+		map.put("invited", invited); //$NON-NLS-1$
+		map.put("moves", history); //$NON-NLS-1$
+		map.put("started", started); //$NON-NLS-1$
+		map.put("finished", finished); //$NON-NLS-1$
+		map.put("result", result); //$NON-NLS-1$
+		map.put("promotionWhite", promotionPiece[Chess.WHITE]); //$NON-NLS-1$
+		map.put("promotionBlack", promotionPiece[Chess.BLACK]); //$NON-NLS-1$
+		map.put("timeWhite", timeWhite); //$NON-NLS-1$
+		map.put("timeBlack", timeBlack); //$NON-NLS-1$
+		map.put("stake", stake); //$NON-NLS-1$
 
 		return map;
 	}
@@ -124,38 +123,38 @@ public class Game {
 	}
 
 	public void autoSave() {
-		if (plugin.getConfiguration().getBoolean("autosave", true)) {
+		if (plugin.getConfiguration().getBoolean("autosave", true)) { //$NON-NLS-1$
 			save();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
-		playerWhite = (String) map.get("playerWhite");
-		playerBlack = (String) map.get("playerBlack");
-		state = GameState.valueOf((String) map.get("state"));
-		invited = (String) map.get("invited");
-		List<Integer> hTmp = (List<Integer>) map.get("moves");
+		playerWhite = (String) map.get("playerWhite"); //$NON-NLS-1$
+		playerBlack = (String) map.get("playerBlack"); //$NON-NLS-1$
+		state = GameState.valueOf((String) map.get("state")); //$NON-NLS-1$
+		invited = (String) map.get("invited"); //$NON-NLS-1$
+		List<Integer> hTmp = (List<Integer>) map.get("moves"); //$NON-NLS-1$
 		history.clear();
 		for (int m : hTmp) {
 			history.add((short) m);
 		}
-		started = (Long) map.get("started");
-		if (map.containsKey("finished")) {
+		started = (Long) map.get("started"); //$NON-NLS-1$
+		if (map.containsKey("finished")) { //$NON-NLS-1$
 			// a simple cast to Long won't work here
-			finished = Long.parseLong(map.get("finished").toString());
+			finished = Long.parseLong(map.get("finished").toString()); //$NON-NLS-1$
 		} else {
 			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
 		}
-		result = (Integer) map.get("result");
-		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite");
-		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack");
-		if (map.containsKey("timeWhite")) {
-			timeWhite = (Integer) map.get("timeWhite");
-			timeBlack = (Integer) map.get("timeBlack");
+		result = (Integer) map.get("result"); //$NON-NLS-1$
+		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite"); //$NON-NLS-1$
+		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack"); //$NON-NLS-1$
+		if (map.containsKey("timeWhite")) { //$NON-NLS-1$
+			timeWhite = (Integer) map.get("timeWhite"); //$NON-NLS-1$
+			timeBlack = (Integer) map.get("timeBlack"); //$NON-NLS-1$
 		}
-		if (map.containsKey("stake")) {
-			stake = (Double) map.get("stake");
+		if (map.containsKey("stake")) { //$NON-NLS-1$
+			stake = (Double) map.get("stake"); //$NON-NLS-1$
 		}
 
 		if (isAIPlayer(playerWhite)) {
@@ -266,7 +265,7 @@ public class Game {
 		ensureGameState(GameState.SETTING_UP);
 
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-			throw new ChessException("Stake cannot be changed once both players have joined.");
+			throw new ChessException(Messages.getString("Game.stakeCantBeChanged")); //$NON-NLS-1$
 		}
 
 		this.stake = newStake;
@@ -294,14 +293,14 @@ public class Game {
 		String tmp = playerWhite;
 		playerWhite = playerBlack;
 		playerBlack = tmp;
-		alert(playerWhite, "Side swap!  You are now playing White.");
-		alert(playerBlack, "Side swap!  You are now playing Black.");
+		alert(playerWhite, Messages.getString("Game.nowPlayingWhite")); //$NON-NLS-1$
+		alert(playerBlack, Messages.getString("Game.nowPlayingBlack")); //$NON-NLS-1$
 	}
 
 	public void addPlayer(String playerName) throws ChessException {
 		ensureGameState(GameState.SETTING_UP);
 		if (!playerBlack.isEmpty() && !playerWhite.isEmpty()) {
-			throw new ChessException("This game already has two players.");
+			throw new ChessException(Messages.getString("Game.gameIsFull")); //$NON-NLS-1$
 		}
 
 		String otherPlayer = playerBlack.isEmpty() ? playerWhite : playerBlack;
@@ -309,12 +308,11 @@ public class Game {
 		if (isAIPlayer(playerName)) {
 			addAI(playerName);
 		} else {
-			if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) {
-				throw new ChessException("You don't have an invitation for this game.");
+			if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) { //$NON-NLS-1$
+				throw new ChessException(Messages.getString("Game.notInvited")); //$NON-NLS-1$
 			}
 			if (Economy.active() && !Economy.canAfford(playerName, getStake())) {
-				throw new ChessException("You can't afford the stake for this game (" + Economy.format(getStake())
-						+ ").");
+				throw new ChessException(Messages.getString("Game.cantAffordStake", Economy.format(getStake()))); //$NON-NLS-1$
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
@@ -323,10 +321,10 @@ public class Game {
 			}
 		}
 		getView().getControlPanel().repaintSignButtons();
-		alert(otherPlayer, playerName + " has joined your game.");
+		alert(otherPlayer, Messages.getString("Game.playerJoined", playerName)); //$NON-NLS-1$
 		clearInvitation();
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-			alert("Start the game by typing &f/game start&-.");
+			alert(Messages.getString("Game.startPrompt")); //$NON-NLS-1$
 		}
 	}
 
@@ -352,39 +350,35 @@ public class Game {
 			ChessAI.AI_Def ai = ChessAI.getAI(inviteeName);
 			if (ai != null) {
 				if (!ChessAI.isFree(ai)) {
-					throw new ChessException("That AI is currently busy playing a game right now");
+					throw new ChessException(Messages.getString("Game.AIisBusy")); //$NON-NLS-1$
 				}
 				addPlayer(ai.getFullAIName());
 				return;
 			}
-			throw new ChessException("Player " + inviteeName + " is not online.");
+			throw new ChessException(Messages.getString("Game.playerNotOnline", inviteeName)); //$NON-NLS-1$ 
 		} else {
 			inviteeName = player.getName();
-			alert(inviteeName, "You have been invited to this game by &6" + inviterName + "&-.");
+			alert(inviteeName, Messages.getString("Game.youAreInvited", inviterName)); //$NON-NLS-1$ 
 			if (Economy.active() && getStake() > 0.0) {
-				alert(inviteeName, "This game has a stake of " + Economy.format(getStake()));
+				alert(inviteeName, Messages.getString("Game.gameHasStake", Economy.format(getStake()))); //$NON-NLS-1$
 			}
-			alert(inviteeName, "Type &f/chess join&- to join the game.");
+			alert(inviteeName, Messages.getString("Game.joinPrompt")); //$NON-NLS-1$
 			if (!invited.isEmpty()) {
-				alert(invited, "Your invitation has been withdrawn.");
+				alert(invited, Messages.getString("Game.inviteWithdrawn")); //$NON-NLS-1$
 			}
 			invited = inviteeName;
-			alert(inviterName, "An invitation has been sent to &6" + invited + "&-.");
+			alert(inviterName, Messages.getString("Game.inviteSent", invited)); //$NON-NLS-1$
 		}
 	}
 
 	public void inviteOpen(String inviterName) throws ChessException {
 		inviteSanityCheck(inviterName);
-		Bukkit.getServer().broadcastMessage(
-				ChessUtils.parseColourSpec("&e:: &6" + inviterName
-						+ "&e has created an open invitation to a chess game."));
+		ChessUtils.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (Economy.active() && getStake() > 0.0) {
-			Bukkit.getServer().broadcastMessage(
-					"&e:: This game has a stake of &f" + Economy.format(getStake()));
+			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", Economy.format(getStake()))); //$NON-NLS-1$
 		}
-		Bukkit.getServer().broadcastMessage(
-				ChessUtils.parseColourSpec("&e:: " + "Type &f/chess join " + getName() + "&e to join."));
-		invited = "*";
+		ChessUtils.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
+		invited = "*"; //$NON-NLS-1$
 	}
 
 	private void inviteSanityCheck(String inviterName) throws ChessException {
@@ -395,19 +389,19 @@ public class Game {
 			// if one is an AI, allow the AI to leave
 			if (aiPlayer != null) {
 				if (isAIPlayer(playerWhite)) {
-					playerWhite = "";
+					playerWhite = ""; //$NON-NLS-1$
 				} else {
-					playerBlack = "";
+					playerBlack = ""; //$NON-NLS-1$
 				}
 				aiPlayer.removeAI();
 			} else {
-				throw new ChessException("This game already has two players!");
+				throw new ChessException(Messages.getString("Game.gameIsFull")); //$NON-NLS-1$
 			}
 		}
 	}
 
 	public void clearInvitation() {
-		invited = "";
+		invited = ""; //$NON-NLS-1$
 	}
 
 	public void start(String playerName) throws ChessException {
@@ -416,16 +410,16 @@ public class Game {
 
 		if (playerWhite.isEmpty() || playerBlack.isEmpty()) {
 			addAI(null);
-			alert(playerName, aiPlayer.getName() + " has joined your game.");
+			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerWhite)) {
-			throw new ChessException("White can't afford to play! (need " + Economy.format(stake) + ")");
+			throw new ChessException(Messages.getString("Game.whiteCantAfford", Economy.format(stake))); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerBlack)) {
-			throw new ChessException("Black can't afford to play! (need " + Economy.format(stake) + ")");
+			throw new ChessException(Messages.getString("Game.blackCantAfford", Economy.format(stake))); //$NON-NLS-1$ 
 		}
-		alert(playerWhite, "Game started!  You are playing &fWhite&-.");
-		alert(playerBlack, "Game started!  You are playing &fBlack&-.");
+		alert(playerWhite, Messages.getString("Game.startedAsWhite")); //$NON-NLS-1$
+		alert(playerBlack, Messages.getString("Game.startedAsBlack")); //$NON-NLS-1$
 		if (Economy.active() && stake > 0.0f) {
 			if (!isAIPlayer(playerWhite)) {
 				Economy.subtractMoney(playerWhite, stake);
@@ -434,7 +428,7 @@ public class Game {
 				Economy.subtractMoney(playerBlack, stake);
 			}
 			double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
-			alert("You have paid a stake of " + Economy.format(s2) + ".");
+			alert(Messages.getString("Game.paidStake", Economy.format(s2))); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		clearInvitation();
 		setState(GameState.RUNNING);
@@ -442,7 +436,7 @@ public class Game {
 
 	public void resign(String playerName) throws ChessException {
 		if (state != GameState.RUNNING) {
-			throw new ChessException("The game has not yet started.");
+			throw new ChessException(Messages.getString("Game.notStarted")); //$NON-NLS-1$
 		}
 
 		ensurePlayerInGame(playerName);
@@ -452,11 +446,11 @@ public class Game {
 		String loser = playerName;
 		if (loser.equalsIgnoreCase(playerWhite)) {
 			winner = playerBlack;
-			cpGame.setTag(PGN.TAG_RESULT, "0-1");
+			cpGame.setTag(PGN.TAG_RESULT, "0-1"); //$NON-NLS-1$
 			result = Chess.RES_BLACK_WINS;
 		} else {
 			winner = playerWhite;
-			cpGame.setTag(PGN.TAG_RESULT, "1-0");
+			cpGame.setTag(PGN.TAG_RESULT, "1-0"); //$NON-NLS-1$
 			result = Chess.RES_WHITE_WINS;
 		}
 		announceResult(winner, loser, GameResult.Resigned);
@@ -470,11 +464,11 @@ public class Game {
 		String loser;
 		if (winner.equalsIgnoreCase(playerWhite)) {
 			loser = playerBlack;
-			cpGame.setTag(PGN.TAG_RESULT, "1-0");
+			cpGame.setTag(PGN.TAG_RESULT, "1-0"); //$NON-NLS-1$
 			result = Chess.RES_WHITE_WINS;
 		} else {
 			loser = playerWhite;
-			cpGame.setTag(PGN.TAG_RESULT, "0-1");
+			cpGame.setTag(PGN.TAG_RESULT, "0-1"); //$NON-NLS-1$
 			result = Chess.RES_BLACK_WINS;
 		}
 		announceResult(winner, loser, GameResult.Forfeited);
@@ -488,7 +482,7 @@ public class Game {
 		ensurePlayerInGame(playerName);
 
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT) {
-			throw new ChessException("Invalid promotion piece: " + Chess.pieceToChar(piece));
+			throw new ChessException(Messages.getString("Game.invalidPromoPiece", Chess.pieceToChar(piece))); //$NON-NLS-1$
 		}
 		if (playerName.equals(playerWhite)) {
 			promotionPiece[Chess.WHITE] = piece;
@@ -503,7 +497,7 @@ public class Game {
 
 		setState(GameState.FINISHED);
 		result = Chess.RES_DRAW;
-		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
+		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
 		announceResult(playerWhite, playerBlack, GameResult.DrawAgreed);
 	}
 
@@ -533,7 +527,7 @@ public class Game {
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		try {
 			short realMove = checkMove(move);
-			if (plugin.getConfiguration().getBoolean("highlight_last_move", true)) {
+			if (plugin.getConfiguration().getBoolean("highlight_last_move", true)) { //$NON-NLS-1$
 				view.highlightSquares(fromSquare, toSquare);
 			}
 			getPosition().doMove(realMove);
@@ -543,18 +537,18 @@ public class Game {
 			clockTick();
 			if (getPosition().isMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
-				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0");
+				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-1$ //$NON-NLS-2$
 				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
 				setState(GameState.FINISHED);
 			} else if (getPosition().isStaleMate()) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Stalemate);
 				result = Chess.RES_DRAW;
-				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
+				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
 				setState(GameState.FINISHED);
 			} else if (getPosition().getHalfMoveClock() >= 50) {
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.FiftyMoveRule);
 				result = Chess.RES_DRAW;
-				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
+				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
 				setState(GameState.FINISHED);
 			} else {
 				// the game continues...
@@ -562,10 +556,10 @@ public class Game {
 				if (isAIPlayer(nextPlayer)) {
 					aiPlayer.userMove(fromSquare, toSquare);
 				} else {
-					String checkNotify = getPosition().isCheck() ? " &5+++CHECK+++" : "";
-					alert(nextPlayer, "&f" + getColour(prevToMove) + "&- played [" + lastMove.getLAN() + "]."
+					String checkNotify = getPosition().isCheck() ? Messages.getString("Game.check") : ""; //$NON-NLS-1$ //$NON-NLS-2$
+					alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), lastMove.getLAN()) //$NON-NLS-1$
 							+ checkNotify);
-					alert(nextPlayer, "It is your move &f(" + getColour(getPosition().getToPlay()) + ")&-.");
+					alert(nextPlayer, Messages.getString("Game.yourMove", getColour(getPosition().getToPlay()))); //$NON-NLS-1$
 				}
 			}
 			this.fromSquare = Chess.NO_SQUARE;
@@ -582,15 +576,15 @@ public class Game {
 	public String getPGNResult() {
 		switch (result) {
 		case Chess.RES_NOT_FINISHED:
-			return "*";
+			return "*"; //$NON-NLS-1$
 		case Chess.RES_WHITE_WINS:
-			return "1-0";
+			return "1-0"; //$NON-NLS-1$
 		case Chess.RES_BLACK_WINS:
-			return "0-1";
+			return "0-1"; //$NON-NLS-1$
 		case Chess.RES_DRAW:
-			return "1/2-1/2";
+			return "1/2-1/2"; //$NON-NLS-1$
 		default:
-			return "*";
+			return "*"; //$NON-NLS-1$
 		}
 	}
 
@@ -605,30 +599,30 @@ public class Game {
 	 *            result to announce
 	 */
 	public void announceResult(String p1, String p2, GameResult rt) {
-		String msg = "";
+		String msg = ""; //$NON-NLS-1$
 		switch (rt) {
 		case Checkmate:
-			msg = "&6" + p1 + "&e checkmated &6" + p2 + "&e in a game of Chess!";
+			msg = Messages.getString("Game.checkmated", p1, p2); //$NON-NLS-1$
 			break;
 		case Stalemate:
-			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (stalemate) in a game of Chess!";
+			msg = Messages.getString("Game.stalemated", p1, p2); //$NON-NLS-1$
 			break;
 		case FiftyMoveRule:
-			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (50-move rule) in a game of Chess!";
+			msg = Messages.getString("Game.fiftyMoveRule", p1, p2); //$NON-NLS-1$
 			break;
 		case DrawAgreed:
-			msg = "&6" + p1 + "&e drew with &6" + p2 + "&e (draw agreed) in a game of Chess!";
+			msg = Messages.getString("Game.drawAgreed", p1, p2); //$NON-NLS-1$
 			break;
 		case Resigned:
-			msg = "&6" + p1 + "&e beat &6" + p2 + "&e (resigned) in a game of Chess!";
+			msg = Messages.getString("Game.resigned", p1, p2); //$NON-NLS-1$
 			break;
 		case Forfeited:
-			msg = "&6" + p1 + "&e beat &6" + p2 + "&e (forfeited) in a game of Chess!";
+			msg = Messages.getString("Game.forfeited", p1, p2); //$NON-NLS-1$
 			break;
 		}
-		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) {
+		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) { //$NON-NLS-1$
 			if (!msg.isEmpty()) {
-				Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec(ChatColor.YELLOW + ":: " + msg));
+				ChessUtils.broadcastMessage(msg);
 			}
 		} else {
 			if (!msg.isEmpty()) {
@@ -656,15 +650,15 @@ public class Game {
 						winnings = stake * (1.0 + ai.getPayoutMultiplier());
 					} else {
 						winnings = stake * 2.0;
-						ChessCraftLogger.log(Level.WARNING, "couldn't retrieve AI definition for " + p2);
+						ChessCraftLogger.log(Level.WARNING, "couldn't retrieve AI definition for " + p2); //$NON-NLS-1$
 					}
 				} else {
 					winnings = stake * 2.0;
 				}
 				Economy.addMoney(p1, winnings);
-				alert(p1, "You have won " + Economy.format(winnings) + "!");
+				alert(p1, Messages.getString("Game.youWon", Economy.format(winnings))); //$NON-NLS-1$ 
 			}
-			alert(p2, "You lost your stake of " + Economy.format(stake) + "!");
+			alert(p2, Messages.getString("Game.lostStake", Economy.format(stake))); //$NON-NLS-1$ 
 		} else {
 			// a draw
 			if (!isAIPlayer(p1)) {
@@ -673,7 +667,7 @@ public class Game {
 			if (!isAIPlayer(p2)) {
 				Economy.addMoney(p2, stake);
 			}
-			alert("You get your stake of " + Economy.format(stake) + " back.");
+			alert(Messages.getString("Game.getStakeBack", Economy.format(stake))); //$NON-NLS-1$
 		}
 
 		stake = 0.0;
@@ -779,24 +773,24 @@ public class Game {
 	 */
 	public String getResult() {
 		if (getState() != GameState.FINISHED) {
-			return "*";
+			return "*"; //$NON-NLS-1$
 		}
 
 		if (getPosition().isMate()) {
-			return getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0";
+			return getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			return "1/2-1/2";
+			return "1/2-1/2"; //$NON-NLS-1$
 		}
 	}
 
 	public static String getColour(int c) {
 		switch (c) {
 		case Chess.WHITE:
-			return "White";
+			return Messages.getString("Game.white"); //$NON-NLS-1$
 		case Chess.BLACK:
-			return "Black";
+			return Messages.getString("Game.black"); //$NON-NLS-1$
 		default:
-			return "???";
+			return "???"; //$NON-NLS-1$
 		}
 	}
 
@@ -806,7 +800,7 @@ public class Game {
 		}
 		Player p = Bukkit.getServer().getPlayer(playerName);
 		if (p != null) {
-			ChessUtils.alertMessage(p, "&6:: &-Game &6" + getName() + "&-: " + message);
+			ChessUtils.alertMessage(p, Messages.getString("Game.alertPrefix", getName()) + message); //$NON-NLS-1$
 		}
 	}
 
@@ -837,7 +831,7 @@ public class Game {
 
 		File f = makePGNName();
 		if (f.exists() && !force) {
-			throw new ChessException("Archive file " + f.getName() + " already exists - won't overwrite.");
+			throw new ChessException(Messages.getString("Game.archiveExists", f.getName())); //$NON-NLS-1$
 		}
 
 		try {
@@ -847,17 +841,17 @@ public class Game {
 			pw.close();
 			return f;
 		} catch (FileNotFoundException e) {
-			throw new ChessException("can't write PGN archive " + f.getName() + ": " + e.getMessage());
+			throw new ChessException(Messages.getString("Game.cantWriteArchive", f.getName(), e.getMessage())); //$NON-NLS-1$
 		}
 	}
 
 	private File makePGNName() {
-		String baseName = getName() + "_" + dateToPGNDate(System.currentTimeMillis());
+		String baseName = getName() + "_" + dateToPGNDate(System.currentTimeMillis()); //$NON-NLS-1$
 
 		int n = 1;
 		File f;
 		do {
-			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn");
+			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn"); //$NON-NLS-1$ //$NON-NLS-2$
 			++n;
 		} while (f.exists());
 
@@ -873,7 +867,7 @@ public class Game {
 	 * @return PGN format of the date
 	 */
 	private static String dateToPGNDate(long when) {
-		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when));
+		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when)); //$NON-NLS-1$
 	}
 
 	public void setFen(String fen) {
@@ -889,7 +883,7 @@ public class Game {
 		int hrs = n / 3600;
 		int mins = (n - (hrs * 3600)) / 60;
 
-		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs);
+		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
 
 	public int getNextPromotionPiece(int colour) {
@@ -918,17 +912,17 @@ public class Game {
 
 		if (getState() == GameState.SETTING_UP) {
 			long elapsed = (System.currentTimeMillis() - started) / 1000;
-			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180);
+			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180); //$NON-NLS-1$
 			if (timeout > 0 && elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
 				mustDelete = true;
-				alertStr = "Game auto-deleted (not started within " + timeout + " seconds)";
+				alertStr = Messages.getString("Game.autoDeleteNotStarted",  timeout); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.FINISHED) {
 			long elapsed = (System.currentTimeMillis() - finished) / 1000;
-			int timeout = plugin.getConfiguration().getInt("auto_delete.finished", 30);
+			int timeout = plugin.getConfiguration().getInt("auto_delete.finished", 30); //$NON-NLS-1$
 			if (timeout > 0 && elapsed > timeout) {
 				mustDelete = true;
-				alertStr = "Finished game auto-deleted";
+				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
 			}
 		}
 
@@ -941,19 +935,19 @@ public class Game {
 
 	public void ensurePlayerInGame(String playerName) throws ChessException {
 		if (!playerName.equals(playerWhite) && !playerName.equals(playerBlack)) {
-			throw new ChessException("You are not in this game!");
+			throw new ChessException(Messages.getString("Game.notInGame")); //$NON-NLS-1$
 		}
 	}
 
 	public void ensurePlayerToMove(String playerName) throws ChessException {
 		if (!playerName.equals(getPlayerToMove())) {
-			throw new ChessException("It is not your turn.");
+			throw new ChessException(Messages.getString("Game.notYourTurn")); //$NON-NLS-1$
 		}
 	}
 
 	public void ensureGameState(GameState state) throws ChessException {
 		if (getState() != state) {
-			throw new ChessException("Game should be in state " + state);
+			throw new ChessException(Messages.getString("Game.shouldBeState", state)); //$NON-NLS-1$
 		}
 	}
 
@@ -1034,7 +1028,7 @@ public class Game {
 				// more players
 				// (and return that one)
 			}
-			throw new ChessException("No such game '" + name + "'");
+			throw new ChessException(Messages.getString("Game.noSuchGame", name)); //$NON-NLS-1$
 		}
 		return chessGames.get(name);
 	}
@@ -1058,7 +1052,7 @@ public class Game {
 		}
 		Game game = currentGame.get(player.getName());
 		if (verify && game == null) {
-			throw new ChessException("No active game - set one with '/chess game <name>'");
+			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
 		}
 		return game;
 	}
@@ -1079,7 +1073,7 @@ public class Game {
 		String res;
 		int n = 1;
 		do {
-			res = base + "-" + n++;
+			res = base + "-" + n++; //$NON-NLS-1$
 		} while (Game.checkGame(res));
 
 		return res;

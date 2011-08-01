@@ -10,6 +10,8 @@ import chesspresso.Chess;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -72,6 +74,11 @@ public class ChessUtils {
 	public static void generalMessage(Player player, String string) {
 		prevColour = ChatColor.WHITE.toString();
 		message(player, string, Level.INFO);
+	}
+	
+	public static void broadcastMessage(String string) {
+		prevColour = ChatColor.YELLOW.toString();
+		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec("&4::&-" + string));
 	}
 
 	private static void message(Player player, String string, Level level) {
