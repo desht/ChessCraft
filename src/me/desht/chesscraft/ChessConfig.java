@@ -28,43 +28,43 @@ import org.bukkit.util.config.Configuration;
 @SuppressWarnings("serial")
 public class ChessConfig {
 
-	private static File pluginDir = new File("plugins", "ChessCraft");
+	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, dataDir, gamePersistDir, boardPersistDir;
-	private static final String pgnFoldername = "pgn";
-	private static final String boardStyleFoldername = "board_styles";
-	private static final String pieceStyleFoldername = "piece_styles";
-	private static final String schematicsFoldername = "schematics";
-	private static final String datasaveFoldername = "data";
-	private static final String gamesFoldername = "games";
-	private static final String boardsFoldername = "boards";
+	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
+	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
+	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
+	private static final String schematicsFoldername = "schematics"; //$NON-NLS-1$
+	private static final String datasaveFoldername = "data"; //$NON-NLS-1$
+	private static final String gamesFoldername = "games"; //$NON-NLS-1$
+	private static final String boardsFoldername = "boards"; //$NON-NLS-1$
 	private static File persistFile;
-	private static final String persistFilename = "persist.yml";
+	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 	private static ChessCraft plugin = null;
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
 		{
-			put("autosave", true);
-			put("tick_interval", 1);
-			put("broadcast_results", true);
-			put("auto_delete.finished", 30);
-			put("auto_delete.not_started", 180);
-			put("ai.min_move_wait", 3);
-			put("ai.max_ai_games", 3);
-			put("ai.name_prefix", "[AI]");
-			put("no_building", true);
-			put("no_creatures", true);
-			put("no_explosions", true);
-			put("no_burning", true);
-			put("no_pvp", true);
-			put("no_monster_attacks", true);
-			put("no_misc_damage", true);
-			put("wand_item", "air");
-			put("auto_teleport_on_join", true);
-			put("highlight_last_move", true);
-			put("timeout_forfeit", 60);
-			put("stake.default", 0.0);
-			put("stake.smallIncrement", 1.0);
-			put("stake.largeIncrement", 10.0);
+			put("autosave", true); //$NON-NLS-1$
+			put("tick_interval", 1); //$NON-NLS-1$
+			put("broadcast_results", true); //$NON-NLS-1$
+			put("auto_delete.finished", 30); //$NON-NLS-1$
+			put("auto_delete.not_started", 180); //$NON-NLS-1$
+			put("ai.min_move_wait", 3); //$NON-NLS-1$
+			put("ai.max_ai_games", 3); //$NON-NLS-1$
+			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
+			put("no_building", true); //$NON-NLS-1$
+			put("no_creatures", true); //$NON-NLS-1$
+			put("no_explosions", true); //$NON-NLS-1$
+			put("no_burning", true); //$NON-NLS-1$
+			put("no_pvp", true); //$NON-NLS-1$
+			put("no_monster_attacks", true); //$NON-NLS-1$
+			put("no_misc_damage", true); //$NON-NLS-1$
+			put("wand_item", "air"); //$NON-NLS-1$ //$NON-NLS-2$
+			put("auto_teleport_on_join", true); //$NON-NLS-1$
+			put("highlight_last_move", true); //$NON-NLS-1$
+			put("timeout_forfeit", 60); //$NON-NLS-1$
+			put("stake.default", 0.0); //$NON-NLS-1$
+			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
+			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
 		}
 	};
 
@@ -143,27 +143,27 @@ public class ChessConfig {
 		createDir(boardPersistDir);
 
 		// saved board schematics may need to be moved into their new location
-		File oldSchematicsDir = new File(pluginDir, "schematics");
+		File oldSchematicsDir = new File(pluginDir, "schematics"); //$NON-NLS-1$
 		if (oldSchematicsDir.isDirectory()) {
 			if (!oldSchematicsDir.renameTo(schematicsDir)) {
-				ChessCraftLogger.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir);
+				ChessCraftLogger.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			// [plugins]/ChessCraft/data/boards/schematics
 			createDir(schematicsDir);
 		}
 
-		extractResource("/AI_settings.yml", pluginDir);
+		extractResource("/AI_settings.yml", pluginDir); //$NON-NLS-1$
 
-		extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir);
-		extractResource("/datafiles/board_styles/open.yml", boardStyleDir);
-		extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir);
-		extractResource("/datafiles/board_styles/large.yml", boardStyleDir);
+		extractResource("/datafiles/board_styles/Standard.yml", boardStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/board_styles/open.yml", boardStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/board_styles/large.yml", boardStyleDir); //$NON-NLS-1$
 
-		extractResource("/datafiles/piece_styles/Standard.yml", pieceStyleDir);
-		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir);
-		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir);
-		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir);
+		extractResource("/datafiles/piece_styles/Standard.yml", pieceStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 	}
 
 	private static void createDir(File dir) {
@@ -171,7 +171,7 @@ public class ChessConfig {
 			return;
 		}
 		if (!dir.mkdir()) {
-			ChessCraftLogger.log(Level.WARNING, "Can't make directory " + dir.getName());
+			ChessCraftLogger.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -185,7 +185,7 @@ public class ChessConfig {
 		try {
 			InputStream in = ChessCraft.class.getResourceAsStream(from);
 			if (in == null) {
-				ChessCraftLogger.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR");
+				ChessCraftLogger.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				out = new FileOutputStream(of);
 				byte[] buf = new byte[1024];
@@ -237,7 +237,7 @@ public class ChessConfig {
 	static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : configDefaults.keySet()) {
-			res.add(k + " = '" + plugin.getConfiguration().getString(k) + "'");
+			res.add(k + " = '" + plugin.getConfiguration().getString(k) + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Collections.sort(res);
 		return res;
@@ -247,18 +247,18 @@ public class ChessConfig {
 		Configuration config = plugin.getConfiguration();
 
 		if (configDefaults.get(key) == null) {
-			ChessUtils.errorMessage(player, "No such config key: " + key);
-			ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys");
+			ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", key)); //$NON-NLS-1$
+			ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys"); //$NON-NLS-1$
 			return;
 		}
 		if (configDefaults.get(key) instanceof Boolean) {
 			Boolean bVal = false;
-			if (val.equals("false") || val.equals("no")) {
+			if (val.equals("false") || val.equals("no")) { //$NON-NLS-1$ //$NON-NLS-2$
 				bVal = false;
-			} else if (val.equals("true") || val.equals("yes")) {
+			} else if (val.equals("true") || val.equals("yes")) { //$NON-NLS-1$ //$NON-NLS-2$
 				bVal = true;
 			} else {
-				ChessUtils.errorMessage(player, "Invalid boolean value " + val + " - use true/yes or false/no.");
+				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidBoolean", val)); //$NON-NLS-1$ 
 				return;
 			}
 			config.setProperty(key, bVal);
@@ -267,21 +267,21 @@ public class ChessConfig {
 				int nVal = Integer.parseInt(val);
 				config.setProperty(key, nVal);
 			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, "Invalid numeric value: " + val);
+				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidInteger", val)); //$NON-NLS-1$
 			}
 		} else if (configDefaults.get(key) instanceof Double) {
 			try {
 				double nVal = Double.parseDouble(val);
 				config.setProperty(key, nVal);
 			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, "Invalid numeric value: " + val);
+				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidFloat", val)); //$NON-NLS-1$
 			}
 		} else {
 			config.setProperty(key, val);
 		}
 
 		// special hooks
-		if (key.equalsIgnoreCase("tick_interval")) {
+		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
 			plugin.util.setupRepeatingTask(0);
 		}
 

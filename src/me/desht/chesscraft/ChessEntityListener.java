@@ -29,7 +29,7 @@ public class ChessEntityListener extends EntityListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_creatures", false)) {
+		if (!plugin.getConfiguration().getBoolean("no_creatures", false)) { //$NON-NLS-1$
 			return;
 		}
 
@@ -45,7 +45,7 @@ public class ChessEntityListener extends EntityListener {
 	@Override
 	public void onEntityTarget(EntityTargetEvent event) {
 		if (event.isCancelled() || !(event.getTarget() instanceof Player)
-				|| !plugin.getConfiguration().getBoolean("no_creatures", false)) {
+				|| !plugin.getConfiguration().getBoolean("no_creatures", false)) { //$NON-NLS-1$
 			return;
 		}
 
@@ -64,7 +64,7 @@ public class ChessEntityListener extends EntityListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_explosions", false)) {
+		if (!plugin.getConfiguration().getBoolean("no_explosions", false)) { //$NON-NLS-1$
 			return;
 		}
 
@@ -134,7 +134,7 @@ public class ChessEntityListener extends EntityListener {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_misc_damage", false)) {
+		if (!plugin.getConfiguration().getBoolean("no_misc_damage", false)) { //$NON-NLS-1$
 			return;
 		}
 
@@ -151,7 +151,7 @@ public class ChessEntityListener extends EntityListener {
 				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
 						&& n < MAX_DIST);
 				if (n >= MAX_DIST) {
-					ChessUtils.errorMessage(p, "Can't find a safe place to displace you - going to spawn");
+					ChessUtils.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
 					p.teleport(p.getWorld().getSpawnLocation());
 				} else {
 					p.teleport(loc);
@@ -171,10 +171,10 @@ public class ChessEntityListener extends EntityListener {
 
 	private boolean isAllowedMonsterAttack(Entity damager) {
 		return !(damager instanceof Player) && damager instanceof LivingEntity
-				&& !plugin.getConfiguration().getBoolean("no_monster_attacks", false);
+				&& !plugin.getConfiguration().getBoolean("no_monster_attacks", false); //$NON-NLS-1$
 	}
 
 	private boolean isAllowedPlayerAttack(Entity damager) {
-		return damager instanceof Player && !plugin.getConfiguration().getBoolean("no_pvp", false);
+		return damager instanceof Player && !plugin.getConfiguration().getBoolean("no_pvp", false); //$NON-NLS-1$
 	}
 }

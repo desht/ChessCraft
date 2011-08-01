@@ -55,7 +55,7 @@ public class ChessAI {
 	public ChessAI() throws ChessException {
 		aiSettings = getAI(null);
 		if (aiSettings == null) {
-			throw new ChessException("no free AI was found");
+			throw new ChessException(Messages.getString("ChessAI.noFreeAI")); //$NON-NLS-1$
 		}
 		name = getAIPrefix() + aiSettings.name;
 	}
@@ -63,18 +63,18 @@ public class ChessAI {
 	public ChessAI(String aiName) throws ChessException {
 		aiSettings = getAI(aiName);
 		if (aiSettings == null) {
-			throw new ChessException("AI not found");
+			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
 		} else if (runningAI.containsKey(aiSettings.name.toLowerCase())) {
-			throw new ChessException("AI is busy right now");
+			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
 		}
 		name = getAIPrefix() + aiSettings.name;
 	}
 
 	public ChessAI(AI_Def ai) throws ChessException {
 		if (ai == null) {
-			throw new ChessException("AI not found");
+			throw new ChessException(Messages.getString("ChessAI.AInotFOund")); //$NON-NLS-1$
 		} else if (runningAI.containsKey(ai.name.toLowerCase())) {
-			throw new ChessException("AI is busy right now");
+			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
 		}
 		aiSettings = ai;
 		name = getAIPrefix() + aiSettings.name;
@@ -89,7 +89,7 @@ public class ChessAI {
 	}
 
 	public static String getAIPrefix() {
-		return plugin.getConfiguration().getString("ai.name_prefix", "[AI]");
+		return plugin.getConfiguration().getString("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void init(boolean aiWhite) {
@@ -99,10 +99,10 @@ public class ChessAI {
 		_game = new fr.free.jchecs.core.Game();
 		// _game.getPlayer(aiWhite)
 		Player joueur = _game.getPlayer(!aiWhite);
-		joueur.setName("Human");
+		joueur.setName(Messages.getString("ChessAI.human")); //$NON-NLS-1$
 		joueur.setEngine(null);
 		joueur = _game.getPlayer(aiWhite);
-		joueur.setName("Computer");
+		joueur.setName(Messages.getString("ChessAI.computer")); //$NON-NLS-1$
 		joueur.setEngine(aiSettings.newInstance());
 		isWhite = aiWhite;
 	}
@@ -117,36 +117,36 @@ public class ChessAI {
 	public static void initAI_Names() {
 		availableAI.clear();
 		try {
-			File aiFile = new File(ChessConfig.getPluginDirectory(), "AI_settings.yml");
+			File aiFile = new File(ChessConfig.getPluginDirectory(), "AI_settings.yml"); //$NON-NLS-1$
 			if (!aiFile.exists()) {
-				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found");
+				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found"); //$NON-NLS-1$
 				return;
 			}
 			Configuration config = new Configuration(aiFile);
 			config.load();
-			ConfigurationNode n = config.getNode("AI");
+			ConfigurationNode n = config.getNode("AI"); //$NON-NLS-1$
 
 			if (n == null) {
-				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: AI definitions not found");
+				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: AI definitions not found"); //$NON-NLS-1$
 				return;
 			}
 
 			for (String a : n.getKeys()) {
 				ConfigurationNode d = n.getNode(a);
-				if (n.getBoolean("enabled", true)) {
-					for (String name : d.getString("funName", a).split(",")) {
+				if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
+					for (String name : d.getString("funName", a).split(",")) { //$NON-NLS-1$ //$NON-NLS-2$
 						if ((name = name.trim()).length() > 0) {
 							availableAI.put(
 									name.toLowerCase(),
-									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")),
-											d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d
-													.getString("comment")));
+									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
+											d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
+													.getString("comment"))); //$NON-NLS-1$
 						}
 					}
 				}
 			}
 		} catch (Exception ex) {
-			ChessCraftLogger.log(Level.SEVERE, "AI Loading Error", ex);
+			ChessCraftLogger.log(Level.SEVERE, Messages.getString("ChessAI.AIloadError"), ex); //$NON-NLS-1$
 		}
 	}
 
@@ -165,12 +165,11 @@ public class ChessAI {
 	public static ChessAI getNewAI(Game callback, String aiName, boolean forceNew) throws ChessException {
 		// uses exceptions method to stop too many AI
 		if (!forceNew) {
-			int max = plugin.getConfiguration().getInt("ai.max_ai_games", 3);
+			int max = plugin.getConfiguration().getInt("ai.max_ai_games", 3); //$NON-NLS-1$
 			if (max == 0) {
-				throw new ChessException("AI games are disabled");
+				throw new ChessException(Messages.getString("ChessAI.AIdisabled")); //$NON-NLS-1$
 			} else if (runningAI.size() >= max) {
-				throw new ChessException("There are no AIs available to play right now \n" + "(all " + max
-						+ " are currently playing games of their own)");
+				throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", max)); //$NON-NLS-1$
 			}
 		}
 
@@ -228,7 +227,7 @@ public class ChessAI {
 	public void setUserMove(boolean move) {
 		if (move != userToMove) {
 			if (!(userToMove = move)) {
-				int wait = plugin.getConfiguration().getInt("ai.min_move_wait", 3);
+				int wait = plugin.getConfiguration().getInt("ai.min_move_wait", 3); //$NON-NLS-1$
 				aiTask = scheduler.scheduleAsyncDelayedTask(plugin, new Runnable() {
 
 					public void run() {
@@ -290,8 +289,8 @@ public class ChessAI {
 				_game.moveFromCurrent(m);
 			}
 		} catch (Exception ex) {
-			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex);
-			callback.alert("Unexpected Exception in AI: " + ex.getMessage());
+			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex); //$NON-NLS-1$
+			callback.alert(Messages.getString("ChessAI.AIunexpectedException", ex.getMessage())); //$NON-NLS-1$
 		}
 
 		userToMove = true;
