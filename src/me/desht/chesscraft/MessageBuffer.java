@@ -14,9 +14,7 @@ public class MessageBuffer {
 
 	private static final Map<String, List<String>> bufferMap = new HashMap<String, List<String>>();
 	private static final Map<String, Integer> currentPage = new HashMap<String, Integer>();
-	private static final int pageSize = 18;
-	private static final String bar = "------------------------------------------------";
-	private static final String footerBar = "---Use /chess page [#|n|p] to see other pages---";
+	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
 
 	/**
 	 * initialize the buffer for the player if necessary
@@ -260,19 +258,17 @@ public class MessageBuffer {
 			}
 
 			int nMessages = getSize(player);
-			ChessUtils.statusMessage(
-					player,
-					ChatColor.GREEN
-							+ MinecraftChatStr.strPadCenterChat((pageSize > nMessages ? nMessages : pageSize) + " of "
-									+ nMessages + " lines (page " + pageNum + "/" + getPageCount(player) + ")", 310,
-									'-'));
+			String header = Messages.getString("MessageBuffer.header", 
+			                                   Math.min(pageSize, nMessages), nMessages, pageNum, getPageCount(player));
+			ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
+
 			int i = (pageNum - 1) * pageSize;
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
 				ChessUtils.statusMessage(player, getLine(player, i));
 			}
 
-			ChessUtils.statusMessage(player, ChatColor.GREEN.toString()
-					+ (nMessages > pageSize * pageNum ? MinecraftChatStr.strPadCenterChat(footerBar, 310, '-') : bar));
+			String footer =  nMessages > pageSize * pageNum ? Messages.getString("MessageBuffer.footer") : "";
+			ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(footer, 310, '-'));
 
 			setPage(player, pageNum);
 		} else {

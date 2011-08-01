@@ -52,7 +52,7 @@ public class TerrainBackup {
 
 		try {
 			saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(),
-					"schematic", new String[] { "schematic" });
+					"schematic", new String[] { "schematic" }); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (FilenameException ex) {
 			ChessCraftLogger.log(Level.WARNING, ex.getMessage());
 		}
@@ -70,9 +70,9 @@ public class TerrainBackup {
 			clipboard.saveSchematic(saveFile);
 			editSession.flushQueue();
 		} catch (DataException e) {
-			ChessUtils.errorMessage(player, "Terrain backup could not be written: " + e.getMessage());
+			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
 		} catch (IOException e) {
-			ChessUtils.errorMessage(player, "Terrain backup could not be written: " + e.getMessage());
+			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
 		}
 	}
 
@@ -89,12 +89,12 @@ public class TerrainBackup {
 			editSession.flushQueue();
 			we.flushBlockBag(localPlayer, editSession);
 			if (!saveFile.delete()) {
-				ChessCraftLogger.log(Level.WARNING, "Could not delete " + saveFile);
+				ChessCraftLogger.log(Level.WARNING, Messages.getString("TerrainBackup.cantDeleteTerrain", saveFile)); //$NON-NLS-1$
 			}
 		} catch (Exception e) {
 			// DataException, IOException, EmptyClipboardException,
 			// MaxChangedBlocksException
-			ChessUtils.errorMessage(player, "Terrain backup could not be restored: " + e.getMessage());
+			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantRestoreTerrain", e.getMessage())); //$NON-NLS-1$
 
 		}
 	}

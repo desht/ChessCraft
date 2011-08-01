@@ -4,7 +4,6 @@ import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.blocks.MaterialWithData;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,12 +136,12 @@ public class ChessPlayerListener extends PlayerListener {
 			if (game.isPlayerInGame(who)) {
 				playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
-				           MessageFormat.format(Messages.getString("ChessPlayerListener.playerBack"), who)); //$NON-NLS-1$
+				           Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
 			}
 		}
 		if (games.length() > 0) {
-			ChessUtils.alertMessage(event.getPlayer(), MessageFormat.format(Messages.getString("ChessPlayerListener.currentGames"), games)); //$NON-NLS-1$
+			ChessUtils.alertMessage(event.getPlayer(), Messages.getString("ChessPlayerListener.currentGames", games)); //$NON-NLS-1$
 		}
 	}
 
@@ -154,9 +153,7 @@ public class ChessPlayerListener extends PlayerListener {
 			if (game.isPlayerInGame(who)) {
 				playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
-					game
-							.alert(MessageFormat
-									.format(Messages.getString("ChessPlayerListener.playerQuit"), who, timeout)); //$NON-NLS-1$
+					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$
 				}
 			}
 		}
@@ -187,8 +184,8 @@ public class ChessPlayerListener extends PlayerListener {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					ChessUtils.statusMessage(player, MessageFormat.format(Messages
-							.getString("ChessPlayerListener.pieceSelected"), what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
+					ChessUtils.statusMessage(player,
+					                         Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
@@ -197,8 +194,8 @@ public class ChessPlayerListener extends PlayerListener {
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					game.doMove(player.getName(), sqi);
-					ChessUtils.statusMessage(player, MessageFormat.format(Messages.getString("ChessPlayerListener.youPlayed"),
-					                                                      game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
+					                                                    game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
@@ -211,11 +208,11 @@ public class ChessPlayerListener extends PlayerListener {
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
-			ChessUtils.statusMessage(player,MessageFormat.format(Messages.getString("ChessPlayerListener.youPlayed"), //$NON-NLS-1$
-			                                                     game.getPosition().getLastMove().getLAN()));
+			ChessUtils.statusMessage(player,Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
+			                                                   game.getPosition().getLastMove().getLAN()));
 		} else {
-			ChessUtils.statusMessage(player,MessageFormat.format(Messages.getString("ChessPlayerListener.squareMessage"), //$NON-NLS-1$
-			                                                     Chess.sqiToStr(sqi), bv.getName())); 
+			ChessUtils.statusMessage(player,Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+			                                                   Chess.sqiToStr(sqi), bv.getName())); 
 		}
 	}
 

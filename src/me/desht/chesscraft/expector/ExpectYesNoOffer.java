@@ -1,7 +1,5 @@
 package me.desht.chesscraft.expector;
 
-import java.text.MessageFormat;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessUtils;
 import me.desht.chesscraft.Game;
@@ -38,19 +36,19 @@ public class ExpectYesNoOffer extends ExpectData {
 		switch (getAction()) {
 			case DrawResponse:
 				if (accepted) {
-					game.alert(offerer, MessageFormat.format(Messages.getString("ExpectYesNoOffer.drawOfferAccepted"), offeree)); //$NON-NLS-1$
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.drawOfferAccepted", offeree)); //$NON-NLS-1$
 					game.drawn();
 				} else {
-					game.alert(offerer, MessageFormat.format(Messages.getString("ExpectYesNoOffer.drawOfferDeclined"), offeree)); //$NON-NLS-1$
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.drawOfferDeclined", offeree)); //$NON-NLS-1$
 					ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
 				}
 				break;
 			case SwapResponse:
 				if (accepted) {
-					game.alert(offerer, MessageFormat.format(Messages.getString("ExpectYesNoOffer.swapOfferAccepted"), offeree)); //$NON-NLS-1$
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferAccepted", offeree)); //$NON-NLS-1$
 					game.swapColours();
 				} else {
-					game.alert(offerer, MessageFormat.format(Messages.getString("ExpectYesNoOffer.swapOfferDeclined"), offeree)); //$NON-NLS-1$
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferDeclined", offeree)); //$NON-NLS-1$
 					ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
 				}
 				break;

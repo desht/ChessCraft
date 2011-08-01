@@ -1,7 +1,5 @@
 package me.desht.chesscraft.expector;
 
-import java.text.MessageFormat;
-
 import me.desht.chesscraft.BoardView;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessUtils;
@@ -38,8 +36,8 @@ public class ExpectBoardCreation extends ExpectData {
 			TerrainBackup.save(plugin, player, view);
 		}
 		view.paintAll();
-		ChessUtils.statusMessage(player, MessageFormat.format(Messages.getString("ExpectBoardCreation.boardCreated"), //$NON-NLS-1$
-		                                                      boardName, ChessUtils.formatLoc(view.getA1Square())));
+		ChessUtils.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
+		                                                    boardName, ChessUtils.formatLoc(view.getA1Square())));
 		view.save();
 	}
 }
