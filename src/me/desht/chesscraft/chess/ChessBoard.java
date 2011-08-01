@@ -307,10 +307,10 @@ public class ChessBoard {
 						a1Corner.getBlockY(), a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
 			}
 			board = new Cuboid(a1Corner, h8Corner);
-			areaBoard = board.clone().expand(Direction.Up, boardStyle.height - 1);
+			areaBoard = board.clone().expand(Direction.Up, boardStyle.height);
 			frameBoard = (new Cuboid(a1Corner, h8Corner)).outset(Direction.Horizontal, boardStyle.frameWidth);
 			aboveFullBoard = frameBoard.clone().shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height - 1);
-			fullBoard = frameBoard.clone().expand(Direction.Up, boardStyle.height - 1);
+			fullBoard = frameBoard.clone().expand(Direction.Up, boardStyle.height + 1);
 		}
 	}
 
@@ -340,9 +340,7 @@ public class ChessBoard {
 		}
 		aboveFullBoard.setWalls(boardStyle.enclosureMat.getMaterial(), boardStyle.enclosureMat.getData());
 
-		Cuboid roof = new Cuboid(aboveFullBoard.getUpperSW(),
-				new Location(aboveFullBoard.getWorld(), aboveFullBoard.getLowerNE().getBlockX(),
-				aboveFullBoard.getUpperSW().getBlockY(), aboveFullBoard.getLowerNE().getBlockZ()));
+		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
 		for (Location l : roof) {
 			boardStyle.enclosureMat.applyToBlock(l.getBlock());
 		}
@@ -695,7 +693,7 @@ public class ChessBoard {
 		}
 		// copy-paste of above, but with height
 		Cuboid sq = getSquare(row, col);
-		sq.expand(Direction.Up, boardStyle.height - 2);
+		sq.expand(Direction.Up, boardStyle.height - 1);
 		sq.shift(Direction.Up, 1);
 		return sq;
 	}
