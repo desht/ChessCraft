@@ -106,10 +106,7 @@ public class ControlPanel {
 				&& (!hasWhite || !hasBlack));
 		createSignButton(3, 2, "invite-anyone", Messages.getString("ControlPanel.inviteAnyoneBtn"), eastFacingWallSign, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), eastFacingWallSign, settingUp);// && //$NON-NLS-1$ //$NON-NLS-2$
-																						// hasWhite
-																						// &&
-																						// hasBlack);
+		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), eastFacingWallSign, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(5, 2, "offer-draw", Messages.getString("ControlPanel.offerDrawBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(6, 2, "resign", Messages.getString("ControlPanel.resignBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(7, 2, "game-info", Messages.getString("ControlPanel.gameInfoBtn"), eastFacingWallSign, game != null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -184,14 +181,15 @@ public class ControlPanel {
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		Game game = view.getGame();
 		SignButton button = buttonLocs.get(block.getLocation());
+		
 		if (button == null) {
 			return;
 		}
-
+		
 		if (!button.isEnabled()) {
 			return;
 		}
-
+		
 		String name = button.getName();
 		if (name.equals("create-game")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryCreateGame(player, null, view.getName());
