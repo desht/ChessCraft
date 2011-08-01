@@ -5,7 +5,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-public class MaterialWithData {
+public class MaterialWithData implements Cloneable {
 
 	int material;
 	byte data;
@@ -97,6 +97,11 @@ public class MaterialWithData {
 		return s;
 	}
 
+	@Override
+	public MaterialWithData clone(){
+		return new MaterialWithData(this);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

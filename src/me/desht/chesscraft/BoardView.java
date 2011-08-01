@@ -62,6 +62,8 @@ public class BoardView implements PositionListener {
 			validateIntersections();
 
 			controlPanel = new ControlPanel(plugin, this);
+
+			//paintAll();
 		}
 	}
 
@@ -175,6 +177,9 @@ public class BoardView implements PositionListener {
 
 	public void paintAll() {
 		chessBoard.paintAll();
+		if (game != null) {
+			chessBoard.paintChessPieces(game.getPosition());
+		}
 		if (controlPanel != null) {
 			controlPanel.repaint();
 		}
@@ -284,7 +289,12 @@ public class BoardView implements PositionListener {
 	}
 
 	public void setGame(Game game) {
+		if (this.game != null) {
+			this.game.getPosition().removePositionListener(this);
+		}
 		this.game = game;
+		paintAll();
+		chessBoard.highlightSquares(-1, -1);
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
@@ -515,6 +525,6 @@ public class BoardView implements PositionListener {
 	}
 
 	void reloadStyle() throws ChessException {
-		chessBoard.reloadStyles(ChessConfig.getBoardStyleDirectory(), ChessConfig.getPieceStyleDirectory());
+		chessBoard.reloadStyles();
 	}
 }

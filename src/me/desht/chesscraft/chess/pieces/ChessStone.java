@@ -10,10 +10,6 @@ public class ChessStone extends PieceTemplate {
 
 	int stone;
 
-	public int getStone() {
-		return stone;
-	}
-
 	public ChessStone(int stone, PieceTemplate t) {
 		super(t);
 		this.stone = stone;
@@ -21,6 +17,10 @@ public class ChessStone extends PieceTemplate {
 		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
 			rotate(180);
 		}
+	}
+
+	public int getStone() {
+		return stone;
 	}
 
 	public final void rotate(int rotation) {
@@ -79,23 +79,24 @@ public class ChessStone extends PieceTemplate {
 				iby = square.getLowerY();
 		if (getSizeX() < square.getSizeX()) {
 			ibx += (square.getSizeX() - getSizeX()) / 2; // truncate to lower number
-		} else if (getSizeX() < square.getSizeX()) {
+		} else if (getSizeX() > square.getSizeX()) {
 			// technically shouldn't reach here
-			ibx -= -((getSizeX() - square.getSizeX()) / 2);
+			ibx -= (getSizeX() - square.getSizeX()) / 2;
 		}
 		if (getSizeZ() < square.getSizeZ()) {
 			ibz += (square.getSizeZ() - getSizeZ()) / 2; // truncate to lower number
-		} else if (getSizeZ() < square.getSizeZ()) {
+		} else if (getSizeZ() > square.getSizeZ()) {
 			// technically shouldn't reach here
-			ibz -= ((getSizeZ() - square.getSizeZ()) / 2);
+			ibz -= (getSizeZ() - square.getSizeZ()) / 2;
 		}
+		//System.out.println("painting piece.. " + ibx + ", " + ibz + ", " + iby + ", [" + square.getSizeX() + ", " + square.getSizeZ() + "]");
 		boolean secondPassNeeded = false;
 		// first scan for solid blocks
 		for (Location l : square) {
 			MaterialWithData mat = getMaterial(
-					ibx - l.getBlockX(),
-					iby - l.getBlockY(),
-					ibz - l.getBlockZ());
+					l.getBlockX() - ibx,
+					l.getBlockY() - iby,
+					l.getBlockZ() - ibz);
 			if (mat != null) {
 				// can't safely place first, so will need to scan a second time
 				if (BlockType.shouldPlaceLast(mat.getMaterial())) {
