@@ -59,7 +59,6 @@ public class Game {
 		if (view.getGame() != null) {
 			throw new ChessException("That board already has a game on it.");
 		}
-		view.setGame(this);
 		playerWhite = playerName == null ? "" : playerName;
 		playerBlack = "";
 		timeWhite = timeBlack = 0;
@@ -77,6 +76,7 @@ public class Game {
 		}
 		setupChesspressoGame();
 
+		view.setGame(this);
 		getPosition().addPositionListener(view);
 	}
 
@@ -702,9 +702,7 @@ public class Game {
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
-		getView().highlightSquares(-1, -1);
 		getView().setGame(null);
-		getView().paintAll();
 
 		deleteCommon();
 	}

@@ -58,11 +58,14 @@ public class PieceTemplate {
 			sizeY = t.getSizeY();
 			sizeZ = t.getSizeZ();
 			pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
-
+			MaterialWithData m = null;
 			for (int x = 0; x < sizeX; ++x) {
 				for (int y = 0; y < sizeY; ++y) {
 					for (int z = 0; z < sizeZ; ++z) {
-						pieceArray[x][y][z] = new MaterialWithData(t.getMaterial(x, y, z));
+						m = t.getMaterial(x, y, z);
+						if (m != null) {
+							pieceArray[x][y][z] = m.clone();
+						}
 					}
 				}
 			}
@@ -86,9 +89,9 @@ public class PieceTemplate {
 
 	public MaterialWithData getMaterial(int x, int y, int z) {
 		return x >= 0 && y >= 0 && z >= 0
-				&& pieceArray.length < x
-				&& pieceArray[x].length < y
-				&& pieceArray[x][y].length < z
+				&& pieceArray.length > x
+				&& pieceArray[x].length > y
+				&& pieceArray[x][y].length > z
 				? pieceArray[x][y][z] : null;
 	}
 

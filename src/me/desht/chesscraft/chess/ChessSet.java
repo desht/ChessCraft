@@ -6,6 +6,7 @@
  */
 package me.desht.chesscraft.chess;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +16,9 @@ import me.desht.chesscraft.chess.pieces.PieceTemplate;
 public class ChessSet implements Iterable<ChessStone> {
 
 	private Map<Integer, ChessStone> stoneCache = new HashMap<Integer, ChessStone>();
+	// for pieces loaded with ChessPieceLibrary
+	protected String name = null;
+	protected File file = null;
 
 	public ChessSet(Map<Integer, PieceTemplate> stones) {
 		for(int i : stones.keySet()){
@@ -28,6 +32,22 @@ public class ChessSet implements Iterable<ChessStone> {
 
 	public ChessStone getPiece(int stone){
 		return stoneCache.get(stone);
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	// non-static class specific to this ChessSet instance

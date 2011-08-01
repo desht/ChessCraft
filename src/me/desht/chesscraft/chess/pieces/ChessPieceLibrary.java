@@ -24,6 +24,10 @@ public class ChessPieceLibrary {
 		return templates.containsKey(setName);
 	}
 
+	public static ChessSet getChessSet(File setFile){
+		return templates.get(setFile.getName().replaceFirst("\\.yml$", ""));
+	}
+	
 	public static ChessSet getChessSet(String setName) {
 		return templates.get(setName);
 	}
@@ -41,15 +45,15 @@ public class ChessPieceLibrary {
 			setName = setName + ".yml";
 		}
 		File f = new File(folder, setName);
-		try {
+		//try {
 			return loadChessSet(f);
-		} catch (FileNotFoundException e) {
-			throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
-		}
+		//} catch (FileNotFoundException e) {
+		//	throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
+		//}
 	}
 
 	@SuppressWarnings("unchecked")
-	private static ChessSet loadChessSet(File f) throws FileNotFoundException {
+	public static ChessSet loadChessSet(File f) throws ChessException {//throws FileNotFoundException {
 
 		String setName = null;
 		Yaml yaml = new Yaml();
@@ -82,15 +86,17 @@ public class ChessPieceLibrary {
 				pieces.put(Chess.pieceToStone(piece, Chess.BLACK), ptb);
 			}
 			ChessSet set = new ChessSet(pieces);
+			set.setName(setName);
+			set.setFile(f);
 			templates.put(setName, set);
 			ChessCraftLogger.log("loaded set " + setName + " OK.");
 			return set;
-		} catch (RuntimeException e) {
-			throw e;
+		//} catch (RuntimeException e) {
+			//throw e;
 		} catch (Exception e) {
 			ChessCraftLogger.severe("can't load chess set " + setName + ": " + e);
+			throw new ChessException("can't load chess set " + setName + ": " + e.getMessage());
 		}
-		return null;
 	}
 //
 //	/**
