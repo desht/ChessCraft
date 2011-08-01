@@ -1,8 +1,11 @@
 package me.desht.chesscraft.expector;
 
+import java.text.MessageFormat;
+
 import me.desht.chesscraft.BoardView;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessUtils;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.TerrainBackup;
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -35,8 +38,8 @@ public class ExpectBoardCreation extends ExpectData {
 			TerrainBackup.save(plugin, player, view);
 		}
 		view.paintAll();
-		ChessUtils.statusMessage(player, "Board &6" + boardName + "&- has been created at "
-				+ ChessUtils.formatLoc(view.getA1Square()) + ".");
+		ChessUtils.statusMessage(player, MessageFormat.format(Messages.getString("ExpectBoardCreation.boardCreated"), //$NON-NLS-1$
+		                                                      boardName, ChessUtils.formatLoc(view.getA1Square())));
 		view.save();
 	}
 }
