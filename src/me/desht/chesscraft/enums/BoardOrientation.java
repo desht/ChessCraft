@@ -29,10 +29,10 @@ public enum BoardOrientation {
 	 * @return the direction if it is turned right
 	 */
 	public BoardOrientation getRight() {
-		if (this.ordinal() >= this.values().length - 1) {
-			return this.values()[0];
+		if (this.ordinal() >= BoardOrientation.values().length - 1) {
+			return BoardOrientation.values()[0];
 		} else {
-			return this.values()[this.ordinal() + 1];
+			return BoardOrientation.values()[this.ordinal() + 1];
 		}
 	}
 
@@ -42,9 +42,9 @@ public enum BoardOrientation {
 	 */
 	public BoardOrientation getLeft() {
 		if (this.ordinal() == 0) {
-			return this.values()[this.values().length - 1];
+			return BoardOrientation.values()[BoardOrientation.values().length - 1];
 		} else {
-			return this.values()[this.ordinal() - 1];
+			return BoardOrientation.values()[this.ordinal() - 1];
 		}
 	}
 }

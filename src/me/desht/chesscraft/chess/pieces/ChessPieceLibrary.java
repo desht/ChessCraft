@@ -2,7 +2,6 @@ package me.desht.chesscraft.chess.pieces;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
