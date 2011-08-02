@@ -14,7 +14,7 @@ public class ChessStone extends PieceTemplate {
 		super(t);
 		this.stone = stone;
 
-		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
+		if (Chess.stoneHasColor(stone, Chess.WHITE)) {
 			rotate(180);
 		}
 	}
@@ -108,15 +108,15 @@ public class ChessStone extends PieceTemplate {
 		}
 		if (secondPassNeeded) {
 			for (Location l : square) {
-				MaterialWithData mat = getMaterial(
-						ibx - l.getBlockX(),
-						iby - l.getBlockY(),
-						ibz - l.getBlockZ());
+			MaterialWithData mat = getMaterial(
+					l.getBlockX() - ibx,
+					l.getBlockY() - iby,
+					l.getBlockZ() - ibz);
 				if (mat != null) {
 					// place blocks couldn't place first
-					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
+					//if (BlockType.shouldPlaceLast(mat.getMaterial())) {
 						mat.applyToBlock(l.getBlock());
-					}
+					//}
 				}
 			}
 		}
