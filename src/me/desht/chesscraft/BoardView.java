@@ -17,7 +17,9 @@ import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener {
@@ -370,19 +372,23 @@ public class BoardView implements PositionListener {
 	}
 
 	public Location findSafeLocationOutside() {
-		Location dest0 = getA1Square().clone();
+		final int MAX_DIST = 100;
+		
+		// search north from the board's northeast corner
+		Location dest0 = chessBoard.getFullBoard().getLowerNE().clone();
+		Block b;
+		int dist = 0;
+		do {
+			dest0.add(-1.0, 0.0, 0.0);
+			dist++;
+			b  = dest0.getWorld().getHighestBlockAt(dest0);
+		} while (b.getLocation().getBlockY() >= 126 && dist < MAX_DIST);
 
-		dest0.add(getFrameWidth() + 1, 0.0, getFrameWidth() + 1);
-		Location dest1 = dest0.clone().add(0.0, 1.0, 0.0);
-
-		while (dest0.getBlock().getTypeId() != 0 && dest1.getBlock().getTypeId() != 0) {
-			dest0.add(0.0, 1.0, 0.0);
-			dest1.add(0.0, 1.0, 0.0);
-			if (dest1.getBlockY() > 127) {
-				return null;
-			}
+		if (dist >= MAX_DIST) {
+			return b.getWorld().getSpawnLocation();
+		} else {
+			return b.getLocation();
 		}
-		return dest0;
 	}
 
 	/*------------------------------------------------------------------------------_*/
