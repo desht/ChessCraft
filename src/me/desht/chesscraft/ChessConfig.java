@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -45,7 +46,7 @@ public class ChessConfig {
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
 		{
-			put("languagefile", "en_us");
+//			put("languagefile", "en_us");
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
@@ -79,12 +80,11 @@ public class ChessConfig {
 
 		setupDirectoryStructure();
 
+		Messages.load(new File(languagesDir, Locale.getDefault().toString() + ".yml"));
+		
 		configFileInitialise();
 
 		ChessAI.initAI_Names();
-
-		Messages.load(new File(languagesDir, 
-				plugin.getConfiguration().getString("languagefile", "en_us") + ".yml"));
 
 	}
 

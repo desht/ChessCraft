@@ -17,6 +17,9 @@ public class Messages {
 		setDefaults();
 		verifyCheck(f); // debugging - comment out for a release build
 		loadedFile = null;
+		
+		File actual = locateMessageFile(f);
+		
 		if (f != null && f.exists() && f.canRead()) {
 			try {
 				Configuration c = new Configuration(f);
@@ -28,7 +31,7 @@ public class Messages {
 						setString(k, v);
 					} else {
 						update = true;
-						c.setProperty(k, v);
+						c.setProperty(k, strings.get(k).split("\n"));
 					}
 				}
 				if (update) {
@@ -39,6 +42,26 @@ public class Messages {
 			} catch (Exception ex) {
 				ChessCraftLogger.warning("Error loading language file", ex);
 			}
+		}
+	}
+	
+	private static File locateMessageFile(File wanted) {
+		if (!wanted.isFile()) {
+			String basename = wanted.getName().replaceAll("\\.yml$", "");
+			if (basename.contains("_")) {
+				basename = basename.replaceAll("_.+$", "");
+			}
+			File actual = new File(wanted.getParent(), basename + ".yml");
+			System.out.println("check for " + actual);
+			if (actual.exists()) {
+				return actual;
+			} else {
+				System.out.println("fall back to default.yml");
+				return new File(wanted.getParent(), "default.yml");
+			}
+		} else {
+			System.out.println(wanted + " exists");
+			return wanted;
 		}
 	}
 
@@ -278,13 +301,13 @@ public class Messages {
 	protected static void setString(String key, Object value) {
 		if (value instanceof String) {
 			strings.put(key, (String) value);
-		} else if(value instanceof ArrayList){
+		} else if (value instanceof ArrayList<?>){
 			@SuppressWarnings("unchecked")
 			ArrayList<String> l = (ArrayList<String>) value;
 			StringBuilder add = new StringBuilder();
-			for(int i=0; i<l.size(); ++i){
+			for (int i = 0; i < l.size(); ++i){
 				add.append(l.get(i));
-				if(i+1<l.size()){
+				if (i + 1 < l.size()){
 					add.append("\n");
 				}
 			}
@@ -299,7 +322,7 @@ public class Messages {
 			return strings.get(key);
 		}
 		ChessCraftLogger.warning(null, new Exception("Unexpected missing key '" + key + "'"));
-		return "";
+		return "!" + key + "!";
 	}
 
 	public static String getString(String key, Object... args) {
