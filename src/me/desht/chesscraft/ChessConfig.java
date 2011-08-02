@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -46,7 +45,7 @@ public class ChessConfig {
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
 		{
-//			put("languagefile", "en_us");
+			put("locale", "en_us");
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
@@ -80,14 +79,17 @@ public class ChessConfig {
 
 		setupDirectoryStructure();
 
-		Messages.load(new File(languagesDir, Locale.getDefault().toString() + ".yml"));
+		Messages.load();
 		
 		configFileInitialise();
 
 		ChessAI.initAI_Names();
-
 	}
 
+	public static Configuration getConfiguration() {
+		return plugin.getConfiguration();
+	}
+	
 	public static File getPluginDirectory() {
 		return pluginDir;
 	}
@@ -114,6 +116,10 @@ public class ChessConfig {
 
 	public static File getBoardPersistDirectory() {
 		return boardPersistDir;
+	}
+	
+	public static File getLanguagesDirectory() {
+		return languagesDir;
 	}
 
 	public static File getPersistFile() {
@@ -174,7 +180,7 @@ public class ChessConfig {
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 		
-		extractResource("/datafiles/lang/en_us.yml", languagesDir);
+		extractResource("/datafiles/lang/default.yml", languagesDir);
 	}
 
 	private static void createDir(File dir) {

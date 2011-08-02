@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import me.desht.chesscraft.log.ChessCraftLogger;
+
 import org.bukkit.util.config.Configuration;
 
 public class Messages {
@@ -13,16 +14,19 @@ public class Messages {
 	static HashMap<String, String> strings = new HashMap<String, String>();
 	static File loadedFile = null;
 
-	public static void load(File f) {
+	public static void load() {
+		File wanted = new File(ChessConfig.getLanguagesDirectory(),
+		                       ChessConfig.getConfiguration().getString("locale", "en_US").toLowerCase() + ".yml");
+		
 		setDefaults();
-		verifyCheck(f); // debugging - comment out for a release build
 		loadedFile = null;
 		
-		File actual = locateMessageFile(f);
+		File actual = locateMessageFile(wanted);
+		verifyCheck(actual); // debugging - comment out for a release build
 		
-		if (f != null && f.exists() && f.canRead()) {
+		if (actual != null && actual.isFile() && actual.canRead()) {
 			try {
-				Configuration c = new Configuration(f);
+				Configuration c = new Configuration(actual);
 				c.load();
 				boolean update = false;
 				for (String k : strings.keySet()) {
@@ -31,13 +35,14 @@ public class Messages {
 						setString(k, v);
 					} else {
 						update = true;
-						c.setProperty(k, strings.get(k).split("\n"));
+						String[] l = strings.get(k).split("\n");
+						c.setProperty(k, l.length > 1 ? l : l[0]);
 					}
 				}
 				if (update) {
 					c.save();
 				}
-				loadedFile = f;
+				loadedFile = actual;
 				return;
 			} catch (Exception ex) {
 				ChessCraftLogger.warning("Error loading language file", ex);
@@ -46,21 +51,25 @@ public class Messages {
 	}
 	
 	private static File locateMessageFile(File wanted) {
-		if (!wanted.isFile()) {
+		if (wanted == null) {
+			return null;
+		}
+//		System.out.println("first check for " + wanted);
+		if (!wanted.isFile() || !wanted.canRead()) {
 			String basename = wanted.getName().replaceAll("\\.yml$", "");
 			if (basename.contains("_")) {
 				basename = basename.replaceAll("_.+$", "");
 			}
 			File actual = new File(wanted.getParent(), basename + ".yml");
-			System.out.println("check for " + actual);
-			if (actual.exists()) {
+//			System.out.println("check for " + actual);
+			if (actual.isFile() && actual.canRead()) {
 				return actual;
 			} else {
-				System.out.println("fall back to default.yml");
+//				System.out.println("fall back to default.yml");
 				return new File(wanted.getParent(), "default.yml");
 			}
 		} else {
-			System.out.println(wanted + " exists");
+//			System.out.println(wanted + " exists");
 			return wanted;
 		}
 	}
