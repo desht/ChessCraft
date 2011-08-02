@@ -1,4 +1,22 @@
-v0.3 (not released)
+v0.4 (development)
+board handling restructured - might add board rotation soon
+messages are now customizable - config option for language file to use
+
+
+v0.3.3 (1 Aug 2011)
+Fixed a nasty bug relating to persistence - saved games were not correctly reloaded (board and game state were inconsistent)
+
+
+v0.3.2 (30 Jul 2011)
+Fixed (hopefully) NPE reported by @Joy in the entity listener
+
+
+v0.3.1 (29 July 2011):
+Fixed (hopefully) NoSuchMethod exception that some people would see.
+Removed a spurious "in thaw" debug statement that was appearing on the console.
+
+
+v0.3 (29 Jul 2011)
 right-click piece moving removed
 can now separately define board style & piece style
 players must be online to be invited

@@ -636,7 +636,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.clear(player);
 		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.name", gameName, game.getState())); //$NON-NLS-1$ 
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, game.getView().getName())); //$NON-NLS-1$ 
-		MessageBuffer.add(player, bullet +  Messages.getString("ChessCommandExecutor.gameDetails.halfMoves", game.getHistory().size())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", game.getHistory().size())); //$NON-NLS-1$
 		if (Economy.active()) {
 			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", Economy.format(game.getStake()))); //$NON-NLS-1$
 		}
@@ -690,7 +690,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", bv.getFrameWidth(), //$NON-NLS-1$
 		                                                      bv.getFrameMat()));
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", bv.getEnclosureMat())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.Height", bv.getHeight())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", bv.getHeight())); //$NON-NLS-1$
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", bv.getIsLit())); //$NON-NLS-1$
 
 		MessageBuffer.showPage(player);

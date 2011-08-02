@@ -29,11 +29,13 @@ import org.bukkit.util.config.Configuration;
 public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
-	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, dataDir, gamePersistDir, boardPersistDir;
+	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, 
+			dataDir, gamePersistDir, boardPersistDir, languagesDir;
 	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
 	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
 	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
 	private static final String schematicsFoldername = "schematics"; //$NON-NLS-1$
+	private static final String languageFoldername = "lang";
 	private static final String datasaveFoldername = "data"; //$NON-NLS-1$
 	private static final String gamesFoldername = "games"; //$NON-NLS-1$
 	private static final String boardsFoldername = "boards"; //$NON-NLS-1$
@@ -43,6 +45,7 @@ public class ChessConfig {
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
 		{
+			put("languagefile", "en_us");
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
@@ -79,6 +82,9 @@ public class ChessConfig {
 		configFileInitialise();
 
 		ChessAI.initAI_Names();
+
+		Messages.load(new File(languagesDir, 
+				plugin.getConfiguration().getString("languagefile", "en_us") + ".yml"));
 
 	}
 
@@ -123,6 +129,7 @@ public class ChessConfig {
 		gamePersistDir = new File(dataDir, gamesFoldername);
 		boardPersistDir = new File(dataDir, boardsFoldername);
 		schematicsDir = new File(boardPersistDir, schematicsFoldername);
+		languagesDir = new File(pluginDir, languageFoldername);
 
 		// files
 		persistFile = new File(dataDir, persistFilename);
@@ -131,6 +138,8 @@ public class ChessConfig {
 		createDir(pluginDir);
 		// [plugins]/ChessCraft/pgn
 		createDir(pgnDir);
+		// [plugins]/ChessCraft/lang
+		createDir(languagesDir);
 		// [plugins]/ChessCraft/board_styles
 		createDir(boardStyleDir);
 		// [plugins]/ChessCraft/piece_styles
@@ -164,6 +173,8 @@ public class ChessConfig {
 		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
+		
+		extractResource("/datafiles/lang/en_us.yml", languagesDir);
 	}
 
 	private static void createDir(File dir) {
