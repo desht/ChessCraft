@@ -16,14 +16,14 @@ public class Messages {
 
 	public static void load() {
 		File wanted = new File(ChessConfig.getLanguagesDirectory(),
-		                       ChessConfig.getConfiguration().getString("locale", "en_US").toLowerCase() + ".yml");
-		
+				ChessConfig.getConfiguration().getString("locale", "en_US").toLowerCase() + ".yml");
+
 		setDefaults();
 		loadedFile = null;
-		
+
 		File actual = locateMessageFile(wanted);
-		verifyCheck(actual); // debugging - comment out for a release build
-		
+		verifyCheck(actual, true); // debugging - comment out for a release build
+
 		if (actual != null && actual.isFile() && actual.canRead()) {
 			try {
 				Configuration c = new Configuration(actual);
@@ -49,7 +49,7 @@ public class Messages {
 			}
 		}
 	}
-	
+
 	private static File locateMessageFile(File wanted) {
 		if (wanted == null) {
 			return null;
@@ -76,7 +76,7 @@ public class Messages {
 
 	public static void setDefaults() {
 		strings.clear();
-		strings.put("BoardView.boardExists", "A board with this name already exists");
+		strings.put("BoardView.boardExists", "A board with this name already exists.");
 		strings.put("BoardView.boardTooHigh", "Board altitude is too high - roof would be above top of world.");
 		strings.put("BoardView.boardWouldIntersect", "Board would intersect existing board {0}.");
 		strings.put("BoardView.noFreeBoards", "There are no free boards to create a game on.");
@@ -90,7 +90,7 @@ public class Messages {
 		strings.put("ChessAI.computer", "Computer");
 		strings.put("ChessAI.human", "Human");
 		strings.put("ChessAI.noAvailableAIs", "There are no AIs available to play right now\n(all {0,number,integer} are currently in a game).");
-		strings.put("ChessAI.noFreeAI", "no free AI was found");
+		strings.put("ChessAI.noFreeAI", "No free AI was found");
 
 		strings.put("ChessCommandExecutor.activeGameChanged", "Your active game is now &6{0}&-.");
 		strings.put("ChessCommandExecutor.activeGameIs", "Your active game is &6{0}&-.");
@@ -113,7 +113,7 @@ public class Messages {
 		strings.put("ChessCommandExecutor.boardDetail.lowerNE", "Lower NE corner: &f{0}");
 		strings.put("ChessCommandExecutor.boardDetail.pieceStyle", "Piece Style: &f{0}");
 		strings.put("ChessCommandExecutor.boardDetail.squareSize", "Square size: &f{0,number,integer} ({1}/{2})");
-		strings.put("ChessCommandExecutor.boardDetail.upperSW", "Upper SW corner: &f{0} ");
+		strings.put("ChessCommandExecutor.boardDetail.upperSW", "Upper SW corner: &f{0}");
 		strings.put("ChessCommandExecutor.boardList", "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-");
 		strings.put("ChessCommandExecutor.boardRedrawn", "Board &6{0}&- has been redrawn.");
 		strings.put("ChessCommandExecutor.cantAffordStake", "You can't afford that stake!");
@@ -170,7 +170,7 @@ public class Messages {
 		strings.put("ChessConfig.invalidBoolean", "Invalid boolean value: {0} (use true/yes or false/no)");
 		strings.put("ChessConfig.invalidInteger", "Invalid integer value: {0,number,integer}");
 		strings.put("ChessConfig.invalidFloat", "Invalid floating-point value: {0,number,float}");
-		strings.put("ChessConfig.noSuchKey", "No such config key: {0}");
+		strings.put("ChessConfig.noSuchKey", "No such configuration key: {0}");
 
 		strings.put("ChessEntityListener.goingToSpawn", "Can't find a safe place to displace you - going to spawn.");
 
@@ -246,7 +246,7 @@ public class Messages {
 		strings.put("Game.inviteWithdrawn", "Your invitation has been withdrawn.");
 		strings.put("Game.joinPrompt", "Type &f/chess join&- to join the game.");
 		strings.put("Game.joinPromptGlobal", "Type &f/chess join {0}&- to join the game.");
-		strings.put("Game.lostStake", "You lost your stake of");
+		strings.put("Game.lostStake", "You lost your stake of {0}.");
 		strings.put("Game.noActiveGame", "No active game - set one with &f/chess game <name>&-.");
 		strings.put("Game.noSuchGame", "No such game &6{0}&-.");
 		strings.put("Game.notInGame", "You are not in this game!");
@@ -285,7 +285,7 @@ public class Messages {
 	 * debugging: check that strings & File have the same keys <br />
 	 * outputs to log any discrepancies
 	 */
-	private static void verifyCheck(File f) {
+	private static void verifyCheck(File f, boolean fullCheck) {
 		try {
 			Configuration c = new Configuration(f);
 			c.load();
@@ -294,36 +294,53 @@ public class Messages {
 					ChessCraftLogger.warning("missing from " + f.getName() + ": " + k);
 				}
 			}
-			Map<String, Object> test = c.getAll();
-			for (String k : test.keySet()) {
-				if(strings.get(k) == null){
-					ChessCraftLogger.warning("missing from defaults: " + k);
+			if (fullCheck) {
+				Map<String, Object> test = c.getAll();
+				for (String k : test.keySet()) {
+					if (strings.get(k) == null) {
+						ChessCraftLogger.warning("missing from defaults: " + k);
+					} else {
+						String v = getStringValue(c.getProperty(k));
+						if (!strings.get(k).equals(v)) {
+							ChessCraftLogger.warning("mismatching value: " + k);
+							ChessCraftLogger.info("file: " + v);
+							ChessCraftLogger.info("code: " + strings.get(k));
+						}
+					}
+
 				}
 			}
-			loadedFile = f;
 			return;
 		} catch (Exception ex) {
 			ChessCraftLogger.warning("Error loading language file", ex);
 		}
 	}
-	
+
 	protected static void setString(String key, Object value) {
-		if (value instanceof String) {
-			strings.put(key, (String) value);
-		} else if (value instanceof ArrayList<?>){
-			@SuppressWarnings("unchecked")
-			ArrayList<String> l = (ArrayList<String>) value;
-			StringBuilder add = new StringBuilder();
-			for (int i = 0; i < l.size(); ++i){
-				add.append(l.get(i));
-				if (i + 1 < l.size()){
-					add.append("\n");
-				}
-			}
-			strings.put(key, add.toString());
+		String v = getStringValue(value);
+		if (v != null) {
+			strings.put(key, v);
 		} else {
 			ChessCraftLogger.warning("Unexpected keyvalue type: " + key + " = " + value.getClass().toString());
 		}
+	}
+
+	protected static String getStringValue(Object value) {
+		if (value instanceof String) {
+			return (String) value;
+		} else if (value instanceof ArrayList<?>) {
+			@SuppressWarnings("unchecked")
+			ArrayList<String> l = (ArrayList<String>) value;
+			StringBuilder add = new StringBuilder();
+			for (int i = 0; i < l.size(); ++i) {
+				add.append(l.get(i));
+				if (i + 1 < l.size()) {
+					add.append("\n");
+				}
+			}
+			return add.toString();
+		}
+		return null;
 	}
 
 	public static String getString(String key) {
