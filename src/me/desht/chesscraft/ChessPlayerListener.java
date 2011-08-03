@@ -1,16 +1,10 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.expector.ExpectBoardCreation;
-import me.desht.chesscraft.enums.GameState;
-import me.desht.chesscraft.blocks.MaterialWithData;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -26,12 +20,18 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
+
 import me.desht.chesscraft.enums.ExpectAction;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.blocks.MaterialWithData;
 
 public class ChessPlayerListener extends PlayerListener {
 
 	private ChessCraft plugin;
 	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
+	private Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 
 	public ChessPlayerListener(ChessCraft plugin) {
 		this.plugin = plugin;
@@ -65,7 +65,7 @@ public class ChessPlayerListener extends PlayerListener {
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
 					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player,
-																							ExpectAction.BoardCreation);
+							ExpectAction.BoardCreation);
 					a.setLocation(b.getLocation());
 					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
 					event.setCancelled(true);
@@ -136,7 +136,7 @@ public class ChessPlayerListener extends PlayerListener {
 			if (game.isPlayerInGame(who)) {
 				playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
-				           Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
+						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
 			}
 		}
@@ -185,7 +185,7 @@ public class ChessPlayerListener extends PlayerListener {
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
 					ChessUtils.statusMessage(player,
-					                         Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
+							Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 				}
 			} else {
 				int sqi = game.getView().getSquareAt(loc);
@@ -195,7 +195,7 @@ public class ChessPlayerListener extends PlayerListener {
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					game.doMove(player.getName(), sqi);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-					                                                    game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+							game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
@@ -208,11 +208,11 @@ public class ChessPlayerListener extends PlayerListener {
 		Game game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
-			ChessUtils.statusMessage(player,Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
-			                                                   game.getPosition().getLastMove().getLAN()));
+			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
+					game.getPosition().getLastMove().getLAN()));
 		} else {
-			ChessUtils.statusMessage(player,Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
-			                                                   Chess.sqiToStr(sqi), bv.getName())); 
+			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+					Chess.sqiToStr(sqi), bv.getName()));
 		}
 	}
 
@@ -222,8 +222,6 @@ public class ChessPlayerListener extends PlayerListener {
 		list.add(style);
 		expecting.put(p.getName(), list);
 	}
-
-	private Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 
 	void playerLeft(String who) {
 		loggedOutAt.put(who, System.currentTimeMillis());
