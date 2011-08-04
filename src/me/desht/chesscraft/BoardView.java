@@ -295,6 +295,13 @@ public class BoardView implements PositionListener {
 		this.game = game;
 		paintAll();
 		chessBoard.highlightSquares(-1, -1);
+		if (SMSIntegration.isActive()) {
+			if (game == null) {
+				SMSIntegration.boardNotInUse(getName());
+			} else {
+				SMSIntegration.boardInUse(getName());
+			}
+		}
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
@@ -392,19 +399,33 @@ public class BoardView implements PositionListener {
 
 	/*------------------------------------------------------------------------------_*/
 	public static void addBoardView(String name, BoardView view) {
+		if (SMSIntegration.isActive()) {
+			SMSIntegration.boardCreated(view.getName());
+		}
+	
 		chessBoards.put(name, view);
 	}
 
 	public static void addBoardView(BoardView view) {
-		chessBoards.put(view.getName(), view);
+		addBoardView(view.getName(), view);
 	}
 
 	public static void removeBoardView(String name) {
+		if (SMSIntegration.isActive()) {
+			SMSIntegration.boardDeleted(name);
+		}
+		
 		chessBoards.remove(name);
 	}
 
 	public static void removeAllBoardViews() {
-		chessBoards.clear();
+		if (SMSIntegration.isActive()) {
+			for (BoardView bv : listBoardViews()) {
+				SMSIntegration.boardDeleted(bv.getName());
+			}
+		}
+		
+		chessBoards.clear();		
 	}
 
 	public static boolean boardViewExists(String name) {

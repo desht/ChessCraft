@@ -749,10 +749,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 			bv = BoardView.getBoardView(boardName);
 		}
 
-		if (gameName == null) {
+		if (gameName == null || gameName.equals("-")) {
 			gameName = Game.makeGameName(player);
 		}
-
+		
 		Game game = new Game(plugin, gameName, bv, player.getName());
 		Game.addGame(gameName, game);
 		Game.setCurrentGame(player.getName(), game);
