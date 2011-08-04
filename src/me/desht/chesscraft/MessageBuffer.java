@@ -76,7 +76,7 @@ public class MessageBuffer {
 		if (lines.size() <= pageSize
 				&& (getSize(p) % pageSize) + lines.size() > pageSize) {
 			// else, add padding above to keep the block on one page
-			for (int i = pageSize - (getSize(p) % pageSize); i <= pageSize; ++i) {
+			for (int i = getSize(p) % pageSize; i < pageSize; ++i) {
 				//System.out.println("pad " + i);
 				bufferMap.get(name(p)).add("");
 			}
@@ -174,8 +174,17 @@ public class MessageBuffer {
 	 *            The page number.
 	 */
 	static void setPage(Player player, int page) {
-		if (page < 1 || page > getPageCount(player)) {
+		setPage(player, page, false);
+	}
+
+	static void setPage(Player player, int page, boolean wrap) {
+		if ((page < 1 || page > getPageCount(player)) && !wrap) {
 			return;
+		}
+		if (page < 1) {
+			page = getPageCount(player);
+		} else if (page > getPageCount(player)) {
+			page = 1;
 		}
 		currentPage.put(name(player), page);
 	}
@@ -187,7 +196,7 @@ public class MessageBuffer {
 	 *            The player
 	 */
 	static void nextPage(Player player) {
-		setPage(player, getPage(player) + 1);
+		setPage(player, getPage(player) + 1, true);
 	}
 
 	/**
@@ -197,7 +206,7 @@ public class MessageBuffer {
 	 *            The player
 	 */
 	static void prevPage(Player player) {
-		setPage(player, getPage(player) - 1);
+		setPage(player, getPage(player) - 1, true);
 	}
 
 	/**
@@ -254,7 +263,7 @@ public class MessageBuffer {
 		if (player != null) {
 			// pretty paged display
 			if (pageNum < 1 || pageNum > getPageCount(player)) {
-				throw new IllegalArgumentException("page number " + pageNum + " is out of range");
+				throw new IllegalArgumentException("Page number " + pageNum + " is out of range.");
 			}
 
 			int nMessages = getSize(player);
