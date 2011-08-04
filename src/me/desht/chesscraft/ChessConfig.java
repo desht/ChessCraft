@@ -180,7 +180,7 @@ public class ChessConfig {
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 		
-		extractResource("/datafiles/lang/default.yml", languagesDir);
+		extractResource("/datafiles/lang/default.yml", languagesDir, true);
 	}
 
 	private static void createDir(File dir) {
@@ -193,9 +193,13 @@ public class ChessConfig {
 	}
 
 	private static void extractResource(String from, File toDir) {
+		extractResource(from, toDir, false);
+	}
+	
+	private static void extractResource(String from, File toDir, boolean force) {
 		String fname = new File(from).getName();
 		File of = new File(toDir, fname);
-		if (of.exists()) {
+		if (of.exists() && !force) {
 			return;
 		}
 		OutputStream out = null;

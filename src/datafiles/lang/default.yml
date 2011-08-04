@@ -217,8 +217,8 @@ Game:
   youWon: "You have won {0}!"
 
 MessageBuffer:
-  header: "{0,number,integer} of {1,number,integer} lines (page {2,number,integer}/{3,number,integer})"
-  footer: "Use /chess page [#|n|p] to see other pages"
+  header: "| {0,number,integer}-{1,number,integer} of {2,number,integer} lines (page {3,number,integer}/{4,number,integer}) |"
+  footer: "| Use /chess page [#|n|p] to see other pages |"
 
 TerrainBackup:
   cantDeleteTerrain: "Could not delete {0}"

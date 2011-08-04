@@ -267,11 +267,12 @@ public class MessageBuffer {
 			}
 
 			int nMessages = getSize(player);
+			int i = (pageNum - 1) * pageSize;
 			String header = Messages.getString("MessageBuffer.header", 
-			                                   Math.min(pageSize, nMessages), nMessages, pageNum, getPageCount(player));
+			                                   i + 1, Math.min(pageSize * pageNum, nMessages), nMessages,
+			                                   pageNum, getPageCount(player));
 			ChessUtils.statusMessage(player, ChatColor.GREEN + MinecraftChatStr.strPadCenterChat(header, 310, '-'));
 
-			int i = (pageNum - 1) * pageSize;
 			for (; i < nMessages && i < pageNum * pageSize; ++i) {
 				ChessUtils.statusMessage(player, getLine(player, i));
 			}

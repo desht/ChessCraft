@@ -273,7 +273,7 @@ public class Messages {
 		strings.put("Game.yourMove", "It is your move &f({0})&-.");
 		strings.put("Game.youWon", "You have won {0}!");
 
-		strings.put("MessageBuffer.header", "{0,number,integer} of {1,number,integer} lines (page {2,number,integer}/{3,number,integer})");
+		strings.put("MessageBuffer.header", "| {0,number,integer}-{1,number,integer} of {2,number,integer} lines (page {3,number,integer}/{4,number,integer}) |");
 		strings.put("MessageBuffer.footer", "Use /chess page [#|n|p] to see other pages");
 
 		strings.put("TerrainBackup.cantDeleteTerrain", "Could not delete {0}");
