@@ -42,6 +42,11 @@ public class BoardView implements PositionListener {
 	}
 
 	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
+		this(bName, plugin, where, null, bStyle, pStyle);
+	}
+
+	public BoardView(String bName, ChessCraft plugin, Location where,
+			BoardOrientation dir, String bStyle, String pStyle) throws ChessException {
 		this.plugin = plugin;
 		this.name = bName;
 		if (BoardView.boardViewExists(name)) {
@@ -50,15 +55,19 @@ public class BoardView implements PositionListener {
 		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
 				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
 
-		setA1Center(where);
+		setA1Center(where, dir);
 
 	}
 
 	public final void setA1Center(Location loc) throws ChessException {
+		setA1Center(loc, null);
+	}
+
+	public final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
 		// only allow the board center to be set once (?)
 		if (loc != null && chessBoard.getA1Center() == null) {
 
-			chessBoard.setA1Center(loc, BoardOrientation.NORTH);
+			chessBoard.setA1Center(loc, d == null ? BoardOrientation.NORTH : d);
 
 			validateIntersections();
 
@@ -102,7 +111,7 @@ public class BoardView implements PositionListener {
 		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
 		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center())); //$NON-NLS-1$
-
+		result.put("direction", chessBoard.getRotation().name());
 		return result;
 	}
 
@@ -176,6 +185,10 @@ public class BoardView implements PositionListener {
 		return chessBoard.getBoardStyle().getEnclosureMaterial();
 	}
 
+	public BoardOrientation getDirection() {
+		return chessBoard.getRotation();
+	}
+
 	public void paintAll() {
 		chessBoard.paintAll();
 		if (game != null) {
@@ -206,14 +219,11 @@ public class BoardView implements PositionListener {
 //        byte level = getBounds().shift(Direction.Up, height/2)
 //                .getUpperSW().getBlock().getLightLevel();
 //        Player jas = plugin.getServer().getPlayer("jascotty2");
-//        if(jas!=null && getName().contains("cave")){
+//        if(jas!=null && getName().contains("ter")){
 //            Cuboid c = getBounds().shift(Direction.Up, 2).
-//                inset(Direction.Horizontal, frameWidth + squareSize * 3)
-//                .expand(Direction.Up, height / 2);
-//            com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
-//                    new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
-//                    c.getUpperSW().getWorld(), c.getUpperSW(), c.getLowerNE());
-//            plugin.getWorldEdit().setSelection(jas, s);
+//				inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
+//				expand(Direction.Up, getHeight() / 2);
+//			c.weSelect(jas);
 //        }
 		byte level = getBounds().shift(Direction.Up, 2).
 				inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
@@ -372,7 +382,7 @@ public class BoardView implements PositionListener {
 
 	public Location findSafeLocationOutside() {
 		final int MAX_DIST = 100;
-		
+
 		// search north from the board's northeast corner
 		Location dest0 = chessBoard.getFullBoard().getLowerNE().clone();
 		Block b;
@@ -380,7 +390,7 @@ public class BoardView implements PositionListener {
 		do {
 			dest0.add(-1.0, 0.0, 0.0);
 			dist++;
-			b  = dest0.getWorld().getHighestBlockAt(dest0);
+			b = dest0.getWorld().getHighestBlockAt(dest0);
 		} while (b.getLocation().getBlockY() >= 126 && dist < MAX_DIST);
 
 		if (dist >= MAX_DIST) {

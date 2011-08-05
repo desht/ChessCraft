@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import me.desht.chesscraft.enums.BoardOrientation;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -252,8 +253,9 @@ public class ChessPersistence {
 				World w = findWorld((String) origin.get(0));
 				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
 						(Integer) origin.get(3));
-				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, conf.getString("boardStyle"),
-						conf.getString("pieceStyle")));
+				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc,
+						BoardOrientation.get(conf.getString("direction")),
+						conf.getString("boardStyle"), conf.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
 				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
@@ -299,8 +301,8 @@ public class ChessPersistence {
 					moveBackup(f);
 				} else if (toLoad.containsKey(board)) {
 					// only load the newer game
-					int tstart = conf.getInt("started", 0);
-					int ostart = (Integer) toLoad.get(board).get("started");
+					long tstart = conf.getInt("started", 0);
+					long ostart = Long.parseLong(toLoad.get(board).get("started").toString());
 					if (ostart >= tstart) {
 						ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
 						moveBackup(f);

@@ -7,9 +7,7 @@
 package me.desht.chesscraft;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -179,7 +177,8 @@ public class ChessConfig {
 		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
-		
+
+		//TODO !! release version should not force file overwrite
 		extractResource("/datafiles/lang/default.yml", languagesDir, true);
 	}
 
@@ -217,16 +216,15 @@ public class ChessConfig {
 				in.close();
 				out.close();
 			}
-		} catch (FileNotFoundException ex) {
-			ChessCraftLogger.log(Level.SEVERE, null, ex);
-		} catch (IOException ex) {
+		} //catch (FileNotFoundException, IOException
+		catch (Exception ex) {
 			ChessCraftLogger.log(Level.SEVERE, null, ex);
 		} finally {
 			try {
 				if (out != null) {
 					out.close();
 				}
-			} catch (IOException ex) {
+			} catch (Exception ex) { //IOException
 				// ChessCraft.log(Level.SEVERE, null, ex);
 			}
 		}

@@ -5,6 +5,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessUtils;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.TerrainBackup;
+import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.Location;
@@ -30,14 +31,15 @@ public class ExpectBoardCreation extends ExpectData {
 
 	@Override
 	public void doResponse(Player player) throws ChessException {
-		BoardView view = new BoardView(boardName, plugin, loc, style, pieceStyle);
+		BoardView view = new BoardView(boardName, plugin, loc, BoardOrientation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
 		if (plugin.getWorldEdit() != null) {
 			TerrainBackup.save(plugin, player, view);
 		}
 		view.paintAll();
 		ChessUtils.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
-		                                                    boardName, ChessUtils.formatLoc(view.getA1Square())));
+				boardName, ChessUtils.formatLoc(view.getA1Square())));
 		view.save();
 	}
+
 }
