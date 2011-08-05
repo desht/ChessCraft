@@ -20,6 +20,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.sk89q.worldedit.blocks.BlockType;
+
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -529,6 +531,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 			loc = bv.getBounds().getLowerNE().clone();
 			loc.setYaw(0.0f);
 			loc.add(4.5 * bv.getSquareSize(), 1.5, 1.0);
+		}
+		while (!BlockType.canPassThrough(loc.getBlock().getTypeId())) {
+			loc.add(0.0, 1.0, 0.0);
 		}
 		System.out.println("teleport to " + loc); //$NON-NLS-1$
 		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {

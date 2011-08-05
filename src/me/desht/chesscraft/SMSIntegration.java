@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -10,6 +13,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 public class SMSIntegration {
+	private static final String TP_GAME = "cc:tp-game";
+	private static final String CREATE_GAME = "cc:create-game";
+	private static final String BOARD_INFO = "cc:board-info";
+	private static final String GAME_INFO = "cc:game-info";
+	private static final String DEL_GAME = "cc:delete-game";
+	
 	private static SMSHandler smsHandler;
 	
 	static void setup() {
@@ -30,44 +39,76 @@ public class SMSIntegration {
 	}
 	
 	static void createMenus() {
-		createMenu("all-boards", "&1All Boards");
-		createMenu("free-boards", "&1Free Boards");
+		// TODO: extract message strings
+		createMenu(BOARD_INFO, "&1Board Info");
+		createMenu(CREATE_GAME, "&1Create a Game");
+		createMenu(TP_GAME, "&1Go to Game");
+		createMenu(GAME_INFO, "&1Game Info");
+		createMenu(DEL_GAME, "&4*Delete Game");
+		
 		for (BoardView bv : BoardView.listBoardViews(true)) {
-			addItem("all-boards", bv.getName(), "/chess list board " + bv.getName());
-			if (bv.getGame() == null) {
-				addItem("free-boards", bv.getName(), "/chess create game - " + bv.getName());
+			boardCreated(bv.getName());
+			if (bv.getGame() != null) {
+				String gameName = bv.getGame().getName();
+				gameCreated(gameName);
+				boardInUse(bv.getName());
+			}
+		}
+		
+		// now enable autosaving
+		for (SMSMenu menu : smsHandler.listMenus()) {
+			if (menu.getName().startsWith("cc:")) {
+				menu.setAutosave(true);
 			}
 		}
 	}
 	
 	static void deleteMenus() {
-		deleteMenu("all-boards");
-		deleteMenu("free-boards");
+		List<String> toDelete = new ArrayList<String>();
+		for (SMSMenu menu : smsHandler.listMenus()) {
+			if (menu.getName().startsWith("cc:")) {
+				toDelete.add(menu.getName());
+			}
+		}
+		for (String name : toDelete) {
+			deleteMenu(name);
+		}
 	}
 
 	static void boardCreated(String boardName) {
-		addItem("all-boards", boardName, "/chess list board " + boardName);
-		addItem("free-boards", boardName, "/chess create game - " + boardName);
+		addItem(BOARD_INFO, boardName, "/chess list board " + boardName);
+		addItem(CREATE_GAME, boardName, "/chess create game - " + boardName);
 	}
 	
 	static void boardInUse(String boardName) {
-		removeItem("free-boards", boardName);
+		removeItem(CREATE_GAME, boardName);
 	}
 	
 	static void boardNotInUse(String boardName) {
-		addItem("free-boards", boardName, "/chess create game - " + boardName);
+		addItem(CREATE_GAME, boardName, "/chess create game - " + boardName);
 	}
 	
 	static void boardDeleted(String boardName) {
-		removeItem("all-boards", boardName);
-		removeItem("free-boards", boardName);
+		removeItem(BOARD_INFO, boardName);
+		removeItem(CREATE_GAME, boardName);
+	}
+	
+	static void gameCreated(String gameName) {
+		addItem(GAME_INFO, gameName, "/chess list game " + gameName);
+		addItem(TP_GAME, gameName, "/chess tp " + gameName);
+		addItem(DEL_GAME, gameName, "/chess delete game " + gameName);
+	}
+	
+	static void gameDeleted(String gameName) {
+		removeItem(GAME_INFO, gameName);
+		removeItem(TP_GAME, gameName);
+		removeItem(DEL_GAME, gameName);
 	}
 
 	private static void addItem(String menuName, String label, String command) {
 		if (smsHandler.checkMenu(menuName)) {
-			SMSMenu menu;
 			try {
-				menu = smsHandler.getMenu(menuName);
+				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, "");
 				menu.updateSigns();
 			} catch (SMSException e) {
@@ -90,17 +131,23 @@ public class SMSIntegration {
 	}
 	
 	private static void createMenu(String name, String title) {
+		SMSMenu menu = null;
 		if (!smsHandler.checkMenu(name)) {
-			smsHandler.createMenu(name, title, "&ChessCraft");
+			menu = smsHandler.createMenu(name, title, "&ChessCraft");
+			menu.setAutosort(true);	
 		} else {
 			try {
 				// clear all menu items - start with a clean slate
-				smsHandler.getMenu(name).removeAllItems();
+				menu = smsHandler.getMenu(name);
+				menu.setTitle(ChessUtils.parseColourSpec(title));
+				menu.removeAllItems();
 			} catch (SMSException e) {
 				// shouldn't get here - we already checked that the menu exists
 				ChessCraftLogger.warning("No such SMS menu", e);
 			}
 		}
+		if (menu != null)
+			menu.setAutosave(false);
 	}
 
 	private static void deleteMenu(String name) {

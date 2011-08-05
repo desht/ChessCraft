@@ -963,6 +963,9 @@ public class Game {
 		if (game != null && !chessGames.containsKey(gameName)) {
 			chessGames.put(gameName, game);
 		}
+		if (SMSIntegration.isActive()) {
+			SMSIntegration.gameCreated(gameName);
+		}
 	}
 
 	public static void removeGame(String gameName) throws ChessException {
@@ -978,6 +981,9 @@ public class Game {
 			currentGame.remove(p);
 		}
 		chessGames.remove(gameName);
+		if (SMSIntegration.isActive()) {
+			SMSIntegration.gameDeleted(gameName);
+		}
 	}
 
 	public static boolean checkGame(String name) {
