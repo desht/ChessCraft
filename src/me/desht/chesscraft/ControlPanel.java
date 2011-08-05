@@ -1,7 +1,5 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.blocks.SignButton;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,11 +17,18 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.ExpectAction;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.blocks.SignButton;
+import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ControlPanel {
 
+	public static final int PANEL_WIDTH = 8;
 	private ChessCraft plugin;
 	private BoardView view;
+	private BoardOrientation boardDir = null, signDir = null;
+	private MaterialWithData signMat;
 	private Cuboid panelBlocks;
 	private Cuboid toMoveIndicator;
 	private Location halfMoveClockSign;
@@ -36,23 +41,22 @@ public class ControlPanel {
 	public ControlPanel(ChessCraft plugin, BoardView view) {
 		this.plugin = plugin;
 		this.view = view;
+		boardDir = view.getDirection();
+		signDir = boardDir.getRight();
 
 		buttons = new HashMap<String, SignButton>();
 		buttonLocs = new HashMap<Location, SignButton>();
 
-		Cuboid bounds = view.getBounds();
-		
-		//TODO: apply applicable rotation
+		panelBlocks = getBoardControlPanel(view);
 
-		int x = bounds.getUpperSW().getBlockX() - (4 * view.getSquareSize() - 3);
-		int y = view.getA1Square().getBlockY() + 1;
-		int z = bounds.getUpperSW().getBlockZ() + (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+		toMoveIndicator = panelBlocks.clone();
+		toMoveIndicator.inset(Direction.Vertical, 1).
+				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
+				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
+		// .inset(Direction.Horizontal, PANEL_WIDTH / 2);
+		//if (view.getName().contains("ter")) toMoveIndicator.weSelect(plugin.getServer().getPlayer("jascotty2"));
 
-		panelBlocks = new Cuboid(new Location(view.getA1Square().getWorld(), x, y, z));
-		panelBlocks.expand(Direction.North, 7).expand(Direction.Up, 2);
-
-		toMoveIndicator = new Cuboid(panelBlocks.getUpperSW());
-		toMoveIndicator.shift(Direction.Down, 1).shift(Direction.North, 3).expand(Direction.North, 1);
+		signMat = new MaterialWithData(68, getSignDir(signDir));
 
 		halfMoveClockSign = getSignLocation(2, 0);
 		plyCountSign = getSignLocation(5, 0);
@@ -69,16 +73,14 @@ public class ControlPanel {
 		Game game = view.getGame();
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
 
-		MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
-
-		eastFacingWallSign.applyToBlock(halfMoveClockSign.getBlock());
+		signMat.applyToBlock(halfMoveClockSign.getBlock());
 		updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
 
-		eastFacingWallSign.applyToBlock(plyCountSign.getBlock());
+		signMat.applyToBlock(plyCountSign.getBlock());
 		updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
 
-		eastFacingWallSign.applyToBlock(whiteClockSign.getBlock());
-		eastFacingWallSign.applyToBlock(blackClockSign.getBlock());
+		signMat.applyToBlock(whiteClockSign.getBlock());
+		signMat.applyToBlock(blackClockSign.getBlock());
 
 		updateClock(Chess.WHITE, game == null ? 0 : game.getTimeWhite());
 		updateClock(Chess.BLACK, game == null ? 0 : game.getTimeBlack());
@@ -87,7 +89,6 @@ public class ControlPanel {
 	}
 
 	public void repaintSignButtons() {
-		MaterialWithData eastFacingWallSign = new MaterialWithData(68, (byte) 0x2);
 		Game game = view.getGame();
 
 		boolean settingUp = game != null && game.getState() == GameState.SETTING_UP;
@@ -95,35 +96,43 @@ public class ControlPanel {
 		boolean hasWhite = game != null && !game.getPlayerWhite().isEmpty();
 		boolean hasBlack = game != null && !game.getPlayerBlack().isEmpty();
 
-		createSignButton(0, 2, "board-info", Messages.getString("ControlPanel.boardInfoBtn"), eastFacingWallSign, true); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(0, 1, "teleport", Messages.getString("ControlPanel.teleportOutBtn"), eastFacingWallSign, true); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 2, "board-info", Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 1, "teleport", Messages.getString("ControlPanel.teleportOutBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Economy.active()) {
-			createSignButton(7, 1, "stake", getStakeStr(game), eastFacingWallSign, game != null); //$NON-NLS-1$
+			createSignButton(7, 1, "stake", getStakeStr(game), signMat, game != null); //$NON-NLS-1$
 		}
 
-		createSignButton(1, 2, "create-game", Messages.getString("ControlPanel.createGameBtn"), eastFacingWallSign, game == null); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(2, 2, "invite-player", Messages.getString("ControlPanel.invitePlayerBtn"), eastFacingWallSign, settingUp //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 2, "create-game", Messages.getString("ControlPanel.createGameBtn"), signMat, game == null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(2, 2, "invite-player", Messages.getString("ControlPanel.invitePlayerBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(3, 2, "invite-anyone", Messages.getString("ControlPanel.inviteAnyoneBtn"), eastFacingWallSign, settingUp //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(3, 2, "invite-anyone", Messages.getString("ControlPanel.inviteAnyoneBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), eastFacingWallSign, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(5, 2, "offer-draw", Messages.getString("ControlPanel.offerDrawBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(6, 2, "resign", Messages.getString("ControlPanel.resignBtn"), eastFacingWallSign, running); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(7, 2, "game-info", Messages.getString("ControlPanel.gameInfoBtn"), eastFacingWallSign, game != null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), signMat, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(5, 2, "offer-draw", Messages.getString("ControlPanel.offerDrawBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 2, "resign", Messages.getString("ControlPanel.resignBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 2, "game-info", Messages.getString("ControlPanel.gameInfoBtn"), signMat, game != null); //$NON-NLS-1$ //$NON-NLS-2$
 
 		createSignButton(1, 1, "white-promote", Messages.getString("ControlPanel.whitePawnPromotionBtn") + getPromoStr(game, Chess.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
-				eastFacingWallSign, hasWhite);
+				signMat, hasWhite);
 		createSignButton(6, 1, "black-promote", Messages.getString("ControlPanel.blackPawnPromotionBtn") + getPromoStr(game, Chess.BLACK), //$NON-NLS-1$ //$NON-NLS-2$
-				eastFacingWallSign, hasBlack);
+				signMat, hasBlack);
 
 		Player pw = game == null ? null : plugin.getServer().getPlayer(game.getPlayerWhite());
 		String offerw = getOfferText(pw);
-		createSignButton(0, 0, "white-yes", offerw + Messages.getString("ControlPanel.yesBtn"), eastFacingWallSign, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(1, 0, "white-no", offerw + Messages.getString("ControlPanel.noBtn"), eastFacingWallSign, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 0, "white-yes", offerw + Messages.getString("ControlPanel.yesBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 0, "white-no", offerw + Messages.getString("ControlPanel.noBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 		Player pb = game == null ? null : plugin.getServer().getPlayer(game.getPlayerBlack());
 		String offerb = getOfferText(pb);
-		createSignButton(6, 0, "black-yes", offerb + ";;Yes", eastFacingWallSign, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(7, 0, "black-no", offerb + ";;No", eastFacingWallSign, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 0, "black-yes", offerb + ";;Yes", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 0, "black-no", offerb + ";;No", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public Location getLocationTP(){
+		Location l = (new Cuboid(toMoveIndicator.getCenter())).
+				shift(signDir.getDirection(), 3).
+				shift(Direction.Down, 1).getLowerNE();
+		
+		return l;
 	}
 
 	private String getOfferText(Player p) {
@@ -139,9 +148,20 @@ public class ControlPanel {
 	}
 
 	private Location getSignLocation(int x, int y) {
-		int realX = panelBlocks.getUpperSW().getBlockX() - x;
-		int realY = panelBlocks.getLowerNE().getBlockY() + y;
-		int realZ = panelBlocks.getLowerNE().getBlockZ() - 1;
+		int realX = signDir.getX(),
+				realY = panelBlocks.getLowerNE().getBlockY() + y,
+				realZ = signDir.getZ();
+
+		switch(signDir){
+			case NORTH:
+				realX += panelBlocks.getLowerX();
+				realZ += panelBlocks.getLowerZ() + x;
+				break;
+			case EAST:
+				realX += panelBlocks.getLowerX() - x;
+				realZ += panelBlocks.getLowerZ();
+				break;
+		}
 
 		return new Location(view.getA1Square().getWorld(), realX, realY, realZ);
 	}
@@ -150,7 +170,7 @@ public class ControlPanel {
 		SignButton button = getSignButton(name);
 
 		if (button != null) {
-			button.setText(text);
+			button.setText(text.replace("\n", ";"));
 			button.setEnabled(enabled);
 			button.repaint();
 		} else {
@@ -181,15 +201,15 @@ public class ControlPanel {
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		Game game = view.getGame();
 		SignButton button = buttonLocs.get(block.getLocation());
-		
+
 		if (button == null) {
 			return;
 		}
-		
+
 		if (!button.isEnabled()) {
 			return;
 		}
-		
+
 		String name = button.getName();
 		if (name.equals("create-game")) { //$NON-NLS-1$
 			plugin.getCommandExecutor().tryCreateGame(player, null, view.getName());
@@ -302,6 +322,58 @@ public class ControlPanel {
 			s.setLine(1, Game.getColour(colour));
 			s.setLine(2, ChessUtils.parseColourSpec("&4" + Game.secondsToHMS(t))); //$NON-NLS-1$
 			s.update();
+		}
+	}
+
+	protected static Cuboid getBoardControlPanel(BoardView view) {
+
+		BoardOrientation dir = view.getDirection();
+
+		//Cuboid bounds = view.getBounds();
+		Location a1 = view.getA1Square();
+
+		int x = a1.getBlockX(), y = a1.getBlockY() + 1, z = a1.getBlockZ();
+
+		// apply applicable rotation (panel on the left-side of board)
+		switch (dir) {
+			case NORTH:
+				x -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+				z += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+				break;
+			case EAST:
+				z -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+				x -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+				break;
+			case SOUTH:
+				x += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+				z -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+				break;
+			case WEST:
+				z += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+				x += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+				break;
+			default:
+				ChessCraftLogger.severe("Unexpected BoardOrientation value ", new Exception());
+				return null;
+		}
+
+		Cuboid panel = new Cuboid(new Location(a1.getWorld(), x, y, z));
+		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
+
+	}
+	
+	protected static byte getSignDir(BoardOrientation signDir){
+		switch(signDir){
+			case NORTH:
+				return 4;
+			case EAST:
+				return 3;
+			case SOUTH:
+				return 5;
+			case WEST:
+				return 2;
+			default:
+				return 0;
 		}
 	}
 }

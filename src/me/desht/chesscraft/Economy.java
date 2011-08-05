@@ -32,7 +32,7 @@ public class Economy {
 		}
 	}
 
-	static boolean active() {
+	public static boolean active() {
 		return economyMethod != null;
 	}
 

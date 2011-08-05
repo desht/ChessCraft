@@ -47,6 +47,12 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	public Location getUpperSW() {
 		return upperSW;
 	}
+	
+	public Location getCenter(){
+		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()), 
+				getLowerY() + (getUpperY() - getLowerY()), 
+				getLowerZ() + (getUpperZ() - getLowerZ()));
+	}
 
 	public World getWorld() {
 		return lowerNE == null ? (upperSW == null ? null : upperSW.getWorld()) : lowerNE.getWorld();
@@ -90,6 +96,7 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	}
 
 	public Cuboid expand(Direction dir, int amount) {
+		//TODO: if negative amount, don't collapse beyond self
 		switch (dir) {
 			case North:
 				lowerNE.setX(lowerNE.getBlockX() - amount);
@@ -328,5 +335,19 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 
 	public int getUpperZ() {
 		return upperSW.getBlockZ();
+	}
+
+	public void weSelect(org.bukkit.entity.Player p) {
+		if (p != null) {
+			org.bukkit.Server sv = p.getServer();
+			org.bukkit.plugin.PluginManager m = sv.getPluginManager();
+			org.bukkit.plugin.Plugin we = m.getPlugin("WorldEdit");
+			if (we != null && we instanceof com.sk89q.worldedit.bukkit.WorldEditPlugin) {
+				com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
+						new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
+						getWorld(), getUpperSW(), getLowerNE());
+				((com.sk89q.worldedit.bukkit.WorldEditPlugin) we).setSelection(p, s);
+			}
+		}
 	}
 }

@@ -109,10 +109,12 @@ public class ChessPlayerListener extends PlayerListener {
 						pieceClicked(player, loc, bv);
 					} else if ((bv = BoardView.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
-							Location corner = bv.getBounds().getUpperSW();
-							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(),
-									corner.getY() + 1, corner.getZ() - 2.5);
-							player.teleport(loc2);
+//							Location corner = bv.getBounds().getUpperSW();
+//							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(),
+//									corner.getY() + 1, corner.getZ() - 2.5);
+							Location l = bv.getControlPanel().getLocationTP();
+							System.out.println(l);
+							player.teleport(l);
 						}
 					}
 				}
