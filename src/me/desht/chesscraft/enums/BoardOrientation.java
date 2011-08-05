@@ -82,16 +82,16 @@ public enum BoardOrientation {
 		return null;
 	}
 
-	public double getYaw() {
+	public float getYaw() {
 		switch (this) {
 			case NORTH:
-				return 22.5;
+				return (float) 22.5;
 			case EAST:
-				return 45 + 22.5;
+				return (float) (45 + 22.5);
 			case SOUTH:
-				return 135 + 22.5;
+				return (float) (135 + 22.5);
 			case WEST:
-				return 225 + 22.5;
+				return (float) (225 + 22.5);
 		}
 		return 0;
 	}

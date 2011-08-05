@@ -42,7 +42,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
-		this(bName, plugin, where, BoardOrientation.NORTH, bStyle, pStyle);
+		this(bName, plugin, where, null, bStyle, pStyle);
 	}
 
 	public BoardView(String bName, ChessCraft plugin, Location where,
@@ -60,14 +60,14 @@ public class BoardView implements PositionListener {
 	}
 
 	public final void setA1Center(Location loc) throws ChessException {
-		setA1Center(loc, BoardOrientation.NORTH);
+		setA1Center(loc, null);
 	}
 
 	public final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
 		// only allow the board center to be set once (?)
 		if (loc != null && chessBoard.getA1Center() == null) {
 
-			chessBoard.setA1Center(loc, d);
+			chessBoard.setA1Center(loc, d == null ? BoardOrientation.NORTH : d);
 
 			validateIntersections();
 
@@ -111,7 +111,7 @@ public class BoardView implements PositionListener {
 		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
 		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center())); //$NON-NLS-1$
-		result.put("direction", chessBoard.getRotation());
+		result.put("direction", chessBoard.getRotation().name());
 		return result;
 	}
 

@@ -301,8 +301,8 @@ public class ChessPersistence {
 					moveBackup(f);
 				} else if (toLoad.containsKey(board)) {
 					// only load the newer game
-					int tstart = conf.getInt("started", 0);
-					int ostart = (Integer) toLoad.get(board).get("started");
+					long tstart = conf.getInt("started", 0);
+					long ostart = Long.parseLong(toLoad.get(board).get("started").toString());
 					if (ostart >= tstart) {
 						ChessCraftLogger.log(Level.SEVERE, "can't load saved game " + f.getName() + ": another game is using the same board");
 						moveBackup(f);
