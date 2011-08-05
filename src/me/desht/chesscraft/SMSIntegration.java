@@ -3,7 +3,7 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.SMSNoSuchMenuException;
+import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import org.bukkit.Bukkit;
@@ -70,7 +70,7 @@ public class SMSIntegration {
 				menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, "");
 				menu.updateSigns();
-			} catch (SMSNoSuchMenuException e) {
+			} catch (SMSException e) {
 				// shouldn't get here
 				ChessCraftLogger.warning("No such SMS menu", e);
 			}
@@ -83,7 +83,7 @@ public class SMSIntegration {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
 				menu.updateSigns();
-			} catch (SMSNoSuchMenuException e) {
+			} catch (SMSException e) {
 				ChessCraftLogger.warning("No such SMS menu", e);
 			}
 		}
@@ -96,7 +96,7 @@ public class SMSIntegration {
 			try {
 				// clear all menu items - start with a clean slate
 				smsHandler.getMenu(name).removeAllItems();
-			} catch (SMSNoSuchMenuException e) {
+			} catch (SMSException e) {
 				// shouldn't get here - we already checked that the menu exists
 				ChessCraftLogger.warning("No such SMS menu", e);
 			}
@@ -107,7 +107,7 @@ public class SMSIntegration {
 		if (smsHandler.checkMenu(name)) {
 			try {
 				smsHandler.deleteMenu(name);
-			} catch (SMSNoSuchMenuException e) {
+			} catch (SMSException e) {
 				ChessCraftLogger.warning("No such SMS menu", e);
 			}
 		}
