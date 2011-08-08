@@ -9,9 +9,6 @@ import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
 public class SMSIntegration {
 	private static final String TP_GAME = "cc:tp-game";
 	private static final String CREATE_GAME = "cc:create-game";
@@ -21,21 +18,10 @@ public class SMSIntegration {
 	
 	private static SMSHandler smsHandler;
 	
-	static void setup() {
+	static void setup(ScrollingMenuSign sms) {
 		if (smsHandler == null) {
-			Plugin p = Bukkit.getServer().getPluginManager().getPlugin("ScrollingMenuSign");
-			if (p != null && p instanceof ScrollingMenuSign) {
-				ScrollingMenuSign sms = (ScrollingMenuSign) p;
-				smsHandler = sms.getHandler();
-				ChessCraftLogger.info("ScrollingMenuSign integration is enabled");
-			} else {
-				ChessCraftLogger.info("ScrollingMenuSign integration is not enabled");
-			}
+			smsHandler = sms.getHandler();
 		}
-	}
-	
-	static boolean isActive() {
-		return smsHandler != null;
 	}
 	
 	static void createMenus() {

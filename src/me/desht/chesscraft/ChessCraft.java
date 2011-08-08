@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.expector.ExpectResponse;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -32,6 +33,7 @@ public class ChessCraft extends JavaPlugin {
 	public ChessConfig config = null;
 	public ChessUtils util = null;
 	protected WorldEditPlugin worldEditPlugin = null;
+	private static ScrollingMenuSign smsPlugin;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -48,7 +50,7 @@ public class ChessCraft extends JavaPlugin {
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
 
-		SMSIntegration.setup();
+		setupSMS();
 		setupWorldEdit();
 		if (ChessPermission.setupPermissions(this.getServer())) {
 			ChessCraftLogger.log(Level.INFO, "Permissions detected");
@@ -102,17 +104,25 @@ public class ChessCraft extends JavaPlugin {
 		for (BoardView view : BoardView.listBoardViews()) {
 			view.delete();
 		}
-//		if (SMSIntegration.isActive()) {
-//			SMSIntegration.deleteMenus();
-//		}
 		ChessCraftLogger.log("disabled!");
 	}
 
 	private void delayedInitTasks() {
 		persistence.reload();
 		util.setupRepeatingTask(1);
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.createMenus();
+		}
+	}
+	
+	private void setupSMS() {
+		Plugin p = this.getServer().getPluginManager().getPlugin("ScrollingMenuSign");
+		if (p != null && p instanceof ScrollingMenuSign) {
+			smsPlugin = (ScrollingMenuSign) p;
+			SMSIntegration.setup(smsPlugin);
+			ChessCraftLogger.log("ScrollingMenuSign plugin detected.");
+		} else {
+			ChessCraftLogger.log("ScrollingMenuSign plugin not detected.");
 		}
 	}
 	
@@ -126,6 +136,10 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
+	public static ScrollingMenuSign getSMS() {
+		return smsPlugin;
+	}
+	
 	public WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}

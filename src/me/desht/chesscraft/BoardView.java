@@ -305,7 +305,7 @@ public class BoardView implements PositionListener {
 		this.game = game;
 		paintAll();
 		chessBoard.highlightSquares(-1, -1);
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			if (game == null) {
 				SMSIntegration.boardNotInUse(getName());
 			} else {
@@ -409,7 +409,7 @@ public class BoardView implements PositionListener {
 
 	/*------------------------------------------------------------------------------_*/
 	public static void addBoardView(String name, BoardView view) {
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardCreated(view.getName());
 		}
 	
@@ -421,7 +421,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public static void removeBoardView(String name) {
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardDeleted(name);
 		}
 		
@@ -429,7 +429,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public static void removeAllBoardViews() {
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			for (BoardView bv : listBoardViews()) {
 				SMSIntegration.boardDeleted(bv.getName());
 			}

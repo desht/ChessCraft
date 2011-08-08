@@ -963,7 +963,7 @@ public class Game {
 		if (game != null && !chessGames.containsKey(gameName)) {
 			chessGames.put(gameName, game);
 		}
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.gameCreated(gameName);
 		}
 	}
@@ -981,7 +981,7 @@ public class Game {
 			currentGame.remove(p);
 		}
 		chessGames.remove(gameName);
-		if (SMSIntegration.isActive()) {
+		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.gameDeleted(gameName);
 		}
 	}
