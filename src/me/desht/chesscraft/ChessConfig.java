@@ -31,7 +31,7 @@ public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, 
-			dataDir, gamePersistDir, boardPersistDir, languagesDir;
+	dataDir, gamePersistDir, boardPersistDir, languagesDir;
 	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
 	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
 	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
@@ -85,7 +85,7 @@ public class ChessConfig {
 		} catch (IOException e) {
 			ChessCraftLogger.severe("Can't load messages file", e);
 		}
-		
+
 		configFileInitialise();
 
 		ChessAI.initAI_Names();
@@ -94,7 +94,7 @@ public class ChessConfig {
 	public static Configuration getConfiguration() {
 		return plugin.getConfiguration();
 	}
-	
+
 	public static File getPluginDirectory() {
 		return pluginDir;
 	}
@@ -122,7 +122,7 @@ public class ChessConfig {
 	public static File getBoardPersistDirectory() {
 		return boardPersistDir;
 	}
-	
+
 	public static File getLanguagesDirectory() {
 		return languagesDir;
 	}
@@ -200,7 +200,7 @@ public class ChessConfig {
 	private static void extractResource(String from, File toDir) {
 		extractResource(from, toDir, false);
 	}
-	
+
 	static void extractResource(String from, File to, boolean force) {
 		File of = to;
 		if (to.isDirectory()) {
@@ -212,7 +212,7 @@ public class ChessConfig {
 		if (of.exists() && !force) {
 			return;
 		}
-		
+
 		OutputStream out = null;
 		try {
 			// Got to jump through hoops to ensure we can still pull messages from a JAR
@@ -223,9 +223,9 @@ public class ChessConfig {
 				return;
 			}
 			URLConnection resConn = res.openConnection();
-		    resConn.setUseCaches(false);
-		    InputStream in = resConn.getInputStream();
-		   
+			resConn.setUseCaches(false);
+			InputStream in = resConn.getInputStream();
+
 			if (in == null) {
 				ChessCraftLogger.log(Level.WARNING, "can't get input stream from " + res); //$NON-NLS-1$
 			} else {
