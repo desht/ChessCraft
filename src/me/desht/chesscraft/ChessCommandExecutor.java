@@ -683,11 +683,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		MessageBuffer.clear(player);
 		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardDetail.board", boardName)); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.lowerNE", //$NON-NLS-1$
-		                                                      ChessUtils.formatLoc(bounds.getLowerNE())));
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.upperSW", //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
+		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
 		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", bv.getDirection().toString())); //$NON-NLS-1$
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", bv.getBoardStyle())); //$NON-NLS-1$
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", bv.getPieceStyle())); //$NON-NLS-1$
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", bv.getSquareSize(),  //$NON-NLS-1$
