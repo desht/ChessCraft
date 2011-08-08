@@ -8,8 +8,11 @@ package me.desht.chesscraft;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, 
-			dataDir, gamePersistDir, boardPersistDir, languagesDir;
+	dataDir, gamePersistDir, boardPersistDir, languagesDir;
 	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
 	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
 	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
@@ -43,7 +46,7 @@ public class ChessConfig {
 	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
 
 		{
-			put("locale", "en_us");
+			put("locale", "default");
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
@@ -77,8 +80,12 @@ public class ChessConfig {
 
 		setupDirectoryStructure();
 
-		Messages.load();
-		
+		try {
+			Messages.loadMessages();
+		} catch (IOException e) {
+			ChessCraftLogger.severe("Can't load messages file", e);
+		}
+
 		configFileInitialise();
 
 		ChessAI.initAI_Names();
@@ -87,7 +94,7 @@ public class ChessConfig {
 	public static Configuration getConfiguration() {
 		return plugin.getConfiguration();
 	}
-	
+
 	public static File getPluginDirectory() {
 		return pluginDir;
 	}
@@ -115,7 +122,7 @@ public class ChessConfig {
 	public static File getBoardPersistDirectory() {
 		return boardPersistDir;
 	}
-	
+
 	public static File getLanguagesDirectory() {
 		return languagesDir;
 	}
@@ -178,8 +185,7 @@ public class ChessConfig {
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 
-		//TODO !! release version should not force file overwrite
-		extractResource("/datafiles/lang/default.yml", languagesDir, true);
+		// message resources no longer extracted here - this is now done by Messages.loadMessages()
 	}
 
 	private static void createDir(File dir) {
@@ -194,18 +200,34 @@ public class ChessConfig {
 	private static void extractResource(String from, File toDir) {
 		extractResource(from, toDir, false);
 	}
-	
-	private static void extractResource(String from, File toDir, boolean force) {
-		String fname = new File(from).getName();
-		File of = new File(toDir, fname);
+
+	static void extractResource(String from, File to, boolean force) {
+		File of = to;
+		if (to.isDirectory()) {
+			String fname = new File(from).getName();
+			of = new File(to, fname);
+		} else if (!of.isFile()) {
+			return;
+		}
 		if (of.exists() && !force) {
 			return;
 		}
+
 		OutputStream out = null;
 		try {
-			InputStream in = ChessCraft.class.getResourceAsStream(from);
+			// Got to jump through hoops to ensure we can still pull messages from a JAR
+			// file after it's been reloaded...
+			URL res = ChessCraft.class.getResource(from);
+			if (res == null) {
+				ChessCraftLogger.log(Level.WARNING, "can't find " + from + " in plugin JAR file"); //$NON-NLS-1$
+				return;
+			}
+			URLConnection resConn = res.openConnection();
+			resConn.setUseCaches(false);
+			InputStream in = resConn.getInputStream();
+
 			if (in == null) {
-				ChessCraftLogger.log(Level.WARNING, "can't extract resource " + from + " from plugin JAR"); //$NON-NLS-1$ //$NON-NLS-2$
+				ChessCraftLogger.log(Level.WARNING, "can't get input stream from " + res); //$NON-NLS-1$
 			} else {
 				out = new FileOutputStream(of);
 				byte[] buf = new byte[1024];
@@ -216,8 +238,7 @@ public class ChessConfig {
 				in.close();
 				out.close();
 			}
-		} //catch (FileNotFoundException, IOException
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			ChessCraftLogger.log(Level.SEVERE, null, ex);
 		} finally {
 			try {
@@ -302,6 +323,12 @@ public class ChessConfig {
 		// special hooks
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
 			plugin.util.setupRepeatingTask(0);
+		} else if (key.equalsIgnoreCase("locale")) {
+			try {
+				Messages.loadMessages();
+			} catch (IOException e) {
+				ChessCraftLogger.severe("Can't load messages file", e);
+			}
 		}
 
 		config.save();
