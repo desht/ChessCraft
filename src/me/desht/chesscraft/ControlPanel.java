@@ -152,17 +152,18 @@ public class ControlPanel {
 				realY = panelBlocks.getLowerNE().getBlockY() + y,
 				realZ = signDir.getZ();
 
+		System.out.println(String.format("x=%d, y=%d, realX=%d, realY=%d realZ=%d, dir=%s", x, y, realX, realY, realZ, signDir.toString()));
 		switch(signDir){
 			case NORTH:
 				realX += panelBlocks.getLowerX();
 				realZ += panelBlocks.getLowerZ() + x;
 				break;
 			case EAST:
-				realX += panelBlocks.getLowerX() - x;
+				realX += panelBlocks.getUpperX() - x;
 				realZ += panelBlocks.getLowerZ();
 				break;
 		}
-
+		System.out.println(String.format("NOW: panelX=%d, panelZ=%d, realX=%d, realY=%d realZ=%d", panelBlocks.getLowerX(), panelBlocks.getLowerZ(), realX, realY, realZ));
 		return new Location(view.getA1Square().getWorld(), realX, realY, realZ);
 	}
 
@@ -367,11 +368,11 @@ public class ControlPanel {
 			case NORTH:
 				return 4;
 			case EAST:
-				return 3;
+				return 2;
 			case SOUTH:
 				return 5;
 			case WEST:
-				return 2;
+				return 3;
 			default:
 				return 0;
 		}
