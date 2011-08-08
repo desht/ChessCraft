@@ -268,7 +268,6 @@ public class MessageBuffer {
 
 			int i = (pageNum - 1) * pageSize;
 			int nMessages = getSize(player);
-			int i = (pageNum - 1) * pageSize;
 			String header = Messages.getString("MessageBuffer.header", 
 			                                   i + 1, Math.min(pageSize * pageNum, nMessages), nMessages,
 			                                   pageNum, getPageCount(player));
