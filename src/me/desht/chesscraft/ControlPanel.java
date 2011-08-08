@@ -161,6 +161,14 @@ public class ControlPanel {
 				realX += panelBlocks.getUpperX() - x;
 				realZ += panelBlocks.getLowerZ();
 				break;
+			case SOUTH:
+				realX += panelBlocks.getLowerX();
+				realZ += panelBlocks.getUpperZ() - x;
+				break;
+			case WEST:
+				realX += panelBlocks.getLowerX() + x;
+				realZ += panelBlocks.getLowerZ();
+				break;
 		}
 		return new Location(view.getA1Square().getWorld(), realX, realY, realZ);
 	}
