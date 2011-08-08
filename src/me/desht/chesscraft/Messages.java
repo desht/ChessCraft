@@ -12,12 +12,12 @@ import org.bukkit.util.config.Configuration;
 public class Messages {
 
 	static Configuration messages = null;
-
+	
 	public static void loadMessages() throws IOException {
 		File langDir = ChessConfig.getLanguagesDirectory();
 		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
-
+		
 		if (wanted.isFile()) {
 			// just load it (but pull in any new messages from the shipped file if possible)
 			messages = checkUpToDate(wanted);
@@ -43,7 +43,7 @@ public class Messages {
 			messages = checkUpToDate(locateMessageFile(def));
 		}
 	}
-
+	
 	/**
 	 * Ensure that the extracted file on disk (if any) has all the messages that the
 	 * shipped file (in the JAR) has.  But don't modify any messages in the extracted
@@ -55,29 +55,29 @@ public class Messages {
 	 */
 	private static Configuration checkUpToDate(File f) throws IOException {
 		File langDir = ChessConfig.getLanguagesDirectory();
-
+		
 		// extract the shipped file to a temporary file
 		File tmpFile = File.createTempFile("msg", ".tmp", langDir);
 		tmpFile.delete();
 		ChessConfig.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
-
+		
 		// load the temporary file into a temp configuration object
 		Configuration tmpCfg = new Configuration(tmpFile);
 		tmpCfg.load();
-
+		
 		// load the real (extracted) file
 		Configuration actualCfg = new Configuration(f);
 		actualCfg.load();
-
+		
 		// merge the temp config into the actual one, adding any non-existent keys
 		for (Entry<String, Object> e : tmpCfg.getAll().entrySet()) {
 			if (actualCfg.getProperty(e.getKey()) == null) {
 				actualCfg.setProperty(e.getKey(), e.getValue());
 			}
 		}
-
+		
 		actualCfg.save();
-
+		
 		return actualCfg;
 	}
 
@@ -114,7 +114,7 @@ public class Messages {
 		} else {
 			return s;
 		}
-
+		
 	}
 
 	public static String getString(String key, Object... args) {
