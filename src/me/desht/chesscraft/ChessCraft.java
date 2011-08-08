@@ -48,6 +48,7 @@ public class ChessCraft extends JavaPlugin {
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
 
+		SMSIntegration.setup();
 		setupWorldEdit();
 		if (ChessPermission.setupPermissions(this.getServer())) {
 			ChessCraftLogger.log(Level.INFO, "Permissions detected");
@@ -76,14 +77,12 @@ public class ChessCraft extends JavaPlugin {
 
 			@Override
 			public void run() {
-				persistence.reload();
-				util.setupRepeatingTask(2);
+				delayedInitTasks();
 			}
 		}) == -1) {
 			ChessCraftLogger.warning("Couldn't schedule persisted data reloading.  Loading immediately, but multi-world"
 					+ "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
-			persistence.reload();
-			util.setupRepeatingTask(2);
+			delayedInitTasks();
 		}
 
 		ChessCraftLogger.log("Version " + description.getVersion() + " is enabled!");
@@ -103,9 +102,20 @@ public class ChessCraft extends JavaPlugin {
 		for (BoardView view : BoardView.listBoardViews()) {
 			view.delete();
 		}
+//		if (SMSIntegration.isActive()) {
+//			SMSIntegration.deleteMenus();
+//		}
 		ChessCraftLogger.log("disabled!");
 	}
 
+	private void delayedInitTasks() {
+		persistence.reload();
+		util.setupRepeatingTask(1);
+		if (SMSIntegration.isActive()) {
+			SMSIntegration.createMenus();
+		}
+	}
+	
 	private void setupWorldEdit() {
 		Plugin p = this.getServer().getPluginManager().getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {

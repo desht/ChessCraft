@@ -20,6 +20,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.sk89q.worldedit.blocks.BlockType;
+
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -530,6 +532,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 			loc.setYaw(0.0f);
 			loc.add(4.5 * bv.getSquareSize(), 1.5, 1.0);
 		}
+		while (!BlockType.canPassThrough(loc.getBlock().getTypeId())) {
+			loc.add(0.0, 1.0, 0.0);
+		}
 		System.out.println("teleport to " + loc); //$NON-NLS-1$
 		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.teleportDestObstructed")); //$NON-NLS-1$
@@ -749,10 +754,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 			bv = BoardView.getBoardView(boardName);
 		}
 
-		if (gameName == null) {
+		if (gameName == null || gameName.equals("-")) {
 			gameName = Game.makeGameName(player);
 		}
-
+		
 		Game game = new Game(plugin, gameName, bv, player.getName());
 		Game.addGame(gameName, game);
 		Game.setCurrentGame(player.getName(), game);

@@ -266,6 +266,7 @@ public class MessageBuffer {
 				throw new IllegalArgumentException("Page number " + pageNum + " is out of range.");
 			}
 
+			int i = (pageNum - 1) * pageSize;
 			int nMessages = getSize(player);
 			int i = (pageNum - 1) * pageSize;
 			String header = Messages.getString("MessageBuffer.header", 
