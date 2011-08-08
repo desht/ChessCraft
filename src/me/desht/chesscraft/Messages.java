@@ -58,7 +58,6 @@ public class Messages {
 
 		// extract the shipped file to a temporary file
 		File tmpFile = File.createTempFile("msg", ".tmp", langDir);
-		tmpFile.delete();
 		ChessConfig.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
 
 		// load the temporary file into a temp configuration object
@@ -76,6 +75,7 @@ public class Messages {
 			}
 		}
 
+		tmpFile.delete();
 		actualCfg.save();
 
 		return actualCfg;
