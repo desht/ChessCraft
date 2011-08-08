@@ -74,7 +74,8 @@ public class MessageBuffer {
 		
 		// if block is bigger than a page, just add it
 		if (lines.size() <= pageSize
-				&& (getSize(p) % pageSize) + lines.size() > pageSize) {
+				&& (getSize(p) % pageSize) + lines.size() > pageSize
+				&& p != null) {
 			// else, add padding above to keep the block on one page
 			for (int i = getSize(p) % pageSize; i < pageSize; ++i) {
 				//System.out.println("pad " + i);
