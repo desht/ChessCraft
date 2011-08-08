@@ -131,7 +131,7 @@ public class ControlPanel {
 		Location l = (new Cuboid(toMoveIndicator.getCenter())).
 				shift(signDir.getDirection(), 3).
 				shift(Direction.Down, 1).getLowerNE();
-		l.setYaw(signDir.getYaw());
+		l.setYaw((signDir.getYaw() + 180.0f) % 360);
 		return l;
 	}
 
