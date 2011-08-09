@@ -715,14 +715,14 @@ public class ChessBoard {
 				break;
 			case EAST:
 				row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
-				col = 7 - ((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+				col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
 				break;
 			case SOUTH:
-				row = 7 - ((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
-				col = 7 - ((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+				row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+				col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
 				break;
 			case WEST:
-				row = 7 - ((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+				row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
 				col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
 				break;
 		}

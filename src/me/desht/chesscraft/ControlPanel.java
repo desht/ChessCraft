@@ -98,7 +98,7 @@ public class ControlPanel {
 
 		createSignButton(0, 2, "board-info", Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(0, 1, "teleport", Messages.getString("ControlPanel.teleportOutBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
-		if (Economy.active()) {
+		if (ChessEconomy.active()) {
 			createSignButton(7, 1, "stake", getStakeStr(game), signMat, game != null); //$NON-NLS-1$
 		}
 
@@ -254,7 +254,7 @@ public class ControlPanel {
 			plugin.getCommandExecutor().doResponse(player, true);
 		} else if (name.equals("white-no") || name.equals("black-no")) { //$NON-NLS-1$ //$NON-NLS-2$
 			plugin.getCommandExecutor().doResponse(player, false);
-		} else if (name.equals("stake") && Economy.active()) { //$NON-NLS-1$
+		} else if (name.equals("stake") && ChessEconomy.active()) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
 				stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0); //$NON-NLS-1$
@@ -275,11 +275,11 @@ public class ControlPanel {
 	private String getStakeStr(Game game) {
 		if (game == null) {
 			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0); //$NON-NLS-1$
-			String stakeStr = Economy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			return Messages.getString("ControlPanel.stakeBtn") + stakeStr; //$NON-NLS-1$
 		} else {
 			double stake = game.getStake();
-			String stakeStr = Economy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
+			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
 			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
 			return col + "Stake;;&4" + stakeStr; //$NON-NLS-1$
 		}
