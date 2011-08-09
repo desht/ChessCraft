@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map.Entry;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -107,7 +108,22 @@ public class Messages {
 		if (messages == null) {
 			return "!" + key + "!";
 		}
-		String s = messages.getString(key);
+		String s = null;
+		Object o = messages.getProperty(key);
+		if (o instanceof String) {
+			s = messages.getString(key);
+		} else if (o instanceof List<?>) {
+			@SuppressWarnings("unchecked")
+			List<String> l = (List<String>) o;
+			StringBuilder add = new StringBuilder();
+			for (int i = 0; i < l.size(); ++i) {
+				add.append(l.get(i));
+				if (i + 1 < l.size()) {
+					add.append("\n");
+				}
+			}
+			s = add.toString();
+		}
 		if (s == null) {
 			ChessCraftLogger.warning(null, new Exception("Unexpected missing key '" + key + "'"));
 			return "!" + key + "!";
