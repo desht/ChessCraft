@@ -1,8 +1,11 @@
 package me.desht.chesscraft;
 
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockListener;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class ChessBlockListener extends BlockListener {
@@ -51,6 +54,22 @@ public class ChessBlockListener extends BlockListener {
 		}
 
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+
+	@Override
+	public void onBlockPhysics(BlockPhysicsEvent event) {
+		if (event.isCancelled())
+			return;
+		
+		Block b = event.getBlock();
+		BoardView bv = BoardView.partOfChessBoard(b.getLocation());
+		if (bv == null) {
+			return;
+		}
+		
+		if (b.getState() instanceof Sign) {
 			event.setCancelled(true);
 		}
 	}
