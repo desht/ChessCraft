@@ -18,6 +18,7 @@ import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.ChessCraft;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
+import org.bukkit.entity.Player;
 
 public class Cuboid implements Iterable<Location>, Cloneable {
 
@@ -343,7 +344,19 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		return upperSW.getBlockZ();
 	}
 
-	public void weSelect(org.bukkit.entity.Player p) {
+	public void weSelect(String playerName){
+		if(lowerNE != null){
+			List<Player> players = lowerNE.getWorld().getPlayers();
+			for(Player p : players){
+				if(p.getName().equalsIgnoreCase(playerName)){
+					weSelect(p);
+					return;
+				}
+			}
+		}
+	}
+
+	public void weSelect(Player p) {
 		if (p != null) {
 			// didn't call "ChessCraft.getWorldEdit()" to keep packages generic
 //			org.bukkit.Server sv = p.getServer();

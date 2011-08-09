@@ -85,10 +85,7 @@ public class BoardView implements PositionListener {
 	 *             if an intersection would occur
 	 */
 	private void validateIntersections() throws ChessException {
-		Cuboid bounds = getBounds();
-
-		bounds.outset(Direction.Horizontal, getFrameWidth() - 1);
-		bounds.expand(Direction.Up, getHeight() + 1);
+		Cuboid bounds = chessBoard.getFullBoard();
 
 		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
 			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
@@ -255,6 +252,10 @@ public class BoardView implements PositionListener {
 		return chessBoard.getBoard();
 	}
 
+	/**
+	 * get the region that encloses the outer extremities of this board
+	 * @return
+	 */
 	public Cuboid getOuterBounds() {
 		return chessBoard.getFullBoard();
 	}

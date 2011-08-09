@@ -240,7 +240,6 @@ public class ChessPersistence {
 		return backup;
 	}
 
-	@SuppressWarnings("unchecked")
 	private int loadBoards() {
 		int nLoaded = 0;
 		for (File f : ChessConfig.getBoardPersistDirectory().listFiles(ymlFilter)) {
@@ -249,6 +248,7 @@ public class ChessPersistence {
 				conf.load();
 
 				String bvName = conf.getString("name");
+				@SuppressWarnings("unchecked")
 				List<Object> origin = (List<Object>) conf.getProperty("origin");
 				World w = findWorld((String) origin.get(0));
 				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
@@ -258,7 +258,8 @@ public class ChessPersistence {
 						conf.getString("boardStyle"), conf.getString("pieceStyle")));
 				++nLoaded;
 			} catch (Exception e) {
-				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());
+				ChessCraftLogger.log(Level.SEVERE, "Error loading " + f.getName() + ": " + e.getMessage());//, e);
+				//TODO: restore terrain, if applicable?
 				moveBackup(f);
 			}
 		}

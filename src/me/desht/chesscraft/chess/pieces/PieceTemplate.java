@@ -14,26 +14,30 @@ public class PieceTemplate {
 	protected MaterialWithData[][][] pieceArray;
 	protected final int sizeX, sizeY, sizeZ;
 	List<List<String>> pieceData = null;
-	Map<String, String> pieceMaterials = null;
+	Map<Character, String> pieceMaterials = null;
 
 	public PieceTemplate(List<List<String>> data, Map<String, String> matMap) throws ChessException {
 		sizeY = data.size();
 		sizeZ = data.get(0).size();
 		sizeX = data.get(0).get(0).length();
 
-		Map<String, MaterialWithData> mats = new HashMap<String, MaterialWithData>();
+		Map<Character, MaterialWithData> mats = new HashMap<Character, MaterialWithData>();
 		for (Entry<String, String> entry : matMap.entrySet()) {
-			mats.put(entry.getKey(), new MaterialWithData(entry.getValue()));
+			if (entry.getKey().length() != 1) {
+				throw new ChessException("invalid key loading PieceTemplate: " + entry.getKey());
+			}
+			mats.put(entry.getKey().charAt(0), new MaterialWithData(entry.getValue()));
 		}
 
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+
 		for (int y = 0; y < sizeY; ++y) {
 			List<String> yRow = data.get(y);
-			for (int x = 0; x < sizeX; ++x) {
-				String zRow = yRow.get(sizeX - (x + 1));
-				for (int z = 0; z < sizeZ; ++z) {
-					String k = zRow.substring(z, z + 1);
-					if (!matMap.containsKey(k)) {
+			for (int x = sizeX - 1; x >= 0; --x) {
+				String xRow = yRow.get(x);
+				for (int z = sizeZ - 1; z >= 0; --z) {
+					char k = xRow.charAt(z);
+					if (!mats.containsKey(k)) {
 						throw new ChessException("unknown character '" + k + "' found.");
 					}
 					pieceArray[x][y][z] = mats.get(k);
@@ -104,6 +108,58 @@ public class PieceTemplate {
 		}
 	}
 
+	public final void rotate(int rotation) {
+		MaterialWithData[][][] newArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+
+		//TODO: allow pieces with data (signs, torches, ladders) to rotate, too
+
+		switch (rotation % 360) {
+			case 0:
+				return;
+			case 90:
+				for (int x = 0; x < sizeX; ++x) {
+					for (int y = 0; y < sizeY; ++y) {
+						for (int z = 0; z < sizeZ; ++z) {
+							newArray[sizeZ - z - 1][y][x] = pieceArray[x][y][z];
+						}
+					}
+				}
+				break;
+			case 180:
+				for (int x = 0; x < sizeX; ++x) {
+					for (int y = 0; y < sizeY; ++y) {
+						for (int z = 0; z < sizeZ; ++z) {
+							newArray[sizeX - x - 1][y][sizeZ - z - 1] = pieceArray[x][y][z];
+						}
+					}
+				}
+				break;
+			case 270:
+				for (int x = 0; x < sizeX; ++x) {
+					for (int y = 0; y < sizeY; ++y) {
+						for (int z = 0; z < sizeZ; ++z) {
+							newArray[z][y][sizeX - x - 1] = pieceArray[x][y][z];
+						}
+					}
+				}
+				break;
+			default:
+				throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
+		}
+
+		for (int x = 0; x < sizeX; ++x) {
+			for (int y = 0; y < sizeY; ++y) {
+				for (int z = 0; z < sizeZ; ++z) {
+					if (newArray[x][y][z] != null) {
+						newArray[x][y][z].rotate(rotation);
+					}
+				}
+			}
+		}
+		
+		pieceArray = newArray;
+	}
+
 	public List<List<String>> getData() {
 		if (pieceData == null) {
 			scan();
@@ -111,7 +167,7 @@ public class PieceTemplate {
 		return pieceData;
 	}
 
-	public Map<String, String> getMaterialMap() {
+	public Map<Character, String> getMaterialMap() {
 		if (pieceMaterials == null) {
 			scan();
 		}
@@ -123,7 +179,7 @@ public class PieceTemplate {
 	 */
 	private void scan() {
 		pieceData = new ArrayList<List<String>>(sizeY);
-		pieceMaterials = new HashMap<String, String>();
+		pieceMaterials = new HashMap<Character, String>();
 
 		Map<MaterialWithData, Character> matToStr = new HashMap<MaterialWithData, Character>();
 		int i = 65; // ASCII 'A'
@@ -137,7 +193,7 @@ public class PieceTemplate {
 					if (!matToStr.containsKey(m)) {
 						Character c = (char) i++;
 						matToStr.put(m, c);
-						pieceMaterials.put(c.toString(), m.toString());
+						pieceMaterials.put(c, m.toString());
 					}
 					sb.append(matToStr.get(m));
 				}
