@@ -382,7 +382,7 @@ public class BoardView implements PositionListener {
 
 	public void restoreTerrain(Player player) {
 		chessBoard.clearAll();
-		if (plugin.getWorldEdit() != null) {
+		if (ChessCraft.getWorldEdit() != null) {
 			TerrainBackup.reload(plugin, player, this);
 		}
 	}

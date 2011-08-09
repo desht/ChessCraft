@@ -3,6 +3,9 @@ package me.desht.chesscraft.regions;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.WorldEditUtils;
 import me.desht.chesscraft.enums.Direction;
 
 import org.bukkit.Location;
@@ -10,6 +13,7 @@ import org.bukkit.World;
 // imports for clear()
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
 
@@ -337,17 +341,9 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		return upperSW.getBlockZ();
 	}
 
-	public void weSelect(org.bukkit.entity.Player p) {
-		if (p != null) {
-			org.bukkit.Server sv = p.getServer();
-			org.bukkit.plugin.PluginManager m = sv.getPluginManager();
-			org.bukkit.plugin.Plugin we = m.getPlugin("WorldEdit");
-			if (we != null && we instanceof com.sk89q.worldedit.bukkit.WorldEditPlugin) {
-				com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
-						new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
-						getWorld(), getUpperSW(), getLowerNE());
-				((com.sk89q.worldedit.bukkit.WorldEditPlugin) we).setSelection(p, s);
-			}
+	public void weSelect(Player p) {
+		if (ChessCraft.getWorldEdit() != null) {
+			WorldEditUtils.weSelect(this, p);
 		}
 	}
 }

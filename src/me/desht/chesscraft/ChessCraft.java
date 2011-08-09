@@ -32,7 +32,7 @@ public class ChessCraft extends JavaPlugin {
 	protected ChessServerListener pluginListener = new ChessServerListener();
 	public ChessConfig config = null;
 	public ChessUtils util = null;
-	protected WorldEditPlugin worldEditPlugin = null;
+	protected static WorldEditPlugin worldEditPlugin = null;
 	private static ScrollingMenuSign smsPlugin;
 
 	/*-----------------------------------------------------------------*/
@@ -140,7 +140,7 @@ public class ChessCraft extends JavaPlugin {
 		return smsPlugin;
 	}
 	
-	public WorldEditPlugin getWorldEdit() {
+	public static WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}
 

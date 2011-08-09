@@ -34,7 +34,7 @@ public class TerrainBackup {
 	private TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
 		this.player = player;
 
-		wep = plugin.getWorldEdit();
+		wep = ChessCraft.getWorldEdit();
 		if (wep == null) {
 			return;
 		}

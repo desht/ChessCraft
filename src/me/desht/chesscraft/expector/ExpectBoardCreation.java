@@ -33,7 +33,7 @@ public class ExpectBoardCreation extends ExpectData {
 	public void doResponse(Player player) throws ChessException {
 		BoardView view = new BoardView(boardName, plugin, loc, BoardOrientation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
-		if (plugin.getWorldEdit() != null) {
+		if (ChessCraft.getWorldEdit() != null) {
 			TerrainBackup.save(plugin, player, view);
 		}
 		view.paintAll();
