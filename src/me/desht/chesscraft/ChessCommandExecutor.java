@@ -20,8 +20,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.sk89q.worldedit.blocks.BlockType;
-
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
@@ -30,6 +28,7 @@ import java.util.LinkedList;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.enums.ExpectAction;
+import me.desht.chesscraft.blocks.BlockType;
 import me.jascotty2.bukkit.MinecraftChatStr;
 
 public class ChessCommandExecutor implements CommandExecutor {
