@@ -33,12 +33,8 @@ public class SMSIntegration {
 		createMenu(DEL_GAME, "&4*Delete Game");
 		
 		for (BoardView bv : BoardView.listBoardViews(true)) {
-			boardCreated(bv.getName());
-			if (bv.getGame() != null) {
-				String gameName = bv.getGame().getName();
-				gameCreated(gameName);
-				boardInUse(bv.getName());
-			}
+			boardCreated(bv);
+			
 		}
 		
 		// now enable autosaving
@@ -61,34 +57,43 @@ public class SMSIntegration {
 		}
 	}
 
-	static void boardCreated(String boardName) {
-		addItem(BOARD_INFO, boardName, "/chess list board " + boardName);
-		addItem(CREATE_GAME, boardName, "/chess create game - " + boardName);
+	static void boardCreated(BoardView bv) {
+		addItem(BOARD_INFO, bv.getName(), "/chess list board " + bv.getName());
+		boardNotInUse(bv);
+		if (bv.getGame() != null) {
+			gameCreated(bv.getGame());
+		}
 	}
 	
-	static void boardInUse(String boardName) {
-		removeItem(CREATE_GAME, boardName);
+	static void boardDeleted(BoardView bv) {
+		removeItem(BOARD_INFO, bv.getName());
+		if (bv.getGame() == null) {
+			removeItem(CREATE_GAME, bv.getName());
+		}
+	}
+
+	static void boardInUse(BoardView bv) {
+		removeItem(CREATE_GAME, bv.getName());
 	}
 	
-	static void boardNotInUse(String boardName) {
-		addItem(CREATE_GAME, boardName, "/chess create game - " + boardName);
+	static void boardNotInUse(BoardView bv) {
+		addItem(CREATE_GAME, bv.getName(), "/chess create game - " + bv.getName());
 	}
 	
-	static void boardDeleted(String boardName) {
-		removeItem(BOARD_INFO, boardName);
-		removeItem(CREATE_GAME, boardName);
+	static void gameCreated(Game game) {
+		addItem(GAME_INFO, game.getName(), "/chess list game " + game.getName());
+		addItem(TP_GAME, game.getName(), "/chess tp " + game.getName());
+		addItem(DEL_GAME, game.getName(), "/chess delete game " + game.getName());
+
+		boardInUse(game.getView());
 	}
 	
-	static void gameCreated(String gameName) {
-		addItem(GAME_INFO, gameName, "/chess list game " + gameName);
-		addItem(TP_GAME, gameName, "/chess tp " + gameName);
-		addItem(DEL_GAME, gameName, "/chess delete game " + gameName);
-	}
-	
-	static void gameDeleted(String gameName) {
-		removeItem(GAME_INFO, gameName);
-		removeItem(TP_GAME, gameName);
-		removeItem(DEL_GAME, gameName);
+	static void gameDeleted(Game game) {
+		removeItem(GAME_INFO, game.getName());
+		removeItem(TP_GAME, game.getName());
+		removeItem(DEL_GAME, game.getName());
+		
+		boardNotInUse(game.getView());
 	}
 
 	private static void addItem(String menuName, String label, String command) {

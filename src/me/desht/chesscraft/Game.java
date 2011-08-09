@@ -964,7 +964,7 @@ public class Game {
 			chessGames.put(gameName, game);
 		}
 		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.gameCreated(gameName);
+			SMSIntegration.gameCreated(game);
 		}
 	}
 
@@ -982,7 +982,7 @@ public class Game {
 		}
 		chessGames.remove(gameName);
 		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.gameDeleted(gameName);
+			SMSIntegration.gameDeleted(game);
 		}
 	}
 

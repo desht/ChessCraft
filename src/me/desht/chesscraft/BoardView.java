@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
 
+import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -305,13 +306,6 @@ public class BoardView implements PositionListener {
 		this.game = game;
 		paintAll();
 		chessBoard.highlightSquares(-1, -1);
-		if (ChessCraft.getSMS() != null) {
-			if (game == null) {
-				SMSIntegration.boardNotInUse(getName());
-			} else {
-				SMSIntegration.boardInUse(getName());
-			}
-		}
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
@@ -410,7 +404,7 @@ public class BoardView implements PositionListener {
 	/*------------------------------------------------------------------------------_*/
 	public static void addBoardView(String name, BoardView view) {
 		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.boardCreated(view.getName());
+			SMSIntegration.boardCreated(view);
 		}
 	
 		chessBoards.put(name, view);
@@ -422,7 +416,13 @@ public class BoardView implements PositionListener {
 
 	public static void removeBoardView(String name) {
 		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.boardDeleted(name);
+			BoardView bv;
+			try {
+				bv = getBoardView(name);
+				SMSIntegration.boardDeleted(bv);
+			} catch (ChessException e) {
+				ChessCraftLogger.warning("removeBoardView: unknown board name " + name);
+			}
 		}
 		
 		chessBoards.remove(name);
@@ -431,7 +431,7 @@ public class BoardView implements PositionListener {
 	public static void removeAllBoardViews() {
 		if (ChessCraft.getSMS() != null) {
 			for (BoardView bv : listBoardViews()) {
-				SMSIntegration.boardDeleted(bv.getName());
+				SMSIntegration.boardDeleted(bv);
 			}
 		}
 		
