@@ -1,10 +1,5 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.ChessAI.AI_Def;
-import me.desht.chesscraft.expector.ExpectBoardCreation;
-import me.desht.chesscraft.expector.ExpectYesNoOffer;
-import me.desht.chesscraft.enums.GameState;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +20,15 @@ import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import java.util.LinkedList;
 
-import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.ChessAI.AI_Def;
+import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.enums.ExpectAction;
-import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.chesscraft.expector.ExpectYesNoOffer;
+import me.desht.chesscraft.exceptions.ChessException;
 import me.jascotty2.bukkit.MinecraftChatStr;
 
 public class ChessCommandExecutor implements CommandExecutor {
@@ -440,12 +440,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 				if (amount <= 0.0) {
 					throw new ChessException(Messages.getString("ChessCommandExecutor.noNegativeStakes")); //$NON-NLS-1$
 				}
-				if (!Economy.canAfford(player.getName(), amount)) {
+				if (!ChessEconomy.canAfford(player.getName(), amount)) {
 					throw new ChessException(Messages.getString("ChessCommandExecutor.cantAffordStake")); //$NON-NLS-1$
 				}
 				game.setStake(amount);
 				game.getView().getControlPanel().repaintSignButtons();
-				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", Economy.format(amount))); //$NON-NLS-1$
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", ChessEconomy.format(amount))); //$NON-NLS-1$
 			} catch (NumberFormatException e) {
 				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", args[1])); //$NON-NLS-1$
 			}
@@ -641,8 +641,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.name", gameName, game.getState())); //$NON-NLS-1$ 
 		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, game.getView().getName())); //$NON-NLS-1$ 
 		MessageBuffer.add(player, bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", game.getHistory().size())); //$NON-NLS-1$
-		if (Economy.active()) {
-			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", Economy.format(game.getStake()))); //$NON-NLS-1$
+		if (ChessEconomy.active()) {
+			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessEconomy.format(game.getStake()))); //$NON-NLS-1$
 		}
 		MessageBuffer.add(player, bullet + (game.getPosition().getToPlay() == Chess.WHITE ? 
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
@@ -725,7 +725,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList", //$NON-NLS-1$
 			                                                        ai.getName(), ai.getEngine(), ai.getSearchDepth()));
-			if (Economy.active()) {
+			if (ChessEconomy.active()) {
 				sb.append(player != null ? "<l>" : ", "); //$NON-NLS-1$ //$NON-NLS-2$
 				sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (ai.getPayoutMultiplier() * 100))); //$NON-NLS-1$
 			}
@@ -891,8 +891,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 		double newStake = game.getStake() + stakeIncr;
 		if (newStake < 0.0)
 			return;
-		if (newStake > Economy.getBalance(player.getName())) {
-			newStake = Economy.getBalance(player.getName());
+		if (newStake > ChessEconomy.getBalance(player.getName())) {
+			newStake = ChessEconomy.getBalance(player.getName());
 		}
 
 		game.setStake(newStake);
