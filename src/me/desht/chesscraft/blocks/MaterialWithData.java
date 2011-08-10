@@ -131,4 +131,18 @@ public class MaterialWithData implements Cloneable {
 		}
 		return true;
 	}
+
+	public void rotate(int rotation) {
+		switch(rotation){
+			case 270:
+				data = (byte) BlockData.rotate90Reverse(material, data);
+				break;
+			case 180:
+				data = (byte) BlockData.rotate90(material, data);
+				// 180 does twice, so don't break
+			case 90:
+				data = (byte) BlockData.rotate90(material, data);
+		}
+		
+	}
 }

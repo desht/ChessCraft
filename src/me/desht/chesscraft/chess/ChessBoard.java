@@ -12,6 +12,7 @@ import java.io.File;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessPieceLibrary;
 import me.desht.chesscraft.chess.pieces.ChessStone;
+import me.desht.chesscraft.chess.pieces.PieceTemplate;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
@@ -95,21 +96,21 @@ public class ChessBoard {
 
 	// <editor-fold defaultstate="collapsed" desc="Accessors">
 	public Location getA1Center() {
-		return a1Center;
+		return a1Center == null ? null : a1Center.clone();
 	}
 
 	/**
 	 * @return the outer-most corner of the A1 square
 	 */
 	public Location getA1Corner() {
-		return a1Corner;
+		return a1Corner == null ? null : a1Corner.clone();
 	}
 
 	/**
 	 * @return the outer-most corner of the H8 square
 	 */
 	public Location getH8Corner() {
-		return h8Corner;
+		return h8Corner == null ? null : h8Corner.clone();
 	}
 
 	/**
@@ -190,9 +191,10 @@ public class ChessBoard {
 			 */
 			int maxH = -1, maxV = -1;
 			for (ChessStone c : chessPieceSet) {
-				maxH = Math.max(maxH, c.getSizeX());
-				maxH = Math.max(maxH, c.getSizeZ());
-				maxV = Math.max(maxV, c.getSizeY());
+				PieceTemplate p = c.getPiece(rotation);
+				maxH = Math.max(maxH, p.getSizeX());
+				maxH = Math.max(maxH, p.getSizeZ());
+				maxV = Math.max(maxV, p.getSizeY());
 			}
 
 			if (maxH > boardStyle.squareSize) {
@@ -242,37 +244,10 @@ public class ChessBoard {
 
 	// TODO: rotation & locations untested
 	public void setA1Center(Location a1, BoardOrientation rotation) {
-		if (a1 != null) {
-			// apply new rotation to the pieces
-			int pieceRotate = 0;
-			if (this.rotation != rotation) {
-
-				if ((this.rotation == BoardOrientation.NORTH && rotation == BoardOrientation.EAST)
-						|| (this.rotation == BoardOrientation.EAST && rotation == BoardOrientation.SOUTH)
-						|| (this.rotation == BoardOrientation.SOUTH && rotation == BoardOrientation.WEST)
-						|| (this.rotation == BoardOrientation.WEST && rotation == BoardOrientation.NORTH)) {
-					pieceRotate = 90;
-				} else if ((this.rotation == BoardOrientation.NORTH && rotation == BoardOrientation.SOUTH)
-						|| (this.rotation == BoardOrientation.EAST && rotation == BoardOrientation.WEST)
-						|| (this.rotation == BoardOrientation.SOUTH && rotation == BoardOrientation.NORTH)
-						|| (this.rotation == BoardOrientation.WEST && rotation == BoardOrientation.EAST)) {
-					pieceRotate = 180;
-				} else if ((this.rotation == BoardOrientation.NORTH && rotation == BoardOrientation.WEST)
-						|| (this.rotation == BoardOrientation.EAST && rotation == BoardOrientation.NORTH)
-						|| (this.rotation == BoardOrientation.SOUTH && rotation == BoardOrientation.EAST)
-						|| (this.rotation == BoardOrientation.WEST && rotation == BoardOrientation.SOUTH)) {
-					pieceRotate = 270;
-				}
-				for (ChessStone c : chessPieceSet) {
-					c.rotate(pieceRotate);
-				}
-				this.rotation = rotation;
-			}
-		}
-		a1Center = a1.clone();
-
+		this.rotation = rotation;
 		if (a1 == null) {
 			// clear existing location / region data
+			a1Center = null;
 			a1Corner = null;
 			board = null;
 			areaBoard = null;
@@ -280,6 +255,7 @@ public class ChessBoard {
 			aboveFullBoard = null;
 			fullBoard = null;
 		} else {
+			a1Center = a1.clone();
 			int xOff = boardStyle.squareSize / 2, zOff = xOff;
 			if (rotation == BoardOrientation.NORTH) {
 				// N = +, +
@@ -455,7 +431,7 @@ public class ChessBoard {
 			ChessStone cStone = chessPieceSet.getPiece(stone);
 			if (cStone != null) {
 				//System.out.println("painting " + Chess.getOpponentStone(stone));
-				cStone.paintInto(p);
+				cStone.paintInto(p, rotation);
 			} else {
 				ChessCraftLogger.severe("unknown piece: " + stone);
 			}
@@ -465,7 +441,7 @@ public class ChessBoard {
 	public void lightBoard(boolean light) {
 		lightBoard(light, false);
 	}
-	
+
 	/**
 	 * applies lighting to the board <br>
 	 * - overrides the boardStyle's preference
@@ -715,18 +691,18 @@ public class ChessBoard {
 				break;
 			case EAST:
 				row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
-				col = 7 - ((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+				col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
 				break;
 			case SOUTH:
-				row = 7 - ((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
-				col = 7 - ((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+				row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+				col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
 				break;
 			case WEST:
-				row = 7 - ((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+				row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
 				col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
 				break;
 		}
-		//System.out.println(rotation + ": " + row + " " + col);
+		System.out.println(rotation + ": " + row + " " + col);
 		return row * 8 + col;
 	}
 } // end class ChessBoard

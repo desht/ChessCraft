@@ -1,6 +1,5 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.regions.Cuboid;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,7 +16,9 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
+
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.regions.Cuboid;
 
 public class TerrainBackup {
 

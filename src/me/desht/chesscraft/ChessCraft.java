@@ -29,7 +29,7 @@ public class ChessCraft extends JavaPlugin {
 	protected ChessCommandExecutor commandExecutor;
 	protected ChessPersistence persistence;
 	protected ExpectResponse expecter;
-	protected ChessServerListener pluginListener = new ChessServerListener();
+	protected ChessEconomy economyPluginListener = new ChessEconomy();
 	public ChessConfig config = null;
 	public ChessUtils util = null;
 	protected static WorldEditPlugin worldEditPlugin = null;
@@ -73,8 +73,8 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, pluginListener, Event.Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLUGIN_DISABLE, pluginListener, Event.Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, economyPluginListener, Event.Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLUGIN_DISABLE, economyPluginListener, Event.Priority.Monitor, this);
 
 		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 

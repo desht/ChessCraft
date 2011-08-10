@@ -1,7 +1,5 @@
 package me.desht.chesscraft;
 
-import me.desht.chesscraft.ChessAI.AI_Def;
-import me.desht.chesscraft.enums.GameState;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -28,6 +26,8 @@ import chesspresso.position.Position;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.ChessAI.AI_Def;
+import me.desht.chesscraft.enums.GameState;
 
 public class Game {
 
@@ -69,7 +69,7 @@ public class Game {
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null) {
-			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), Economy.getBalance(playerName)); //$NON-NLS-1$
+			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), ChessEconomy.getBalance(playerName)); //$NON-NLS-1$
 		} else {
 			stake = 0.0;
 		}
@@ -311,8 +311,8 @@ public class Game {
 			if (!invited.equals("*") && !invited.equalsIgnoreCase(playerName)) { //$NON-NLS-1$
 				throw new ChessException(Messages.getString("Game.notInvited")); //$NON-NLS-1$
 			}
-			if (Economy.active() && !Economy.canAfford(playerName, getStake())) {
-				throw new ChessException(Messages.getString("Game.cantAffordStake", Economy.format(getStake()))); //$NON-NLS-1$
+			if (ChessEconomy.active() && !ChessEconomy.canAfford(playerName, getStake())) {
+				throw new ChessException(Messages.getString("Game.cantAffordStake", ChessEconomy.format(getStake()))); //$NON-NLS-1$
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
@@ -359,8 +359,8 @@ public class Game {
 		} else {
 			inviteeName = player.getName();
 			alert(inviteeName, Messages.getString("Game.youAreInvited", inviterName)); //$NON-NLS-1$ 
-			if (Economy.active() && getStake() > 0.0) {
-				alert(inviteeName, Messages.getString("Game.gameHasStake", Economy.format(getStake()))); //$NON-NLS-1$
+			if (ChessEconomy.active() && getStake() > 0.0) {
+				alert(inviteeName, Messages.getString("Game.gameHasStake", ChessEconomy.format(getStake()))); //$NON-NLS-1$
 			}
 			alert(inviteeName, Messages.getString("Game.joinPrompt")); //$NON-NLS-1$
 			if (!invited.isEmpty()) {
@@ -374,8 +374,8 @@ public class Game {
 	public void inviteOpen(String inviterName) throws ChessException {
 		inviteSanityCheck(inviterName);
 		ChessUtils.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
-		if (Economy.active() && getStake() > 0.0) {
-			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", Economy.format(getStake()))); //$NON-NLS-1$
+		if (ChessEconomy.active() && getStake() > 0.0) {
+			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", ChessEconomy.format(getStake()))); //$NON-NLS-1$
 		}
 		ChessUtils.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
 		invited = "*"; //$NON-NLS-1$
@@ -413,22 +413,22 @@ public class Game {
 			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerWhite)) {
-			throw new ChessException(Messages.getString("Game.whiteCantAfford", Economy.format(stake))); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("Game.whiteCantAfford", ChessEconomy.format(stake))); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerBlack)) {
-			throw new ChessException(Messages.getString("Game.blackCantAfford", Economy.format(stake))); //$NON-NLS-1$ 
+			throw new ChessException(Messages.getString("Game.blackCantAfford", ChessEconomy.format(stake))); //$NON-NLS-1$
 		}
 		alert(playerWhite, Messages.getString("Game.startedAsWhite")); //$NON-NLS-1$
 		alert(playerBlack, Messages.getString("Game.startedAsBlack")); //$NON-NLS-1$
-		if (Economy.active() && stake > 0.0f) {
+		if (ChessEconomy.active() && stake > 0.0f) {
 			if (!isAIPlayer(playerWhite)) {
-				Economy.subtractMoney(playerWhite, stake);
+				ChessEconomy.subtractMoney(playerWhite, stake);
 			}
 			if (!isAIPlayer(playerBlack)) {
-				Economy.subtractMoney(playerBlack, stake);
+				ChessEconomy.subtractMoney(playerBlack, stake);
 			}
 			double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
-			alert(Messages.getString("Game.paidStake", Economy.format(s2))); //$NON-NLS-1$ //$NON-NLS-2$
+			alert(Messages.getString("Game.paidStake", ChessEconomy.format(s2))); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		clearInvitation();
 		setState(GameState.RUNNING);
@@ -655,19 +655,19 @@ public class Game {
 				} else {
 					winnings = stake * 2.0;
 				}
-				Economy.addMoney(p1, winnings);
-				alert(p1, Messages.getString("Game.youWon", Economy.format(winnings))); //$NON-NLS-1$ 
+				ChessEconomy.addMoney(p1, winnings);
+				alert(p1, Messages.getString("Game.youWon", ChessEconomy.format(winnings))); //$NON-NLS-1$
 			}
-			alert(p2, Messages.getString("Game.lostStake", Economy.format(stake))); //$NON-NLS-1$ 
+			alert(p2, Messages.getString("Game.lostStake", ChessEconomy.format(stake))); //$NON-NLS-1$
 		} else {
 			// a draw
 			if (!isAIPlayer(p1)) {
-				Economy.addMoney(p1, stake);
+				ChessEconomy.addMoney(p1, stake);
 			}
 			if (!isAIPlayer(p2)) {
-				Economy.addMoney(p2, stake);
+				ChessEconomy.addMoney(p2, stake);
 			}
-			alert(Messages.getString("Game.getStakeBack", Economy.format(stake))); //$NON-NLS-1$
+			alert(Messages.getString("Game.getStakeBack", ChessEconomy.format(stake))); //$NON-NLS-1$
 		}
 
 		stake = 0.0;
@@ -955,7 +955,7 @@ public class Game {
 		if (isAIPlayer(playerName)) {
 			return true;
 		}
-		return stake <= 0.0 || !Economy.active() || Economy.canAfford(playerName, stake);
+		return stake <= 0.0 || !ChessEconomy.active() || ChessEconomy.canAfford(playerName, stake);
 	}
 
 	/*--------------------------------------------------------------------------------*/
