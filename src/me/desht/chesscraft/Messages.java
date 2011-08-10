@@ -19,8 +19,8 @@ public class Messages {
 		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
 
-		if (wanted.isFile()) {
-			// just load it (but pull in any new messages from the shipped file if possible)
+		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
+			//  load it (but pull in any new messages from the shipped file if possible)
 			messages = checkUpToDate(wanted);
 		} else {
 			// first see if there's a shipped file for this exact locale in the JAR

@@ -91,6 +91,10 @@ public class ChessConfig {
 		ChessAI.initAI_Names();
 	}
 
+	public static File getJarFile() {
+		return new File("plugins", "ChessCraft.jar");
+	}
+	
 	public static Configuration getConfiguration() {
 		return plugin.getConfiguration();
 	}

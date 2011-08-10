@@ -22,7 +22,7 @@ ChessCommandExecutor:
   activeGameChanged: "Your active game is now &6{0}&-."
   activeGameIs: "Your active game is &6{0}&-."
   AIdefsReloaded: "AI definitions have been reloaded."
-  AIList: "&6{1}&-: &f{1}:{2,number,integer}"
+  AIList: "&6{0}&-: &f{1}:{2,number,integer}"
   AIpayout: "payout={0,number,integer}%"
   algebraicNotation: "&5 (standard algebraic notation)"
   allBoardsRedrawn: "All boards have been redrawn."
@@ -54,8 +54,10 @@ ChessCommandExecutor:
   drawOfferedYou: "You have offered a draw to &6{0}&-."
   gameCreated:
     - "Game &6{0}&- has been created on &6{1}&-."
-    - "Now type &f/chess invite <playername>&- to invite someone"
-    - "or &f/chess invite&- to create an open invitation."
+    - "Now type (or use control panel buttons):"
+    - "&5*&- &f/chess invite <playername>&- to invite someone"
+    - "&5*&- &f/chess invite&- to create an open invitation"
+    - "&5*&- just &f/chess start&- to play a random AI opponent"
   gameDeleted: "Game &6{0}&- has been deleted."
   gameDeletedAlert: "Game deleted by &6{0}&-!"
   gameDetail:
