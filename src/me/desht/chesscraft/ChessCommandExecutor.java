@@ -193,6 +193,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
+			ChessUtils.errorMessage(player, "       /chess list ai"); //$NON-NLS-1$
 		}
 	}
 
@@ -509,35 +510,34 @@ public class ChessCommandExecutor implements CommandExecutor {
 	/*-------------------------------------------------------------------------------*/
 	void tryTeleportToGame(Player player, Game game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_TELEPORT);
-
-		if (player == null) {
-			return;
-		}
+		notFromConsole(player);
+		
 		BoardView bv = game.getView();
 		if (bv.isPartOfBoard(player.getLocation())) {
 			return; // already there
 		}
-		Location loc;
-		if (game.getPlayerWhite().equals(player.getName())) {
-			loc = bv.getBounds().getUpperSW().clone();
-			loc.setYaw(90.0f);
-			loc.add(0.0, 1.5, -(1.0 + 4.5 * bv.getSquareSize()));
-		} else if (game.getPlayerBlack().equals(player.getName())) {
-			loc = bv.getBounds().getLowerNE().clone();
-			loc.setYaw(270.0f);
-			loc.add(0.0, 1.5, -1.0 + 4.5 * bv.getSquareSize());
-		} else {
-			loc = bv.getBounds().getLowerNE().clone();
-			loc.setYaw(0.0f);
-			loc.add(4.5 * bv.getSquareSize(), 1.5, 1.0);
-		}
-		while (!BlockType.canPassThrough(loc.getBlock().getTypeId())) {
-			loc.add(0.0, 1.0, 0.0);
-		}
-		System.out.println("teleport to " + loc); //$NON-NLS-1$
-		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.teleportDestObstructed")); //$NON-NLS-1$
-		}
+//		Location loc;
+//		if (game.getPlayerWhite().equals(player.getName())) {
+//			loc = bv.getBounds().getUpperSW().clone();
+//			loc.setYaw(90.0f);
+//			loc.add(0.0, 1.5, -(1.0 + 4.5 * bv.getSquareSize()));
+//		} else if (game.getPlayerBlack().equals(player.getName())) {
+//			loc = bv.getBounds().getLowerNE().clone();
+//			loc.setYaw(270.0f);
+//			loc.add(0.0, 1.5, -1.0 + 4.5 * bv.getSquareSize());
+//		} else {
+//			loc = bv.getBounds().getLowerNE().clone();
+//			loc.setYaw(0.0f);
+//			loc.add(4.5 * bv.getSquareSize(), 1.5, 1.0);
+//		}
+//		while (!BlockType.canPassThrough(loc.getBlock().getTypeId())) {
+//			loc.add(0.0, 1.0, 0.0);
+//		}
+//		System.out.println("teleport to " + loc); //$NON-NLS-1$
+//		if (loc.getBlock().getTypeId() != 0 || loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0) {
+//			throw new ChessException(Messages.getString("ChessCommandExecutor.teleportDestObstructed")); //$NON-NLS-1$
+//		}
+		Location loc = bv.getControlPanel().getLocationTP();
 		doTeleport(player, loc);
 		Game.setCurrentGame(player.getName(), game);
 	}
@@ -953,10 +953,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return res;
 	}
 
-	/*-------------------------------------------------------------------------------*/
-	private void doTeleport(Player player, Location loc) throws ChessException {
-		ChessPermission.requirePerms(player, ChessPermission.COMMAND_TELEPORT);
-
+	private void doTeleport(Player player, Location loc) {
 		plugin.setLastPos(player, player.getLocation());
 		player.teleport(loc);
 	}
