@@ -52,6 +52,7 @@ public class ChessConfig {
 			put("broadcast_results", true); //$NON-NLS-1$
 			put("auto_delete.finished", 30); //$NON-NLS-1$
 			put("auto_delete.not_started", 180); //$NON-NLS-1$
+			put("auto_delete.running", 7 * 24 * 3600); //$NON-NLS-1$
 			put("ai.min_move_wait", 3); //$NON-NLS-1$
 			put("ai.max_ai_games", 3); //$NON-NLS-1$
 			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$

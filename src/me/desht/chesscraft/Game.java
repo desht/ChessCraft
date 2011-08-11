@@ -33,7 +33,7 @@ public class Game {
 
 	private static final Map<String, Game> chessGames = new HashMap<String, Game>();
 	private static final Map<String, Game> currentGame = new HashMap<String, Game>();
-	private static final String archiveDir = "pgn"; //$NON-NLS-1$
+	
 	private ChessCraft plugin;
 	private String name;
 	private chesspresso.game.Game cpGame;
@@ -43,7 +43,7 @@ public class Game {
 	private String invited;
 	private GameState state;
 	private int fromSquare;
-	private long started, finished;
+	private long started, finished, lastMoved;
 	private long lastCheck;
 	private int timeWhite, timeBlack;
 	private List<Short> history;
@@ -65,7 +65,7 @@ public class Game {
 		fromSquare = Chess.NO_SQUARE;
 		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
-		lastCheck = started = System.currentTimeMillis();
+		lastCheck = lastMoved = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null) {
@@ -108,6 +108,7 @@ public class Game {
 		map.put("moves", history); //$NON-NLS-1$
 		map.put("started", started); //$NON-NLS-1$
 		map.put("finished", finished); //$NON-NLS-1$
+		map.put("lastMoved", lastMoved); //$NON-NLS-1$
 		map.put("result", result); //$NON-NLS-1$
 		map.put("promotionWhite", promotionPiece[Chess.WHITE]); //$NON-NLS-1$
 		map.put("promotionBlack", promotionPiece[Chess.BLACK]); //$NON-NLS-1$
@@ -145,6 +146,12 @@ public class Game {
 			finished = Long.parseLong(map.get("finished").toString()); //$NON-NLS-1$
 		} else {
 			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
+		}
+		if (map.containsKey("lastMoved")) { //$NON-NLS-1$
+			// a simple cast to Long won't work here
+			lastMoved = Long.parseLong(map.get("lastMoved").toString()); //$NON-NLS-1$
+		} else {
+			lastMoved = System.currentTimeMillis();
 		}
 		result = (Integer) map.get("result"); //$NON-NLS-1$
 		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite"); //$NON-NLS-1$
@@ -533,6 +540,7 @@ public class Game {
 			getPosition().doMove(realMove);
 			Move lastMove = getPosition().getLastMove();
 			history.add(realMove);
+			lastMoved = System.currentTimeMillis();
 			autoSave();
 			clockTick();
 			if (getPosition().isMate()) {
@@ -851,7 +859,8 @@ public class Game {
 		int n = 1;
 		File f;
 		do {
-			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn"); //$NON-NLS-1$ //$NON-NLS-2$
+//			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn"); //$NON-NLS-1$ //$NON-NLS-2$
+			f = new File(ChessConfig.getPGNDirectory(), baseName + "_" + n + ".pgn"); //$NON-NLS-1$
 			++n;
 		} while (f.exists());
 
@@ -923,6 +932,13 @@ public class Game {
 			if (timeout > 0 && elapsed > timeout) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
+			}
+		} else if (getState() == GameState.RUNNING) {
+			long elapsed = (System.currentTimeMillis() - lastMoved) / 1000;
+			int timeout = plugin.getConfiguration().getInt("auto_delete.running", 7 * 24 * 3600); //$NON-NLS-1$
+			if (timeout > 0 && elapsed > timeout) {
+				mustDelete = true;
+				alertStr = Messages.getString("Game.autoDeleteRunning", timeout); //$NON-NLS-1$
 			}
 		}
 
