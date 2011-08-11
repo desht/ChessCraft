@@ -702,7 +702,7 @@ public class ChessBoard {
 				col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
 				break;
 		}
-		System.out.println(rotation + ": " + row + " " + col);
+//		System.out.println(rotation + ": " + row + " " + col);
 		return row * 8 + col;
 	}
 } // end class ChessBoard

@@ -314,7 +314,7 @@ public class BoardView implements PositionListener {
 		if (bounds == null) {
 			return false;
 		}
-		bounds.inset(Direction.Horizontal, 1);
+//		bounds.inset(Direction.Horizontal, 1);
 		bounds.shift(Direction.Up, minHeight);
 		bounds.expand(Direction.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
