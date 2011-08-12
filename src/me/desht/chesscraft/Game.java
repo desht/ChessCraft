@@ -26,6 +26,7 @@ import chesspresso.position.Position;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.util.Duration;
@@ -253,7 +254,7 @@ public class Game {
 		return started;
 	}
 
-	long getFinished() {
+	public long getFinished() {
 		return finished;
 	}
 
@@ -634,7 +635,8 @@ public class Game {
 			msg = Messages.getString("Game.forfeited", p1, p2); //$NON-NLS-1$
 			break;
 		}
-		if (plugin.getConfiguration().getBoolean("broadcast_results", true)) { //$NON-NLS-1$
+		if (plugin.getConfiguration().getBoolean("broadcast_results", true) &&
+				!p1.equalsIgnoreCase(p2)) { //$NON-NLS-1$
 			if (!msg.isEmpty()) {
 				ChessUtils.broadcastMessage(msg);
 			}
@@ -643,8 +645,11 @@ public class Game {
 				alert(msg);
 			}
 		}
-		handlePayout(rt, p1, p2);
+		if (p1.equalsIgnoreCase(p2)) {
+			return;
+		}
 		
+		handlePayout(rt, p1, p2);
 		Results.getResultsHandler().logResult(this, rt);
 	}
 

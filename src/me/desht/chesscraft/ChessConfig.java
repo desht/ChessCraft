@@ -73,6 +73,9 @@ public class ChessConfig {
 			put("stake.default", 0.0); //$NON-NLS-1$
 			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
 			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
+			put("ladder.initial_pos", 1000); //$NON-NLS-1$
+			put("ladder.min_change", 1000); //$NON-NLS-1$
+			put("ladder.diff_divisor", 1000); //$NON-NLS-1$
 		}
 	};
 
@@ -278,7 +281,8 @@ public class ChessConfig {
 		for (String k : configDefaults.keySet()) {
 			if (config.getProperty(k) == null) {
 				saveNeeded = true;
-				config.setProperty(k, configDefaults.get(k));
+//				config.setProperty(k, configDefaults.get(k));
+				setConfigItem(null, k, configDefaults.get(k).toString());
 			}
 		}
 		if (saveNeeded) {

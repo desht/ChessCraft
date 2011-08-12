@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.expector.ExpectResponse;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 
@@ -50,6 +51,10 @@ public class ChessCraft extends JavaPlugin {
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
 
+		// TODO: this is just here so the results DB stuff gets loaded at startup
+		// time - easier to test that way.  Can remove it for production.
+		Results.getResultsHandler();
+		
 		setupSMS();
 		setupWorldEdit();
 		if (ChessPermission.setupPermissions(this.getServer())) {

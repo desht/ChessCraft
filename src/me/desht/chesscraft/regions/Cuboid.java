@@ -16,6 +16,8 @@ import me.desht.chesscraft.blocks.BlockType;
 
 //imports for weSelect()
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.WorldEditUtils;
+
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import org.bukkit.entity.Player;
@@ -370,8 +372,9 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 //			}
 			WorldEditPlugin wep = ChessCraft.getWorldEdit();
 			if (wep != null) {
-				CuboidSelection s = new CuboidSelection(getWorld(), getUpperSW(), getLowerNE());
-				wep.setSelection(p, s);
+//				CuboidSelection s = new CuboidSelection(getWorld(), getUpperSW(), getLowerNE());
+//				wep.setSelection(p, s);
+				WorldEditUtils.weSelect(this, p);
 			}
 		}
 	}
