@@ -253,6 +253,10 @@ public class Game {
 		return started;
 	}
 
+	long getFinished() {
+		return finished;
+	}
+
 	public void setFromSquare(int fromSquare) {
 		this.fromSquare = fromSquare;
 	}
@@ -439,6 +443,7 @@ public class Game {
 			alert(Messages.getString("Game.paidStake", ChessEconomy.format(s2))); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		clearInvitation();
+		lastMoved = System.currentTimeMillis();
 		setState(GameState.RUNNING);
 	}
 
@@ -639,6 +644,8 @@ public class Game {
 			}
 		}
 		handlePayout(rt, p1, p2);
+		
+		Results.getResultsHandler().logResult(this, rt);
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {

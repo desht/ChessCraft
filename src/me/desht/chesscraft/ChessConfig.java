@@ -33,15 +33,16 @@ public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, 
-	dataDir, gamePersistDir, boardPersistDir, languagesDir;
+	dataDir, gamePersistDir, boardPersistDir, languagesDir, resultsDir;
 	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
 	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
 	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
 	private static final String schematicsFoldername = "schematics"; //$NON-NLS-1$
-	private static final String languageFoldername = "lang";
+	private static final String languageFoldername = "lang"; //$NON-NLS-1$
 	private static final String datasaveFoldername = "data"; //$NON-NLS-1$
 	private static final String gamesFoldername = "games"; //$NON-NLS-1$
 	private static final String boardsFoldername = "boards"; //$NON-NLS-1$
+	private static final String resultsFoldername = "results"; //$NON-NLS-1$
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 	private static ChessCraft plugin = null;
@@ -137,6 +138,10 @@ public class ChessConfig {
 	public static File getPersistFile() {
 		return persistFile;
 	}
+	
+	public static File getResultsDir() {
+		return resultsDir;
+	}
 
 	private static void setupDirectoryStructure() {
 		// directories
@@ -148,6 +153,7 @@ public class ChessConfig {
 		boardPersistDir = new File(dataDir, boardsFoldername);
 		schematicsDir = new File(boardPersistDir, schematicsFoldername);
 		languagesDir = new File(pluginDir, languageFoldername);
+		resultsDir = new File(dataDir, resultsFoldername);
 
 		// files
 		persistFile = new File(dataDir, persistFilename);
@@ -168,6 +174,8 @@ public class ChessConfig {
 		createDir(gamePersistDir);
 		// [plugins]/ChessCraft/data/boards
 		createDir(boardPersistDir);
+		// [plugins]/ChessCraft/data/results
+		createDir(resultsDir);
 
 		// saved board schematics may need to be moved into their new location
 		File oldSchematicsDir = new File(pluginDir, "schematics"); //$NON-NLS-1$
