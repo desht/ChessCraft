@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,7 +20,6 @@ import chesspresso.move.Move;
 import java.util.LinkedList;
 
 import me.desht.chesscraft.ChessAI.AI_Def;
-import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.enums.ExpectAction;
@@ -51,53 +49,53 @@ public class ChessCommandExecutor implements CommandExecutor {
 				return false;
 			}
 			try {
-				if (partialMatch(args[0], "ga")) { // game //$NON-NLS-1$
+				if (ChessUtils.partialMatch(args[0], "ga")) { // game //$NON-NLS-1$
 					gameCommand(player, args);
-				} else if (partialMatch(args[0], "c")) { // create //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "c")) { // create //$NON-NLS-1$
 					createCommands(player, args);
-				} else if (partialMatch(args[0], "d")) { // delete //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "d")) { // delete //$NON-NLS-1$
 					deleteCommands(player, args);
-				} else if (partialMatch(args[0], "l")) { // list //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "l")) { // list //$NON-NLS-1$
 					listCommands(player, args);
-				} else if (partialMatch(args[0], "i")) { // invite //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "i")) { // invite //$NON-NLS-1$
 					inviteCommand(player, args);
-				} else if (partialMatch(args[0], "j")) { // join //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "j")) { // join //$NON-NLS-1$
 					joinCommand(player, args);
-				} else if (partialMatch(args[0], "star")) { // start //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "star")) { // start //$NON-NLS-1$
 					startCommand(player, args);
-				} else if (partialMatch(args[0], "stak")) { // stake //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "stak")) { // stake //$NON-NLS-1$
 					stakeCommand(player, args);
-				} else if (partialMatch(args[0], "res")) { // resign //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "res")) { // resign //$NON-NLS-1$
 					resignCommand(player, args);
-				} else if (partialMatch(args[0], "red")) { // redraw //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "red")) { // redraw //$NON-NLS-1$
 					redrawCommand(player, args);
-				} else if (partialMatch(args[0], "m")) { // move //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "m")) { // move //$NON-NLS-1$
 					moveCommand(player, args);
-				} else if (partialMatch(args[0], "pa")) { // page //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "pa")) { // page //$NON-NLS-1$
 					pageCommand(player, args);
-				} else if (partialMatch(args[0], "pr")) { // promotion //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "pr")) { // promotion //$NON-NLS-1$
 					promoCommand(player, args);
-				} else if (partialMatch(args[0], "sa")) { // save //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "sa")) { // save //$NON-NLS-1$
 					saveCommand(player, args);
-				} else if (partialMatch(args[0], "rel")) { // reload //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "rel")) { // reload //$NON-NLS-1$
 					reloadCommand(player, args);
-				} else if (partialMatch(args[0], "t")) { // tp //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "t")) { // tp //$NON-NLS-1$
 					teleportCommand(player, args);
-				} else if (partialMatch(args[0], "a")) { // archive //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "a")) { // archive //$NON-NLS-1$
 					archiveCommand(player, args);
-				} else if (partialMatch(args[0], "o")) { // offer //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "o")) { // offer //$NON-NLS-1$
 					offerCommand(player, args);
-				} else if (partialMatch(args[0], "y")) { // yes //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "y")) { // yes //$NON-NLS-1$
 					responseCommand(player, args);
-				} else if (partialMatch(args[0], "n")) { // no //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "n")) { // no //$NON-NLS-1$
 					responseCommand(player, args);
-				} else if (partialMatch(args[0], "set")) { // setcfg //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "set")) { // setcfg //$NON-NLS-1$
 					setcfgCommand(player, args);
-				} else if (partialMatch(args[0], "get")) { // getcfg //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "get")) { // getcfg //$NON-NLS-1$
 					getcfgCommand(player, args);
-				} else if (partialMatch(args[0], "fen")) { // fen //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "fen")) { // fen //$NON-NLS-1$
 					fenCommand(player, args);
-				} else if (partialMatch(args[0], "w")) { // win //$NON-NLS-1$
+				} else if (ChessUtils.partialMatch(args[0], "w")) { // win //$NON-NLS-1$
 					claimVictoryCommand(player, args);
 				} else {
 					return false;
@@ -176,19 +174,19 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void listCommands(Player player, String[] args) throws ChessException {
 
-		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
+		if (ChessUtils.partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			if (args.length > 2) {
 				showGameDetail(player, args[2]);
 			} else {
 				listGames(player);
 			}
-		} else if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 			if (args.length > 2) {
 				showBoardDetail(player, args[2]);
 			} else {
 				listBoards(player);
 			}
-		} else if (partialMatch(args, 1, "a")) { // ai //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "a")) { // ai //$NON-NLS-1$
 			listAIs(player);
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
@@ -199,10 +197,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	private void deleteCommands(Player player, String[] args) throws ChessException {
 
-		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
+		if (ChessUtils.partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			tryDeleteGame(player, args);
 		} else {
-			if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
+			if (ChessUtils.partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 				tryDeleteBoard(player, args);
 			} else {
 				ChessUtils.errorMessage(player, "Usage: /chess delete board <board-name>"); //$NON-NLS-1$
@@ -214,11 +212,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void createCommands(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 
-		if (partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
+		if (ChessUtils.partialMatch(args, 1, "g")) { // game //$NON-NLS-1$
 			String gameName = args.length >= 3 ? args[2] : null;
 			String boardName = args.length >= 4 ? args[3] : null;
 			tryCreateGame(player, gameName, boardName);
-		} else if (partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "b")) { // board //$NON-NLS-1$
 			tryCreateBoard(player, args);
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess create board <board-name> [-style <style>]"); //$NON-NLS-1$
@@ -240,11 +238,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 		boolean reloadAI = false;
 		boolean reloadConfig = false;
 
-		if (partialMatch(args, 1, "a")) { //$NON-NLS-1$
+		if (ChessUtils.partialMatch(args, 1, "a")) { //$NON-NLS-1$
 			reloadAI = true;
-		} else if (partialMatch(args, 1, "c")) { //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "c")) { //$NON-NLS-1$
 			reloadConfig = true;
-		} else if (partialMatch(args, 1, "p")) { //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "p")) { //$NON-NLS-1$
 			reloadPersisted = true;
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess reload <ai|config|persist>"); //$NON-NLS-1$
@@ -398,9 +396,9 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		Game game = Game.getCurrentGame(player, true);
 
-		if (partialMatch(args, 1, "d")) { // draw //$NON-NLS-1$
+		if (ChessUtils.partialMatch(args, 1, "d")) { // draw //$NON-NLS-1$
 			tryOfferDraw(player, game);
-		} else if (partialMatch(args, 1, "s")) { // swap sides //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "s")) { // swap sides //$NON-NLS-1$
 			tryOfferSwap(player, game);
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess offer (draw|swap)"); //$NON-NLS-1$
@@ -409,7 +407,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	private void responseCommand(Player player, String[] args) throws ChessException {
-		boolean isAccepted = partialMatch(args, 0, "y") ? true : false; //$NON-NLS-1$
+		boolean isAccepted = ChessUtils.partialMatch(args, 0, "y") ? true : false; //$NON-NLS-1$
 
 		doResponse(player, isAccepted);
 	}
@@ -482,7 +480,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			String key = args[1], val = combine(args, 2);
 			ChessConfig.setConfigItem(player, key, val);
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, val)); //$NON-NLS-1$
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfiguration().getString(key))); //$NON-NLS-1$
 		}
 	}
 
@@ -491,10 +489,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 			// default is to advance one page and display
 			MessageBuffer.nextPage(player);
 			MessageBuffer.showPage(player);
-		} else if (partialMatch(args, 1, "n")) { //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "n")) { //$NON-NLS-1$
 			MessageBuffer.nextPage(player);
 			MessageBuffer.showPage(player);
-		} else if (partialMatch(args, 1, "p")) { //$NON-NLS-1$
+		} else if (ChessUtils.partialMatch(args, 1, "p")) { //$NON-NLS-1$
 			MessageBuffer.prevPage(player);
 			MessageBuffer.showPage(player);
 		} else {
@@ -913,20 +911,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		return result.toString();
 	}
 
-	private static boolean partialMatch(String[] args, int index, String match) {
-		if (index >= args.length) {
-			return false;
-		}
-		return partialMatch(args[index], match);
-	}
 
-	private static Boolean partialMatch(String str, String match) {
-		int l = match.length();
-		if (str.length() < l) {
-			return false;
-		}
-		return str.substring(0, l).equalsIgnoreCase(match);
-	}
 
 	private void notFromConsole(Player p) throws ChessException {
 		if (p == null) {

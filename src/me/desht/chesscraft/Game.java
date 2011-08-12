@@ -28,6 +28,7 @@ import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
+import me.desht.util.Duration;
 
 public class Game {
 
@@ -920,23 +921,23 @@ public class Game {
 		String alertStr = null;
 
 		if (getState() == GameState.SETTING_UP) {
-			long elapsed = (System.currentTimeMillis() - started) / 1000;
-			int timeout = plugin.getConfiguration().getInt("auto_delete.not_started", 180); //$NON-NLS-1$
-			if (timeout > 0 && elapsed > timeout && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
+			long elapsed = System.currentTimeMillis() - started;
+			Duration timeout = new Duration(ChessConfig.getConfiguration().getString("auto_delete.not_started", "3 mins"));
+			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration() && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteNotStarted",  timeout); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.FINISHED) {
-			long elapsed = (System.currentTimeMillis() - finished) / 1000;
-			int timeout = plugin.getConfiguration().getInt("auto_delete.finished", 30); //$NON-NLS-1$
-			if (timeout > 0 && elapsed > timeout) {
+			long elapsed = System.currentTimeMillis() - finished;
+			Duration timeout = new Duration(ChessConfig.getConfiguration().getString("auto_delete.finished", "30 mins"));
+			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.RUNNING) {
-			long elapsed = (System.currentTimeMillis() - lastMoved) / 1000;
-			int timeout = plugin.getConfiguration().getInt("auto_delete.running", 7 * 24 * 3600); //$NON-NLS-1$
-			if (timeout > 0 && elapsed > timeout) {
+			long elapsed = System.currentTimeMillis() - lastMoved;
+			Duration timeout = new Duration(ChessConfig.getConfiguration().getString("auto_delete.running", "7 days"));
+			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteRunning", timeout); //$NON-NLS-1$
 			}

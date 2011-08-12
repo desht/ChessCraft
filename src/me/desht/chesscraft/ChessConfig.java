@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.util.Duration;
+
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
@@ -50,9 +52,9 @@ public class ChessConfig {
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
-			put("auto_delete.finished", 30); //$NON-NLS-1$
-			put("auto_delete.not_started", 180); //$NON-NLS-1$
-			put("auto_delete.running", 7 * 24 * 3600); //$NON-NLS-1$
+			put("auto_delete.finished", new Duration("30 s")); //$NON-NLS-1$
+			put("auto_delete.not_started", new Duration("3 mins")); //$NON-NLS-1$
+			put("auto_delete.running", new Duration("7 days")); //$NON-NLS-1$
 			put("ai.min_move_wait", 3); //$NON-NLS-1$
 			put("ai.max_ai_games", 3); //$NON-NLS-1$
 			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -66,7 +68,7 @@ public class ChessConfig {
 			put("wand_item", "air"); //$NON-NLS-1$ //$NON-NLS-2$
 			put("auto_teleport_on_join", true); //$NON-NLS-1$
 			put("highlight_last_move", true); //$NON-NLS-1$
-			put("timeout_forfeit", 60); //$NON-NLS-1$
+			put("timeout_forfeit", new Duration("1 min")); //$NON-NLS-1$
 			put("stake.default", 0.0); //$NON-NLS-1$
 			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
 			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
@@ -291,7 +293,7 @@ public class ChessConfig {
 	static void setConfigItem(Player player, String key, String val) {
 		Configuration config = plugin.getConfiguration();
 
-		if (configDefaults.get(key) == null) {
+		if (!configDefaults.containsKey(key)) {
 			ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", key)); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys"); //$NON-NLS-1$
 			return;
@@ -320,6 +322,13 @@ public class ChessConfig {
 				config.setProperty(key, nVal);
 			} catch (NumberFormatException e) {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidFloat", val)); //$NON-NLS-1$
+			}
+		} else if (configDefaults.get(key) instanceof Duration) {
+			try {
+				Duration d = new Duration(val);
+				config.setProperty(key, d.toString());
+			} catch (IllegalArgumentException e) {
+				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidDuration", val)); //$NON-NLS-1$
 			}
 		} else {
 			config.setProperty(key, val);

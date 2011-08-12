@@ -1,26 +1,11 @@
 package me.desht.util;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("serial")
+import me.desht.chesscraft.ChessUtils;
+
 public class Duration {
 	long days, hours, minutes, seconds, milliseconds;
-	private static final Map<String,Integer> specMap = new HashMap<String,Integer>() {
-		{	
-			put("ms", 1);
-			put("s", 1000);
-			put("m", 60000);
-			put("h", 3600000);
-			put("d", 86400000);
-			put("milliseconds", 1);
-			put("seconds", 1000);
-			put("minutes", 60000);
-			put("hours", 3600000);
-			put("days", 86400000);
-		}
-	};
 	
 	/**
 	 * Create a new Duration object from the given parameters
@@ -65,10 +50,10 @@ public class Duration {
 	/**
 	 * Create a new Duration object
 	 * 
-	 * @param spec	Duration specification 
+	 * @param duration	Duration specification 
 	 */
-	public Duration (String spec) {
-		String[] fields = spec.toLowerCase().split(" +");
+	public Duration(String duration) {
+		String[] fields = duration.toLowerCase().split("\\s+");
 		long total = 0;
 		
 		if (fields.length > 1) {
@@ -77,16 +62,13 @@ public class Duration {
 			}
 
 			for (int i = 0; i < fields.length; i += 2) {
-				if (!specMap.containsKey(fields[i])) {
-					throw new IllegalArgumentException("Unknown duration specifier " + fields[i]);
-				}
-				long val = Long.parseLong(fields[i + 1]);
-				int mult = specMap.get(fields[i]);
-
-				total += val * mult;
+				total += Long.parseLong(fields[i]) * getMult(fields[i + 1]);
 			}
-		} else {
+		} else if (fields.length == 1) {
+			// just a single number - default is the value in seconds
 			total = Long.parseLong(fields[0]) * 1000;
+		} else {
+			throw new IllegalArgumentException("Empty duration specification");
 		}
 		
 		Duration d = new Duration(total);
@@ -97,6 +79,22 @@ public class Duration {
 		milliseconds = d.getMilliseconds();
 	}
 	
+	private int getMult(String str) {
+		if (ChessUtils.partialMatch(str, "ms") || ChessUtils.partialMatch(str, "mil")) {
+			return 1;
+		} else if (ChessUtils.partialMatch(str, "s")) {
+			return 1000;
+		} else if (ChessUtils.partialMatch(str, "m")) {
+			return 60000;
+		} else if (ChessUtils.partialMatch(str, "h")) {
+			return 3600000;
+		} else if (ChessUtils.partialMatch(str, "d")) {
+			return 86400000;
+		} else {
+			throw new IllegalArgumentException("Unknown duration specifier " + str);
+		}
+	}
+
 	public long getDays() {
 		return days;
 	}
@@ -121,7 +119,7 @@ public class Duration {
 		return milliseconds + (seconds + minutes * 60 + hours * 3600 + days * 86400) * 1000;
 	}
 	
-	public String toString() {
+	public String shortDescription() {
 		if (days == 0 && milliseconds == 0) {
 			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 		} else if (days > 0 && milliseconds == 0) {
@@ -131,5 +129,25 @@ public class Duration {
 		} else {  // if (days > 0 && milliseconds > 0)
 			return String.format("%dd%02d:%02d:%02d.%03d", days, hours, minutes, seconds, milliseconds);
 		} 
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if (days > 0) {
+			sb.append(days + " d ");
+		}
+		if (hours > 0) {
+			sb.append(hours + " hr ");	
+		}
+		if (minutes > 0) {
+			sb.append(minutes + " min ");	
+		}
+		if (seconds > 0) {
+			sb.append(seconds + " sec");		
+		}
+		if (milliseconds > 0) {
+			sb.append(milliseconds + " ms");
+		}
+		return sb.toString().trim();
 	}
 }

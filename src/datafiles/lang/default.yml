@@ -106,8 +106,11 @@ ChessConfig:
   invalidBoolean: "Invalid boolean value: {0} (use true/yes or false/no)"
   invalidInteger: "Invalid integer value: {0,number,integer}"
   invalidFloat: "Invalid floating-point value: {0,number,float}"
-  noSuchKey: "No such configuration key: {0}"
-
+  invalidDuration: "Invalid duration: {0}"
+  noSuchKey: 
+    - "No such configuration key: {0}"
+    - "Use &f/chess getcfg&- to list all valid keys"
+ 
 ChessEntityListener:
   goingToSpawn: "Can''t find a safe place to displace you - going to spawn."
 
@@ -173,8 +176,8 @@ Game:
   alertPrefix: "&6:: &-Game &6{0}&-: "
   archiveExists: "Archive file {0} exists - won''t overwrite."
   autoDeleteFinished: "Finished game auto-deleted."
-  autoDeleteNotStarted: "Game auto-deleted (not started within {0,number,integer} seconds)."
-  autoDeleteRunning: "Game auto-deleted (no move made with {0, number, integer} seconds)."
+  autoDeleteNotStarted: "Game auto-deleted (not started within {0})."
+  autoDeleteRunning: "Game auto-deleted (no move made within {0})."
   black: "Black"
   blackCantAfford: "Black can''t afford to play! (need {0})"
   cantAffordStake: "You can''t afford the stake for this game (need {0})!"

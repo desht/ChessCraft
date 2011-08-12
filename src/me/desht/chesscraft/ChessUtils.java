@@ -232,5 +232,21 @@ public class ChessUtils {
 		// actually has the most recent cost counts
 		return p[n];
 	}
+	
+	public static boolean partialMatch(String[] args, int index, String match) {
+		if (index >= args.length) {
+			return false;
+		}
+		return partialMatch(args[index], match);
+	}
+
+	public static Boolean partialMatch(String str, String match) {
+		int l = match.length();
+		if (str.length() < l) {
+			return false;
+		}
+		return str.substring(0, l).equalsIgnoreCase(match);
+	}
+	
 } // end class ChessUtils
 
