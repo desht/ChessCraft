@@ -21,6 +21,8 @@ import java.util.LinkedList;
 
 import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.results.Results;
+import me.desht.chesscraft.results.ScoreRecord;
 import me.desht.chesscraft.enums.ChessPermission;
 import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.enums.GameState;
@@ -188,6 +190,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 		} else if (ChessUtils.partialMatch(args, 1, "a")) { // ai //$NON-NLS-1$
 			listAIs(player);
+		} else if (ChessUtils.partialMatch(args, 1, "t")) { // top scores //$NON-NLS-1$
+			listScores(player, args);
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
@@ -503,6 +507,29 @@ public class ChessCommandExecutor implements CommandExecutor {
 				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[1])); //$NON-NLS-1$
 			}
 		}
+	}
+
+	void listScores(Player player, String[] args) throws ChessException {
+		String viewName = "ladder";
+		int n = 5;
+		if (args.length > 2) {
+			try {
+				n = Integer.parseInt(args[2]);
+			} catch (NumberFormatException e) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", args[2]));
+			}
+		}
+		if (args.length > 3) {
+			viewName = args[3];
+		}
+		
+		MessageBuffer.clear(player);
+		int row = 1;
+		for (ScoreRecord sr : Results.getResultsHandler().getView(viewName).getScores(n)) {
+			MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
+			row++;
+		}
+		MessageBuffer.showPage(player);
 	}
 
 	/*-------------------------------------------------------------------------------*/

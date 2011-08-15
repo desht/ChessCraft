@@ -52,8 +52,8 @@ public class ChessCraft extends JavaPlugin {
 		expecter = new ExpectResponse();
 
 		// TODO: this is just here so the results DB stuff gets loaded at startup
-		// time - easier to test that way.  Can remove it for production.
-		Results.getResultsHandler();
+		// time - easier to test that way.  Remove it for production.
+		Results.getResultsHandler().addTestData();
 		
 		setupSMS();
 		setupWorldEdit();
@@ -110,6 +110,7 @@ public class ChessCraft extends JavaPlugin {
 		for (BoardView view : BoardView.listBoardViews()) {
 			view.delete();
 		}
+		Results.getResultsHandler().shutdown();
 		ChessCraftLogger.log("disabled!");
 	}
 

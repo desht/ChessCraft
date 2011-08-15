@@ -74,8 +74,8 @@ public class ChessConfig {
 			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
 			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
 			put("ladder.initial_pos", 1000); //$NON-NLS-1$
-			put("ladder.min_change", 1000); //$NON-NLS-1$
-			put("ladder.diff_divisor", 1000); //$NON-NLS-1$
+			put("ladder.min_change", 25); //$NON-NLS-1$
+			put("ladder.diff_divisor", 4); //$NON-NLS-1$
 		}
 	};
 

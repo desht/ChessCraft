@@ -28,6 +28,16 @@ public class ResultEntry {
 		pgnResult = game.getPGNResult();
 	}
 
+	ResultEntry(String plw, String plb, String gn, long start, long end, String pgnRes, GameResult rt) {
+		playerWhite = plw;
+		playerBlack = plb;
+		gameName = gn;
+		startTime = start;
+		endTime = end;
+		result = rt;
+		pgnResult = pgnRes;
+	}
+
 	public String getLoser() {
 		if (pgnResult.equals("1-0")) {
 			return playerBlack;

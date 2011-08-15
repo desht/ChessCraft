@@ -96,6 +96,7 @@ ChessCommandExecutor:
     - "Game position for &6{0}&- has been updated. {1} to play."
     - "&4NOTE: &-move history invalidated, this game can no longer be saved."
   promotionPieceSet: "Promotion piece for game &6{0}&- has been set to &6{1}&-."
+  scoreRecord: "&e{0,number,integer}) &6{1}&-: &f{2}&-"
   sideSwapOfferedOther: "&6{0}&- has offered to swap sides."
   sideSwapOfferedYou: "You have offered to swap sides with &6{0}&-."
   stakeChanged: "Stake for this game is now {0}."
