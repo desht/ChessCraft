@@ -12,11 +12,11 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ResultEntry {
 
-	String playerWhite, playerBlack;
-	String gameName;
-	long startTime, endTime;
-	GameResult result;
-	String pgnResult;
+	private String playerWhite, playerBlack;
+	private String gameName;
+	private long startTime, endTime;
+	private GameResult result;
+	private String pgnResult;
 
 	ResultEntry(Game game, GameResult rt) {
 		playerWhite = game.getPlayerWhite();
@@ -38,14 +38,32 @@ public class ResultEntry {
 		pgnResult = pgnRes;
 	}
 
-	public String getLoser() {
-		if (pgnResult.equals("1-0")) {
-			return playerBlack;
-		} else if (pgnResult.equals("0-1")) {
-			return playerWhite;
-		} else {
-			return null;
-		}
+	public String getPlayerWhite() {
+		return playerWhite;
+	}
+
+	public String getPlayerBlack() {
+		return playerBlack;
+	}
+
+	public String getGameName() {
+		return gameName;
+	}
+
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public GameResult getResult() {
+		return result;
+	}
+
+	public String getPgnResult() {
+		return pgnResult;
 	}
 
 	public String getWinner() {
@@ -53,6 +71,16 @@ public class ResultEntry {
 			return playerWhite;
 		} else if (pgnResult.equals("0-1")) {
 			return playerBlack;
+		} else {
+			return null;
+		}
+	}
+
+	public String getLoser() {
+		if (pgnResult.equals("1-0")) {
+			return playerBlack;
+		} else if (pgnResult.equals("0-1")) {
+			return playerWhite;
 		} else {
 			return null;
 		}

@@ -51,7 +51,7 @@ public class ChessCraft extends JavaPlugin {
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
 
-		// TODO: this is just here so the results DB stuff gets loaded at startup
+		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
 //		Results.getResultsHandler().addTestData();
 		
@@ -110,7 +110,7 @@ public class ChessCraft extends JavaPlugin {
 		for (BoardView view : BoardView.listBoardViews()) {
 			view.delete();
 		}
-		Results.getResultsHandler().shutdown();
+		Results.shutdown();
 		ChessCraftLogger.log("disabled!");
 	}
 

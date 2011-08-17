@@ -1,19 +1,32 @@
 package me.desht.chesscraft.results;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 
+/**
+ * @author des
+ * 
+ * Abstract base class to represent a view on the raw results data.  Subclass
+ * this and implement the addResult() and getInitialScore() methods.
+ */
 public abstract class ResultViewBase {
+	private Results handler;
 	private String viewType;
+	private Map<String, Integer> scoreMap = null;
 	
-	ResultViewBase(String viewType) {
+	ResultViewBase(Results handler, String viewType) {
 		this.viewType = viewType;
+		this.handler = handler;
 	}
 	
 	/**
@@ -22,11 +35,24 @@ public abstract class ResultViewBase {
 	 */
 	public void rebuild() {
 		try {
-			Statement del = Results.getResultsHandler().getConnection().createStatement();
+			// we build the new results in an internal map, and then write them to the DB
+			// in a single transaction - much better performance this way
+			Connection conn = handler.getConnection();
+			conn.setAutoCommit(false);
+			Statement del = conn.createStatement();	
 			del.executeUpdate("DELETE FROM " + viewType);
+			scoreMap = new HashMap<String, Integer>();
 			for (ResultEntry re : Results.getResultsHandler().getEntries()) {
 				addResult(re);
 			}
+			PreparedStatement insert = handler.getResultsDB().getCachedStatement("INSERT INTO " + viewType + " VALUES (?,?)");
+			for (Entry<String, Integer> e : scoreMap.entrySet()) {
+				insert.setString(1, e.getKey());
+				insert.setInt(2, e.getValue());
+				insert.executeUpdate();
+			}
+			scoreMap = null;
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			ChessCraftLogger.warning("Can't rebuild results view " + viewType + ": " + e.getMessage());
 		}
@@ -55,7 +81,7 @@ public abstract class ResultViewBase {
 		List<ScoreRecord> res = new ArrayList<ScoreRecord>();
 		
 		try {
-			Statement stmt = Results.getResultsHandler().getConnection().createStatement();
+			Statement stmt = handler.getConnection().createStatement();
 			StringBuilder query = new StringBuilder("SELECT player, score FROM " + viewType + " ORDER BY score DESC");
 			if (n > 0) {
 				query.append(" LIMIT ").append(n);
@@ -86,8 +112,15 @@ public abstract class ResultViewBase {
 			return;
 		}
 		
+		if (scoreMap != null) {
+			// work on the internal score map - we would do this when doing batch calculations
+			// (e.g. a full rebuild of the view) for performance reasons
+			scoreMap.put(player, score);
+			return;
+		}
+		
 		try {
-			ResultsDB rdb = Results.getResultsHandler().getDB();
+			ResultsDB rdb = handler.getResultsDB();
 			boolean inserted = false;
 			if (!updateOnly) {
 				PreparedStatement getPlayer = rdb.getCachedStatement("SELECT player FROM " + viewType + " WHERE player = ?");
@@ -124,8 +157,17 @@ public abstract class ResultViewBase {
 	 * @return			The player's score
 	 */
 	public int getScore(String player) {
+		if (scoreMap != null) {
+			// work on the internal score map - we would do this when doing batch calculations
+			// (e.g. a full rebuild of the view) for performance reasons
+			if (!scoreMap.containsKey(player)) {
+				scoreMap.put(player, getInitialScore());
+			}
+			return scoreMap.get(player);
+		}
+		
 		try {
-			ResultsDB rdb = Results.getResultsHandler().getDB();
+			ResultsDB rdb = handler.getResultsDB();
 			PreparedStatement getPlayer = rdb.getCachedStatement("SELECT score FROM " + viewType + " WHERE player = ?");
 			getPlayer.setString(1, player);
 			ResultSet rs = getPlayer.executeQuery();

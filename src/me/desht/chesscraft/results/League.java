@@ -8,8 +8,8 @@ public class League extends ResultViewBase {
 	private final int LOSS_POINTS = 0;
 	private final int DRAW_POINTS = 1;
 	
-	public League() {
-		super("league");
+	public League(Results handler) {
+		super(handler, "league");
 	}
 
 	@Override
@@ -20,8 +20,8 @@ public class League extends ResultViewBase {
 			awardPoints(winner, ChessConfig.getConfiguration().getInt("league.win_points", WIN_POINTS));	
 			awardPoints(loser , ChessConfig.getConfiguration().getInt("league.loss_points", LOSS_POINTS));
 		} else {
-			awardPoints(re.playerWhite, ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
-			awardPoints(re.playerBlack, ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
+			awardPoints(re.getPlayerWhite(), ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
+			awardPoints(re.getPlayerBlack(), ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
 		}
 	}
 

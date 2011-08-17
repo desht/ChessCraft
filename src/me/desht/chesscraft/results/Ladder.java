@@ -17,8 +17,8 @@ public class Ladder extends ResultViewBase {
 	/**
 	 * Create a new Ladder object.
 	 */
-	public Ladder() {
-		super("ladder");
+	public Ladder(Results handler) {
+		super(handler, "ladder");
 	}
 
 	/**
@@ -28,30 +28,27 @@ public class Ladder extends ResultViewBase {
 	 */
 	@Override
 	public void addResult(ResultEntry re) {
-		long t1 = System.currentTimeMillis();
 		applyRatingChange(re);
-		long t2 = System.currentTimeMillis();
-		System.out.println("time taken = " + (t2 - t1) + "ms");
 	}
 
 	private void applyRatingChange(ResultEntry re) {
-		int ratingW = getScore(re.playerWhite);
-		int ratingB = getScore(re.playerBlack);
+		int ratingW = getScore(re.getPlayerWhite());
+		int ratingB = getScore(re.getPlayerBlack());
 
 		float prob = getProbability(Math.abs(ratingW - ratingB));
 		float probW = ratingW > ratingB ? prob : 1 - prob;
 		float probB = 1 - probW;
 
 //		System.out.println(String.format("add result: %s %s %s %.2f %.2f", re.playerWhite, re.playerBlack, re.pgnResult, probW, probB));
-		if (re.pgnResult.equals("1-0")) {
-			setScore(re.playerWhite, ratingW + Math.round(getKfactor(ratingW) * (1 - probW)), true);
-			setScore(re.playerBlack, ratingB + Math.round(getKfactor(ratingB) * (0 - probB)), true);
-		} else if (re.pgnResult.equals("0-1")) {
-			setScore(re.playerWhite, ratingW + Math.round(getKfactor(ratingW) * (0 - probW)), true);
-			setScore(re.playerBlack, ratingB + Math.round(getKfactor(ratingB) * (1 - probB)), true);
+		if (re.getPgnResult().equals("1-0")) {
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (1 - probW)), true);
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0 - probB)), true);
+		} else if (re.getPgnResult().equals("0-1")) {
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0 - probW)), true);
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (1 - probB)), true);
 		} else {
-			setScore(re.playerWhite, ratingW + Math.round(getKfactor(ratingW) * (0.5f - probW)), true);
-			setScore(re.playerBlack, ratingB + Math.round(getKfactor(ratingB) * (0.5f - probB)), true);
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0.5f - probW)), true);
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0.5f - probB)), true);
 		}
 	}
 

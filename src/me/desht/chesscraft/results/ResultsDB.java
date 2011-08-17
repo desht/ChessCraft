@@ -18,13 +18,12 @@ public class ResultsDB {
 
 	private Connection connection;
 	
-	private final Map<String, PreparedStatement> stmtCache = new HashMap<String, PreparedStatement>();
+	private final Map<String, PreparedStatement> statementCache = new HashMap<String, PreparedStatement>();
 
 	ResultsDB() {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			File dbFile = new File(ChessConfig.getResultsDir(), "results.db");
-//			System.out.println(dbFile);
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 			setupTables();
 		} catch (ClassNotFoundException e) {
@@ -94,9 +93,9 @@ public class ResultsDB {
 
 
 	PreparedStatement getCachedStatement(String query) throws SQLException {
-		if (!stmtCache.containsKey(query)) {
-			stmtCache.put(query, connection.prepareStatement(query));
+		if (!statementCache.containsKey(query)) {
+			statementCache.put(query, connection.prepareStatement(query));
 		}
-		return stmtCache.get(query);
+		return statementCache.get(query);
 	}
 }

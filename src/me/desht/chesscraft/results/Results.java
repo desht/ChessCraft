@@ -18,49 +18,99 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class Results {
-	private static Results results = null;	// singleton class
+	private static Results results = null;	// this is a singleton class
 	private ResultsDB db;
 	private final List<ResultEntry> entries = new ArrayList<ResultEntry>();
 	private final Map<String, ResultViewBase> views = new HashMap<String, ResultViewBase>();
 
+	/**
+	 * Create the singleton results handler - only called from getResultsHandler once
+	 */
 	private Results() {
-		
+		db = new ResultsDB();
+		loadEntries();
+		registerView("ladder", new Ladder(this));
+		registerView("league", new League(this));
 	}
 
+	/**
+	 * Register a new view type
+	 * 
+	 * @param viewName	Name of the view
+	 * @param view		Object to handle the view (must subclass ResultViewBase)
+	 */
 	private void registerView(String viewName, ResultViewBase view) {
 		views.put(viewName, view);
 	}
 	
+	/**
+	 * Get the singleton results handler object
+	 * 
+	 * @return	The results handler
+	 */
 	public static Results getResultsHandler() {
 		if (results == null) {
 			results = new Results();
-			results.db = new ResultsDB();
-			results.loadEntries();
-			results.registerView("ladder", new Ladder());
-			results.registerView("league", new League());
 		}
 		return results;
 	}
 
-	ResultsDB getDB() {
+	/**
+	 * Get the database handler for the results
+	 * 
+	 * @return	The database handler
+	 */
+	ResultsDB getResultsDB() {
 		return db;
 	}
 
+	/**
+	 * Shut down the results handler, ensuring the DB is cleanly disconnected etc.
+	 * Call this when the plugin is disabled.
+	 */
+	public static void shutdown() {
+		results.db.shutdown();
+		results = null;
+	}
+
+	/**
+	 * Get a results view of the given type (e.g. ladder, league...)
+	 *
+	 * @param viewName	Name of the view type
+	 * @return			A view object
+	 * @throws ChessException	if there is no such view type
+	 */
 	public ResultViewBase getView(String viewName) throws ChessException {
 		if (!views.containsKey(viewName)) {
-			throw new ChessException("No such results view " + viewName);
+			throw new ChessException("No such results type: " + viewName);
 		}
 		return views.get(viewName);
 	}
 	
+	/**
+	 * Return a list of all results
+	 * 
+	 * @return	A list of ResultEntry objects
+	 */
 	public List<ResultEntry> getEntries() {
 		return entries;
 	}
 
+	/**
+	 * Get the database connection object
+	 * 
+	 * @return	A SQL Connection object
+	 */
 	public Connection getConnection() {
 		return db.getConnection();
 	}
 
+	/**
+	 * Log the result for a game
+	 * 
+	 * @param game	The game that has just finished
+	 * @param rt	The outcome of the game
+	 */
 	public void logResult(Game game, GameResult rt) {
 		if (game.getState() != GameState.FINISHED) {
 			return;
@@ -70,6 +120,10 @@ public class Results {
 		logResult(re);
 	}
 	
+	/**
+	 * Log a result entry
+	 * @param re
+	 */
 	public void logResult(ResultEntry re) {
 		entries.add(re);
 		re.save(getConnection());
@@ -146,17 +200,6 @@ public class Results {
 			return 0;
 		}
 	}
-	
-	/**
-	 * Return the league table score for a player.  A win count as 3 points,
-	 * a draw as 1 point, a loss as 0 points.
-	 * 
-	 * @param playerName	The player to check
-	 * @return	The player's total score
-	 */
-	public int getScore(String playerName) {
-		return getWins(playerName) * 3 + getDraws(playerName);
-	}
 
 	private int doSearch(String playerName, PreparedStatement stmtW, PreparedStatement stmtB) throws SQLException {
 		int count = 0;
@@ -170,6 +213,7 @@ public class Results {
 	
 	private void loadEntries() {
 		try {
+			entries.clear();
 			Statement stmt = getConnection().createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT * FROM results");
 			while (rs.next()) {
@@ -181,9 +225,12 @@ public class Results {
 		}
 	}
 	
+	/**
+	 * Generate some random test data and put it in the results table.  This is just
+	 * for testing purposes.
+	 */
 	public void addTestData() {
-		final int N_PLAYERS = 4;
-		final int N_GAMES = 20;
+		final int N_PLAYERS = 10;
 		String[] pgnResults = { "1-0", "0-1", "1/2-1/2" };
 		
 		try {
@@ -191,25 +238,27 @@ public class Results {
 			Statement clear = getConnection().createStatement();
 			clear.executeUpdate("DELETE FROM results WHERE playerWhite LIKE 'testplayer%' OR playerBlack LIKE 'testplayer%'");
 			Random rnd = new Random();
-			for (int i = 0; i < N_GAMES; i++) {
-				String plw = "testplayer" + rnd.nextInt(N_PLAYERS);
-				String plb = "testplayer" + rnd.nextInt(N_PLAYERS);
-				if (plw.equals(plb)) {
-					continue;
+			for (int i = 0; i < N_PLAYERS; i++) {
+				for (int j = 0; j < N_PLAYERS; j++) {
+					if (i == j) {
+						continue;
+					}
+					String plw = "testplayer" + i;
+					String plb = "testplayer" + j;
+					String gn = "testgame-" + i + "-" + j;
+					long start = System.currentTimeMillis() - 5000;
+					long end = System.currentTimeMillis() - 4000;
+					String pgnRes = pgnResults[rnd.nextInt(pgnResults.length)];
+					GameResult rt;
+					if (pgnRes.equals("1-0") || pgnRes.equals("0-1")) {
+						rt = GameResult.Checkmate;
+					} else {
+						rt = GameResult.DrawAgreed;	
+					}
+					ResultEntry re = new ResultEntry(plw, plb, gn, start, end, pgnRes, rt);
+					entries.add(re);
+					re.save(getConnection());
 				}
-				String gn = "testgame" + i;
-				long start = System.currentTimeMillis() - 5000;
-				long end = System.currentTimeMillis() - 4000;
-				String pgnRes = pgnResults[rnd.nextInt(pgnResults.length)];
-				GameResult rt;
-				if (pgnRes.equals("1-0") || pgnRes.equals("0-1")) {
-					rt = GameResult.Checkmate;
-				} else {
-					rt = GameResult.DrawAgreed;	
-				}
-				ResultEntry re = new ResultEntry(plw, plb, gn, start, end, pgnRes, rt);
-				entries.add(re);
-				re.save(getConnection());
 			}
 			getConnection().setAutoCommit(true);
 			for (ResultViewBase view : views.values()) {
@@ -219,9 +268,5 @@ public class Results {
 		} catch (SQLException e) {
 			ChessCraftLogger.warning("can't put test data into DB: " + e.getMessage());
 		}
-	}
-
-	public void shutdown() {
-		db.shutdown();
 	}
 }
