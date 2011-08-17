@@ -72,15 +72,16 @@ public abstract class ResultViewBase {
 	}
 	
 	protected void awardPoints(String player, int score) {
-		System.out.println("awardscore " + player + " = " + score);
+//		System.out.println("awardscore " + player + " = " + score);
+		
+		int current = getScore(player);
 		if (score == 0) {
 			return;
 		}
-		int current = getScore(player);
 		setScore(player, current + score, true);
 	}
 
-	private void setScore(String player, int score, boolean updateOnly) {
+	public void setScore(String player, int score, boolean updateOnly) {
 		if (score < 0) {
 			return;
 		}
@@ -98,7 +99,7 @@ public abstract class ResultViewBase {
 					insert.setString(1, player);
 					insert.setInt(2, score);
 					insert.executeUpdate();
-					System.out.println("insert score " + player + " = " + score);
+//					System.out.println("insert score " + player + " = " + score);
 					inserted = true;
 				}
 			}
@@ -108,7 +109,7 @@ public abstract class ResultViewBase {
 				update.setString(2, player);
 				update.setInt(1, score);
 				update.executeUpdate();
-				System.out.println("update score " + player + " = " + score);
+//				System.out.println("update score " + player + " = " + score);
 			}
 		} catch (SQLException e) {
 			ChessCraftLogger.warning("Can't set " + viewType + " score for " + player + ": " + e.getMessage());
@@ -129,14 +130,14 @@ public abstract class ResultViewBase {
 			getPlayer.setString(1, player);
 			ResultSet rs = getPlayer.executeQuery();
 			if (rs.next()) {
-				System.out.println("getscore " + player + " = " + rs.getInt(1));
+//				System.out.println("getscore " + player + " = " + rs.getInt(1));
 				return rs.getInt(1);
 			} else {
 				PreparedStatement insert = rdb.getCachedStatement("INSERT INTO " + viewType + " VALUES (?,?)");
 				insert.setString(1, player);
 				insert.setInt(2, getInitialScore());
 				insert.executeUpdate();
-				System.out.println("getscore " + player + " init= " + getInitialScore());
+//				System.out.println("getscore " + player + " init= " + getInitialScore());
 				return getInitialScore();
 			}
 		} catch (SQLException e) {

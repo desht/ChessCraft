@@ -53,7 +53,7 @@ public class ChessCraft extends JavaPlugin {
 
 		// TODO: this is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
-		Results.getResultsHandler().addTestData();
+//		Results.getResultsHandler().addTestData();
 		
 		setupSMS();
 		setupWorldEdit();
