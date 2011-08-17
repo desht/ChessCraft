@@ -1,6 +1,9 @@
 v0.4 (development)
-board handling restructured - might add board rotation soon
-messages are now customizable - config option for language file to use
+board rotation now supported - board orientation is decided by player orientation when created
+messages are now customizable - config option "locale" for language file to use
+added game results logging
+- stored in plugins/ChessCraft/results/results.db, a SQLite database
+- raw game results table, plus derived tables: ladder & league
 
 
 v0.3.3 (1 Aug 2011)
