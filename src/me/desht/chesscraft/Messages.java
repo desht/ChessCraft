@@ -29,28 +29,24 @@ public class Messages {
 		File langDir = ChessConfig.getLanguagesDirectory();
 		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
-
-		if (locale.equals("default")) {
-			messages = fallbackMessages;
-			return;
-		}
 		
 		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
-			//  load it (but pull in any new messages from the shipped file if possible)
+			// file exists on disk and is newer than the JAR
 			messages = checkUpToDate(wanted);
-		} else {
-			// first see if there's a shipped file for this exact locale in the JAR
+		} else if (!wanted.isFile()) {
+			// file does not exist on disk, attempt to extract from the JAR
 			ChessConfig.extractResource("/datafiles/lang/" + wanted.getName(), langDir, true);
 			if (wanted.isFile()) {
-				// we found an exact match - just load that
-				// we don't need to compare because we've only just extracted the file
 				messages = new Configuration(wanted);
 				messages.load();
 			} else {
-				// try to find the closest matching locale (which might just be "default")
+				// find the best match (could be default.yml)
 				File actual = locateMessageFile(wanted);
 				messages = actual.getName().equals("default.yml") ? fallbackMessages : checkUpToDate(actual);
 			}
+		} else {
+			// file exists on disk but we have a newer version in the JAR
+			messages = checkUpToDate(wanted);
 		}
 
 		// ensure we actually have some messages - if not, fall back to default
