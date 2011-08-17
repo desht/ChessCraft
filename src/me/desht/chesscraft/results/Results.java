@@ -69,8 +69,10 @@ public class Results {
 	 * Call this when the plugin is disabled.
 	 */
 	public static void shutdown() {
-		results.db.shutdown();
-		results = null;
+		if (results != null) {
+			results.db.shutdown();
+			results = null;
+		}
 	}
 
 	/**
