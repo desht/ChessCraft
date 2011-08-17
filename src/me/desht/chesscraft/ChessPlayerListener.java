@@ -109,11 +109,7 @@ public class ChessPlayerListener extends PlayerListener {
 						pieceClicked(player, loc, bv);
 					} else if ((bv = BoardView.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
-//							Location corner = bv.getBounds().getUpperSW();
-//							Location loc2 = new Location(corner.getWorld(), corner.getX() - 4 * bv.getSquareSize(),
-//									corner.getY() + 1, corner.getZ() - 2.5);
 							Location l = bv.getControlPanel().getLocationTP();
-//							System.out.println(l);
 							player.teleport(l);
 						}
 					}
@@ -215,6 +211,14 @@ public class ChessPlayerListener extends PlayerListener {
 		} else {
 			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
 					Chess.sqiToStr(sqi), bv.getName()));
+			if (bv.isPartOfBoard(player.getLocation())) {
+				// allow teleporting around the board, but only if the player is 
+				// already on the board
+				Location newLoc = loc.clone().add(0, 1.0, 0);
+				newLoc.setPitch(player.getLocation().getPitch());
+				newLoc.setYaw(player.getLocation().getYaw());
+				player.teleport(newLoc);
+			}
 		}
 	}
 

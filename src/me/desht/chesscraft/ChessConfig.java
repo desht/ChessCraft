@@ -89,7 +89,7 @@ public class ChessConfig {
 		setupDirectoryStructure();
 
 		try {
-			Messages.loadMessages();
+			Messages.init();
 		} catch (IOException e) {
 			ChessCraftLogger.severe("Can't load messages file", e);
 		}

@@ -12,13 +12,28 @@ import org.bukkit.util.config.Configuration;
 
 public class Messages {
 
+	static Configuration fallbackMessages = null;	
 	static Configuration messages = null;
 
+	public static void init() throws IOException {
+		if (fallbackMessages == null) {
+			File langDir = ChessConfig.getLanguagesDirectory();
+			File def = new File(langDir, "default.yml");
+			fallbackMessages = checkUpToDate(locateMessageFile(def));
+		}
+		loadMessages();
+	}
+	
 	public static void loadMessages() throws IOException {
 		File langDir = ChessConfig.getLanguagesDirectory();
 		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
 
+		if (locale.equals("default")) {
+			messages = fallbackMessages;
+			return;
+		}
+		
 		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
 			//  load it (but pull in any new messages from the shipped file if possible)
 			messages = checkUpToDate(wanted);
@@ -33,15 +48,13 @@ public class Messages {
 			} else {
 				// try to find the closest matching locale (which might just be "default")
 				File actual = locateMessageFile(wanted);
-				messages = checkUpToDate(actual);
+				messages = actual.getName().equals("default.yml") ? fallbackMessages : checkUpToDate(actual);
 			}
 		}
 
 		// ensure we actually have some messages - if not, fall back to default
 		if (messages.getAll().isEmpty()) {
-			ChessCraftLogger.warning("can't find any messages for " + locale + ": falling back to default");
-			File def = new File(langDir, "default.yml");
-			messages = checkUpToDate(locateMessageFile(def));
+			messages = fallbackMessages;
 		}
 	}
 
@@ -108,10 +121,22 @@ public class Messages {
 		if (messages == null) {
 			return "!" + key + "!";
 		}
+		String s = getKey(messages, key);
+		if (s == null) {
+			ChessCraftLogger.warning(null, new Exception("Unexpected missing key '" + key + "'"));
+			s = getKey(fallbackMessages, key);
+			if (s == null) {
+				s = "!" + key + "!";
+			}
+		}
+		return s;
+	}
+
+	private static String getKey(Configuration conf, String key) {
 		String s = null;
-		Object o = messages.getProperty(key);
+		Object o = conf.getProperty(key);
 		if (o instanceof String) {
-			s = messages.getString(key);
+			s = o.toString();
 		} else if (o instanceof List<?>) {
 			@SuppressWarnings("unchecked")
 			List<String> l = (List<String>) o;
@@ -124,13 +149,7 @@ public class Messages {
 			}
 			s = add.toString();
 		}
-		if (s == null) {
-			ChessCraftLogger.warning(null, new Exception("Unexpected missing key '" + key + "'"));
-			return "!" + key + "!";
-		} else {
-			return s;
-		}
-
+		return s;
 	}
 
 	public static String getString(String key, Object... args) {

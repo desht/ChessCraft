@@ -25,7 +25,6 @@ public class SMSIntegration {
 	}
 	
 	static void createMenus() {
-		// TODO: extract message strings
 		createMenu(BOARD_INFO, Messages.getString("SMSIntegration.boardInfo")); //$NON-NLS-1$
 		createMenu(CREATE_GAME, Messages.getString("SMSIntegration.createGame")); //$NON-NLS-1$
 		createMenu(TP_GAME, Messages.getString("SMSIntegration.gotoGame")); //$NON-NLS-1$
