@@ -53,6 +53,7 @@ public class ChessConfig {
 			put("autosave", true); //$NON-NLS-1$
 			put("tick_interval", 1); //$NON-NLS-1$
 			put("broadcast_results", true); //$NON-NLS-1$
+			put("autostart", true); //$NON-NLS-1$
 			put("auto_delete.finished", new Duration("30 s")); //$NON-NLS-1$
 			put("auto_delete.not_started", new Duration("3 mins")); //$NON-NLS-1$
 			put("auto_delete.running", new Duration("7 days")); //$NON-NLS-1$

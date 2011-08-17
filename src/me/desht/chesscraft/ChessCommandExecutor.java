@@ -350,8 +350,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		                                                    game.getName(), Game.getColour(playingAs)));
 		
 		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) { //$NON-NLS-1$
-			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerWhite()), game);
-			tryTeleportToGame(plugin.getServer().getPlayer(game.getPlayerBlack()), game);
+			game.summonPlayers();
 		} else {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
 		}

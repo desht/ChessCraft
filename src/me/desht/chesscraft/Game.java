@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
@@ -23,6 +24,7 @@ import chesspresso.pgn.PGN;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
 
+import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -325,7 +327,7 @@ public class Game {
 				throw new ChessException(Messages.getString("Game.notInvited")); //$NON-NLS-1$
 			}
 			if (ChessEconomy.active() && !ChessEconomy.canAfford(playerName, getStake())) {
-				throw new ChessException(Messages.getString("Game.cantAffordStake", ChessEconomy.format(getStake()))); //$NON-NLS-1$
+				throw new ChessException(Messages.getString("Game.cantAffordToJoin", ChessEconomy.format(getStake()))); //$NON-NLS-1$
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
@@ -337,8 +339,13 @@ public class Game {
 		alert(otherPlayer, Messages.getString("Game.playerJoined", playerName)); //$NON-NLS-1$
 		clearInvitation();
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-			alert(Messages.getString("Game.startPrompt")); //$NON-NLS-1$
+			if (ChessConfig.getConfiguration().getBoolean("autostart", true)) {
+				start(playerName);
+			} else {
+				alert(Messages.getString("Game.startPrompt")); //$NON-NLS-1$
+			}
 		}
+		
 	}
 
 	void addAI(String aiName) throws ChessException {
@@ -420,34 +427,60 @@ public class Game {
 	public void start(String playerName) throws ChessException {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.SETTING_UP);
-
+		
+		String whiteStr = Messages.getString("Game.white");
+		String blackStr = Messages.getString("Game.black");
+		
+		if (!canAffordToPlay(playerWhite)) {
+			throw new ChessException(Messages.getString("Game.cantAffordToStart", whiteStr, ChessEconomy.format(stake))); //$NON-NLS-1$
+		}
+		if (!canAffordToPlay(playerBlack)) {
+			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessEconomy.format(stake))); //$NON-NLS-1$
+		}
+		
 		if (playerWhite.isEmpty() || playerBlack.isEmpty()) {
 			addAI(null);
 			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
-		if (!canAffordToPlay(playerWhite)) {
-			throw new ChessException(Messages.getString("Game.whiteCantAfford", ChessEconomy.format(stake))); //$NON-NLS-1$
+		
+		if (ChessConfig.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
+			summonPlayers();
 		}
-		if (!canAffordToPlay(playerBlack)) {
-			throw new ChessException(Messages.getString("Game.blackCantAfford", ChessEconomy.format(stake))); //$NON-NLS-1$
-		}
-		alert(playerWhite, Messages.getString("Game.startedAsWhite")); //$NON-NLS-1$
-		alert(playerBlack, Messages.getString("Game.startedAsBlack")); //$NON-NLS-1$
-		if (ChessEconomy.active() && stake > 0.0f) {
+		int wandId = new MaterialWithData(plugin.getConfiguration().getString("wand_item")).getMaterial();
+		String wand = Material.getMaterial(wandId).toString();
+		alert(playerWhite, Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
+		alert(playerBlack, Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$
+		
+		if (ChessEconomy.active() && stake > 0.0f && !playerWhite.equalsIgnoreCase(playerBlack)) {
 			if (!isAIPlayer(playerWhite)) {
 				ChessEconomy.subtractMoney(playerWhite, stake);
 			}
 			if (!isAIPlayer(playerBlack)) {
 				ChessEconomy.subtractMoney(playerBlack, stake);
 			}
-			double s2 = playerWhite.equals(playerBlack) ? stake * 2 : stake;
-			alert(Messages.getString("Game.paidStake", ChessEconomy.format(s2))); //$NON-NLS-1$ //$NON-NLS-2$
+			alert(Messages.getString("Game.paidStake", ChessEconomy.format(stake))); //$NON-NLS-1$ 
 		}
+		
 		clearInvitation();
 		lastMoved = System.currentTimeMillis();
 		setState(GameState.RUNNING);
 	}
 
+	public void summonPlayers() throws ChessException {
+		summonPlayer(getPlayerWhite());
+		summonPlayer(getPlayerBlack());
+	}
+	
+	public void summonPlayer(String player) throws ChessException {
+		if (isAIPlayer(player)) {
+			return;
+		}
+		Player p = plugin.getServer().getPlayer(player);
+		if (p != null) {
+			plugin.getCommandExecutor().tryTeleportToGame(p, this);
+		}
+	}
+	
 	public void resign(String playerName) throws ChessException {
 		if (state != GameState.RUNNING) {
 			throw new ChessException(Messages.getString("Game.notStarted")); //$NON-NLS-1$
@@ -551,20 +584,20 @@ public class Game {
 			autoSave();
 			clockTick();
 			if (getPosition().isMate()) {
-				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
 				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-1$ //$NON-NLS-2$
 				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
 				setState(GameState.FINISHED);
+				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
 			} else if (getPosition().isStaleMate()) {
+				result = Chess.RES_DRAW;
+				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
+				setState(GameState.FINISHED);
 				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Stalemate);
-				result = Chess.RES_DRAW;
-				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
-				setState(GameState.FINISHED);
 			} else if (getPosition().getHalfMoveClock() >= 50) {
-				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.FiftyMoveRule);
 				result = Chess.RES_DRAW;
 				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
 				setState(GameState.FINISHED);
+				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.FiftyMoveRule);
 			} else {
 				// the game continues...
 				String nextPlayer = getPlayerToMove();
@@ -654,7 +687,7 @@ public class Game {
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {
-		if (stake <= 0.0) {
+		if (stake <= 0.0 || p1.equalsIgnoreCase(p2)) {
 			return;
 		}
 		if (getState() == GameState.SETTING_UP) {
