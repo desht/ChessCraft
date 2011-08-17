@@ -19,7 +19,6 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.WorldEditUtils;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
 import org.bukkit.entity.Player;
 
 public class Cuboid implements Iterable<Location>, Cloneable {
