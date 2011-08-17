@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -87,6 +88,18 @@ public class Messages {
 			if (actualCfg.getProperty(e.getKey()) == null) {
 				actualCfg.setProperty(e.getKey(), e.getValue());
 			}
+		}
+		
+		// ensure that the config we're loading has all of the messages that the fallback has
+		if (fallbackMessages != null && actualCfg.getAll().size() != fallbackMessages.getAll().size()) {
+			List<String> missingKeys = new ArrayList<String>();
+			for (Entry<String, Object> e : fallbackMessages.getAll().entrySet()) {
+				if (actualCfg.getProperty(e.getKey()) == null) {
+					actualCfg.setProperty(e.getKey(), e.getValue());
+					missingKeys.add(e.getKey());
+				}
+			}
+			actualCfg.setProperty("NEEDS_TRANSLATION.", missingKeys);
 		}
 
 		tmpFile.delete();
