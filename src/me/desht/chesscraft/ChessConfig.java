@@ -60,6 +60,7 @@ public class ChessConfig {
 			put("ai.min_move_wait", 3); //$NON-NLS-1$
 			put("ai.max_ai_games", 3); //$NON-NLS-1$
 			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
+			put("ai.use_opening_book", false); //$NON-NLS-1$
 			put("no_building", true); //$NON-NLS-1$
 			put("no_creatures", true); //$NON-NLS-1$
 			put("no_explosions", true); //$NON-NLS-1$
