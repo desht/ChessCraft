@@ -593,9 +593,7 @@ public class Game {
 		if (fromSquare == Chess.NO_SQUARE) {
 			return;
 		}
-
-		System.out.println("doMove: thread = " + Thread.currentThread().getId());
-		
+	
 		Boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		int prevToMove = getPosition().getToPlay();
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
