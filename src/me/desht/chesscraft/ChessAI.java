@@ -284,7 +284,9 @@ public class ChessAI {
 		// System.out.println("ai move: " + m);
 
 		try {
-			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
+			// moving directly isn't thread-safe
+//			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
+			callback.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
 			if (_game != null) { // if game not been deleted
 				_game.moveFromCurrent(m);
 			}

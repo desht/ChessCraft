@@ -33,6 +33,11 @@ import me.desht.chesscraft.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.util.Duration;
 
+/**
+ * @author des
+ *
+ */
+
 public class Game {
 
 	private static final Map<String, Game> chessGames = new HashMap<String, Game>();
@@ -54,6 +59,8 @@ public class Game {
 	private int result;
 	private double stake;
 	private ChessAI aiPlayer = null;
+	private boolean aiHasMoved;
+	private int aiFromSqi, aiToSqi;
 
 	public Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
@@ -72,6 +79,7 @@ public class Game {
 		lastCheck = lastMoved = started = System.currentTimeMillis();
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
+		aiHasMoved = false;
 		if (playerName != null) {
 			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), ChessEconomy.getBalance(playerName)); //$NON-NLS-1$
 		} else {
@@ -119,6 +127,9 @@ public class Game {
 		map.put("timeWhite", timeWhite); //$NON-NLS-1$
 		map.put("timeBlack", timeBlack); //$NON-NLS-1$
 		map.put("stake", stake); //$NON-NLS-1$
+		map.put("aiHasMoved", aiHasMoved); //$NON-NLS-1$
+		map.put("aiFromSqi", aiFromSqi); //$NON-NLS-1$
+		map.put("aiToSqi", aiToSqi); //$NON-NLS-1$
 
 		return map;
 	}
@@ -176,6 +187,12 @@ public class Game {
 			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
 			playerBlack = aiPlayer.getName();
 			aiPlayer.init(false);
+		}
+		
+		if (map.containsKey("aiHasMoved")) {
+			aiHasMoved = (Boolean) map.get("aiHasMoved");
+			aiFromSqi = (Integer) map.get("aiFromSqi");
+			aiToSqi = (Integer) map.get("aiToSqi");
 		}
 
 		setupChesspressoGame();
@@ -286,11 +303,19 @@ public class Game {
 		this.stake = newStake;
 	}
 
+	/**
+	 * Housekeeping task, called every <tick_interval> seconds as a scheduled sync task.
+	 */
 	public void clockTick() {
 		if (state != GameState.RUNNING) {
 			return;
 		}
+		checkForAIMove();
+		updateChessClocks();
+	}
 
+	private void updateChessClocks() {
+		// update the clocks
 		long now = System.currentTimeMillis();
 		long diff = now - lastCheck;
 		lastCheck = now;
@@ -569,6 +594,8 @@ public class Game {
 			return;
 		}
 
+		System.out.println("doMove: thread = " + Thread.currentThread().getId());
+		
 		Boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		int prevToMove = getPosition().getToPlay();
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
@@ -582,7 +609,7 @@ public class Game {
 			history.add(realMove);
 			lastMoved = System.currentTimeMillis();
 			autoSave();
-			clockTick();
+			updateChessClocks();
 			if (getPosition().isMate()) {
 				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-1$ //$NON-NLS-2$
 				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
@@ -1170,5 +1197,36 @@ public class Game {
 
 	public boolean isAIGame() {
 		return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
+	}
+
+	/**
+	 * Make a note that the AI has made its move.  This can be acted upon by the 
+	 * periodic ticker task.  We can't just do the move directly, because that would
+	 * lead to making non-thread-safe Bukkit/Minecraft calls from the AI thread.
+	 * 
+	 * @param fromSqi
+	 * @param toSqi
+	 */
+	void aiHasMoved(int fromSqi, int toSqi) {
+		aiHasMoved = true;
+		aiFromSqi = fromSqi;
+		aiToSqi = toSqi;
+	}
+	
+	/**
+	 * If it's been noted that the AI has moved in its game model, make the
+	 * actual move in our game model too.
+	 */
+	private void checkForAIMove() {
+		if (aiHasMoved) {
+			try {
+				doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
+				aiHasMoved = false;
+			} catch (IllegalMoveException e) {
+				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+			} catch (ChessException e) {
+				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+			}
+		}
 	}
 }
