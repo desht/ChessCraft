@@ -79,6 +79,8 @@ public class ChessConfig {
 			put("league.win_points", 2); //$NON-NLS-1$
 			put("league.draw_points", 1); //$NON-NLS-1$
 			put("league.loss_points", 0); //$NON-NLS-1$
+			// 0.3.3 is the last released version which didn't put a version number in the config
+			put("version", "0.3.3"); //$NON-NLS-1$
 		}
 	};
 
@@ -88,6 +90,8 @@ public class ChessConfig {
 			pluginDir = plugin.getDataFolder();
 		}
 
+		configFileInitialise();
+
 		setupDirectoryStructure();
 
 		try {
@@ -95,8 +99,6 @@ public class ChessConfig {
 		} catch (IOException e) {
 			ChessCraftLogger.severe("Can't load messages file", e);
 		}
-
-		configFileInitialise();
 
 		ChessAI.initAI_Names();
 	}
@@ -284,12 +286,64 @@ public class ChessConfig {
 		for (String k : configDefaults.keySet()) {
 			if (config.getProperty(k) == null) {
 				saveNeeded = true;
-//				config.setProperty(k, configDefaults.get(k));
 				setConfigItem(null, k, configDefaults.get(k).toString());
 			}
 		}
+		String currentVersion = plugin.getDescription().getVersion();
+		if (currentVersion != null && !config.getString("version").equals(currentVersion)) {
+			setConfigItem(null, "version", currentVersion);
+			saveNeeded = true;
+			versionChanged(config.getString("version"), currentVersion);
+		}
 		if (saveNeeded) {
 			config.save();
+		}
+	}
+
+	/**
+	 * Things to do if the version has changed since the last time we ran.
+	 * 
+	 * @param oldVersion		The previous version
+	 * @param currentVersion	The current version
+	 */
+	private static void versionChanged(String oldVersion, String currentVersion) {
+		int rel1 = getRelease(oldVersion);
+		int rel2 = getRelease(currentVersion);
+		if (rel1 < 4000 && rel2 >= 4000) {
+			// "large" chess set definition is different in v0.4+ - block rotation is handled
+			// by ChessCraft, not the definition file.  Force re-extraction.
+			new File(pieceStyleDir, "large.yml").delete();
+		}
+	}
+
+	/**
+	 * Get the internal version number for the given string version, which is
+	 * <major> * 1,000,000 + <minor> * 1,000 + <release>.  This assumes minor and
+	 * release each won't go above 999, hopefully a safe assumption!
+	 * 
+	 * @param oldVersion
+	 * @return
+	 */
+	private static int getRelease(String ver) {
+		String[] a = ver.split("\\.");
+		try {
+			int major = Integer.parseInt(a[0]);
+			int minor;
+			int rel;
+			if (a.length < 2) {
+				minor = 0;
+			} else {
+				minor = Integer.parseInt(a[1]);
+			}
+			if (a.length < 3) {
+				rel = 0;
+			} else {
+				rel = Integer.parseInt(a[2]);
+			}
+			return major * 1000000 + minor * 1000 + rel;
+		} catch (NumberFormatException e) {
+			ChessCraftLogger.warning("Version string [" + ver + "] doesn't look right!");
+			return 0;
 		}
 	}
 
