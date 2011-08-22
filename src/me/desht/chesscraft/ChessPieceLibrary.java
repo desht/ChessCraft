@@ -82,27 +82,27 @@ public class ChessPieceLibrary {
 		}
 	}
 
-	/**
-	 * Return a chess stone rotated in the given direction
-	 * 
-	 * @param style
-	 *            The style to use
-	 * @param stone
-	 *            The Chess stone to rotate
-	 * @return A ChessStone representing the stone
-	 */
-	ChessStone getStone(String style, int stone) {
-		if (!templates.containsKey(style)) {
-			throw new IllegalArgumentException("No such style '" + style + "'");
-		}
-		if (stone < Chess.MIN_STONE || stone > Chess.MAX_STONE || stone == Chess.NO_STONE) {
-			throw new IllegalArgumentException("Bad stone index " + stone);
-		}
-		String k = style + ":" + stone;
-		if (!stoneCache.containsKey(k)) {
-			PieceTemplate tmpl = templates.get(style).get(stone);
-			stoneCache.put(k, new ChessStone(stone, tmpl));
-		}
-		return stoneCache.get(k);
-	}
+//	/**
+//	 * Return a chess stone rotated in the given direction
+//	 * 
+//	 * @param style
+//	 *            The style to use
+//	 * @param stone
+//	 *            The Chess stone to rotate
+//	 * @return A ChessStone representing the stone
+//	 */
+//	ChessStone getStone(String style, int stone) {
+//		if (!templates.containsKey(style)) {
+//			throw new IllegalArgumentException("No such style '" + style + "'");
+//		}
+//		if (stone < Chess.MIN_STONE || stone > Chess.MAX_STONE || stone == Chess.NO_STONE) {
+//			throw new IllegalArgumentException("Bad stone index " + stone);
+//		}
+//		String k = style + ":" + stone;
+//		if (!stoneCache.containsKey(k)) {
+//			PieceTemplate tmpl = templates.get(style).get(stone);
+//			stoneCache.put(k, new ChessStone(stone, tmpl));
+//		}
+//		return stoneCache.get(k);
+//	}
 }
