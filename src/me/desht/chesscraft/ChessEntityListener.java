@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -83,31 +82,8 @@ public class ChessEntityListener extends EntityListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (event instanceof EntityDamageByProjectileEvent) {
-
-			EntityDamageByProjectileEvent dbeEvent = (EntityDamageByProjectileEvent) event;
-			if (dbeEvent.getDamager() == null) {
-				return;
-			}
-			if (isAllowedPlayerAttack(dbeEvent.getDamager()) || isAllowedMonsterAttack(dbeEvent.getDamager())) {
-				return;
-			}
-
-			Location attackerLoc = dbeEvent.getDamager().getLocation();
-			Location defenderLoc = event.getEntity().getLocation();
-			for (BoardView bv : BoardView.listBoardViews()) {
-				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
-					event.setCancelled(true); // don't allow players to attack from safety of chessboard
-					if ((event.getEntity() instanceof Player) && // victim is a player
-							!(dbeEvent.getDamager() instanceof Player) // and attacker is a monster
-							&& dbeEvent.getDamager() instanceof LivingEntity) {
-						dbeEvent.getDamager().remove(); // remove monster
-					}
-					return;
-				}
-			}
-
-		} else if (event instanceof EntityDamageByEntityEvent) {
+		
+		if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
 			if (dbeEvent.getDamager() == null) {
 				return;
@@ -141,31 +117,40 @@ public class ChessEntityListener extends EntityListener {
 		if (event.getCause() == DamageCause.SUFFOCATION) {
 			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
 			if (bv != null) {
-				final int MAX_DIST = 100;
 				// player must have had a chess piece placed on them
-				Player p = (Player) event.getEntity();
-				Location loc = p.getLocation().clone();
-				int n = 0;
-				do {
-					loc.add(0, 0, -1); // east
-				} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
-						&& n < MAX_DIST);
-				if (n >= MAX_DIST) {
-					ChessUtils.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
-					p.teleport(p.getWorld().getSpawnLocation());
-				} else {
-					p.teleport(loc);
-				}
+				displacePlayerSafely(event);
 				event.setCancelled(true);
 			}
 		} else {
-			// any other damage to a player while on a board
-			// eg. falling off of a piece or viewing platform,
+			// any other damage to a player while on a board, e.g. falling off of a piece or viewing platform,
 			// cactus/lava/fire on pieces, etc..
 			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
 			if (bv != null) {
 				event.setCancelled(true);
 			}
+		}
+	}
+
+	/**
+	 * Safely displace a player out of the way so they are not entombed by a chess piece
+	 * 
+	 * @param event	The suffocation event that triggered this
+	 */
+	private void displacePlayerSafely(EntityDamageEvent event) {
+		final int MAX_DIST = 100;
+		
+		Player p = (Player) event.getEntity();
+		Location loc = p.getLocation().clone();
+		int n = 0;
+		do {
+			loc.add(0, 0, -1); // east
+		} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
+				&& n < MAX_DIST);
+		if (n >= MAX_DIST) {
+			ChessUtils.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
+			p.teleport(p.getWorld().getSpawnLocation());
+		} else {
+			p.teleport(loc);
 		}
 	}
 
