@@ -91,10 +91,10 @@ public class ChessConfig {
 		if (plugin != null) {
 			pluginDir = plugin.getDataFolder();
 		}
+		
+		setupDirectoryStructure();
 
 		configFileInitialise();
-
-		setupDirectoryStructure();
 
 		try {
 			Messages.init();
