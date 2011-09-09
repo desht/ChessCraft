@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class SMSIntegration {
 		}
 	}
 	
-	static void createMenus() {
+	public static void createMenus() {
 		createMenu(BOARD_INFO, Messages.getString("SMSIntegration.boardInfo")); //$NON-NLS-1$
 		createMenu(CREATE_GAME, Messages.getString("SMSIntegration.createGame")); //$NON-NLS-1$
 		createMenu(TP_GAME, Messages.getString("SMSIntegration.gotoGame")); //$NON-NLS-1$
@@ -44,7 +47,7 @@ public class SMSIntegration {
 		}
 	}
 	
-	static void deleteMenus() {
+	public static void deleteMenus() {
 		List<String> toDelete = new ArrayList<String>();
 		for (SMSMenu menu : smsHandler.listMenus()) {
 			if (menu.getName().startsWith("cc:")) { //$NON-NLS-1$
@@ -56,7 +59,7 @@ public class SMSIntegration {
 		}
 	}
 
-	static void boardCreated(BoardView bv) {
+	public static void boardCreated(BoardView bv) {
 		addItem(BOARD_INFO, bv.getName(), "/chess list board " + bv.getName()); //$NON-NLS-1$
 		boardNotInUse(bv);
 		if (bv.getGame() != null) {
@@ -64,22 +67,22 @@ public class SMSIntegration {
 		}
 	}
 	
-	static void boardDeleted(BoardView bv) {
+	public static void boardDeleted(BoardView bv) {
 		removeItem(BOARD_INFO, bv.getName());
 		if (bv.getGame() == null) {
 			removeItem(CREATE_GAME, bv.getName());
 		}
 	}
 
-	static void boardInUse(BoardView bv) {
+	public static void boardInUse(BoardView bv) {
 		removeItem(CREATE_GAME, bv.getName());
 	}
 	
-	static void boardNotInUse(BoardView bv) {
+	public static void boardNotInUse(BoardView bv) {
 		addItem(CREATE_GAME, bv.getName(), "/chess create game - " + bv.getName()); //$NON-NLS-1$
 	}
 	
-	static void gameCreated(Game game) {
+	public static void gameCreated(ChessGame game) {
 		addItem(GAME_INFO, game.getName(), "/chess list game " + game.getName()); //$NON-NLS-1$
 		addItem(TP_GAME, game.getName(), "/chess tp " + game.getName()); //$NON-NLS-1$
 		addItem(DEL_GAME, game.getName(), "/chess delete game " + game.getName()); //$NON-NLS-1$
@@ -87,7 +90,7 @@ public class SMSIntegration {
 		boardInUse(game.getView());
 	}
 	
-	static void gameDeleted(Game game) {
+	public static void gameDeleted(ChessGame game) {
 		removeItem(GAME_INFO, game.getName());
 		removeItem(TP_GAME, game.getName());
 		removeItem(DEL_GAME, game.getName());
@@ -100,7 +103,7 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, ""); //$NON-NLS-1$
-				menu.notifyObservers();
+				//menu.notifyObservers();
 			} catch (SMSException e) {
 				// shouldn't get here
 				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
@@ -113,7 +116,7 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
-				menu.notifyObservers();
+				//menu.notifyObservers();
 			} catch (SMSException e) {
 				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
 			}

@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -130,7 +133,7 @@ public class ChessPlayerListener extends PlayerListener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
 		String who = event.getPlayer().getName();
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
@@ -147,7 +150,7 @@ public class ChessPlayerListener extends PlayerListener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
 		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60); //$NON-NLS-1$
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
@@ -169,7 +172,7 @@ public class ChessPlayerListener extends PlayerListener {
 	}
 
 	private void pieceClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
-		Game game = bv.getGame();
+		ChessGame game = bv.getGame();
 		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
@@ -203,7 +206,7 @@ public class ChessPlayerListener extends PlayerListener {
 
 	private void boardClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
 		int sqi = bv.getSquareAt(loc);
-		Game game = bv.getGame();
+		ChessGame game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
 			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$

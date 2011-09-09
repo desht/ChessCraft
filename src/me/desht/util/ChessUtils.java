@@ -4,11 +4,15 @@
  * Description: misc. functions
  * Date: Jul 23, 2011
  */
-package me.desht.chesscraft;
+package me.desht.util;
 
+import me.desht.chesscraft.chess.ChessGame;
 import chesspresso.Chess;
 import java.util.ArrayList;
 import java.util.logging.Level;
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 import org.bukkit.Bukkit;
@@ -45,7 +49,7 @@ public class ChessUtils {
 				for (BoardView bv : BoardView.listBoardViews()) {
 					bv.doLighting();
 				}
-				for (Game game : Game.listGames()) {
+				for (ChessGame game : ChessGame.listGames()) {
 					game.clockTick();
 					game.checkForAutoDelete();
 				}

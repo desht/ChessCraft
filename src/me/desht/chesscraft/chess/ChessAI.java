@@ -4,7 +4,7 @@
  * Description: class for interfacing with an AI engine
  * Date: Jul 25, 2011
  */
-package me.desht.chesscraft;
+package me.desht.chesscraft.chess;
 
 import fr.free.jchecs.ai.Engine;
 import fr.free.jchecs.ai.EngineFactory;
@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -47,7 +51,7 @@ public class ChessAI {
 	static HashMap<String, AI_Def> availableAI = new HashMap<String, AI_Def>();
 	fr.free.jchecs.core.Game _game = null;
 	String name = null;
-	Game callback = null;
+	ChessGame callback = null;
 	boolean userToMove = true, isWhite = false;
 	int aiTask = -1;
 	AI_Def aiSettings = null;
@@ -150,19 +154,19 @@ public class ChessAI {
 		}
 	}
 
-	public static ChessAI getNewAI(Game callback) throws ChessException {
+	public static ChessAI getNewAI(ChessGame callback) throws ChessException {
 		return getNewAI(callback, null, false);
 	}
 
-	public static ChessAI getNewAI(Game callback, boolean forceNew) throws ChessException {
+	public static ChessAI getNewAI(ChessGame callback, boolean forceNew) throws ChessException {
 		return getNewAI(callback, null, forceNew);
 	}
 
-	public static ChessAI getNewAI(Game callback, String aiName) throws ChessException {
+	public static ChessAI getNewAI(ChessGame callback, String aiName) throws ChessException {
 		return getNewAI(callback, aiName, false);
 	}
 
-	public static ChessAI getNewAI(Game callback, String aiName, boolean forceNew) throws ChessException {
+	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew) throws ChessException {
 		// uses exceptions method to stop too many AI
 		if (!forceNew) {
 			int max = plugin.getConfiguration().getInt("ai.max_ai_games", 3); //$NON-NLS-1$
