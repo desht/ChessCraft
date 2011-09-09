@@ -284,10 +284,14 @@ public class ChessAI {
 		// System.out.println("ai move: " + m);
 
 		try {
-			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
+//			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
+			// that's not thread-safe
+			callback.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
+			
 			if (_game != null) { // if game not been deleted
 				_game.moveFromCurrent(m);
 			}
+
 		} catch (Exception ex) {
 			ChessCraft.log(Level.SEVERE, "Unexpected Exception in AI", ex);
 			callback.alert("Unexpected Exception in AI: " + ex.getMessage());

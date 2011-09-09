@@ -50,6 +50,9 @@ public class Game {
 	private int result;
 	private double stake;
 	private ChessAI aiPlayer = null;
+	private boolean aiHasMoved;
+	private int aiFromSqi;
+	private int aiToSqi;
 
 	public Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
@@ -79,7 +82,7 @@ public class Game {
 		setupChesspressoGame();
 
 		view.setGame(this);
-		
+
 		getPosition().addPositionListener(view);
 	}
 
@@ -115,6 +118,9 @@ public class Game {
 		map.put("timeWhite", timeWhite);
 		map.put("timeBlack", timeBlack);
 		map.put("stake", stake);
+		map.put("aiHasMoved", aiHasMoved);
+		map.put("aiFromSqi", aiFromSqi);
+		map.put("aiToSqi", aiToSqi);
 
 		return map;
 	}
@@ -168,8 +174,14 @@ public class Game {
 			aiPlayer.init(false);
 		}
 
+		if (map.containsKey("aiHasMoved")) {
+			aiHasMoved = (Boolean) map.get("aiHasMoved");
+			aiFromSqi = (Integer) map.get("aiFromSqi");
+			aiToSqi = (Integer) map.get("aiToSqi");
+		}
+
 		setupChesspressoGame();
-		
+
 		// Replay the move history to restore the saved board position.  We do this
 		// instead of just saving the position so that the Chesspresso Game model 
 		// includes a history of the moves, suitable for creating a PGN file.
@@ -287,6 +299,8 @@ public class Game {
 			timeBlack += diff;
 			getView().getControlPanel().updateClock(Chess.BLACK, timeBlack);
 		}
+
+		checkForAIMove();
 	}
 
 	public void swapColours() {
@@ -750,7 +764,7 @@ public class Game {
 			int fromCol = Chess.sqiToCol(sqiFrom);
 			if ((toCol == fromCol - 1 || toCol == fromCol + 1)
 					&& (Chess.sqiToRow(sqiFrom) == 4 && Chess.sqiToRow(sqiTo) == 5 || Chess.sqiToRow(sqiFrom) == 3
-							&& Chess.sqiToRow(sqiTo) == 2)) {
+					&& Chess.sqiToRow(sqiTo) == 2)) {
 				move = Move.getEPMove(sqiFrom, sqiTo);
 			}
 		}
@@ -1109,5 +1123,28 @@ public class Game {
 
 	public boolean isAIGame() {
 		return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
+	}
+
+	void aiHasMoved(int fromSqi, int toSqi) {
+		aiHasMoved = true;
+		aiFromSqi = fromSqi;
+		aiToSqi = toSqi;
+	}
+
+	/**
+	 * If it's been noted that the AI has moved in its game model, make the
+	 * actual move in our game model too.
+	 */
+	private void checkForAIMove() {
+		if (aiHasMoved) {
+			aiHasMoved = false;
+			try {
+				doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
+			} catch (IllegalMoveException e) {
+				alert("Unexpected AI exception: " + e.getMessage());
+			} catch (ChessException e) {
+				alert("Unexpected AI exception: " + e.getMessage());
+			}
+		}
 	}
 }
