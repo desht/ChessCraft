@@ -44,7 +44,7 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-		util = new ChessUtils(this);
+		util = new ChessUtils();
 		ChessConfig.init(this);
 
 		playerListener = new ChessPlayerListener(this);
@@ -120,7 +120,7 @@ public class ChessCraft extends JavaPlugin {
 
 	private void delayedInitTasks() {
 		persistence.reload();
-		util.setupRepeatingTask(1);
+		util.setupRepeatingTask(this, 1);
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.createMenus();
 		}

@@ -79,6 +79,10 @@ public class ResultsDB {
 				Statement stmt = connection.createStatement();
 				stmt.executeUpdate(ddl);
 			}
+			//TODO?
+			// init chess AIs?
+			// (ai 17 is closer to 0 than 1000)
+			// (will need to input ai names as something like __ai__## to avoid renaming problems)
 		} catch (SQLException e) {
 			ChessCraftLogger.warning("SQLite table creation failed: " + e.getMessage());
 			throw e;
@@ -90,7 +94,6 @@ public class ResultsDB {
 		ResultSet tables = dbm.getTables(null , null, table, null);
 		return tables.next();
 	}
-
 
 	PreparedStatement getCachedStatement(String query) throws SQLException {
 		if (!statementCache.containsKey(query)) {

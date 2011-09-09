@@ -11,7 +11,6 @@ import chesspresso.Chess;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
@@ -19,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 /**
@@ -27,14 +27,9 @@ import org.bukkit.scheduler.BukkitScheduler;
 public class ChessUtils {
 
 	private int tickTaskId = -1;
-	static ChessCraft plugin = null;
 	private static String prevColour = ""; //$NON-NLS-1$
 
-	public ChessUtils(ChessCraft plugin) {
-		ChessUtils.plugin = plugin;
-	}
-
-	public void setupRepeatingTask(int initialDelay) {
+	public void setupRepeatingTask(Plugin plugin, int initialDelay) {
 		if (plugin == null) {
 			return;
 		}
