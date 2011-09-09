@@ -1,6 +1,6 @@
 name: ChessCraft
 main: me.desht.chesscraft.ChessCraft
-version: 0.3.3
+version: 0.3.4
 softdepend: [ Permissions, WorldEdit, iConomy, BOSeconomy, Essentials, currency ]
 commands:
   chess:
