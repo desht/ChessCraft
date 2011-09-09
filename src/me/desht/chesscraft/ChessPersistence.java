@@ -1,5 +1,7 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.ChessGame;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class ChessPersistence {
 	}
 
 	public void reload() {
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			game.deleteTransitory();
 		}
 		for (BoardView view : BoardView.listBoardViews()) {
@@ -74,7 +76,7 @@ public class ChessPersistence {
 
 		Configuration conf = new Configuration(ChessConfig.getPersistFile());
 
-		conf.setProperty("current_games", Game.getCurrentGames());
+		conf.setProperty("current_games", ChessGame.getCurrentGames());
 
 		conf.save();
 	}
@@ -101,7 +103,7 @@ public class ChessPersistence {
 				if (cgMap != null) {
 					for (Entry<String, String> entry : cgMap.entrySet()) {
 						try {
-							Game.setCurrentGame(entry.getKey(), entry.getValue());
+							ChessGame.setCurrentGame(entry.getKey(), entry.getValue());
 						} catch (ChessException e) {
 							ChessCraftLogger.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
 									+ e.getMessage());
@@ -193,7 +195,7 @@ public class ChessPersistence {
 				if (cgMap != null) {
 					for (Entry<String, String> entry : cgMap.entrySet()) {
 						try {
-							Game.setCurrentGame(entry.getKey(), entry.getValue());
+							ChessGame.setCurrentGame(entry.getKey(), entry.getValue());
 						} catch (ChessException e) {
 							ChessCraftLogger.log(Level.WARNING, "can't set current game for player " + entry.getKey() + ": "
 									+ e.getMessage());
@@ -337,9 +339,9 @@ public class ChessPersistence {
 		String gameName = (String) gameMap.get("name");
 		try {
 			BoardView bv = BoardView.getBoardView((String) gameMap.get("boardview"));
-			Game game = new Game(plugin, gameName, bv, null);
+			ChessGame game = new ChessGame(plugin, gameName, bv, null);
 			if (game.thaw(gameMap)) {
-				Game.addGame(gameName, game);
+				ChessGame.addGame(gameName, game);
 				return true;
 			}
 		} catch (Exception e) {
@@ -349,12 +351,12 @@ public class ChessPersistence {
 	}
 
 	protected void saveGames() {
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			saveGame(game);
 		}
 	}
 
-	public void saveGame(Game game) {
+	public void saveGame(ChessGame game) {
 		Configuration gConf = new Configuration(new File(ChessConfig.getGamesPersistDirectory(),
 				safeFileName(game.getName()) + ".yml"));
 		Map<String, Object> map = game.freeze();
@@ -368,7 +370,7 @@ public class ChessPersistence {
 		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";").replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".").replace("+", "=").replace("[", "(").replace("]", ")");
 	}
 
-	public void removeGameSavefile(Game game) {
+	public void removeGameSavefile(ChessGame game) {
 		File f = new File(ChessConfig.getGamesPersistDirectory(), game.getName() + ".yml");
 		if (!f.delete()) {
 			ChessCraftLogger.log(Level.WARNING, "Can't delete game save file " + f);

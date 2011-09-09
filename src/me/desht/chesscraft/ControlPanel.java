@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessGame;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +73,7 @@ public class ControlPanel {
 			view.getControlPanelMat().applyToBlock(w.getBlockAt(l));
 		}
 
-		Game game = view.getGame();
+		ChessGame game = view.getGame();
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
 
 		signMat.applyToBlock(halfMoveClockSign.getBlock());
@@ -89,7 +92,7 @@ public class ControlPanel {
 	}
 
 	public void repaintSignButtons() {
-		Game game = view.getGame();
+		ChessGame game = view.getGame();
 
 		boolean settingUp = game != null && game.getState() == GameState.SETTING_UP;
 		boolean running = game != null && game.getState() == GameState.RUNNING;
@@ -206,7 +209,7 @@ public class ControlPanel {
 	}
 
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
-		Game game = view.getGame();
+		ChessGame game = view.getGame();
 		SignButton button = buttonLocs.get(block.getLocation());
 
 		if (button == null) {
@@ -272,7 +275,7 @@ public class ControlPanel {
 		}
 	}
 
-	private String getStakeStr(Game game) {
+	private String getStakeStr(ChessGame game) {
 		if (game == null) {
 			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0); //$NON-NLS-1$
 			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -285,7 +288,7 @@ public class ControlPanel {
 		}
 	}
 
-	private String getPromoStr(Game game, int colour) {
+	private String getPromoStr(ChessGame game, int colour) {
 		if (game == null) {
 			return "?"; //$NON-NLS-1$
 		}
@@ -326,8 +329,8 @@ public class ControlPanel {
 		}
 		if (l.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) l.getBlock().getState();
-			s.setLine(1, Game.getColour(colour));
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + Game.secondsToHMS(t))); //$NON-NLS-1$
+			s.setLine(1, ChessGame.getColour(colour));
+			s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.secondsToHMS(t))); //$NON-NLS-1$
 			s.update();
 		}
 	}

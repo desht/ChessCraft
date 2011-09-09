@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import me.desht.util.ChessUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

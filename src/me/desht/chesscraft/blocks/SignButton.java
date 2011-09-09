@@ -1,6 +1,6 @@
 package me.desht.chesscraft.blocks;
 
-import me.desht.chesscraft.ChessUtils;
+import me.desht.util.ChessUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

@@ -6,6 +6,8 @@
  */
 package me.desht.chesscraft;
 
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessAI;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import me.desht.chesscraft.Game;
+import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -113,7 +113,7 @@ public class Results {
 	 * @param game	The game that has just finished
 	 * @param rt	The outcome of the game
 	 */
-	public void logResult(Game game, GameResult rt) {
+	public void logResult(ChessGame game, GameResult rt) {
 		if (game.getState() != GameState.FINISHED) {
 			return;
 		}

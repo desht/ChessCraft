@@ -1,5 +1,7 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.EnumSet;
 import java.util.Map.Entry;
 
-import me.desht.chesscraft.ChessUtils;
+import me.desht.util.ChessUtils;
 
 
 /**

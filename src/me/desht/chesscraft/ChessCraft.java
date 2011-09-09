@@ -1,5 +1,9 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessAI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -99,12 +103,12 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		ChessAI.clearAI();
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		for (Game game : Game.listGames()) {
+		for (ChessGame game : ChessGame.listGames()) {
 			game.deleteTransitory();
 		}
 		for (BoardView view : BoardView.listBoardViews()) {
@@ -152,11 +156,11 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	Location getLastPos(Player player) {
+	public Location getLastPos(Player player) {
 		return lastPos.get(player.getName());
 	}
 
-	void setLastPos(Player player, Location loc) {
+	public void setLastPos(Player player, Location loc) {
 		lastPos.put(player.getName(), loc);
 	}
 
@@ -166,7 +170,7 @@ public class ChessCraft extends JavaPlugin {
         return persistence;
     }
 
-	ChessCommandExecutor getCommandExecutor() {
+	public ChessCommandExecutor getCommandExecutor() {
 		return commandExecutor;
 	}
 }

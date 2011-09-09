@@ -1,4 +1,4 @@
-package me.desht.chesscraft;
+package me.desht.util;
 
 import me.desht.chesscraft.regions.Cuboid;
 
@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.CuboidSelection;
+import me.desht.chesscraft.ChessCraft;
 
 public class WorldEditUtils {
 	

@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.ChessGame;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +21,9 @@ import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import java.util.LinkedList;
+import me.desht.chesscraft.chess.ChessAI;
 
-import me.desht.chesscraft.ChessAI.AI_Def;
+import me.desht.chesscraft.chess.ChessAI.AI_Def;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.results.ScoreRecord;
@@ -119,7 +123,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_WIN);
 		notFromConsole(player);
 
-		Game game = Game.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player, true);
 
 		game.ensureGameState(GameState.RUNNING);
 
@@ -149,12 +153,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 		if (args.length < 2) {
 			return;
 		}
-		Game game = Game.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player, true);
 
 		game.setFen(combine(args, 1));
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
-		                                                    game.getName(), Game.getColour(game.getPosition().getToPlay())));
+		                                                    game.getName(), ChessGame.getColour(game.getPosition().getToPlay())));
 	}
 
 	private void gameCommand(Player player, String[] args) throws ChessException {
@@ -162,10 +166,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		notFromConsole(player);
 
 		if (args.length >= 2) {
-			Game.setCurrentGame(player.getName(), args[1]);
+			ChessGame.setCurrentGame(player.getName(), args[1]);
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.activeGameChanged", args[1])); //$NON-NLS-1$
 		} else {
-			Game game = Game.getCurrentGame(player, false);
+			ChessGame game = ChessGame.getCurrentGame(player, false);
 			if (game == null) {
 				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noActiveGame")); //$NON-NLS-1$
 			} else {
@@ -269,18 +273,18 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void startCommand(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 		if (args.length >= 2) {
-			tryStartGame(player, Game.getGame(args[1]));
+			tryStartGame(player, ChessGame.getGame(args[1]));
 		} else {
-			tryStartGame(player, Game.getCurrentGame(player));
+			tryStartGame(player, ChessGame.getCurrentGame(player));
 		}
 	}
 
 	private void resignCommand(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 		if (args.length >= 2) {
-			tryResignGame(player, Game.getGame(args[1]));
+			tryResignGame(player, ChessGame.getGame(args[1]));
 		} else {
-			tryResignGame(player, Game.getCurrentGame(player, true));
+			tryResignGame(player, ChessGame.getCurrentGame(player, true));
 		}
 	}
 
@@ -293,7 +297,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 					+ Messages.getString("ChessCommandExecutor.algebraicNotation")); //$NON-NLS-1$
 			return;
 		}
-		Game game = Game.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player, true);
 
 		String move = combine(args, 1).replaceFirst(" ", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (move.length() != 4) {
@@ -317,7 +321,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	private void inviteCommand(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 
-		Game game = Game.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player, true);
 		String invitee = args.length >= 2 ? args[1] : null;
 		tryInvitePlayer(player, game, invitee);
 	}
@@ -329,10 +333,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 		String gameName = null;
 		if (args.length >= 2) {
 			gameName = args[1];
-			Game.getGame(gameName).addPlayer(player.getName());
+			ChessGame.getGame(gameName).addPlayer(player.getName());
 		} else {
 			// find a game (or games) with an invitation for us
-			for (Game game : Game.listGames()) {
+			for (ChessGame game : ChessGame.listGames()) {
 				if (game.getInvited().equalsIgnoreCase(player.getName())) {
 					game.addPlayer(player.getName());
 					gameName = game.getName();
@@ -343,11 +347,11 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 		}
 
-		Game game = Game.getGame(gameName);
-		Game.setCurrentGame(player.getName(), game);
+		ChessGame game = ChessGame.getGame(gameName);
+		ChessGame.setCurrentGame(player.getName(), game);
 		int playingAs = game.playingAs(player.getName());
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
-		                                                    game.getName(), Game.getColour(playingAs)));
+		                                                    game.getName(), ChessGame.getColour(playingAs)));
 		
 		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) { //$NON-NLS-1$
 			game.summonPlayers();
@@ -380,24 +384,24 @@ public class ChessCommandExecutor implements CommandExecutor {
 			tryTeleportOut(player);
 		} else {
 			// go to the named game
-			Game game = Game.getGame(args[1]);
+			ChessGame game = ChessGame.getGame(args[1]);
 			tryTeleportToGame(player, game);
 		}
 	}
 
 	private void archiveCommand(Player player, String[] args) throws ChessException {
 		if (args.length >= 2) {
-			tryArchiveGame(player, Game.getGame(args[1]));
+			tryArchiveGame(player, ChessGame.getGame(args[1]));
 		} else {
 			notFromConsole(player);
-			tryArchiveGame(player, Game.getCurrentGame(player));
+			tryArchiveGame(player, ChessGame.getCurrentGame(player));
 		}
 	}
 
 	private void offerCommand(Player player, String[] args) throws ChessException {
 		notFromConsole(player);
 
-		Game game = Game.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player, true);
 
 		if (ChessUtils.partialMatch(args, 1, "d")) { // draw //$NON-NLS-1$
 			tryOfferDraw(player, game);
@@ -420,7 +424,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		notFromConsole(player);
 
 		if (args.length >= 2) {
-			Game game = Game.getCurrentGame(player, true);
+			ChessGame game = ChessGame.getCurrentGame(player, true);
 			int piece = Chess.charToPiece(Character.toUpperCase(args[1].charAt(0)));
 			game.setPromotionPiece(player.getName(), piece);
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.promotionPieceSet", //$NON-NLS-1$
@@ -437,7 +441,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 		if (args.length >= 2) {
 			try {
-				Game game = Game.getCurrentGame(player);
+				ChessGame game = ChessGame.getCurrentGame(player);
 				double amount = Double.parseDouble(args[1]);
 				if (amount <= 0.0) {
 					throw new ChessException(Messages.getString("ChessCommandExecutor.noNegativeStakes")); //$NON-NLS-1$
@@ -532,7 +536,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	/*-------------------------------------------------------------------------------*/
-	void tryTeleportToGame(Player player, Game game) throws ChessException {
+	public void tryTeleportToGame(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_TELEPORT);
 		notFromConsole(player);
 		
@@ -563,10 +567,10 @@ public class ChessCommandExecutor implements CommandExecutor {
 //		}
 		Location loc = bv.getControlPanel().getLocationTP();
 		doTeleport(player, loc);
-		Game.setCurrentGame(player.getName(), game);
+		ChessGame.setCurrentGame(player.getName(), game);
 	}
 
-	void tryTeleportOut(Player player) throws ChessException {
+	public void tryTeleportOut(Player player) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_TELEPORT);
 
 		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
@@ -588,7 +592,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	void tryOfferSwap(Player player, Game game) throws ChessException {
+	void tryOfferSwap(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_SWAP);
 
 		game.ensurePlayerInGame(player.getName());
@@ -607,7 +611,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		game.getView().getControlPanel().repaintSignButtons();
 	}
 
-	void tryOfferDraw(Player player, Game game) throws ChessException {
+	void tryOfferDraw(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_DRAW);
 
 		game.ensurePlayerInGame(player.getName());
@@ -626,17 +630,17 @@ public class ChessCommandExecutor implements CommandExecutor {
 	void listGames(Player player) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTGAMES);
 
-		if (Game.listGames().isEmpty()) {
+		if (ChessGame.listGames().isEmpty()) {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
 			return;
 		}
 
 		MessageBuffer.clear(player);
-		for (Game game : Game.listGames(true)) {
+		for (ChessGame game : ChessGame.listGames(true)) {
 			String name = game.getName();
 			String curGameMarker = "  "; //$NON-NLS-1$
 			if (player != null) {
-				curGameMarker = game == Game.getCurrentGame(player) ? "+ " : "  "; //$NON-NLS-1$ //$NON-NLS-2$
+				curGameMarker = game == ChessGame.getCurrentGame(player) ? "+ " : "  "; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
@@ -655,7 +659,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 	void showGameDetail(Player player, String gameName) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTGAMES);
 
-		Game game = Game.getGame(gameName);
+		ChessGame game = ChessGame.getGame(gameName);
 
 		String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite(); //$NON-NLS-1$
 		String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack(); //$NON-NLS-1$
@@ -673,8 +677,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 				Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 		if (game.getState() == GameState.RUNNING) {
 			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock",
-			                                                      Game.secondsToHMS(game.getTimeWhite()),
-			                                                      Game.secondsToHMS(game.getTimeBlack())));
+			                                                      ChessGame.secondsToHMS(game.getTimeWhite()),
+			                                                      ChessGame.secondsToHMS(game.getTimeBlack())));
 		}
 		if (game.getInvited().equals("*")) { //$NON-NLS-1$
 			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
@@ -778,12 +782,12 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 
 		if (gameName == null || gameName.equals("-")) {
-			gameName = Game.makeGameName(player);
+			gameName = ChessGame.makeGameName(player);
 		}
 		
-		Game game = new Game(plugin, gameName, bv, player.getName());
-		Game.addGame(gameName, game);
-		Game.setCurrentGame(player.getName(), game);
+		ChessGame game = new ChessGame(plugin, gameName, bv, player.getName());
+		ChessGame.addGame(gameName, game);
+		ChessGame.setCurrentGame(player.getName(), game);
 		bv.getControlPanel().repaintSignButtons();
 
 		// plugin.persistence.saveGame(game);
@@ -794,7 +798,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	void tryDeleteGame(Player player, String[] args) throws ChessException {
 		String gameName = args[2];
-		Game game = Game.getGame(gameName);
+		ChessGame game = ChessGame.getGame(gameName);
 		gameName = game.getName();
 		// allow delete if deleting a game player created
 		if (!game.playerCanDelete(player)) {
@@ -846,7 +850,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	void nextPromotionPiece(Player player, int colour, Game game) throws ChessException {
+	void nextPromotionPiece(Player player, int colour, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_PROMOTE);
 
 		if (colour == Chess.WHITE && !player.getName().equals(game.getPlayerWhite())) {
@@ -875,7 +879,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	void tryInvitePlayer(Player player, Game game, String invitee) throws ChessException {
+	void tryInvitePlayer(Player player, ChessGame game, String invitee) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_INVITE);
 
 		if (invitee == null) {
@@ -885,7 +889,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 	}
 
-	void tryStartGame(Player player, Game game) throws ChessException {
+	void tryStartGame(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_START);
 		if (game != null) {
 			game.start(player.getName());
@@ -893,7 +897,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	}
 
-	void tryResignGame(Player player, Game game) throws ChessException {
+	void tryResignGame(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_RESIGN);
 
 		if (game != null) {
@@ -902,14 +906,14 @@ public class ChessCommandExecutor implements CommandExecutor {
 
 	}
 
-	void tryArchiveGame(Player player, Game game) throws ChessException {
+	void tryArchiveGame(Player player, ChessGame game) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_ARCHIVE);
 
 		File written = game.writePGN(false);
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.PGNarchiveWritten", written.getName())); //$NON-NLS-1$
 	}
 
-	void tryChangeStake(Player player, Game game, double stakeIncr) throws ChessException {
+	void tryChangeStake(Player player, ChessGame game, double stakeIncr) throws ChessException {
 		ChessPermission.requirePerms(player, ChessPermission.COMMAND_STAKE);
 
 		double newStake = game.getStake() + stakeIncr;

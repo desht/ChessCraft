@@ -1,6 +1,6 @@
 package me.desht.chesscraft.enums;
 
-import me.desht.chesscraft.ChessUtils;
+import me.desht.util.ChessUtils;
 
 public enum HighlightStyle {
 

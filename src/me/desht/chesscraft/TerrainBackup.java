@@ -1,5 +1,7 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.util.ChessUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -32,7 +34,7 @@ public class TerrainBackup {
 	private File saveFile;
 	private Vector min, max;
 
-	private TerrainBackup(ChessCraft plugin, Player player, BoardView view) throws FilenameException {
+	private TerrainBackup(Player player, BoardView view) throws FilenameException {
 		this.player = player;
 
 		wep = ChessCraft.getWorldEdit();
@@ -100,18 +102,18 @@ public class TerrainBackup {
 		}
 	}
 
-	public static void save(ChessCraft plugin, Player player, BoardView view) {
+	public static void save(Player player, BoardView view) {
 		try {
-			TerrainBackup tb = new TerrainBackup(plugin, player, view);
+			TerrainBackup tb = new TerrainBackup(player, view);
 			tb.saveTerrain();
 		} catch (FilenameException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
 	}
 
-	public static void reload(ChessCraft plugin, Player player, BoardView view) {
+	public static void reload(Player player, BoardView view) {
 		try {
-			TerrainBackup tb = new TerrainBackup(plugin, player, view);
+			TerrainBackup tb = new TerrainBackup(player, view);
 			tb.reloadTerrain();
 		} catch (FilenameException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
