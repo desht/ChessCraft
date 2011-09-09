@@ -43,7 +43,7 @@ public class ChessStone {
 	 * @param square area to fill
 	 * @param direction which way white faces
 	 */
-	public void paintInto(Cuboid square, BoardOrientation direction) {
+	public synchronized void paintInto(Cuboid square, BoardOrientation direction) {
 		PieceTemplate piece = rotatedStones[direction.ordinal()];
 		
 		int ibx = square.getLowerX(),

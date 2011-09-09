@@ -2,7 +2,6 @@ package me.desht.util;
 
 import java.util.concurrent.TimeUnit;
 
-import me.desht.chesscraft.ChessUtils;
 
 public class Duration {
 	long days, hours, minutes, seconds, milliseconds;

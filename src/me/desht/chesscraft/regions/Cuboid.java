@@ -16,7 +16,7 @@ import me.desht.chesscraft.blocks.BlockType;
 
 //imports for weSelect()
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.WorldEditUtils;
+import me.desht.util.WorldEditUtils;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;

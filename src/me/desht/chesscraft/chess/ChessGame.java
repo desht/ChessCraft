@@ -1,4 +1,4 @@
-package me.desht.chesscraft;
+package me.desht.chesscraft.chess;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,13 +23,19 @@ import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessEconomy;
+import me.desht.util.ChessUtils;
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.SMSIntegration;
 
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.results.Results;
-import me.desht.chesscraft.ChessAI.AI_Def;
+import me.desht.chesscraft.chess.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.util.Duration;
 
@@ -38,10 +44,10 @@ import me.desht.util.Duration;
  *
  */
 
-public class Game {
+public class ChessGame {
 
-	private static final Map<String, Game> chessGames = new HashMap<String, Game>();
-	private static final Map<String, Game> currentGame = new HashMap<String, Game>();
+	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
+	private static final Map<String, ChessGame> currentGame = new HashMap<String, ChessGame>();
 	
 	private ChessCraft plugin;
 	private String name;
@@ -62,7 +68,7 @@ public class Game {
 	private boolean aiHasMoved;
 	private int aiFromSqi, aiToSqi;
 
-	public Game(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
+	public ChessGame(ChessCraft plugin, String name, BoardView view, String playerName) throws ChessException {
 		this.plugin = plugin;
 		this.view = view;
 		this.name = name;
@@ -108,7 +114,7 @@ public class Game {
 		cpGame.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
 	}
 
-	Map<String, Object> freeze() {
+	public Map<String, Object> freeze() {
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		map.put("name", name); //$NON-NLS-1$
@@ -135,7 +141,7 @@ public class Game {
 	}
 
 	public void save() {
-		plugin.persistence.saveGame(this);
+		plugin.getSaveDatabase().saveGame(this);
 	}
 
 	public void autoSave() {
@@ -145,7 +151,7 @@ public class Game {
 	}
 
 	@SuppressWarnings("unchecked")
-	boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
+	public boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
 		playerWhite = (String) map.get("playerWhite"); //$NON-NLS-1$
 		playerBlack = (String) map.get("playerBlack"); //$NON-NLS-1$
 		state = GameState.valueOf((String) map.get("state")); //$NON-NLS-1$
@@ -198,7 +204,7 @@ public class Game {
 		setupChesspressoGame();
 		
 		// Replay the move history to restore the saved board position.  We do this
-		// instead of just saving the position so that the Chesspresso Game model 
+		// instead of just saving the position so that the Chesspresso ChessGame model
 		// includes a history of the moves, suitable for creating a PGN file.
 		for (short move : history) {
 			getPosition().doMove(move);
@@ -587,7 +593,7 @@ public class Game {
 		doMove(playerName, toSquare, fromSquare);
 	}
 
-	public void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
+	public synchronized void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
 		ensureGameState(GameState.RUNNING);
 		ensurePlayerToMove(playerName);
 		if (fromSquare == Chess.NO_SQUARE) {
@@ -756,7 +762,7 @@ public class Game {
 	 * Called when a game is permanently deleted.
 	 */
 	public void deletePermanently() {
-		plugin.persistence.removeGameSavefile(this);
+		plugin.getSaveDatabase().removeGameSavefile(this);
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
@@ -783,7 +789,7 @@ public class Game {
 		}
 
 		try {
-			Game.removeGame(getName());
+			ChessGame.removeGame(getName());
 		} catch (ChessException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
@@ -982,8 +988,8 @@ public class Game {
 	}
 
 	/**
-	 * Check if a game needs to be auto-deleted: - Game that has not been
-	 * started after a certain duration - Game that has been finished for a
+	 * Check if a game needs to be auto-deleted: - ChessGame that has not been
+	 * started after a certain duration - ChessGame that has been finished for a
 	 * certain duration
 	 */
 	public void checkForAutoDelete() {
@@ -1046,7 +1052,7 @@ public class Game {
 	}
 
 	/*--------------------------------------------------------------------------------*/
-	public static void addGame(String gameName, Game game) {
+	public static void addGame(String gameName, ChessGame game) {
 		if (game != null && !chessGames.containsKey(gameName)) {
 			chessGames.put(gameName, game);
 		}
@@ -1056,7 +1062,7 @@ public class Game {
 	}
 
 	public static void removeGame(String gameName) throws ChessException {
-		Game game = getGame(gameName);
+		ChessGame game = getGame(gameName);
 
 		List<String> toRemove = new ArrayList<String>();
 		for (String p : currentGame.keySet()) {
@@ -1077,24 +1083,24 @@ public class Game {
 		return chessGames.containsKey(name);
 	}
 
-	public static List<Game> listGames(boolean isSorted) {
+	public static List<ChessGame> listGames(boolean isSorted) {
 		if (isSorted) {
 			SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
-			List<Game> res = new ArrayList<Game>();
+			List<ChessGame> res = new ArrayList<ChessGame>();
 			for (String name : sorted) {
 				res.add(chessGames.get(name));
 			}
 			return res;
 		} else {
-			return new ArrayList<Game>(chessGames.values());
+			return new ArrayList<ChessGame>(chessGames.values());
 		}
 	}
 
-	public static List<Game> listGames() {
+	public static List<ChessGame> listGames() {
 		return listGames(false);
 	}
 
-	public static Game getGame(String name) throws ChessException {
+	public static ChessGame getGame(String name) throws ChessException {
 		if (!chessGames.containsKey(name)) {
 			if (chessGames.size() > 0) {
 				// try "fuzzy" search
@@ -1127,23 +1133,23 @@ public class Game {
 	}
 
 	public static void setCurrentGame(String playerName, String gameName) throws ChessException {
-		Game game = getGame(gameName);
+		ChessGame game = getGame(gameName);
 		setCurrentGame(playerName, game);
 	}
 
-	public static void setCurrentGame(String playerName, Game game) {
+	public static void setCurrentGame(String playerName, ChessGame game) {
 		currentGame.put(playerName, game);
 	}
 
-	public static Game getCurrentGame(Player player) throws ChessException {
+	public static ChessGame getCurrentGame(Player player) throws ChessException {
 		return getCurrentGame(player, false);
 	}
 
-	public static Game getCurrentGame(Player player, boolean verify) throws ChessException {
+	public static ChessGame getCurrentGame(Player player, boolean verify) throws ChessException {
 		if (player == null) {
 			return null;
 		}
-		Game game = currentGame.get(player.getName());
+		ChessGame game = currentGame.get(player.getName());
 		if (verify && game == null) {
 			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
 		}
@@ -1153,7 +1159,7 @@ public class Game {
 	public static Map<String, String> getCurrentGames() {
 		Map<String, String> res = new HashMap<String, String>();
 		for (String s : currentGame.keySet()) {
-			Game game = currentGame.get(s);
+			ChessGame game = currentGame.get(s);
 			if (game != null) {
 				res.put(s, game.getName());
 			}
@@ -1167,7 +1173,7 @@ public class Game {
 		int n = 1;
 		do {
 			res = base + "-" + n++; //$NON-NLS-1$
-		} while (Game.checkGame(res));
+		} while (ChessGame.checkGame(res));
 
 		return res;
 	}

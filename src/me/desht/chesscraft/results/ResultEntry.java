@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import me.desht.chesscraft.Game;
+import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
@@ -18,7 +18,7 @@ public class ResultEntry {
 	private GameResult result;
 	private String pgnResult;
 
-	ResultEntry(Game game, GameResult rt) {
+	ResultEntry(ChessGame game, GameResult rt) {
 		playerWhite = game.getPlayerWhite();
 		playerBlack = game.getPlayerBlack();
 		gameName = game.getName();

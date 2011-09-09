@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.chess.BoardView;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.BlockDamageEvent;
