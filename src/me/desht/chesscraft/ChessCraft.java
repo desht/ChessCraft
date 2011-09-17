@@ -34,7 +34,7 @@ public class ChessCraft extends JavaPlugin {
 	protected ChessCommandExecutor commandExecutor;
 	protected ChessPersistence persistence;
 	protected ExpectResponse expecter;
-	protected ChessEconomy economyPluginListener = new ChessEconomy();
+	protected ChessEconomy economyPluginListener;
 	public ChessConfig config = null;
 	public ChessUtils util = null;
 	protected static WorldEditPlugin worldEditPlugin = null;
@@ -51,6 +51,7 @@ public class ChessCraft extends JavaPlugin {
 		blockListener = new ChessBlockListener(this);
 		entityListener = new ChessEntityListener(this);
 		commandExecutor = new ChessCommandExecutor(this);
+		economyPluginListener = new ChessEconomy(this);
 
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
