@@ -4,7 +4,7 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.util.ChessUtils;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.TerrainBackup;
+import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.exceptions.ChessException;
 

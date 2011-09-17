@@ -1,4 +1,4 @@
-package me.desht.chesscraft;
+package me.desht.chesscraft.blocks;
 
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.util.ChessUtils;
@@ -18,6 +18,9 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;

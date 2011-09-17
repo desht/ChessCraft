@@ -1,11 +1,11 @@
-package me.desht.chesscraft;
+package me.desht.util;
 
-import me.desht.util.ChessUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import me.desht.chesscraft.Messages;
 import me.jascotty2.bukkit.MinecraftChatStr;
 
 import org.bukkit.ChatColor;
@@ -48,7 +48,7 @@ public class MessageBuffer {
 	 * @param message
 	 *            The message line to add
 	 */
-	static void add(Player p, String message) {
+	public static void add(Player p, String message) {
 		init(p);
 		bufferMap.get(name(p)).add(message);
 	}
@@ -60,15 +60,15 @@ public class MessageBuffer {
 	 * 
 	 * @param p
 	 *            The player
-	 * @param messages
+	 * @param lines
 	 *            List of message lines to add
 	 */
-	static void add(Player p, String[] lines) {
+	public static void add(Player p, String[] lines) {
 		init(p);
 		add(p, Arrays.asList(lines));
 	}
 
-	static void add(Player p, List<String> lines) {
+	public static void add(Player p, List<String> lines) {
 		init(p);
 		//TODO: apply MinecraftChatStr.alignTags(lines, true)
 		//		in pagesize segments before adding to buffer
@@ -94,7 +94,7 @@ public class MessageBuffer {
 	 * @param p
 	 *            The player
 	 */
-	static void clear(Player p) {
+	public static void clear(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
 			return;
 		}
@@ -110,7 +110,7 @@ public class MessageBuffer {
 	 * @param p
 	 *            The player
 	 */
-	static void delete(Player p) {
+	public static void delete(Player p) {
 		bufferMap.remove(name(p));
 		currentPage.remove(name(p));
 	}
@@ -122,7 +122,7 @@ public class MessageBuffer {
 	 *            The player
 	 * @return The number of lines
 	 */
-	static int getSize(Player p) {
+	public static int getSize(Player p) {
 		if (!bufferMap.containsKey(name(p))) {
 			return 0;
 		}
@@ -145,7 +145,7 @@ public class MessageBuffer {
 	 * @return Number of pages in the buffer, including the partial page at the
 	 *         end
 	 */
-	static int getPageCount(Player p) {
+	public static int getPageCount(Player p) {
 		return (getSize(p) - 1) / pageSize + 1;
 	}
 
@@ -158,7 +158,7 @@ public class MessageBuffer {
 	 *            The line number
 	 * @return The line of text at that line
 	 */
-	static String getLine(Player p, int i) {
+	public static String getLine(Player p, int i) {
 		if (!bufferMap.containsKey(name(p))) {
 			return null;
 		}
@@ -175,11 +175,11 @@ public class MessageBuffer {
 	 * @param page
 	 *            The page number.
 	 */
-	static void setPage(Player player, int page) {
+	public static void setPage(Player player, int page) {
 		setPage(player, page, false);
 	}
 
-	static void setPage(Player player, int page, boolean wrap) {
+	public static void setPage(Player player, int page, boolean wrap) {
 		if ((page < 1 || page > getPageCount(player)) && !wrap) {
 			return;
 		}
@@ -197,7 +197,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void nextPage(Player player) {
+	public static void nextPage(Player player) {
 		setPage(player, getPage(player) + 1, true);
 	}
 
@@ -207,7 +207,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void prevPage(Player player) {
+	public static void prevPage(Player player) {
 		setPage(player, getPage(player) - 1, true);
 	}
 
@@ -218,7 +218,7 @@ public class MessageBuffer {
 	 *            The player
 	 * @return The current page for the player
 	 */
-	static int getPage(Player player) {
+	public static int getPage(Player player) {
 		return currentPage.get(name(player));
 	}
 
@@ -228,7 +228,7 @@ public class MessageBuffer {
 	 * @param player
 	 *            The player
 	 */
-	static void showPage(Player player) {
+	public static void showPage(Player player) {
 		showPage(player, currentPage.get(name(player)));
 	}
 
@@ -240,7 +240,7 @@ public class MessageBuffer {
 	 * @param pageStr
 	 *            A string containing the page number to display
 	 */
-	static void showPage(Player player, String pageStr) {
+	public static void showPage(Player player, String pageStr) {
 		try {
 			int pageNum = Integer.parseInt(pageStr);
 			showPage(player, pageNum);
@@ -257,7 +257,7 @@ public class MessageBuffer {
 	 * @param pageNum
 	 *            The page number to display
 	 */
-	static void showPage(Player player, int pageNum) {
+	public static void showPage(Player player, int pageNum) {
 		if (!bufferMap.containsKey(name(player))) {
 			return;
 		}

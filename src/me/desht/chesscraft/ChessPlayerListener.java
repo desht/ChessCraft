@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import me.desht.util.MessageBuffer;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
