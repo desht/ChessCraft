@@ -91,10 +91,10 @@ public class ChessConfig {
 		if (plugin != null) {
 			pluginDir = plugin.getDataFolder();
 		}
+		
+		setupDirectoryStructure();
 
 		configFileInitialise();
-
-		setupDirectoryStructure();
 
 		try {
 			Messages.init();
@@ -407,7 +407,7 @@ public class ChessConfig {
 
 		// special hooks
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
-			plugin.util.setupRepeatingTask(0);
+			plugin.util.setupRepeatingTask(plugin, 0);
 		} else if (key.equalsIgnoreCase("locale")) {
 			try {
 				Messages.loadMessages();

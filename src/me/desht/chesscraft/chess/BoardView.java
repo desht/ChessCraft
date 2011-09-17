@@ -17,7 +17,7 @@ import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ControlPanel;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
-import me.desht.chesscraft.TerrainBackup;
+import me.desht.chesscraft.blocks.TerrainBackup;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;

@@ -11,16 +11,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.PluginManager;
 
 public class ChessEconomy extends ServerListener {
 
 	protected static Method economyMethod = null;
 	protected static Methods _econMethods = new Methods();
+	protected final ChessCraft plugin;
+	PluginManager pm;
+
+	public ChessEconomy(ChessCraft plugin) {
+		this.plugin = plugin;
+		pm = plugin.getServer().getPluginManager();
+	}
 
 	@Override
 	public void onPluginDisable(PluginDisableEvent event) {
 		// Check to see if the plugin thats being disabled is the one we are using
-		if (_econMethods != null && _econMethods.hasMethod() && _econMethods.checkDisabled(event.getPlugin())) {
+		if (_econMethods != null && Methods.hasMethod() && Methods.checkDisabled(event.getPlugin())) {
 			economyMethod = null;
 			ChessCraftLogger.log(Level.INFO, " Economy Plugin was disabled.");
 		}
@@ -28,9 +36,9 @@ public class ChessEconomy extends ServerListener {
 
 	@Override
 	public void onPluginEnable(PluginEnableEvent event) {
-		if (!_econMethods.hasMethod()) {
-			if (_econMethods.setMethod(event.getPlugin())) {
-				economyMethod = _econMethods.getMethod();
+		if (!Methods.hasMethod()) {
+			if (Methods.setMethod(pm)) {//event.getPlugin())) {
+				economyMethod = Methods.getMethod();
 				ChessCraftLogger.log("Using " + economyMethod.getName() + " v" + economyMethod.getVersion() + " for economy");
 			}
 		}

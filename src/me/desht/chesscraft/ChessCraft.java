@@ -34,7 +34,7 @@ public class ChessCraft extends JavaPlugin {
 	protected ChessCommandExecutor commandExecutor;
 	protected ChessPersistence persistence;
 	protected ExpectResponse expecter;
-	protected ChessEconomy economyPluginListener = new ChessEconomy();
+	protected ChessEconomy economyPluginListener;
 	public ChessConfig config = null;
 	public ChessUtils util = null;
 	protected static WorldEditPlugin worldEditPlugin = null;
@@ -44,13 +44,14 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		description = this.getDescription();
-		util = new ChessUtils(this);
+		util = new ChessUtils();
 		ChessConfig.init(this);
 
 		playerListener = new ChessPlayerListener(this);
 		blockListener = new ChessBlockListener(this);
 		entityListener = new ChessEntityListener(this);
 		commandExecutor = new ChessCommandExecutor(this);
+		economyPluginListener = new ChessEconomy(this);
 
 		persistence = new ChessPersistence(this);
 		expecter = new ExpectResponse();
@@ -120,7 +121,7 @@ public class ChessCraft extends JavaPlugin {
 
 	private void delayedInitTasks() {
 		persistence.reload();
-		util.setupRepeatingTask(1);
+		util.setupRepeatingTask(this, 1);
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.createMenus();
 		}

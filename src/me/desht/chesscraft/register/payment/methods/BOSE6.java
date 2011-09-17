@@ -26,6 +26,10 @@ public class BOSE6 implements Method {
     public String getVersion() {
         return "0.6.2";
     }
+    
+    public int fractionalDigits() {
+    	return 0;
+    }
 
     public String format(double amount) {
         String currency = this.BOSEconomy.getMoneyNamePlural();
@@ -76,38 +80,32 @@ public class BOSE6 implements Method {
             this.BOSEconomy = bOSEconomy;
         }
 
-		@SuppressWarnings("deprecation")
-        public double balance() {
+		public double balance() {
             return (double) this.BOSEconomy.getPlayerMoney(this.name);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean set(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             return this.BOSEconomy.setPlayerMoney(this.name, IntAmount, false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean add(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             return this.BOSEconomy.addPlayerMoney(this.name, IntAmount, false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean subtract(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
             return this.BOSEconomy.setPlayerMoney(this.name, (balance - IntAmount), false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean multiply(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
             return this.BOSEconomy.setPlayerMoney(this.name, (balance * IntAmount), false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean divide(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
@@ -152,39 +150,33 @@ public class BOSE6 implements Method {
             return -1;
         }
 
-		@SuppressWarnings("deprecation")
         public double balance() {
             return (double) this.BOSEconomy.getBankMoney(bank);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean set(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             return this.BOSEconomy.setBankMoney(bank, IntAmount, true);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean add(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
             return this.BOSEconomy.setBankMoney(bank, (balance + IntAmount), false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean subtract(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
             return this.BOSEconomy.setBankMoney(bank, (balance - IntAmount), false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean multiply(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
             return this.BOSEconomy.setBankMoney(bank, (balance * IntAmount), false);
         }
 
-		@SuppressWarnings("deprecation")
         public boolean divide(double amount) {
             int IntAmount = (int)Math.ceil(amount);
             int balance = (int)this.balance();
