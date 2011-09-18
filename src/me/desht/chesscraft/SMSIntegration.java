@@ -103,7 +103,7 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, ""); //$NON-NLS-1$
-				//menu.notifyObservers();
+				menu.notifyObservers();
 			} catch (SMSException e) {
 				// shouldn't get here
 				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
@@ -116,7 +116,7 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
-				//menu.notifyObservers();
+				menu.notifyObservers();
 			} catch (SMSException e) {
 				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
