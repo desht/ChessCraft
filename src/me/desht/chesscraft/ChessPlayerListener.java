@@ -126,6 +126,9 @@ public class ChessPlayerListener extends PlayerListener {
 				cancelMove(targetBlock.getLocation());
 			}
 			ChessUtils.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
+		} catch (IllegalStateException e) {
+			// player.getTargetBlock() throws this exception occasionally - it appears
+			// to be harmless, so we'll ignore it
 		}
 
 	}
