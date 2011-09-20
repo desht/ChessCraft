@@ -462,16 +462,16 @@ public class ChessGame {
 		String whiteStr = Messages.getString("Game.white");
 		String blackStr = Messages.getString("Game.black");
 		
+		if (playerWhite.isEmpty() || playerBlack.isEmpty()) {
+			addAI(null);
+			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
+		}
+		
 		if (!canAffordToPlay(playerWhite)) {
 			throw new ChessException(Messages.getString("Game.cantAffordToStart", whiteStr, ChessEconomy.format(stake))); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerBlack)) {
 			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessEconomy.format(stake))); //$NON-NLS-1$
-		}
-		
-		if (playerWhite.isEmpty() || playerBlack.isEmpty()) {
-			addAI(null);
-			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
 		
 		if (ChessConfig.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
@@ -1224,8 +1224,8 @@ public class ChessGame {
 	private void checkForAIMove() {
 		if (aiHasMoved) {
 			try {
-				doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
 				aiHasMoved = false;
+				doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
 			} catch (IllegalMoveException e) {
 				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 			} catch (ChessException e) {
