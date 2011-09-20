@@ -5,12 +5,12 @@
 	<classpathentry kind="var" path="LOCAL_JARS/bukkit-0.0.1-SNAPSHOT.jar" sourcepath="/BUKKIT_SRC"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Permissions.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/WorldEdit.jar" sourcepath="/WORLEDIT_SRC"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iConomy.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iConomy-4.6.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo5.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/BOSEconomy7.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="LOCAL_JARS/Essentials.jar"/>
-	<classpathentry kind="var" path="LOCAL_JARS/iConomy-6.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/currency.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/ScrollingMenuSign.jar"/>
 	<classpathentry kind="output" path="bin"/>
