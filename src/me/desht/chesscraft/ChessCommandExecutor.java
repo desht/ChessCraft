@@ -201,6 +201,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "       /chess list ai"); //$NON-NLS-1$
+			ChessUtils.errorMessage(player, "       /chess list top [<n>] [ladder|league]"); //$NON-NLS-1$
 		}
 	}
 
@@ -514,6 +515,8 @@ public class ChessCommandExecutor implements CommandExecutor {
 	}
 
 	void listScores(Player player, String[] args) throws ChessException {
+		ChessPermission.requirePerms(player, ChessPermission.COMMAND_LISTSCORES);
+		
 		String viewName = "ladder";
 		int n = 5;
 		if (args.length > 2) {

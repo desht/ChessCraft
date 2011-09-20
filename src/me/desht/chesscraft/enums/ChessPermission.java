@@ -121,7 +121,12 @@ public enum ChessPermission {
 	/**
 	 * list the available AI's
 	 */
-	COMMAND_LISTAI("chesscraft.commands.list.ai", true);
+	COMMAND_LISTAI("chesscraft.commands.list.ai", true),
+	/**
+	 * list the leaderboard scores
+	 */
+	COMMAND_LISTSCORES("chesscraft.commands.list.scores", true);
+	
 	String permissionNode = null;
 	boolean isBasicNode = false;
 	private static PermissionHandler permissionHandler;
