@@ -1,10 +1,9 @@
 package me.desht.chesscraft.register.payment.methods;
 
+import me.desht.chesscraft.register.payment.Method;
 import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.coelho.iConomy.system.Account;
 
-
-import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 
@@ -34,7 +33,7 @@ public class iCo4 implements Method {
     	return 2;
     }
 
-	public String format(double amount) {
+    public String format(double amount) {
         return com.nijiko.coelho.iConomy.iConomy.getBank().format(amount);
     }
 
@@ -64,8 +63,8 @@ public class iCo4 implements Method {
 	
     public boolean isCompatible(Plugin plugin) {
         return plugin.getDescription().getName().equalsIgnoreCase("iconomy") 
-        		&& plugin.getClass().getName().equals("com.nijiko.coelho.iConomy.iConomy") 
-        		&& plugin instanceof iConomy;
+            && plugin.getClass().getName().equals("com.nijiko.coelho.iConomy.iConomy")
+            && plugin instanceof iConomy;
     }
 
     public void setPlugin(Plugin plugin) {

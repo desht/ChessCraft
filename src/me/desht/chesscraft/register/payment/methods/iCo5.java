@@ -1,13 +1,12 @@
 package me.desht.chesscraft.register.payment.methods;
 
+import me.desht.chesscraft.register.payment.Method;
 import com.iConomy.iConomy;
 import com.iConomy.system.Account;
 import com.iConomy.system.BankAccount;
 import com.iConomy.system.Holdings;
 import com.iConomy.util.Constants;
 
-
-import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 
@@ -37,7 +36,7 @@ public class iCo5 implements Method {
     	return 2;
     }
 
-	public String format(double amount) {
+    public String format(double amount) {
         return com.iConomy.iConomy.format(amount);
     }
 
@@ -67,8 +66,8 @@ public class iCo5 implements Method {
 
     public boolean isCompatible(Plugin plugin) {
         return plugin.getDescription().getName().equalsIgnoreCase("iconomy") 
-        		&& plugin.getClass().getName().equals("com.iConomy.iConomy") 
-        		&& plugin instanceof iConomy;
+            && plugin.getClass().getName().equals("com.iConomy.iConomy")
+            && plugin instanceof iConomy;
     }
 
     public void setPlugin(Plugin plugin) {

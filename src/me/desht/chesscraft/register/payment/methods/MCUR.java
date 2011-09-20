@@ -1,9 +1,9 @@
 package me.desht.chesscraft.register.payment.methods;
 
+import me.desht.chesscraft.register.payment.Method;
 
 import me.ashtheking.currency.Currency;
 import me.ashtheking.currency.CurrencyList;
-import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 
@@ -63,8 +63,8 @@ public class MCUR implements Method {
 
     public boolean isCompatible(Plugin plugin) {
         return (plugin.getDescription().getName().equalsIgnoreCase("Currency")
-        		|| plugin.getDescription().getName().equalsIgnoreCase("MultiCurrency"))
-        		&& plugin instanceof Currency;
+             || plugin.getDescription().getName().equalsIgnoreCase("MultiCurrency"))
+             && plugin instanceof Currency;
     }
 
     public void setPlugin(Plugin plugin) {

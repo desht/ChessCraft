@@ -1,12 +1,11 @@
 package me.desht.chesscraft.register.payment.methods;
 
+import me.desht.chesscraft.register.payment.Method;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 
-
-import me.desht.chesscraft.register.payment.Method;
 
 import org.bukkit.plugin.Plugin;
 
@@ -60,7 +59,9 @@ public class EE17 implements Method {
     }
 
     public MethodAccount getAccount(String name) {
-        if(!hasAccount(name)) return null;
+        if(!hasAccount(name)) 
+            return null;
+
         return new EEcoAccount(name);
     }
 
@@ -72,7 +73,8 @@ public class EE17 implements Method {
         try { Class.forName("com.earth2me.essentials.api.Economy"); }
         catch(Exception e) { return false; }
 
-        return plugin.getDescription().getName().equalsIgnoreCase("essentials") && plugin instanceof Essentials;
+        return plugin.getDescription().getName().equalsIgnoreCase("essentials")
+            && plugin instanceof Essentials;
     }
 
     public void setPlugin(Plugin plugin) {
