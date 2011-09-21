@@ -1,10 +1,20 @@
 v0.4 (development)
 board rotation now supported - board orientation is decided by player orientation when created
-messages are now customizable - config option "locale" for language file to use
+messages are now customizable and stored in external message file - new config option "locale" for language file to use
 added game results logging
 - stored in plugins/ChessCraft/results/results.db, a SQLite database
-- raw game results table, plus derived tables: ladder & league
+- "league" and "ladder" results views
+- new "/chess list top ..." command for viewing the leaderboard
+ScrollingMenuSign integration - create some useful menus of boards and games
+catch & ignore IllegalState exception from player.getTargetBlock()
+latest version of Register included - iConomy v6 now works 
+now possible to use the jChecs opening book for AI players
+added "autostart" config item - can make the game start as soon as two players have joined
+various durations (timeouts etc.) can now be specified with more unit types, not just as number of seconds
+waving at a board square while on the board now teleports you to that square - easier movement around the board
 
+v0.3.4 (9 Sep 2011)
+Fixed a potential problem with thread safety in the AI. Hopefully fixes some odd exceptions which a few people have seen.
 
 v0.3.3 (1 Aug 2011)
 Fixed a nasty bug relating to persistence - saved games were not correctly reloaded (board and game state were inconsistent)
