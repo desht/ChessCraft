@@ -129,13 +129,18 @@ public class ChessCraft extends JavaPlugin {
 	}
 	
 	private void setupSMS() {
-		Plugin p = this.getServer().getPluginManager().getPlugin("ScrollingMenuSign");
-		if (p != null && p instanceof ScrollingMenuSign) {
-			smsPlugin = (ScrollingMenuSign) p;
-			SMSIntegration.setup(smsPlugin);
-			ChessCraftLogger.log("ScrollingMenuSign plugin detected.");
-		} else {
-			ChessCraftLogger.log("ScrollingMenuSign plugin not detected.");
+		try {
+			Plugin p = this.getServer().getPluginManager().getPlugin("ScrollingMenuSign");
+			if (p != null && p instanceof ScrollingMenuSign) {
+				smsPlugin = (ScrollingMenuSign) p;
+				SMSIntegration.setup(smsPlugin);
+				ChessCraftLogger.log("ScrollingMenuSign plugin detected.");
+			} else {
+				ChessCraftLogger.log("ScrollingMenuSign plugin not detected.");
+			}
+		} catch (NoClassDefFoundError e) {
+			// this can happen if ScrollingMenuSign was disabled
+			ChessCraftLogger.log("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
 		}
 	}
 	
