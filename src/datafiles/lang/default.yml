@@ -29,7 +29,7 @@ ChessCommandExecutor:
   boardCantBeDeleted: "Can''t delete board &6{0}&- - it is being used by game &6{0}&-."
   boardCreationPrompt:
     - "Left-click a block: create board &6{0}&-. Right-click: cancel."
-    - "This block will become the centre of the board''s A1 square."
+    - "This block will become the centre of the board's A1 square."
   boardDeleted: "Deleted board &6{0}&-."
   boardDetail:
     board: "&eBoard {0}:"
@@ -45,7 +45,7 @@ ChessCommandExecutor:
     boardOrientation: "Board Orientation: &f{0}"
   boardList: "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-"
   boardRedrawn: "Board &6{0}&- has been redrawn."
-  cantAffordStake: "You can''t afford that stake!"
+  cantAffordStake: "You can't afford that stake!"
   canTeleport: "You can teleport to your game with &f/chess tp {0}"
   chessSaved: "Chess boards and games have been saved."
   configKeySet: "{0} is now set to: {1}"
@@ -71,7 +71,7 @@ ChessCommandExecutor:
     stake: "Stake: {0}"
     whiteToPlay: "White to play"
     halfMoves: "{0,number,integer} half-moves made"
-  goingToSpawn: "Can''t find a safe place to send you - going to spawn point."
+  goingToSpawn: "Can't find a safe place to send you - going to spawn point."
   invalidFromSquare: "Invalid FROM square in {0}"
   invalidMoveString: "Invalid move string {0}"
   invalidNumeric: "Invalid numeric value: {0}"
@@ -86,7 +86,7 @@ ChessCommandExecutor:
   noCurrentGames: "There are currently no games."
   noGame: "(none)"
   noNegativeStakes: "Negative stakes are not permitted!"
-  noPendingInvitation: "You don''t have any pending invitations right now."
+  noPendingInvitation: "You don't have any pending invitations right now."
   notFromConsole: "This command cannot be run from the console."
   notOnChessboard: "Not on a chessboard!"
   otherPlayerMustBeOffline: "You can only do this if the other player has gone offline."
@@ -113,7 +113,7 @@ ChessConfig:
     - "Use &f/chess getcfg&- to list all valid keys"
  
 ChessEntityListener:
-  goingToSpawn: "Can''t find a safe place to displace you - going to spawn."
+  goingToSpawn: "Can't find a safe place to displace you - going to spawn."
 
 ChessPlayerListener:
   boardCreationCancelled: "Board creation cancelled."
@@ -200,7 +200,7 @@ Game:
   noActiveGame: "No active game - set one with &f/chess game <name>&-."
   noSuchGame: "No such game &6{0}&-."
   notInGame: "You are not in this game!"
-  notInvited: "You don''t have an invitation for this game."
+  notInvited: "You don't have an invitation for this game."
   notStarted: "The game has not yet started."
   notYourTurn: "It is not your turn."
   nowPlayingBlack: "Side swap!  You are now playing Black."
