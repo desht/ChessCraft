@@ -28,10 +28,11 @@ public class SMSIntegration {
 		if (smsHandler == null) {
 			smsHandler = sms.getHandler();
 			try {
-				if (SMSMenu.class.getMethod("notifyObservers", null) != null) {
+				if (SMSMenu.class.getMethod("notifyObservers", (Class <?>[]) null) != null) {
 					canNotify = true;
 				}
 			} catch (Exception e) {
+				ChessCraftLogger.warning("Outdated version of ScrollingMenuSign - sign views will not update properly.  Please upgrade to 0.6 or later");
 			}
 		}
 	}
