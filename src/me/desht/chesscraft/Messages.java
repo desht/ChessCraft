@@ -13,7 +13,7 @@ import org.bukkit.util.config.Configuration;
 
 public class Messages {
 
-	static Configuration fallbackMessages = null;	
+	static Configuration fallbackMessages = null;
 	static Configuration messages = null;
 
 	public static void init() throws IOException {
@@ -24,12 +24,12 @@ public class Messages {
 		}
 		loadMessages();
 	}
-	
+
 	public static void loadMessages() throws IOException {
 		File langDir = ChessConfig.getLanguagesDirectory();
 		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
-		
+
 		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
 			// file exists on disk and is newer than the JAR
 			messages = checkUpToDate(wanted);
@@ -85,7 +85,7 @@ public class Messages {
 				actualCfg.setProperty(e.getKey(), e.getValue());
 			}
 		}
-		
+
 		// ensure that the config we're loading has all of the messages that the fallback has
 		if (fallbackMessages != null && actualCfg.getAll().size() != fallbackMessages.getAll().size()) {
 			List<String> missingKeys = new ArrayList<String>();
@@ -162,6 +162,11 @@ public class Messages {
 	}
 
 	public static String getString(String key, Object... args) {
-		return MessageFormat.format(getString(key), args);
+		try {
+			return MessageFormat.format(getString(key), args);
+		} catch (Exception e) {
+			ChessCraftLogger.severe("Error fomatting message for " + key + ": " + e.getMessage());
+			return getString(key);
+		}
 	}
 }
