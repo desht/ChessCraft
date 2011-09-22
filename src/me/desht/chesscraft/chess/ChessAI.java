@@ -143,8 +143,8 @@ public class ChessAI {
 							availableAI.put(
 									name.toLowerCase(),
 									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
-											d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
-													.getString("comment"))); //$NON-NLS-1$
+									d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
+									.getString("comment"))); //$NON-NLS-1$
 						}
 					}
 				}
@@ -266,18 +266,24 @@ public class ChessAI {
 		if (!userToMove) {
 			return;
 		}
-		// System.out.println("user move: " + fromIndex + " to " + toIndex);
+		try {
 
-		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
-		// or?
-		// Square from = Square.valueOf(chesspresso.Chess.sqiToRow(fromIndex),
-		// chesspresso.Chess.sqiToCol(fromIndex)),
-		// to = Square.valueOf(chesspresso.Chess.sqiToRow(toIndex),
-		// chesspresso.Chess.sqiToCol(toIndex));
+			// System.out.println("user move: " + fromIndex + " to " + toIndex);
 
-		// assume move is legal
-		_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
+			Square from = Square.valueOf(fromIndex),
+					to = Square.valueOf(toIndex);
+			// or?
+			// Square from = Square.valueOf(chesspresso.Chess.sqiToRow(fromIndex),
+			// chesspresso.Chess.sqiToCol(fromIndex)),
+			// to = Square.valueOf(chesspresso.Chess.sqiToRow(toIndex),
+			// chesspresso.Chess.sqiToCol(toIndex));
 
+			// assume move is legal
+			_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
+
+		} catch (Exception e) {
+			ChessCraftLogger.severe("Error in ChessAI", e);
+		}
 		setUserMove(false);
 	}
 
