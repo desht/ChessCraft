@@ -8,6 +8,7 @@ package me.desht.chesscraft.log;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.ChatColor;
 
 public class ChessCraftLogger {
 
@@ -18,7 +19,7 @@ public class ChessCraftLogger {
 	/*----------------- generic logging functions ---------------------*/
 	public static void log(String message) {
 		if (message != null) {
-			logger.log(Level.INFO, String.format(messageFormat, message));
+			logger.log(Level.INFO, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
@@ -27,7 +28,7 @@ public class ChessCraftLogger {
 			level = Level.INFO;
 		}
 		if (message != null) {
-			logger.log(level, String.format(messageFormat, message));
+			logger.log(level, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
@@ -36,32 +37,32 @@ public class ChessCraftLogger {
 			log(level, message);
 		} else {
 			logger.log(level, String.format(messageFormat,
-					message == null ? (err == null ? "?" : err.getMessage()) : message), err);
+					message == null ? (err == null ? "?" : err.getMessage()) : ChatColor.stripColor(message)), err);
 		}
 	}
 
 	/*------------------- logging levels ------------------------------*/
 	public static void fine(String message) {
 		if (message != null) {
-			logger.log(Level.FINE, String.format(messageFormat, message));
+			logger.log(Level.FINE, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
 	public static void info(String message) {
 		if (message != null) {
-			logger.log(Level.INFO, String.format(messageFormat, message));
+			logger.log(Level.INFO, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
 	public static void warning(String message) {
 		if (message != null) {
-			logger.log(Level.WARNING, String.format(messageFormat, message));
+			logger.log(Level.WARNING, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
 	public static void severe(String message) {
 		if (message != null) {
-			logger.log(Level.SEVERE, String.format(messageFormat, message));
+			logger.log(Level.SEVERE, String.format(messageFormat, ChatColor.stripColor(message)));
 		}
 	}
 
@@ -69,7 +70,8 @@ public class ChessCraftLogger {
 		if (err == null) {
 			info(message);
 		} else {
-			logger.log(Level.INFO, String.format(messageFormat, message == null ? err.getMessage() : ""), err);
+			logger.log(Level.INFO, String.format(messageFormat, 
+					message == null ? err.getMessage() : ChatColor.stripColor(message)), err);
 		}
 	}
 
@@ -77,7 +79,8 @@ public class ChessCraftLogger {
 		if (err == null) {
 			warning(message);
 		} else {
-			logger.log(Level.WARNING, String.format(messageFormat, message == null ? err.getMessage() : ""), err);
+			logger.log(Level.WARNING, String.format(messageFormat, 
+					message == null ? err.getMessage() : ChatColor.stripColor(message)), err);
 		}
 	}
 
@@ -85,7 +88,8 @@ public class ChessCraftLogger {
 		if (err == null) {
 			severe(message);
 		} else {
-			logger.log(Level.SEVERE, String.format(messageFormat, message == null ? err.getMessage() : ""), err);
+			logger.log(Level.SEVERE, String.format(messageFormat, 
+					message == null ? err.getMessage() : ChatColor.stripColor(message)), err);
 		}
 	}
 } // end class ChessCraftLogger
