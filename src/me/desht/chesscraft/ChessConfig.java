@@ -7,6 +7,7 @@
 package me.desht.chesscraft;
 
 import me.desht.util.ChessUtils;
+import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -411,6 +412,10 @@ public class ChessConfig {
 		} else if (key.equalsIgnoreCase("locale")) {
 			try {
 				Messages.loadMessages();
+				// redraw control panel signs in the right language
+				for (BoardView bv : BoardView.listBoardViews()) {
+					bv.getControlPanel().repaint();
+				}
 			} catch (IOException e) {
 				ChessCraftLogger.severe("Can't load messages file", e);
 			}
