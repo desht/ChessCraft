@@ -126,7 +126,6 @@ public class SMSIntegration {
 	private static void removeItem(String menuName, String label) {
 		if (smsHandler.checkMenu(menuName)) {
 			try {
-				System.out.println("attempting remove (122)");
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
 				if(canNotify){
