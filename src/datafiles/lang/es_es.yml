@@ -146,7 +146,7 @@ ControlPanel:
   chessInviteReminder: "Escribe &f/chess invite <nombredejugador>&- para invitar a alguien"
   createGameBtn: ";Crear;Partida"
   gameInfoBtn: ";Partida;Informacion"
-  halfmoveClock: "Reloj de semi-movimientos"
+  halfmoveClock: "Reloj de semi-;movimientos"
   inviteAnyoneBtn: ";Invitar;NADIE"
   invitePlayerBtn: ";Invitar;Jugador"
   noBtn: ";;No"

@@ -304,7 +304,7 @@ public class ControlPanel {
 	public void updatePlyCount(int playNumber) {
 		if (plyCountSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) plyCountSign.getBlock().getState();
-			s.setLine(1, Messages.getString("ControlPanel.playNumber")); //$NON-NLS-1$
+			setSignLabel(s, Messages.getString("ControlPanel.playNumber")); //$NON-NLS-1$
 			s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber)); //$NON-NLS-1$
 			s.update();
 		}
@@ -314,7 +314,7 @@ public class ControlPanel {
 	public void updateHalfMoveClock(int halfMoveClock) {
 		if (halfMoveClockSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) halfMoveClockSign.getBlock().getState();
-			s.setLine(1, Messages.getString("ControlPanel.halfmoveClock")); //$NON-NLS-1$
+			setSignLabel(s, Messages.getString("ControlPanel.halfmoveClock")); //$NON-NLS-1$
 			s.setLine(2, ChessUtils.parseColourSpec("&4" + halfMoveClock)); //$NON-NLS-1$
 			s.update();
 		}
@@ -329,12 +329,23 @@ public class ControlPanel {
 		}
 		if (l.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) l.getBlock().getState();
-			s.setLine(1, ChessGame.getColour(colour));
+			setSignLabel(s, ChessGame.getColour(colour));
 			s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.secondsToHMS(t))); //$NON-NLS-1$
 			s.update();
 		}
 	}
 
+	private void setSignLabel(Sign s, String text) {
+		String[] lines = text.split(";");
+		if (lines.length == 1) {
+			s.setLine(0, "");
+			s.setLine(1, lines[0]);
+		} else if (lines.length == 2) {
+			s.setLine(0, lines[0]);
+			s.setLine(1, lines[1]);
+		}
+	}
+	
 	protected static Cuboid getBoardControlPanel(BoardView view) {
 
 		BoardOrientation dir = view.getDirection();
