@@ -227,6 +227,7 @@ MessageBuffer:
   header: "| {0,number,integer}-{1,number,integer} of {2,number,integer} lines (page {3,number,integer}/{4,number,integer}) |"
   footer: "| Use /chess page [#|n|p] to see other pages |"
 
+# these messages need to be 15 characters max. (including colour codes) because they are displayed on signs
 SMSIntegration:
   boardInfo: "&1Board Info"
   createGame: "&1Create Game"
