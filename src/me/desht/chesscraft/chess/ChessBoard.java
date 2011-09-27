@@ -19,10 +19,16 @@ import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
+import net.minecraft.server.EnumSkyBlock;
+import net.minecraft.server.World;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.CraftWorld;
 
 public class ChessBoard {
 
+	public static boolean useOldLighting = false;
 	public static final String DEFAULT_PIECE_STYLE = "Standard",
 			DEFAULT_BOARD_STYLE = "Standard";
 // <editor-fold defaultstate="collapsed" desc="Variables">
@@ -452,55 +458,67 @@ public class ChessBoard {
 		if (board == null) {
 			return;
 		}
-		if (isLighted == light && force == false) {
-			return;
-		}
-		isLighted = light;
-		MaterialWithData mat = new MaterialWithData(89);
-
-		// light the NE edges of all of the squares
-		Location ne = board.getLowerNE();
-		int ix = 0, iz = 0, dx = boardStyle.squareSize, dz = dx,
-				y = ne.getBlockY();
-		switch (rotation) {
-			case NORTH:
-				dx = -dx;
-				dz = -dz;
-				ix = board.getUpperX();
-				iz = board.getUpperZ();
-				break;
-			case EAST:
-				dz = -dz;
-				ix = board.getLowerX();
-				iz = board.getUpperZ();
-				break;
-			case SOUTH:
-				ix = board.getLowerX();
-				iz = board.getLowerZ();
-				break;
-			case WEST:
-				dx = -dx;
-				ix = board.getUpperX();
-				iz = board.getLowerZ();
-		}
-		// the board lights
-		for (int r = 0, x = ix; r < 8; ++r, x += dx) {
-			for (int c = 0, z = iz; c < 8; ++c, z += dz) {
-				(isLighted ? mat
-						: ((c + (r % 2)) % 2 == 0
-						? boardStyle.blackSquareMat : boardStyle.whiteSquareMat)).applyToBlock(ne.getWorld().getBlockAt(x, y, z));
+		if (useOldLighting) {
+			if (isLighted == light && force == false) {
+				return;
 			}
-		}
-		// now for the frame
-		if (!isLighted) {
-			mat = boardStyle.frameMat;
-		}
-		Cuboid frameLight = board.clone();
-		frameLight.outset(Direction.Horizontal, boardStyle.frameWidth / 2);
-		int i = boardStyle.frameWidth / 2;
-		for (Location l : frameLight.walls()) {
-			if (i++ % boardStyle.squareSize == 0) {
-				mat.applyToBlock(l.getBlock());
+			isLighted = light;
+			MaterialWithData mat = new MaterialWithData(89);
+
+			// light the NE edges of all of the squares
+			Location ne = board.getLowerNE();
+			int ix = 0, iz = 0, dx = boardStyle.squareSize, dz = dx,
+					y = ne.getBlockY();
+			switch (rotation) {
+				case NORTH:
+					dx = -dx;
+					dz = -dz;
+					ix = board.getUpperX();
+					iz = board.getUpperZ();
+					break;
+				case EAST:
+					dz = -dz;
+					ix = board.getLowerX();
+					iz = board.getUpperZ();
+					break;
+				case SOUTH:
+					ix = board.getLowerX();
+					iz = board.getLowerZ();
+					break;
+				case WEST:
+					dx = -dx;
+					ix = board.getUpperX();
+					iz = board.getLowerZ();
+			}
+			// the board lights
+			for (int r = 0, x = ix; r < 8; ++r, x += dx) {
+				for (int c = 0, z = iz; c < 8; ++c, z += dz) {
+					(isLighted ? mat
+							: ((c + (r % 2)) % 2 == 0
+							? boardStyle.blackSquareMat : boardStyle.whiteSquareMat)).applyToBlock(ne.getWorld().getBlockAt(x, y, z));
+				}
+			}
+			// now for the frame
+			if (!isLighted) {
+				mat = boardStyle.frameMat;
+			}
+			Cuboid frameLight = board.clone();
+			frameLight.outset(Direction.Horizontal, boardStyle.frameWidth / 2);
+			int i = boardStyle.frameWidth / 2;
+			for (Location l : frameLight.walls()) {
+				if (i++ % boardStyle.squareSize == 0) {
+					mat.applyToBlock(l.getBlock());
+				}
+			}
+		} else {
+//			double ix = frameBoard.getLowerX(), ex = frameBoard.getUpperX(),
+//					iz = frameBoard.getLowerZ(), ez = frameBoard.getUpperZ();
+			World w = ((CraftWorld) frameBoard.getWorld()).getHandle();
+			for (Location l : frameBoard) {
+				while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
+					l.add(0, 1, 0);
+				}
+				w.a(EnumSkyBlock.BLOCK, l.getBlockX(), l.getBlockY(), l.getBlockZ(), 15);
 			}
 		}
 	}
