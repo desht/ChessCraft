@@ -251,34 +251,55 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		}
 	}
 
-	public void set(int blockID, byte data) {
+	public void set(int blockID, Byte data) {
 		if (blockID == 0) {
 			clear();
 		} else {
-			for (Location l : this) {
-				l.getBlock().setTypeIdAndData(blockID, data, true);
+			if (data != null) {
+				for (Location l : this) {
+					l.getBlock().setTypeIdAndData(blockID, data, true);
+				}
+			} else {
+				for (Location l : this) {
+					l.getBlock().setTypeId(blockID, true);
+				}
 			}
 		}
 	}
 
 	public void setWalls(int blockID) {
-		setWalls(blockID, (byte) 0);
+		setWalls(blockID, null);
 	}
 
-	public void setWalls(int blockID, byte data) {
+	public void setWalls(int blockID, Byte data) {
 		World w = lowerNE.getWorld();
 		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
 		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
-		for (int x = minX; x <= maxX; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
-				(new Location(w, x, y, minZ)).getBlock().setTypeIdAndData(blockID, data, true);
-				(new Location(w, x, y, maxZ)).getBlock().setTypeIdAndData(blockID, data, true);
+		if (data != null) {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					(new Location(w, x, y, minZ)).getBlock().setTypeIdAndData(blockID, data, true);
+					(new Location(w, x, y, maxZ)).getBlock().setTypeIdAndData(blockID, data, true);
+				}
 			}
-		}
-		for (int z = minZ; z <= maxZ; ++z) {
-			for (int y = minY; y <= maxY; ++y) {
-				(new Location(w, minX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
-				(new Location(w, maxX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+			for (int z = minZ; z <= maxZ; ++z) {
+				for (int y = minY; y <= maxY; ++y) {
+					(new Location(w, minX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+					(new Location(w, maxX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+				}
+			}
+		} else {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int y = minY; y <= maxY; ++y) {
+					(new Location(w, x, y, minZ)).getBlock().setTypeId(blockID, true);
+					(new Location(w, x, y, maxZ)).getBlock().setTypeId(blockID, true);
+				}
+			}
+			for (int z = minZ; z <= maxZ; ++z) {
+				for (int y = minY; y <= maxY; ++y) {
+					(new Location(w, minX, y, z)).getBlock().setTypeId(blockID, true);
+					(new Location(w, maxX, y, z)).getBlock().setTypeId(blockID, true);
+				}
 			}
 		}
 	}

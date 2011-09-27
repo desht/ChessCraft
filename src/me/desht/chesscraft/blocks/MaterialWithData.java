@@ -4,20 +4,22 @@ import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 
 public class MaterialWithData implements Cloneable {
 
 	int material;
-	byte data;
+	Byte data;
+	String[] text;	// sign text
 
-	public MaterialWithData(int mat, byte d) {
+	public MaterialWithData(int mat, Byte d) {
 		material = mat;
 		data = d;
 	}
 
 	public MaterialWithData(int mat) {
 		material = mat;
-		data = 0;
+		data = null;
 	}
 
 	public MaterialWithData(MaterialWithData m) {
@@ -28,56 +30,80 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	public MaterialWithData(String string) {
-		String[] items = string.split(":");
-		data = 0;
-
-		if (items[0].matches("^[0-9]+$")) {
-			material = Integer.parseInt(items[0]);
+		String[] matAndText = string.split("=");
+		String[] matAndData = matAndText[0].split(":");
+		
+		data = null;
+		text = matAndText.length > 1 ? makeText(matAndText[1]) : null;
+		
+		if (matAndData[0].matches("^[0-9]+$")) {
+			material = Integer.parseInt(matAndData[0]);
 		} else {
-			Material m = Material.valueOf(items[0].toUpperCase());
+			Material m = Material.valueOf(matAndData[0].toUpperCase());
 			if (m == null) {
-				throw new IllegalArgumentException("unknown material " + items[0]);
+				throw new IllegalArgumentException("unknown material " + matAndData[0]);
 			}
 			material = m.getId();
 		}
-		if (items.length < 2) {
+		if (matAndData.length < 2) {
 			return;
 		}
 
-		if (items[1].matches("^[0-9]+$")) {
-			data = Byte.parseByte(items[1]);
+		if (matAndData[1].matches("^[0-9]+$")) {
+			data = Byte.parseByte(matAndData[1]);
 		} else if (material == 35) { // wool
-			DyeColor d = DyeColor.valueOf(items[1].toUpperCase());
+			DyeColor d = DyeColor.valueOf(matAndData[1].toUpperCase());
 			if (d == null) {
-				throw new IllegalArgumentException("unknown dye colour " + items[0]);
+				throw new IllegalArgumentException("unknown dye colour " + matAndData[0]);
 			}
 			data = d.getData();
 		} else {
-			throw new IllegalArgumentException("invalid data specification " + items[1]);
+			throw new IllegalArgumentException("invalid data specification " + matAndData[1]);
 		}
 	}
 
-	public byte getData() {
+	private String[] makeText(String input) {
+		String[] t = new String[] {"", "", "", ""};
+		String[] s = input.split(";");
+		for (int i = 0; i < 4 && i < s.length; i++) {
+			t[i] = s[i];
+		}
+		return t;
+	}
+
+	public Byte getData() {
 		return data;
 	}
 
 	public int getMaterial() {
 		return material;
 	}
+	
+	public String[] getText() {
+		return text;
+	}
 
 	public void applyToBlock(Block b) {
 		if (b != null) {
-			if (data >= 0) {
+			if (data != null) {
 				b.setTypeIdAndData(material, data, false);
 			} else {
 				b.setTypeId(material);
+			}
+			if (text != null && (material == 63 || material == 68)) {
+				// updating a wall sign or floor sign, with text
+				Sign sign = (Sign) b.getState().getData();
+				for (int i = 0; i < 4; i++) {
+					sign.setLine(i, text[i]);
+				}
+				sign.update();
 			}
 		}
 	}
 
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
-			if (data >= 0) {
+			if (data != null) {
 				c.set(material, data);
 			} else {
 				c.set(material);
@@ -87,14 +113,14 @@ public class MaterialWithData implements Cloneable {
 
 	@Override
 	public String toString() {
-		String s = Material.getMaterial(material).toString();
+		StringBuilder s = new StringBuilder(Material.getMaterial(material).toString());
 		if (material == 35) // wool
 		{
-			s = s + ":" + DyeColor.getByData(data).toString();
-		} else {
-			s = s + ":" + data;
+			s.append(":").append(DyeColor.getByData(data).toString());
+		} else if (data != null) {
+			s.append(":").append(data.toString());
 		}
-		return s;
+		return s.toString();
 	}
 
 	@Override
@@ -123,16 +149,21 @@ public class MaterialWithData implements Cloneable {
 			return false;
 		}
 		MaterialWithData other = (MaterialWithData) obj;
-		if (data != other.data) {
-			return false;
-		}
 		if (material != other.material) {
 			return false;
+		} else if (data == null && other.data == null) {
+			return true;
+		} else if (data != other.data) {
+			return false;
+		} else {
+			return true;
 		}
-		return true;
 	}
 
 	public void rotate(int rotation) {
+		if (data == null) {
+			return;
+		}
 		switch(rotation){
 			case 270:
 				data = (byte) BlockData.rotate90Reverse(material, data);
