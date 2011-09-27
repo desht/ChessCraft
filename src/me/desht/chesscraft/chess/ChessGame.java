@@ -677,6 +677,9 @@ public class ChessGame {
 		} catch (IllegalMoveException e) {
 			throw e;
 		}
+//		if (!ChessBoard.useOldLighting) {
+//			view.doLighting(true);
+//		}
 	}
 
 	public boolean isAIPlayer(String name) {
