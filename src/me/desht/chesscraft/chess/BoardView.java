@@ -232,16 +232,20 @@ public class BoardView implements PositionListener {
 //				expand(Direction.Up, getHeight() / 2);
 //			c.weSelect(jas);
 //        }
-		byte level = getBounds().shift(Direction.Up, 2).
-				inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
-				expand(Direction.Up, getHeight() / 2).
-				averageLightLevel();
+		if (ChessBoard.useOldLighting) {
+			byte level = getBounds().shift(Direction.Up, 2).
+					inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
+					expand(Direction.Up, getHeight() / 2).
+					averageLightLevel();
 
-		if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
-			return;
+			if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
+				return;
+			}
+			lastLevel = level;
+			chessBoard.lightBoard(!isBright(level));
+		} else {
+			chessBoard.lightBoard(true);
 		}
-		lastLevel = level;
-		chessBoard.lightBoard(!isBright(level));
 	}
 
 	private boolean isBright(byte level) {
@@ -416,7 +420,7 @@ public class BoardView implements PositionListener {
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardCreated(view);
 		}
-	
+
 		chessBoards.put(name, view);
 	}
 
@@ -434,7 +438,7 @@ public class BoardView implements PositionListener {
 				ChessCraftLogger.warning("removeBoardView: unknown board name " + name);
 			}
 		}
-		
+
 		chessBoards.remove(name);
 	}
 
@@ -444,8 +448,8 @@ public class BoardView implements PositionListener {
 				SMSIntegration.boardDeleted(bv);
 			}
 		}
-		
-		chessBoards.clear();		
+
+		chessBoards.clear();
 	}
 
 	public static boolean boardViewExists(String name) {
