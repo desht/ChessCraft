@@ -13,6 +13,7 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessPieceLibrary;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceTemplate;
+import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
@@ -22,16 +23,15 @@ import me.desht.chesscraft.regions.Cuboid;
 import net.minecraft.server.EnumSkyBlock;
 import net.minecraft.server.World;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 
 public class ChessBoard {
-
-	public static boolean useOldLighting = false;
+	private static BoardLightingMethod lightingMethod = BoardLightingMethod.CRAFTBUKKIT;
+	
 	public static final String DEFAULT_PIECE_STYLE = "Standard",
 			DEFAULT_BOARD_STYLE = "Standard";
-// <editor-fold defaultstate="collapsed" desc="Variables">
+	// <editor-fold defaultstate="collapsed" desc="Variables">
 	//cuboid regions of areas on the board
 	/**
 	 * region that defines the board itself - just the squares
@@ -85,16 +85,16 @@ public class ChessBoard {
 	 * the upper-right-most part (outer corner) of the h8 square (depends on rotation)
 	 */
 	private Location h8Corner = null;
-//	/**
-//	 * if a chess board has been drawn, this is a save for paintAll()
-//	 */
-//	protected Position chessGameCallback = null;
+	//	/**
+	//	 * if a chess board has been drawn, this is a save for paintAll()
+	//	 */
+	//	protected Position chessGameCallback = null;
 	// </editor-fold>
 
 	public ChessBoard(File boardStyleFolder, File pieceStyleFolder,
 			String boardStyleStr, String pieceStyleStr) throws ChessException {
-//		this.boardStyleStr = boardStyleStr;
-//		this.pieceStyleStr = pieceStyleStr;
+		//		this.boardStyleStr = boardStyleStr;
+		//		this.pieceStyleStr = pieceStyleStr;
 		setBoardStyle(boardStyleFolder, boardStyleStr);
 		setPieceStyle(pieceStyleFolder,
 				pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleStr);
@@ -296,6 +296,14 @@ public class ChessBoard {
 		}
 	}
 
+	public static BoardLightingMethod getLightingMethod() {
+		return lightingMethod;
+	}
+
+	public static void setLightingMethod(BoardLightingMethod lightingMethod) {
+		ChessBoard.lightingMethod = lightingMethod;
+	}
+
 	// </editor-fold>
 	/**
 	 * paint whole board
@@ -344,18 +352,18 @@ public class ChessBoard {
 			return;
 		}
 		// TODO? time methods for most optimal
-//		for (int row = 0; row < 8; ++row) {
-//			int firstBlack = row % 2;
-//			for (int r = 0; r < boardStyle.squareSize; ++r) {
-//				for (int col = 0; col < 8; ++col) {
-//					MaterialWithData m = (col + firstBlack) % 2 == 0
-//							? boardStyle.blackSquareMat : boardStyle.whiteSquareMat;
-//					for (int c = 0; c < boardStyle.squareSize; ++c) {
-//						//TODO: chessboard square direction determined by rotation
-//					}
-//				}
-//			}
-//		}
+		//		for (int row = 0; row < 8; ++row) {
+		//			int firstBlack = row % 2;
+		//			for (int r = 0; r < boardStyle.squareSize; ++r) {
+		//				for (int col = 0; col < 8; ++col) {
+		//					MaterialWithData m = (col + firstBlack) % 2 == 0
+		//							? boardStyle.blackSquareMat : boardStyle.whiteSquareMat;
+		//					for (int c = 0; c < boardStyle.squareSize; ++c) {
+		//						//TODO: chessboard square direction determined by rotation
+		//					}
+		//				}
+		//			}
+		//		}
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				Cuboid sq = getSquare(row, col);
@@ -393,24 +401,24 @@ public class ChessBoard {
 			MaterialWithData squareHighlightColor =
 					boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
 			switch (boardStyle.highlightStyle) {
-				case EDGES:
-					for (Location loc : sq.walls()) {
+			case EDGES:
+				for (Location loc : sq.walls()) {
+					squareHighlightColor.applyToBlock(loc.getBlock());
+				}
+				break;
+			case CORNERS:
+				for (Location loc : sq.corners()) {
+					squareHighlightColor.applyToBlock(loc.getBlock());
+				}
+				break;
+			case CHECKERED:
+			case CHEQUERED:
+				for (Location loc : sq) {
+					if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
 						squareHighlightColor.applyToBlock(loc.getBlock());
 					}
-					break;
-				case CORNERS:
-					for (Location loc : sq.corners()) {
-						squareHighlightColor.applyToBlock(loc.getBlock());
-					}
-					break;
-				case CHECKERED:
-				case CHEQUERED:
-					for (Location loc : sq) {
-						if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
-							squareHighlightColor.applyToBlock(loc.getBlock());
-						}
-					}
-					break;
+				}
+				break;
 			}
 		}
 	}
@@ -458,7 +466,27 @@ public class ChessBoard {
 		if (board == null) {
 			return;
 		}
-		if (useOldLighting) {
+
+		if (lightingMethod == BoardLightingMethod.CRAFTBUKKIT) {
+			// Since calling craftbukkit methods directly is prone to failure, we'll catch
+			// any possible exceptions/errors and fall back to the slower but safer method
+			// of placing glowstone on the chessboard
+			try {
+				World w = ((CraftWorld) frameBoard.getWorld()).getHandle();
+				for (Location l : frameBoard) {
+					while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
+						l.add(0, 1, 0);
+					}
+					w.a(EnumSkyBlock.BLOCK, l.getBlockX(), l.getBlockY(), l.getBlockZ(), 15);
+				}
+				return;
+			} catch (Throwable t) {
+				ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
+				lightingMethod = BoardLightingMethod.GLOWSTONE;
+			}
+		}
+
+		if (lightingMethod == BoardLightingMethod.GLOWSTONE) {
 			if (isLighted == light && force == false) {
 				return;
 			}
@@ -470,25 +498,25 @@ public class ChessBoard {
 			int ix = 0, iz = 0, dx = boardStyle.squareSize, dz = dx,
 					y = ne.getBlockY();
 			switch (rotation) {
-				case NORTH:
-					dx = -dx;
-					dz = -dz;
-					ix = board.getUpperX();
-					iz = board.getUpperZ();
-					break;
-				case EAST:
-					dz = -dz;
-					ix = board.getLowerX();
-					iz = board.getUpperZ();
-					break;
-				case SOUTH:
-					ix = board.getLowerX();
-					iz = board.getLowerZ();
-					break;
-				case WEST:
-					dx = -dx;
-					ix = board.getUpperX();
-					iz = board.getLowerZ();
+			case NORTH:
+				dx = -dx;
+				dz = -dz;
+				ix = board.getUpperX();
+				iz = board.getUpperZ();
+				break;
+			case EAST:
+				dz = -dz;
+				ix = board.getLowerX();
+				iz = board.getUpperZ();
+				break;
+			case SOUTH:
+				ix = board.getLowerX();
+				iz = board.getLowerZ();
+				break;
+			case WEST:
+				dx = -dx;
+				ix = board.getUpperX();
+				iz = board.getLowerZ();
 			}
 			// the board lights
 			for (int r = 0, x = ix; r < 8; ++r, x += dx) {
@@ -509,16 +537,6 @@ public class ChessBoard {
 				if (i++ % boardStyle.squareSize == 0) {
 					mat.applyToBlock(l.getBlock());
 				}
-			}
-		} else {
-//			double ix = frameBoard.getLowerX(), ex = frameBoard.getUpperX(),
-//					iz = frameBoard.getLowerZ(), ez = frameBoard.getUpperZ();
-			World w = ((CraftWorld) frameBoard.getWorld()).getHandle();
-			for (Location l : frameBoard) {
-				while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
-					l.add(0, 1, 0);
-				}
-				w.a(EnumSkyBlock.BLOCK, l.getBlockX(), l.getBlockY(), l.getBlockZ(), 15);
 			}
 		}
 	}
@@ -644,33 +662,33 @@ public class ChessBoard {
 		}
 		Cuboid sq = null;
 		switch (rotation) {
-			case NORTH:
-				sq = new Cuboid(a1Corner.clone().add(
-						boardStyle.getSquareSize() * -row, 0,
-						boardStyle.getSquareSize() * -col));
-				sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
-				sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
-				break;
-			case EAST:
-				sq = new Cuboid(a1Corner.clone().add(
-						boardStyle.getSquareSize() * col, 0,
-						boardStyle.getSquareSize() * -row));
-				sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
-				sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
-				break;
-			case SOUTH:
-				sq = new Cuboid(a1Corner.clone().add(
-						boardStyle.getSquareSize() * row, 0,
-						boardStyle.getSquareSize() * col));
-				sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
-				sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
-				break;
-			case WEST:
-				sq = new Cuboid(a1Corner.clone().add(
-						boardStyle.getSquareSize() * -col, 0,
-						boardStyle.getSquareSize() * row));
-				sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
-				sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
+		case NORTH:
+			sq = new Cuboid(a1Corner.clone().add(
+					boardStyle.getSquareSize() * -row, 0,
+					boardStyle.getSquareSize() * -col));
+			sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
+			sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
+			break;
+		case EAST:
+			sq = new Cuboid(a1Corner.clone().add(
+					boardStyle.getSquareSize() * col, 0,
+					boardStyle.getSquareSize() * -row));
+			sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
+			sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
+			break;
+		case SOUTH:
+			sq = new Cuboid(a1Corner.clone().add(
+					boardStyle.getSquareSize() * row, 0,
+					boardStyle.getSquareSize() * col));
+			sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
+			sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
+			break;
+		case WEST:
+			sq = new Cuboid(a1Corner.clone().add(
+					boardStyle.getSquareSize() * -col, 0,
+					boardStyle.getSquareSize() * row));
+			sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
+			sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
 		}
 		return sq;
 	}
@@ -703,24 +721,24 @@ public class ChessBoard {
 		}
 		int row = 0, col = 0;
 		switch (rotation) {
-			case NORTH:
-				row = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
-				col = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
-				break;
-			case EAST:
-				row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
-				col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
-				break;
-			case SOUTH:
-				row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
-				col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
-				break;
-			case WEST:
-				row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
-				col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
-				break;
+		case NORTH:
+			row = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
+			col = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
+			break;
+		case EAST:
+			row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
+			col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+			break;
+		case SOUTH:
+			row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+			col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+			break;
+		case WEST:
+			row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+			col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
+			break;
 		}
-//		System.out.println(rotation + ": " + row + " " + col);
+		//		System.out.println(rotation + ": " + row + " " + col);
 		return row * 8 + col;
 	}
 } // end class ChessBoard

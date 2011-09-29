@@ -13,5 +13,6 @@
 	<classpathentry kind="var" path="LOCAL_JARS/iCo6.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/currency.jar"/>
 	<classpathentry kind="var" path="LOCAL_JARS/ScrollingMenuSign.jar"/>
+	<classpathentry kind="var" path="LOCAL_JARS/craftbukkit-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

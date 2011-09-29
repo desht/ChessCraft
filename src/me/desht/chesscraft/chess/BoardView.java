@@ -24,6 +24,7 @@ import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
+import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 
@@ -232,7 +233,7 @@ public class BoardView implements PositionListener {
 //				expand(Direction.Up, getHeight() / 2);
 //			c.weSelect(jas);
 //        }
-		if (ChessBoard.useOldLighting) {
+		if (ChessBoard.getLightingMethod() == BoardLightingMethod.GLOWSTONE) {
 			byte level = getBounds().shift(Direction.Up, 2).
 					inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
 					expand(Direction.Up, getHeight() / 2).
@@ -243,7 +244,7 @@ public class BoardView implements PositionListener {
 			}
 			lastLevel = level;
 			chessBoard.lightBoard(!isBright(level));
-		} else {
+		} else if (ChessBoard.getLightingMethod() == BoardLightingMethod.CRAFTBUKKIT) {
 			chessBoard.lightBoard(true);
 		}
 	}
