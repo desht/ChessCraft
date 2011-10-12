@@ -30,7 +30,7 @@ public class ChessEntityListener extends EntityListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_creatures", false)) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -46,7 +46,7 @@ public class ChessEntityListener extends EntityListener {
 	@Override
 	public void onEntityTarget(EntityTargetEvent event) {
 		if (event.isCancelled() || !(event.getTarget() instanceof Player)
-				|| !plugin.getConfiguration().getBoolean("no_creatures", false)) { //$NON-NLS-1$
+				|| !plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -65,7 +65,7 @@ public class ChessEntityListener extends EntityListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_explosions", false)) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -112,7 +112,7 @@ public class ChessEntityListener extends EntityListener {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_misc_damage", false)) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_misc_damage")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -158,10 +158,10 @@ public class ChessEntityListener extends EntityListener {
 
 	private boolean isAllowedMonsterAttack(Entity damager) {
 		return !(damager instanceof Player) && damager instanceof LivingEntity
-				&& !plugin.getConfiguration().getBoolean("no_monster_attacks", false); //$NON-NLS-1$
+				&& !plugin.getConfig().getBoolean("no_monster_attacks"); //$NON-NLS-1$
 	}
 
 	private boolean isAllowedPlayerAttack(Entity damager) {
-		return damager instanceof Player && !plugin.getConfiguration().getBoolean("no_pvp", false); //$NON-NLS-1$
+		return damager instanceof Player && !plugin.getConfig().getBoolean("no_pvp"); //$NON-NLS-1$
 	}
 }

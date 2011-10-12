@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
+
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 
-import org.bukkit.util.config.Configuration;
+//import org.bukkit.util.config.Configuration;
 
 public class Messages {
 
@@ -37,8 +39,7 @@ public class Messages {
 			// file does not exist on disk, attempt to extract from the JAR
 			ChessConfig.extractResource("/datafiles/lang/" + wanted.getName(), langDir, true);
 			if (wanted.isFile()) {
-				messages = new Configuration(wanted);
-				messages.load();
+				messages = YamlConfiguration.loadConfiguration(wanted);
 			} else {
 				// find the best match (could be default.yml)
 				File actual = locateMessageFile(wanted);
@@ -50,7 +51,7 @@ public class Messages {
 		}
 
 		// ensure we actually have some messages - if not, fall back to default
-		if (messages.getAll().isEmpty()) {
+		if (messages.getKeys(false).isEmpty()) {
 			messages = fallbackMessages;
 		}
 	}
@@ -72,34 +73,32 @@ public class Messages {
 		ChessConfig.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
 
 		// load the temporary file into a temp configuration object
-		Configuration tmpCfg = new Configuration(tmpFile);
-		tmpCfg.load();
+		Configuration tmpCfg = YamlConfiguration.loadConfiguration(tmpFile);
 
 		// load the real (extracted) file
-		Configuration actualCfg = new Configuration(f);
-		actualCfg.load();
+		YamlConfiguration actualCfg = YamlConfiguration.loadConfiguration(f);
 
 		// merge the temp config into the actual one, adding any non-existent keys
-		for (Entry<String, Object> e : tmpCfg.getAll().entrySet()) {
-			if (actualCfg.getProperty(e.getKey()) == null) {
-				actualCfg.setProperty(e.getKey(), e.getValue());
+		for (String key : tmpCfg.getKeys(true)) {
+			if (!actualCfg.contains(key) && !tmpCfg.isConfigurationSection(key)) {
+				actualCfg.set(key, tmpCfg.get(key));
 			}
 		}
 
 		// ensure that the config we're loading has all of the messages that the fallback has
-		if (fallbackMessages != null && actualCfg.getAll().size() != fallbackMessages.getAll().size()) {
+		if (fallbackMessages != null && actualCfg.getKeys(true).size() != fallbackMessages.getKeys(true).size()) {
 			List<String> missingKeys = new ArrayList<String>();
-			for (Entry<String, Object> e : fallbackMessages.getAll().entrySet()) {
-				if (actualCfg.getProperty(e.getKey()) == null) {
-					actualCfg.setProperty(e.getKey(), e.getValue());
-					missingKeys.add(e.getKey());
+			for (String key : fallbackMessages.getKeys(true)) {
+				if (!actualCfg.contains(key) && !fallbackMessages.isConfigurationSection(key)) {
+					actualCfg.set(key, fallbackMessages.get(key));
+					missingKeys.add(key);
 				}
 			}
-			actualCfg.setProperty("NEEDS_TRANSLATION.", missingKeys);
+			actualCfg.set("NEEDS_TRANSLATION", missingKeys);
 		}
 
 		tmpFile.delete();
-		actualCfg.save();
+		actualCfg.save(f);
 
 		return actualCfg;
 	}
@@ -143,7 +142,7 @@ public class Messages {
 
 	private static String getKey(Configuration conf, String key) {
 		String s = null;
-		Object o = conf.getProperty(key);
+		Object o = conf.get(key);
 		if (o instanceof String) {
 			s = o.toString();
 		} else if (o instanceof List<?>) {

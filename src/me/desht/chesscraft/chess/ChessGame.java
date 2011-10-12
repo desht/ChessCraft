@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
@@ -86,20 +87,120 @@ public class ChessGame {
 		result = Chess.RES_NOT_FINISHED;
 		aiHasMoved = false;
 		if (playerName != null) {
-			stake = Math.min(plugin.getConfiguration().getDouble("stake.default", 0.0), ChessEconomy.getBalance(playerName)); //$NON-NLS-1$
+			stake = Math.min(plugin.getConfig().getDouble("stake.default"), ChessEconomy.getBalance(playerName)); //$NON-NLS-1$
 		} else {
 			stake = 0.0;
 		}
 
-		cpGame = new chesspresso.game.Game();
 		setupChesspressoGame();
 
 		view.setGame(this);
-
 		getPosition().addPositionListener(view);
 	}
 
+	@SuppressWarnings("unchecked")
+	public ChessGame(ChessCraft plugin, ConfigurationSection map) throws ChessException, IllegalMoveException {
+		this.plugin = plugin;
+		
+		view = BoardView.getBoardView(map.getString("boardview"));
+		if (view.getGame() != null) {
+			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
+		}
+		
+		name = map.getString("name");
+		playerWhite = map.getString("playerWhite"); //$NON-NLS-1$
+		playerBlack = map.getString("playerBlack"); //$NON-NLS-1$
+		state = GameState.valueOf(map.getString("state")); //$NON-NLS-1$
+		invited = map.getString("invited"); //$NON-NLS-1$
+		List<Integer> hTmp = (List<Integer>) map.getList("moves"); //$NON-NLS-1$
+		history = new ArrayList<Short>();
+		for (int m : hTmp) {
+			history.add((short) m);
+		}
+		started = map.getLong("started"); //$NON-NLS-1$
+		finished = map.getLong("finished", state == GameState.FINISHED ? System.currentTimeMillis() : 0);
+		lastCheck = System.currentTimeMillis();
+		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
+		result = map.getInt("result"); //$NON-NLS-1$
+		promotionPiece[Chess.WHITE] = map.getInt("promotionWhite"); //$NON-NLS-1$
+		promotionPiece[Chess.BLACK] = map.getInt("promotionBlack"); //$NON-NLS-1$
+		timeWhite = map.getInt("timeWhite", 0);
+		timeBlack = map.getInt("timeBlack", 0);
+		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
+
+		if (isAIPlayer(playerWhite)) {
+			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+			playerWhite = aiPlayer.getName();
+			aiPlayer.init(true);
+			// AI vs AI
+			if (isAIPlayer(playerBlack)) {
+				aiPlayer2 = ChessAI.getNewAI(this, playerBlack, true);
+				playerBlack = aiPlayer2.getName();
+				aiPlayer2.init(false);
+			}
+		} else if (isAIPlayer(playerBlack)) {
+			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+			playerBlack = aiPlayer.getName();
+			aiPlayer.init(false);
+		}
+
+		aiHasMoved = map.getBoolean("aiHasMoved", false);
+		aiFromSqi = map.getInt("aiFromSqi", 0);
+		aiToSqi = map.getInt("aiToSqi", 0);
+
+		setupChesspressoGame();
+
+		replayMoves();
+		
+		view.setGame(this);
+		getPosition().addPositionListener(view);
+
+	}
+
+	/**
+	 * Replay the move history to restore the saved board position.  We do this
+	 * instead of just saving the position so that the Chesspresso ChessGame model
+	 * includes a history of the moves, suitable for creating a PGN file.
+	 * 
+	 * @throws IllegalMoveException
+	 */
+	private void replayMoves() throws IllegalMoveException {
+		
+		// load moves into the Chesspresso model
+		for (short move : history) {
+			getPosition().doMove(move);
+		}
+		
+		// repeat for the AI engine (doesn't support loading from FEN)
+		if (aiPlayer != null) {
+			for (short move : history) {
+				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+			}
+			aiPlayer.loadDone(); // tell ai to start on next move
+		}
+		if (aiPlayer2 != null) {
+			for (short move : history) {
+				aiPlayer2.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+			}
+			aiPlayer2.loadDone(); // tell ai to start on next move
+		}
+		// note; could still be problematic.. ai vs ai doesn't load correctly
+
+		// now check for if AI needs to start
+		if (getPosition().getToPlay() == Chess.WHITE && isAIPlayer(playerWhite)) {
+			aiPlayer.setUserMove(false); // tell ai to start thinking
+		} else if (getPosition().getToPlay() == Chess.BLACK && isAIPlayer(playerBlack)) {
+			if (isAIPlayer(playerWhite)) {
+				aiPlayer2.setUserMove(false);
+			} else {
+				aiPlayer.setUserMove(false);
+			}
+		}
+	}
+	
 	private void setupChesspressoGame() {
+		cpGame = new chesspresso.game.Game();
+		
 		// seven tag roster
 		cpGame.setTag(PGN.TAG_EVENT, getName());
 		cpGame.setTag(PGN.TAG_SITE, getView().getName() + Messages.getString("Game.sitePGN")); //$NON-NLS-1$
@@ -144,106 +245,106 @@ public class ChessGame {
 	}
 
 	public void autoSave() {
-		if (plugin.getConfiguration().getBoolean("autosave", true)) { //$NON-NLS-1$
+		if (plugin.getConfig().getBoolean("autosave")) { //$NON-NLS-1$
 			save();
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
-		playerWhite = (String) map.get("playerWhite"); //$NON-NLS-1$
-		playerBlack = (String) map.get("playerBlack"); //$NON-NLS-1$
-		state = GameState.valueOf((String) map.get("state")); //$NON-NLS-1$
-		invited = (String) map.get("invited"); //$NON-NLS-1$
-		List<Integer> hTmp = (List<Integer>) map.get("moves"); //$NON-NLS-1$
-		history.clear();
-		for (int m : hTmp) {
-			history.add((short) m);
-		}
-		started = (Long) map.get("started"); //$NON-NLS-1$
-		if (map.containsKey("finished")) { //$NON-NLS-1$
-			// a simple cast to Long won't work here
-			finished = Long.parseLong(map.get("finished").toString()); //$NON-NLS-1$
-		} else {
-			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
-		}
-		if (map.containsKey("lastMoved")) { //$NON-NLS-1$
-			// a simple cast to Long won't work here
-			lastMoved = Long.parseLong(map.get("lastMoved").toString()); //$NON-NLS-1$
-		} else {
-			lastMoved = System.currentTimeMillis();
-		}
-		result = (Integer) map.get("result"); //$NON-NLS-1$
-		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite"); //$NON-NLS-1$
-		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack"); //$NON-NLS-1$
-		if (map.containsKey("timeWhite")) { //$NON-NLS-1$
-			timeWhite = (Integer) map.get("timeWhite"); //$NON-NLS-1$
-			timeBlack = (Integer) map.get("timeBlack"); //$NON-NLS-1$
-		}
-		if (map.containsKey("stake")) { //$NON-NLS-1$
-			stake = (Double) map.get("stake"); //$NON-NLS-1$
-		}
-
-		if (isAIPlayer(playerWhite)) {
-			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
-			playerWhite = aiPlayer.getName();
-			aiPlayer.init(true);
-			// ai vs ai
-			if (isAIPlayer(playerBlack)) {
-				aiPlayer2 = ChessAI.getNewAI(this, playerBlack, true);
-				playerBlack = aiPlayer2.getName();
-				aiPlayer2.init(false);
-			}
-		} else if (isAIPlayer(playerBlack)) {
-			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
-			playerBlack = aiPlayer.getName();
-			aiPlayer.init(false);
-		}
-
-		if (map.containsKey("aiHasMoved")) {
-			aiHasMoved = (Boolean) map.get("aiHasMoved");
-			aiFromSqi = (Integer) map.get("aiFromSqi");
-			aiToSqi = (Integer) map.get("aiToSqi");
-		}
-
-		setupChesspressoGame();
-
-		// Replay the move history to restore the saved board position.  We do this
-		// instead of just saving the position so that the Chesspresso ChessGame model
-		// includes a history of the moves, suitable for creating a PGN file.
-		for (short move : history) {
-			getPosition().doMove(move);
-		}
-		// repeat for the ai engine (doesn't support loading from FEN)
-		if (aiPlayer != null) {
-			for (short move : history) {
-				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-			}
-			aiPlayer.loadDone(); // tell ai to start on next move
-		}
-		if (aiPlayer2 != null) {
-			for (short move : history) {
-				aiPlayer2.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-			}
-			aiPlayer2.loadDone(); // tell ai to start on next move
-		}
-		// note; could still be problematic.. ai vs ai doesn't load correctly
-
-		// now check for if ai needs to start
-		if (getPosition().getToPlay() == Chess.WHITE && isAIPlayer(playerWhite)) {
-			aiPlayer.setUserMove(false); // tell ai to start thinking
-		} else if (getPosition().getToPlay() == Chess.BLACK && isAIPlayer(playerBlack)) {
-			if (isAIPlayer(playerWhite)) {
-				aiPlayer2.setUserMove(false);
-			} else {
-				aiPlayer.setUserMove(false);
-			}
-		}
-
-		getPosition().addPositionListener(view);
-
-		return true;
-	}
+//	@SuppressWarnings("unchecked")
+//	public boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
+//		playerWhite = (String) map.get("playerWhite"); //$NON-NLS-1$
+//		playerBlack = (String) map.get("playerBlack"); //$NON-NLS-1$
+//		state = GameState.valueOf((String) map.get("state")); //$NON-NLS-1$
+//		invited = (String) map.get("invited"); //$NON-NLS-1$
+//		List<Integer> hTmp = (List<Integer>) map.get("moves"); //$NON-NLS-1$
+//		history.clear();
+//		for (int m : hTmp) {
+//			history.add((short) m);
+//		}
+//		started = (Long) map.get("started"); //$NON-NLS-1$
+//		if (map.containsKey("finished")) { //$NON-NLS-1$
+//			// a simple cast to Long won't work here
+//			finished = Long.parseLong(map.get("finished").toString()); //$NON-NLS-1$
+//		} else {
+//			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
+//		}
+//		if (map.containsKey("lastMoved")) { //$NON-NLS-1$
+//			// a simple cast to Long won't work here
+//			lastMoved = Long.parseLong(map.get("lastMoved").toString()); //$NON-NLS-1$
+//		} else {
+//			lastMoved = System.currentTimeMillis();
+//		}
+//		result = (Integer) map.get("result"); //$NON-NLS-1$
+//		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite"); //$NON-NLS-1$
+//		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack"); //$NON-NLS-1$
+//		if (map.containsKey("timeWhite")) { //$NON-NLS-1$
+//			timeWhite = (Integer) map.get("timeWhite"); //$NON-NLS-1$
+//			timeBlack = (Integer) map.get("timeBlack"); //$NON-NLS-1$
+//		}
+//		if (map.containsKey("stake")) { //$NON-NLS-1$
+//			stake = (Double) map.get("stake"); //$NON-NLS-1$
+//		}
+//
+//		if (isAIPlayer(playerWhite)) {
+//			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
+//			playerWhite = aiPlayer.getName();
+//			aiPlayer.init(true);
+//			// ai vs ai
+//			if (isAIPlayer(playerBlack)) {
+//				aiPlayer2 = ChessAI.getNewAI(this, playerBlack, true);
+//				playerBlack = aiPlayer2.getName();
+//				aiPlayer2.init(false);
+//			}
+//		} else if (isAIPlayer(playerBlack)) {
+//			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
+//			playerBlack = aiPlayer.getName();
+//			aiPlayer.init(false);
+//		}
+//
+//		if (map.containsKey("aiHasMoved")) {
+//			aiHasMoved = (Boolean) map.get("aiHasMoved");
+//			aiFromSqi = (Integer) map.get("aiFromSqi");
+//			aiToSqi = (Integer) map.get("aiToSqi");
+//		}
+//
+//		setupChesspressoGame();
+//
+//		// Replay the move history to restore the saved board position.  We do this
+//		// instead of just saving the position so that the Chesspresso ChessGame model
+//		// includes a history of the moves, suitable for creating a PGN file.
+//		for (short move : history) {
+//			getPosition().doMove(move);
+//		}
+//		// repeat for the ai engine (doesn't support loading from FEN)
+//		if (aiPlayer != null) {
+//			for (short move : history) {
+//				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+//			}
+//			aiPlayer.loadDone(); // tell ai to start on next move
+//		}
+//		if (aiPlayer2 != null) {
+//			for (short move : history) {
+//				aiPlayer2.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+//			}
+//			aiPlayer2.loadDone(); // tell ai to start on next move
+//		}
+//		// note; could still be problematic.. ai vs ai doesn't load correctly
+//
+//		// now check for if ai needs to start
+//		if (getPosition().getToPlay() == Chess.WHITE && isAIPlayer(playerWhite)) {
+//			aiPlayer.setUserMove(false); // tell ai to start thinking
+//		} else if (getPosition().getToPlay() == Chess.BLACK && isAIPlayer(playerBlack)) {
+//			if (isAIPlayer(playerWhite)) {
+//				aiPlayer2.setUserMove(false);
+//			} else {
+//				aiPlayer.setUserMove(false);
+//			}
+//		}
+//
+//		getPosition().addPositionListener(view);
+//
+//		return true;
+//	}
 
 	public String getName() {
 		return name;
@@ -504,7 +605,7 @@ public class ChessGame {
 		if (ChessConfig.getConfiguration().getBoolean("auto_teleport_on_join", true)) {
 			summonPlayers();
 		}
-		int wandId = new MaterialWithData(plugin.getConfiguration().getString("wand_item")).getMaterial();
+		int wandId = new MaterialWithData(plugin.getConfig().getString("wand_item")).getMaterial();
 		String wand = Material.getMaterial(wandId).toString();
 		alert(playerWhite, Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
 		alert(playerBlack, Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$
@@ -522,6 +623,8 @@ public class ChessGame {
 		clearInvitation();
 		lastMoved = System.currentTimeMillis();
 		setState(GameState.RUNNING);
+		
+		autoSave();
 	}
 
 	public void summonPlayers() throws ChessException {
@@ -632,7 +735,7 @@ public class ChessGame {
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		try {
 			short realMove = checkMove(move);
-			if (plugin.getConfiguration().getBoolean("highlight_last_move", true)) { //$NON-NLS-1$
+			if (plugin.getConfig().getBoolean("highlight_last_move")) { //$NON-NLS-1$
 				view.highlightSquares(fromSquare, toSquare);
 			}
 			getPosition().doMove(realMove);
@@ -734,7 +837,7 @@ public class ChessGame {
 				msg = Messages.getString("Game.forfeited", p1, p2); //$NON-NLS-1$
 				break;
 		}
-		if (plugin.getConfiguration().getBoolean("broadcast_results", true)
+		if (plugin.getConfig().getBoolean("broadcast_results")
 				&& !p1.equalsIgnoreCase(p2)) { //$NON-NLS-1$
 			if (!msg.isEmpty()) {
 				ChessUtils.broadcastMessage(msg);
@@ -812,7 +915,7 @@ public class ChessGame {
 	 * shortly restored, e.g. server reload, plugin disable, /chess reload
 	 * persist command
 	 */
-	public void deleteTransitory() {
+	public void deleteTemporary() {
 		deleteCommon();
 	}
 

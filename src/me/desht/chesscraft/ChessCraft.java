@@ -111,10 +111,10 @@ public class ChessCraft extends JavaPlugin {
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
 		for (ChessGame game : ChessGame.listGames()) {
-			game.deleteTransitory();
+			game.deleteTemporary();
 		}
 		for (BoardView view : BoardView.listBoardViews()) {
-			view.delete();
+			view.deleteTemporary();
 		}
 		Results.shutdown();
 		ChessCraftLogger.log("disabled!");

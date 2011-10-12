@@ -98,7 +98,7 @@ public class ChessPlayerListener extends PlayerListener {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				String wand = plugin.getConfiguration().getString("wand_item"); //$NON-NLS-1$
+				String wand = plugin.getConfig().getString("wand_item"); //$NON-NLS-1$
 				int wandId = (new MaterialWithData(wand)).getMaterial();
 				if (player.getItemInHand().getTypeId() == wandId) {
 					HashSet<Byte> transparent = new HashSet<Byte>();
@@ -153,7 +153,7 @@ public class ChessPlayerListener extends PlayerListener {
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
-		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60); //$NON-NLS-1$
+		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				playerLeft(who);

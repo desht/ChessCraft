@@ -1,0 +1,38 @@
+broadcast_results: true
+no_explosions: true
+no_building: true
+no_creatures: true
+no_burning: true
+autosave: true
+wand_item: air
+tick_interval: 1
+auto_teleport_on_join: true
+timeout_forfeit: 60 sec
+no_pvp: true
+stake:
+    default: 0.0
+    largeIncrement: 10.0
+    smallIncrement: 1.0
+highlight_last_move: true
+auto_delete:
+    finished: 15 sec
+    not_started: 1 min 30 sec
+    running: 28 days
+no_monster_damage: true
+no_misc_damage: true
+no_monster_attacks: true
+ai:
+    max_ai_games: 3
+    min_move_wait: 1
+    name_prefix: '[AI]'
+    use_opening_book: false
+locale: default
+ladder:
+    initial_position: 1000
+league:
+    win_points: 2
+    draw_points: 1
+    loss_points: 0
+autostart: true
+# 0.3.3 is the last version released which didn't put a version number in the config
+version: 0.3.3

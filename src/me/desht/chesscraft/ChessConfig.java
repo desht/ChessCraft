@@ -18,20 +18,17 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.util.Duration;
 
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
 
 /**
  * @author jacob
  */
-@SuppressWarnings("serial")
 public class ChessConfig {
 
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -49,43 +46,43 @@ public class ChessConfig {
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 	private static ChessCraft plugin = null;
-	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
-
-		{
-			put("locale", "default");
-			put("autosave", true); //$NON-NLS-1$
-			put("tick_interval", 1); //$NON-NLS-1$
-			put("broadcast_results", true); //$NON-NLS-1$
-			put("autostart", true); //$NON-NLS-1$
-			put("auto_delete.finished", new Duration("30 s")); //$NON-NLS-1$
-			put("auto_delete.not_started", new Duration("3 mins")); //$NON-NLS-1$
-			put("auto_delete.running", new Duration("7 days")); //$NON-NLS-1$
-			put("ai.min_move_wait", 3); //$NON-NLS-1$
-			put("ai.max_ai_games", 3); //$NON-NLS-1$
-			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
-			put("ai.use_opening_book", false); //$NON-NLS-1$
-			put("no_building", true); //$NON-NLS-1$
-			put("no_creatures", true); //$NON-NLS-1$
-			put("no_explosions", true); //$NON-NLS-1$
-			put("no_burning", true); //$NON-NLS-1$
-			put("no_pvp", true); //$NON-NLS-1$
-			put("no_monster_attacks", true); //$NON-NLS-1$
-			put("no_misc_damage", true); //$NON-NLS-1$
-			put("wand_item", "air"); //$NON-NLS-1$ //$NON-NLS-2$
-			put("auto_teleport_on_join", true); //$NON-NLS-1$
-			put("highlight_last_move", true); //$NON-NLS-1$
-			put("timeout_forfeit", new Duration("1 min")); //$NON-NLS-1$
-			put("stake.default", 0.0); //$NON-NLS-1$
-			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
-			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
-			put("ladder.initial_pos", 1000); //$NON-NLS-1$
-			put("league.win_points", 2); //$NON-NLS-1$
-			put("league.draw_points", 1); //$NON-NLS-1$
-			put("league.loss_points", 0); //$NON-NLS-1$
-			// 0.3.3 is the last released version which didn't put a version number in the config
-			put("version", "0.3.3"); //$NON-NLS-1$
-		}
-	};
+//	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
+//
+//		{
+//			put("locale", "default");
+//			put("autosave", true); //$NON-NLS-1$
+//			put("tick_interval", 1); //$NON-NLS-1$
+//			put("broadcast_results", true); //$NON-NLS-1$
+//			put("autostart", true); //$NON-NLS-1$
+//			put("auto_delete.finished", new Duration("30 s")); //$NON-NLS-1$
+//			put("auto_delete.not_started", new Duration("3 mins")); //$NON-NLS-1$
+//			put("auto_delete.running", new Duration("7 days")); //$NON-NLS-1$
+//			put("ai.min_move_wait", 3); //$NON-NLS-1$
+//			put("ai.max_ai_games", 3); //$NON-NLS-1$
+//			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
+//			put("ai.use_opening_book", false); //$NON-NLS-1$
+//			put("no_building", true); //$NON-NLS-1$
+//			put("no_creatures", true); //$NON-NLS-1$
+//			put("no_explosions", true); //$NON-NLS-1$
+//			put("no_burning", true); //$NON-NLS-1$
+//			put("no_pvp", true); //$NON-NLS-1$
+//			put("no_monster_attacks", true); //$NON-NLS-1$
+//			put("no_misc_damage", true); //$NON-NLS-1$
+//			put("wand_item", "air"); //$NON-NLS-1$ //$NON-NLS-2$
+//			put("auto_teleport_on_join", true); //$NON-NLS-1$
+//			put("highlight_last_move", true); //$NON-NLS-1$
+//			put("timeout_forfeit", new Duration("1 min")); //$NON-NLS-1$
+//			put("stake.default", 0.0); //$NON-NLS-1$
+//			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
+//			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
+//			put("ladder.initial_pos", 1000); //$NON-NLS-1$
+//			put("league.win_points", 2); //$NON-NLS-1$
+//			put("league.draw_points", 1); //$NON-NLS-1$
+//			put("league.loss_points", 0); //$NON-NLS-1$
+//			// 0.3.3 is the last released version which didn't put a version number in the config
+//			put("version", "0.3.3"); //$NON-NLS-1$
+//		}
+//	};
 
 	public static void init(ChessCraft chessplugin) {
 		plugin = chessplugin;
@@ -111,7 +108,7 @@ public class ChessConfig {
 	}
 	
 	public static Configuration getConfiguration() {
-		return plugin.getConfiguration();
+		return plugin.getConfig();
 	}
 
 	public static File getPluginDirectory() {
@@ -285,13 +282,16 @@ public class ChessConfig {
 	 */
 	private static void configFileInitialise() {
 		Boolean saveNeeded = false;
-		Configuration config = plugin.getConfiguration();
-		for (String k : configDefaults.keySet()) {
-			if (config.getProperty(k) == null) {
+
+		plugin.getConfig().options().copyDefaults(true);
+		Configuration config = plugin.getConfig();
+
+		for (String k : config.getDefaults().getKeys(true)) {
+			if (!config.contains(k)) {
 				saveNeeded = true;
-				setConfigItem(null, k, configDefaults.get(k).toString());
 			}
 		}
+		
 		String currentVersion = plugin.getDescription().getVersion();
 		if (currentVersion != null && !config.getString("version").equals(currentVersion)) {
 			setConfigItem(null, "version", currentVersion);
@@ -299,7 +299,7 @@ public class ChessConfig {
 			versionChanged(config.getString("version"), currentVersion);
 		}
 		if (saveNeeded) {
-			config.save();
+			plugin.saveConfig();
 		}
 	}
 
@@ -355,17 +355,20 @@ public class ChessConfig {
 	 */
 	static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
-		for (String k : configDefaults.keySet()) {
-			res.add(k + " = '" + plugin.getConfiguration().getString(k) + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+		for (String k : plugin.getConfig().getDefaults().getKeys(true)) {
+			if (plugin.getConfig().isConfigurationSection(k))
+				continue;
+			res.add(k + " = '" + plugin.getConfig().get(k) + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Collections.sort(res);
 		return res;
 	}
 
 	static void setConfigItem(Player player, String key, String val) {
-		Configuration config = plugin.getConfiguration();
-
-		if (!configDefaults.containsKey(key)) {
+		Configuration config = plugin.getConfig();
+		Configuration configDefaults = config.getDefaults();
+		
+		if (!configDefaults.contains(key)) {
 			ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", key)); //$NON-NLS-1$
 			ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys"); //$NON-NLS-1$
 			return;
@@ -380,30 +383,30 @@ public class ChessConfig {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidBoolean", val)); //$NON-NLS-1$ 
 				return;
 			}
-			config.setProperty(key, bVal);
+			config.set(key, bVal);
 		} else if (configDefaults.get(key) instanceof Integer) {
 			try {
 				int nVal = Integer.parseInt(val);
-				config.setProperty(key, nVal);
+				config.set(key, nVal);
 			} catch (NumberFormatException e) {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidInteger", val)); //$NON-NLS-1$
 			}
 		} else if (configDefaults.get(key) instanceof Double) {
 			try {
 				double nVal = Double.parseDouble(val);
-				config.setProperty(key, nVal);
+				config.set(key, nVal);
 			} catch (NumberFormatException e) {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidFloat", val)); //$NON-NLS-1$
 			}
 		} else if (configDefaults.get(key) instanceof Duration) {
 			try {
 				Duration d = new Duration(val);
-				config.setProperty(key, d.toString());
+				config.set(key, d.toString());
 			} catch (IllegalArgumentException e) {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidDuration", val)); //$NON-NLS-1$
 			}
 		} else {
-			config.setProperty(key, val);
+			config.set(key, val);
 		}
 
 		// special hooks
@@ -421,7 +424,7 @@ public class ChessConfig {
 			}
 		}
 
-		config.save();
+		plugin.saveConfig();
 	}
 } // end class ChessConfig
 

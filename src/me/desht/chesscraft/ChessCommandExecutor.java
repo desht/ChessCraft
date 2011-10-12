@@ -133,7 +133,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			return;
 		}
 
-		int timeout = plugin.getConfiguration().getInt("forfeit_timeout", 60); //$NON-NLS-1$
+		int timeout = plugin.getConfig().getInt("forfeit_timeout", 60); //$NON-NLS-1$
 		long leftAt = plugin.playerListener.getPlayerLeftAt(other);
 		if (leftAt == 0) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline")); //$NON-NLS-1$
@@ -259,7 +259,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		}
 
 		if (reloadConfig) {
-			plugin.getConfiguration().load();
+			plugin.reloadConfig();
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
@@ -355,7 +355,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
 		                                                    game.getName(), ChessGame.getColour(playingAs)));
 		
-		if (plugin.getConfiguration().getBoolean("auto_teleport_on_join", true)) { //$NON-NLS-1$
+		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) { //$NON-NLS-1$
 			game.summonPlayers();
 		} else {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
@@ -472,7 +472,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 			}
 			MessageBuffer.showPage(player);
 		} else {
-			String res = plugin.getConfiguration().getString(args[1]);
+			String res = plugin.getConfig().getString(args[1]);
 			if (res != null) {
 				ChessUtils.statusMessage(player, args[1] + " = '" + res + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
@@ -489,7 +489,7 @@ public class ChessCommandExecutor implements CommandExecutor {
 		} else {
 			String key = args[1], val = combine(args, 2);
 			ChessConfig.setConfigItem(player, key, val);
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfiguration().getString(key))); //$NON-NLS-1$
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfiguration().get(key))); //$NON-NLS-1$
 		}
 	}
 

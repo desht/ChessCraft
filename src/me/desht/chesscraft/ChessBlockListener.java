@@ -23,7 +23,7 @@ public class ChessBlockListener extends BlockListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -37,7 +37,7 @@ public class ChessBlockListener extends BlockListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -51,7 +51,7 @@ public class ChessBlockListener extends BlockListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -65,7 +65,7 @@ public class ChessBlockListener extends BlockListener {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfiguration().getBoolean("no_burning", true)) {
+		if (!plugin.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
 

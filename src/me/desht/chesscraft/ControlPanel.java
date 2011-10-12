@@ -260,9 +260,9 @@ public class ControlPanel {
 		} else if (name.equals("stake") && ChessEconomy.active()) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
-				stakeIncr = plugin.getConfiguration().getDouble("stake.smallIncrement", 1.0); //$NON-NLS-1$
+				stakeIncr = plugin.getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
 			} else {
-				stakeIncr = plugin.getConfiguration().getDouble("stake.largeIncrement", 1.0); //$NON-NLS-1$
+				stakeIncr = plugin.getConfig().getDouble("stake.largeIncrement"); //$NON-NLS-1$
 			}
 			if (action == Action.RIGHT_CLICK_BLOCK) {
 				stakeIncr = -stakeIncr;
@@ -277,7 +277,7 @@ public class ControlPanel {
 
 	private String getStakeStr(ChessGame game) {
 		if (game == null) {
-			double stake = plugin.getConfiguration().getDouble("stake.default", 0.0); //$NON-NLS-1$
+			double stake = plugin.getConfig().getDouble("stake.default"); //$NON-NLS-1$
 			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			return Messages.getString("ControlPanel.stakeBtn") + stakeStr; //$NON-NLS-1$
 		} else {

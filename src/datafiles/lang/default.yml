@@ -105,8 +105,8 @@ ChessCommandExecutor:
 
 ChessConfig:
   invalidBoolean: "Invalid boolean value: {0} (use true/yes or false/no)"
-  invalidInteger: "Invalid integer value: {0,number,integer}"
-  invalidFloat: "Invalid floating-point value: {0,number,float}"
+  invalidInteger: "Invalid integer value: {0}"
+  invalidFloat: "Invalid floating-point value: {0}"
   invalidDuration: "Invalid duration: {0}"
   noSuchKey: 
     - "No such configuration key: {0}"

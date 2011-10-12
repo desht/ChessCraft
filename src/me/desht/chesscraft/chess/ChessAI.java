@@ -29,9 +29,9 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 import me.jascotty2.util.Rand;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 /**
  * @author jacob
@@ -93,7 +93,7 @@ public class ChessAI {
 	}
 
 	public static String getAIPrefix() {
-		return plugin.getConfiguration().getString("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
+		return plugin.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void init(boolean aiWhite) {
@@ -126,17 +126,16 @@ public class ChessAI {
 				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found"); //$NON-NLS-1$
 				return;
 			}
-			Configuration config = new Configuration(aiFile);
-			config.load();
-			ConfigurationNode n = config.getNode("AI"); //$NON-NLS-1$
+			YamlConfiguration config = YamlConfiguration.loadConfiguration(aiFile);
+			ConfigurationSection n = config.getConfigurationSection("AI"); //$NON-NLS-1$
 
 			if (n == null) {
 				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: AI definitions not found"); //$NON-NLS-1$
 				return;
 			}
 
-			for (String a : n.getKeys()) {
-				ConfigurationNode d = n.getNode(a);
+			for (String a : n.getKeys(false)) {
+				ConfigurationSection d = n.getConfigurationSection(a);
 				if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
 					for (String name : d.getString("funName", a).split(",")) { //$NON-NLS-1$ //$NON-NLS-2$
 						if ((name = name.trim()).length() > 0) {
@@ -169,7 +168,7 @@ public class ChessAI {
 	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew) throws ChessException {
 		// uses exceptions method to stop too many AI
 		if (!forceNew) {
-			int max = plugin.getConfiguration().getInt("ai.max_ai_games", 3); //$NON-NLS-1$
+			int max = plugin.getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
 			if (max == 0) {
 				throw new ChessException(Messages.getString("ChessAI.AIdisabled")); //$NON-NLS-1$
 			} else if (runningAI.size() >= max) {
@@ -231,7 +230,7 @@ public class ChessAI {
 	public void setUserMove(boolean move) {
 		if (move != userToMove) {
 			if (!(userToMove = move)) {
-				int wait = plugin.getConfiguration().getInt("ai.min_move_wait", 3); //$NON-NLS-1$
+				int wait = plugin.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
 				aiTask = scheduler.scheduleAsyncDelayedTask(plugin, new Runnable() {
 
 					public void run() {

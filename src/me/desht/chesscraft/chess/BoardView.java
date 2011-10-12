@@ -30,6 +30,7 @@ import me.desht.chesscraft.enums.Direction;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener {
@@ -69,22 +70,32 @@ public class BoardView implements PositionListener {
 		setA1Center(where, dir);
 
 	}
-
-	public final void setA1Center(Location loc) throws ChessException {
-		setA1Center(loc, null);
+	
+	public BoardView(ChessCraft plugin, ConfigurationSection conf) throws ChessException {
+		@SuppressWarnings("unchecked")
+		List<Object> origin = conf.getList("origin"); //$NON-NLS-1$
+		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
+		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
+		BoardOrientation dir = BoardOrientation.get(conf.getString("direction")); //$NON-NLS-1$
+		
+		Location where = ChessPersistence.thawLocation(origin);
+		
+		this.plugin = plugin;
+		this.name = conf.getString("name");
+		if (BoardView.boardViewExists(name)) {
+			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
+		}
+		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
+				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
+		setA1Center(where, dir);
 	}
 
-	public final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
+	private final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
 		// only allow the board center to be set once (?)
 		if (loc != null && chessBoard.getA1Center() == null) {
-
 			chessBoard.setA1Center(loc, d == null ? BoardOrientation.NORTH : d);
-
 			validateIntersections();
-
 			controlPanel = new ControlPanel(plugin, this);
-
-			//paintAll();
 		}
 	}
 
@@ -118,7 +129,7 @@ public class BoardView implements PositionListener {
 		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
 		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
-		result.put("origin", ChessPersistence.makeBlockList(chessBoard.getA1Center())); //$NON-NLS-1$
+		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
 		result.put("direction", chessBoard.getRotation().name());
 		return result;
 	}
@@ -128,7 +139,7 @@ public class BoardView implements PositionListener {
 	}
 
 	public void autoSave() {
-		if (plugin.getConfiguration().getBoolean("autosave", true)) { //$NON-NLS-1$
+		if (plugin.getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
 			save();
 		}
 	}
@@ -378,7 +389,7 @@ public class BoardView implements PositionListener {
 		return chessBoard.getSquareAt(loc);
 	}
 
-	public void delete() {
+	public void deleteTemporary() {
 		delete(false, null);
 	}
 
