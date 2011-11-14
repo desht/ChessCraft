@@ -1,4 +1,4 @@
-# ChessCraft v0.4pre
+# ChessCraft v0.5pre
 
 ChessCraft is a Bukkit plugin that allows you to play chess on your CraftBukkit Minecraft server.
  
@@ -16,7 +16,23 @@ Chesspresso is now distributed as part of ChessCraft and a separate download is 
 
 ## Usage
 
-Detailed documentation can be found in the Wiki: https://github.com/desht/ChessCraft/wiki
+Detailed documentation can be found in BukkitDev: http://dev.bukkit.org/server-mods/chesscraft
+
+## Building
+
+If you want to build ChessCraft yourself, you will need Maven.
+
+1a) Download a copy of Vault.jar (1.1.1 minimum required) from http://dev.bukkit.org/server-mods/vault/
+1b) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar'
+
+2a) Download a copy of ScrollingMenuSign.jar (0.6 minimum required, 0.9 suggested) from http://dev.bukkit.org/server-mods/scrollingmenusign
+2b) Run 'mvn install:install-file -DgroupId=me.desht -DartifactId=scrollingmenusign -Dversion=0.9 -Dpackaging=jar -Dfile=ScrollingMenuSign.jar'
+
+3) Run 'mvn clean install'
+
+This should give you a copy of ChessCraft.jar under the target/ directory.
+
+Use 'mvn eclipse:eclipse' to create the .project and .classpath files if you want to open the project in Eclipse.
 
 ## License
 
