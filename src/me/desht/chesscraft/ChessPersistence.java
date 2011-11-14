@@ -168,7 +168,7 @@ public class ChessPersistence {
 						Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
 						                                  (Integer) origin.get(3));
 						try {
-							BoardView.addBoardView(new BoardView(bvName, plugin, originLoc, (String) boardMap.get("boardStyle"), (String) boardMap.get("pieceStyle")));
+							BoardView.addBoardView(new BoardView(bvName, originLoc, (String) boardMap.get("boardStyle"), (String) boardMap.get("pieceStyle")));
 							++nLoadedBoards;
 						} catch (Exception e) {
 							ChessCraftLogger.log(Level.SEVERE, "can't load board " + bvName + ": " + e.getMessage());
@@ -270,7 +270,7 @@ public class ChessPersistence {
 				World w = findWorld((String) origin.get(0));
 				Location originLoc = new Location(w, (Integer) origin.get(1), (Integer) origin.get(2),
 				                                  (Integer) origin.get(3));
-				BoardView.addBoardView(new BoardView(bvName, plugin, originLoc,
+				BoardView.addBoardView(new BoardView(bvName, originLoc,
 				                                     BoardOrientation.get(conf.getString("direction")),
 				                                     conf.getString("boardStyle"), conf.getString("pieceStyle")));
 				++nLoaded;
@@ -353,7 +353,7 @@ public class ChessPersistence {
 	private boolean loadGame(ConfigurationSection conf) {
 		String gameName = conf.getString("name");
 		try {
-			ChessGame game = new ChessGame(plugin, conf);
+			ChessGame game = new ChessGame(conf);
 			ChessGame.addGame(gameName, game);
 			return true;
 		} catch (Exception e) {

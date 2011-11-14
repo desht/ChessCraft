@@ -1,8 +1,6 @@
 package me.desht.chesscraft;
 
-import me.desht.util.MessageBuffer;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,13 +27,14 @@ import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.MessageBuffer;
 import me.desht.chesscraft.blocks.MaterialWithData;
 
 public class ChessPlayerListener extends PlayerListener {
 
 	private ChessCraft plugin;
 	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
-	private Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 
 	public ChessPlayerListener(ChessCraft plugin) {
 		this.plugin = plugin;
@@ -55,8 +54,8 @@ public class ChessPlayerListener extends PlayerListener {
 				return;
 			}
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-					plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
+				if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
+					ChessCraft.expecter.cancelAction(player, ExpectAction.BoardCreation);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
@@ -67,11 +66,11 @@ public class ChessPlayerListener extends PlayerListener {
 					}
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) plugin.expecter.getAction(player,
+				if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
+					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.expecter.getAction(player,
 							ExpectAction.BoardCreation);
 					a.setLocation(b.getLocation());
-					plugin.expecter.handleAction(player, ExpectAction.BoardCreation);
+					ChessCraft.expecter.handleAction(player, ExpectAction.BoardCreation);
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -83,8 +82,8 @@ public class ChessPlayerListener extends PlayerListener {
 			}
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
-			if (plugin.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-				plugin.expecter.cancelAction(player, ExpectAction.BoardCreation);
+			if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
+				ChessCraft.expecter.cancelAction(player, ExpectAction.BoardCreation);
 				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
@@ -139,7 +138,7 @@ public class ChessPlayerListener extends PlayerListener {
 		String who = event.getPlayer().getName();
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				playerRejoined(who);
+				plugin.playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
 						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
@@ -156,7 +155,7 @@ public class ChessPlayerListener extends PlayerListener {
 		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				playerLeft(who);
+				plugin.playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
 					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$
 				}
@@ -236,15 +235,5 @@ public class ChessPlayerListener extends PlayerListener {
 		expecting.put(p.getName(), list);
 	}
 
-	void playerLeft(String who) {
-		loggedOutAt.put(who, System.currentTimeMillis());
-	}
 
-	void playerRejoined(String who) {
-		loggedOutAt.remove(who);
-	}
-
-	public long getPlayerLeftAt(String who) {
-		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
-	}
 }

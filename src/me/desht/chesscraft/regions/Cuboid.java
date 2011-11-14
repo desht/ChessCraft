@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.util.WorldEditUtils;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,7 +17,6 @@ import me.desht.chesscraft.blocks.BlockType;
 
 //imports for weSelect()
 import me.desht.chesscraft.ChessCraft;
-import me.desht.util.WorldEditUtils;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;

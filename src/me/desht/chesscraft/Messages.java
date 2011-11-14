@@ -29,7 +29,7 @@ public class Messages {
 
 	public static void loadMessages() throws IOException {
 		File langDir = ChessConfig.getLanguagesDirectory();
-		String locale = ChessConfig.getConfiguration().getString("locale", "default").toLowerCase();
+		String locale = ChessConfig.getConfig().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
 
 		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
@@ -118,7 +118,7 @@ public class Messages {
 			if (actual.isFile() && actual.canRead()) {
 				return actual;
 			} else {
-				String locale = ChessConfig.getConfiguration().getString("locale", "default");
+				String locale = ChessConfig.getConfig().getString("locale", "default");
 				ChessCraftLogger.warning("no messages catalog for " + locale + " found - falling back to default");
 				return new File(wanted.getParent(), "default.yml");
 			}

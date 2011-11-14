@@ -2,11 +2,11 @@ package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.ChessCraft;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,8 +18,7 @@ public class ExpectBoardCreation extends ExpectData {
 	String pieceStyle;
 	Location loc;
 
-	public ExpectBoardCreation(ChessCraft plugin, String boardName, String style, String pieceStyle) {
-		super(plugin);
+	public ExpectBoardCreation(String boardName, String style, String pieceStyle) {
 		this.boardName = boardName;
 		this.style = style;
 		this.pieceStyle = pieceStyle;
@@ -31,7 +30,7 @@ public class ExpectBoardCreation extends ExpectData {
 
 	@Override
 	public void doResponse(Player player) throws ChessException {
-		BoardView view = new BoardView(boardName, plugin, loc, BoardOrientation.getPlayerDirection(player), style, pieceStyle);
+		BoardView view = new BoardView(boardName, loc, BoardOrientation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
 		if (ChessCraft.getWorldEdit() != null) {
 			TerrainBackup.save(player, view);

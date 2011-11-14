@@ -17,11 +17,11 @@ public class League extends ResultViewBase {
 		String winner = re.getWinner();
 		if (winner != null) {
 			String loser = re.getLoser();
-			awardPoints(winner, ChessConfig.getConfiguration().getInt("league.win_points", WIN_POINTS));	
-			awardPoints(loser , ChessConfig.getConfiguration().getInt("league.loss_points", LOSS_POINTS));
+			awardPoints(winner, ChessConfig.getConfig().getInt("league.win_points", WIN_POINTS));	
+			awardPoints(loser , ChessConfig.getConfig().getInt("league.loss_points", LOSS_POINTS));
 		} else {
-			awardPoints(re.getPlayerWhite(), ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
-			awardPoints(re.getPlayerBlack(), ChessConfig.getConfiguration().getInt("league.draw_points", DRAW_POINTS));
+			awardPoints(re.getPlayerWhite(), ChessConfig.getConfig().getInt("league.draw_points", DRAW_POINTS));
+			awardPoints(re.getPlayerBlack(), ChessConfig.getConfig().getInt("league.draw_points", DRAW_POINTS));
 		}
 	}
 

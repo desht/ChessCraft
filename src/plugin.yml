@@ -49,13 +49,14 @@ permissions:
     children:
       chesscraft.commands.create.game: true
       chesscraft.commands.invite: true
+      chesscraft.commands.invite.anyone: true
       chesscraft.commands.join: true
       chesscraft.commands.move: true
       chesscraft.commands.offer.draw: true
       chesscraft.commands.offer.swap: true
       chesscraft.commands.resign: true
       chesscraft.commands.archive: true
-      chesscraft.commands.tp: true
+      chesscraft.commands.teleport: true
       chesscraft.commands.win: true
       chesscraft.commands.start: true
       chesscraft.commands.promote: true
@@ -92,8 +93,11 @@ permissions:
     description: Allows you to create chess games
     default: true
   chesscraft.commands.invite:
-    description: Allows you to invite players to a game
+    description: Allows you to invite a player to a game
     default: true
+  chesscraft.commands.invite.anyone:
+    description: Allows you to create an open invitation to a game
+    default: true    
   chesscraft.commands.join:
     description: Allows you to join a chess game
     default: true
@@ -112,7 +116,7 @@ permissions:
   chesscraft.commands.archive:
     description: Allows you to write a PGN archive of a game
     default: true
-  chesscraft.commands.tp:
+  chesscraft.commands.teleport:
     description: Allows you to teleport to chess games
     default: true
   chesscraft.commands.win:

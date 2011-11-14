@@ -6,7 +6,6 @@
  */
 package me.desht.chesscraft;
 
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
 import java.io.File;
@@ -21,7 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
-import me.desht.util.Duration;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.Duration;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
@@ -46,43 +46,6 @@ public class ChessConfig {
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 	private static ChessCraft plugin = null;
-//	private static final Map<String, Object> configDefaults = new HashMap<String, Object>() {
-//
-//		{
-//			put("locale", "default");
-//			put("autosave", true); //$NON-NLS-1$
-//			put("tick_interval", 1); //$NON-NLS-1$
-//			put("broadcast_results", true); //$NON-NLS-1$
-//			put("autostart", true); //$NON-NLS-1$
-//			put("auto_delete.finished", new Duration("30 s")); //$NON-NLS-1$
-//			put("auto_delete.not_started", new Duration("3 mins")); //$NON-NLS-1$
-//			put("auto_delete.running", new Duration("7 days")); //$NON-NLS-1$
-//			put("ai.min_move_wait", 3); //$NON-NLS-1$
-//			put("ai.max_ai_games", 3); //$NON-NLS-1$
-//			put("ai.name_prefix", "[AI]"); //$NON-NLS-1$ //$NON-NLS-2$
-//			put("ai.use_opening_book", false); //$NON-NLS-1$
-//			put("no_building", true); //$NON-NLS-1$
-//			put("no_creatures", true); //$NON-NLS-1$
-//			put("no_explosions", true); //$NON-NLS-1$
-//			put("no_burning", true); //$NON-NLS-1$
-//			put("no_pvp", true); //$NON-NLS-1$
-//			put("no_monster_attacks", true); //$NON-NLS-1$
-//			put("no_misc_damage", true); //$NON-NLS-1$
-//			put("wand_item", "air"); //$NON-NLS-1$ //$NON-NLS-2$
-//			put("auto_teleport_on_join", true); //$NON-NLS-1$
-//			put("highlight_last_move", true); //$NON-NLS-1$
-//			put("timeout_forfeit", new Duration("1 min")); //$NON-NLS-1$
-//			put("stake.default", 0.0); //$NON-NLS-1$
-//			put("stake.smallIncrement", 1.0); //$NON-NLS-1$
-//			put("stake.largeIncrement", 10.0); //$NON-NLS-1$
-//			put("ladder.initial_pos", 1000); //$NON-NLS-1$
-//			put("league.win_points", 2); //$NON-NLS-1$
-//			put("league.draw_points", 1); //$NON-NLS-1$
-//			put("league.loss_points", 0); //$NON-NLS-1$
-//			// 0.3.3 is the last released version which didn't put a version number in the config
-//			put("version", "0.3.3"); //$NON-NLS-1$
-//		}
-//	};
 
 	public static void init(ChessCraft chessplugin) {
 		plugin = chessplugin;
@@ -107,7 +70,7 @@ public class ChessConfig {
 		return new File("plugins", "ChessCraft.jar");
 	}
 	
-	public static Configuration getConfiguration() {
+	public static Configuration getConfig() {
 		return plugin.getConfig();
 	}
 
@@ -353,7 +316,7 @@ public class ChessConfig {
 	/**
 	 * @return a sorted list of all config keys
 	 */
-	static List<String> getConfigList() {
+	public static List<String> getConfigList() {
 		ArrayList<String> res = new ArrayList<String>();
 		for (String k : plugin.getConfig().getDefaults().getKeys(true)) {
 			if (plugin.getConfig().isConfigurationSection(k))
@@ -364,7 +327,7 @@ public class ChessConfig {
 		return res;
 	}
 
-	static void setConfigItem(Player player, String key, String val) {
+	public static void setConfigItem(Player player, String key, String val) {
 		Configuration config = plugin.getConfig();
 		Configuration configDefaults = config.getDefaults();
 		

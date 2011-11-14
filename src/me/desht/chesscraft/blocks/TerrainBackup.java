@@ -1,7 +1,6 @@
 package me.desht.chesscraft.blocks;
 
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.util.ChessUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -24,6 +23,7 @@ import me.desht.chesscraft.Messages;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
 
 public class TerrainBackup {
 

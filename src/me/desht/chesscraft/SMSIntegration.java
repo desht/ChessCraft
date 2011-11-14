@@ -2,12 +2,12 @@ package me.desht.chesscraft;
 
 import java.lang.Class;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.util.ChessUtils;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSException;

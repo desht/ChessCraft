@@ -21,12 +21,12 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
-import me.jascotty2.util.Rand;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.Rand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -424,7 +424,7 @@ public class ChessAI {
 					moteur.setSearchDepthLimit(searchDepth);
 				}
 			}
-			moteur.setOpeningsEnabled(ChessConfig.getConfiguration().getBoolean("ai.use_opening_book", false));
+			moteur.setOpeningsEnabled(ChessConfig.getConfig().getBoolean("ai.use_opening_book", false));
 			return moteur;
 		}
 	}

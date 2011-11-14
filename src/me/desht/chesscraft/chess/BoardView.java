@@ -1,6 +1,5 @@
 package me.desht.chesscraft.chess;
 
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +20,9 @@ import me.desht.chesscraft.blocks.TerrainBackup;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
@@ -28,6 +30,7 @@ import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -36,7 +39,6 @@ import org.bukkit.entity.Player;
 public class BoardView implements PositionListener {
 
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
-	private ChessCraft plugin;
 	private String name;
 	// null indicates board not used by any game yet
 	private ChessGame game = null;
@@ -45,21 +47,20 @@ public class BoardView implements PositionListener {
 	// for lighting updates
 	private byte lastLevel = -1;
 
-	public BoardView(String bName, ChessCraft plugin, String bStyle) throws ChessException {
-		this(bName, plugin, null, bStyle, null);
+	public BoardView(String bName, String bStyle) throws ChessException {
+		this(bName, null, bStyle, null);
 	}
 
-	public BoardView(String bName, ChessCraft plugin, String bStyle, String pStyle) throws ChessException {
-		this(bName, plugin, null, bStyle, pStyle);
+	public BoardView(String bName, String bStyle, String pStyle) throws ChessException {
+		this(bName, null, bStyle, pStyle);
 	}
 
-	public BoardView(String bName, ChessCraft plugin, Location where, String bStyle, String pStyle) throws ChessException {
-		this(bName, plugin, where, null, bStyle, pStyle);
+	public BoardView(String bName, Location where, String bStyle, String pStyle) throws ChessException {
+		this(bName, where, null, bStyle, pStyle);
 	}
 
-	public BoardView(String bName, ChessCraft plugin, Location where,
+	public BoardView(String bName, Location where,
 			BoardOrientation dir, String bStyle, String pStyle) throws ChessException {
-		this.plugin = plugin;
 		this.name = bName;
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
@@ -80,7 +81,6 @@ public class BoardView implements PositionListener {
 		
 		Location where = ChessPersistence.thawLocation(origin);
 		
-		this.plugin = plugin;
 		this.name = conf.getString("name");
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
@@ -95,7 +95,7 @@ public class BoardView implements PositionListener {
 		if (loc != null && chessBoard.getA1Center() == null) {
 			chessBoard.setA1Center(loc, d == null ? BoardOrientation.NORTH : d);
 			validateIntersections();
-			controlPanel = new ControlPanel(plugin, this);
+			controlPanel = new ControlPanel(this);
 		}
 	}
 
@@ -135,11 +135,11 @@ public class BoardView implements PositionListener {
 	}
 
 	public void save() {
-		plugin.getSaveDatabase().saveBoard(this);
+		ChessCraft.getInstance().getSaveDatabase().saveBoard(this);
 	}
 
 	public void autoSave() {
-		if (plugin.getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
+		if (ChessConfig.getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
 			save();
 		}
 	}
@@ -587,5 +587,52 @@ public class BoardView implements PositionListener {
 
 	public void reloadStyle() throws ChessException {
 		chessBoard.reloadStyles();
+	}
+	
+	public static void teleportOut(Player player) throws ChessException {
+		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
+		
+		BoardView bv = partOfChessBoard(player.getLocation());
+		Location prev = ChessCraft.getLastPos(player);
+		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
+			// try to get the player out of this board safely
+			Location loc = bv.findSafeLocationOutside();
+			if (loc != null) {
+				ChessCraft.teleportPlayer(player, loc);
+			} else {
+				ChessCraft.teleportPlayer(player, player.getWorld().getSpawnLocation());
+				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
+			}
+		} else if (prev != null) {
+			// go back to previous location
+			ChessCraft.teleportPlayer(player, prev);
+		} else {
+			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
+		}
+	}
+	
+	public void showBoardDetail(Player player) {
+		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
+		Cuboid bounds = getOuterBounds();
+		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
+
+		MessageBuffer.clear(player);
+		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
+		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
+		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyle())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyle())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
+		                                                      getWhiteSquareMat(), getBlackSquareMat()));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
+		                                                      getFrameMat()));
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
+		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getIsLit())); //$NON-NLS-1$
+
+		MessageBuffer.showPage(player);
 	}
 }

@@ -167,7 +167,7 @@ public class Ladder extends ResultViewBase {
 
 	@Override
 	int getInitialScore() {
-		return ChessConfig.getConfiguration().getInt("ladder.initial_position", INITIAL_POS);
+		return ChessConfig.getConfig().getInt("ladder.initial_position", INITIAL_POS);
 	}
 
 	private int getKfactor(int rating) {

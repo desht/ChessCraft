@@ -1,11 +1,11 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -21,14 +21,35 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.blocks.SignButton;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ControlPanel {
 
+	// Button names.  These should correspond directly to the equivalent /chess subcommand name
+	// with spaces replaced by dots.  If there's no corresponding command, prefix the name with a
+	// "*" (this ensures a permission check isn't done).
+	private static final String STAKE = "stake";
+	private static final String BLACK_NO = "*black-no";
+	private static final String WHITE_NO = "*white-no";
+	private static final String BLACK_YES = "*black-yes";
+	private static final String WHITE_YES = "*white-yes";
+	private static final String BLACK_PROMOTE = "*black-promote";
+	private static final String WHITE_PROMOTE = "*white-promote";
+	private static final String TELEPORT = "teleport";
+	private static final String INVITE_ANYONE = "invite.anyone";
+	private static final String INVITE_PLAYER = "invite";
+	private static final String BOARD_INFO = "list.board";
+	private static final String GAME_INFO = "list.game";
+	private static final String OFFER_DRAW = "offer.draw";
+	private static final String RESIGN = "resign";
+	private static final String START = "start";
+	private static final String CREATE_GAME = "create.game";
+	
 	public static final int PANEL_WIDTH = 8;
-	private ChessCraft plugin;
 	private BoardView view;
 	private BoardOrientation boardDir = null, signDir = null;
 	private MaterialWithData signMat;
@@ -41,8 +62,7 @@ public class ControlPanel {
 	private Map<String, SignButton> buttons;
 	private Map<Location, SignButton> buttonLocs;
 
-	public ControlPanel(ChessCraft plugin, BoardView view) {
-		this.plugin = plugin;
+	public ControlPanel(BoardView view) {
 		this.view = view;
 		boardDir = view.getDirection();
 		signDir = boardDir.getRight();
@@ -99,35 +119,35 @@ public class ControlPanel {
 		boolean hasWhite = game != null && !game.getPlayerWhite().isEmpty();
 		boolean hasBlack = game != null && !game.getPlayerBlack().isEmpty();
 
-		createSignButton(0, 2, "board-info", Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(0, 1, "teleport", Messages.getString("ControlPanel.teleportOutBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
-		if (ChessEconomy.active()) {
-			createSignButton(7, 1, "stake", getStakeStr(game), signMat, game != null); //$NON-NLS-1$
+		createSignButton(0, 2, BOARD_INFO, Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 1, TELEPORT, Messages.getString("ControlPanel.teleportOutBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ChessCraft.economy != null) {
+			createSignButton(7, 1, STAKE, getStakeStr(game), signMat, game != null); //$NON-NLS-1$
 		}
 
-		createSignButton(1, 2, "create-game", Messages.getString("ControlPanel.createGameBtn"), signMat, game == null); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(2, 2, "invite-player", Messages.getString("ControlPanel.invitePlayerBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 2, CREATE_GAME, Messages.getString("ControlPanel.createGameBtn"), signMat, game == null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(2, 2, INVITE_PLAYER, Messages.getString("ControlPanel.invitePlayerBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(3, 2, "invite-anyone", Messages.getString("ControlPanel.inviteAnyoneBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(3, 2, INVITE_ANYONE, Messages.getString("ControlPanel.inviteAnyoneBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 				&& (!hasWhite || !hasBlack));
-		createSignButton(4, 2, "start", Messages.getString("ControlPanel.startGameBtn"), signMat, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(5, 2, "offer-draw", Messages.getString("ControlPanel.offerDrawBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(6, 2, "resign", Messages.getString("ControlPanel.resignBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(7, 2, "game-info", Messages.getString("ControlPanel.gameInfoBtn"), signMat, game != null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(4, 2, START, Messages.getString("ControlPanel.startGameBtn"), signMat, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(5, 2, OFFER_DRAW, Messages.getString("ControlPanel.offerDrawBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 2, RESIGN, Messages.getString("ControlPanel.resignBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 2, GAME_INFO, Messages.getString("ControlPanel.gameInfoBtn"), signMat, game != null); //$NON-NLS-1$ //$NON-NLS-2$
 
-		createSignButton(1, 1, "white-promote", Messages.getString("ControlPanel.whitePawnPromotionBtn") + getPromoStr(game, Chess.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 1, WHITE_PROMOTE, Messages.getString("ControlPanel.whitePawnPromotionBtn") + getPromoStr(game, Chess.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
 				signMat, hasWhite);
-		createSignButton(6, 1, "black-promote", Messages.getString("ControlPanel.blackPawnPromotionBtn") + getPromoStr(game, Chess.BLACK), //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 1, BLACK_PROMOTE, Messages.getString("ControlPanel.blackPawnPromotionBtn") + getPromoStr(game, Chess.BLACK), //$NON-NLS-1$ //$NON-NLS-2$
 				signMat, hasBlack);
 
-		Player pw = game == null ? null : plugin.getServer().getPlayer(game.getPlayerWhite());
+		Player pw = game == null ? null : Bukkit.getServer().getPlayer(game.getPlayerWhite());
 		String offerw = getOfferText(pw);
-		createSignButton(0, 0, "white-yes", offerw + Messages.getString("ControlPanel.yesBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(1, 0, "white-no", offerw + Messages.getString("ControlPanel.noBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		Player pb = game == null ? null : plugin.getServer().getPlayer(game.getPlayerBlack());
+		createSignButton(0, 0, WHITE_YES, offerw + Messages.getString("ControlPanel.yesBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 0, WHITE_NO, offerw + Messages.getString("ControlPanel.noBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		Player pb = game == null ? null : Bukkit.getServer().getPlayer(game.getPlayerBlack());
 		String offerb = getOfferText(pb);
-		createSignButton(6, 0, "black-yes", offerb + ";;Yes", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(7, 0, "black-no", offerb + ";;No", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 0, BLACK_YES, offerb + ";;Yes", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 0, BLACK_NO, offerb + ";;No", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public Location getLocationTP(){
@@ -141,9 +161,9 @@ public class ControlPanel {
 	private String getOfferText(Player p) {
 		if (p == null) {
 			return ""; //$NON-NLS-1$
-		} else if (plugin.expecter.isExpecting(p, ExpectAction.DrawResponse)) {
+		} else if (ChessCraft.expecter.isExpecting(p, ExpectAction.DrawResponse)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (plugin.expecter.isExpecting(p, ExpectAction.SwapResponse)) {
+		} else if (ChessCraft.expecter.isExpecting(p, ExpectAction.SwapResponse)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$
@@ -221,48 +241,56 @@ public class ControlPanel {
 		}
 
 		String name = button.getName();
-		if (name.equals("create-game")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().tryCreateGame(player, null, view.getName());
-		} else if (name.equals("start")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().tryStartGame(player, game);
-		} else if (name.equals("resign")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().tryResignGame(player, game);
-		} else if (name.equals("offer-draw")) { //$NON-NLS-1$
+		if (!name.startsWith("*")) {
+			PermissionUtils.requirePerms(player, "chesscraft.commands." + name);
+		}
+		
+		if (name.equals(CREATE_GAME)) { //$NON-NLS-1$
+			ChessGame.createGame(player, null, view.getName());
+		} else if (name.equals(START)) { //$NON-NLS-1$
 			if (game != null) {
-				plugin.getCommandExecutor().tryOfferDraw(player, game);
+				game.start(player.getName());
 			}
-		} else if (name.equals("game-info")) { //$NON-NLS-1$
+		} else if (name.equals(RESIGN)) { //$NON-NLS-1$
 			if (game != null) {
-				plugin.getCommandExecutor().showGameDetail(player, game.getName());
+				game.resign(player.getName());
 			}
-		} else if (name.equals("board-info")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().showBoardDetail(player, view.getName());
-		} else if (name.equals("invite-player")) { //$NON-NLS-1$
+		} else if (name.equals(OFFER_DRAW)) { //$NON-NLS-1$
+			if (game != null) {
+				game.offerDraw(player);
+			}
+		} else if (name.equals(GAME_INFO)) { //$NON-NLS-1$
+			if (game != null) {
+				game.showGameDetail(player);
+			}
+		} else if (name.equals(BOARD_INFO)) { //$NON-NLS-1$
+			view.showBoardDetail(player);
+		} else if (name.equals(INVITE_PLAYER)) { //$NON-NLS-1$
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
 				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInviteReminder")); //$NON-NLS-1$
 			}
-		} else if (name.equals("invite-anyone")) { //$NON-NLS-1$
+		} else if (name.equals(INVITE_ANYONE)) { //$NON-NLS-1$
 			if (game != null) {
-				plugin.getCommandExecutor().tryInvitePlayer(player, game, null);
+				game.inviteOpen(player.getName());
 			}
-		} else if (name.equals("teleport")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().tryTeleportOut(player);
-		} else if (name.equals("white-promote")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.WHITE, game);
-			view.getControlPanel().updateSignButtonText("white-promote", "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (name.equals("black-promote")) { //$NON-NLS-1$
-			plugin.getCommandExecutor().nextPromotionPiece(player, Chess.BLACK, game);
-			view.getControlPanel().updateSignButtonText("black-promote", "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (name.equals("white-yes") || name.equals("black-yes")) { //$NON-NLS-1$ //$NON-NLS-2$
-			plugin.getCommandExecutor().doResponse(player, true);
-		} else if (name.equals("white-no") || name.equals("black-no")) { //$NON-NLS-1$ //$NON-NLS-2$
-			plugin.getCommandExecutor().doResponse(player, false);
-		} else if (name.equals("stake") && ChessEconomy.active()) { //$NON-NLS-1$
+		} else if (name.equals(TELEPORT)) { //$NON-NLS-1$
+			BoardView.teleportOut(player);
+		} else if (name.equals(WHITE_PROMOTE)) { //$NON-NLS-1$
+			game.cyclePromotionPiece(player.getName());
+			view.getControlPanel().updateSignButtonText(WHITE_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (name.equals(BLACK_PROMOTE)) { //$NON-NLS-1$
+			game.cyclePromotionPiece(player.getName());
+			view.getControlPanel().updateSignButtonText(BLACK_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (name.equals(WHITE_YES) || name.equals(BLACK_YES)) { //$NON-NLS-1$ //$NON-NLS-2$
+			ChessCraft.handleExpectedResponse(player, true);
+		} else if (name.equals(WHITE_NO) || name.equals(BLACK_NO)) { //$NON-NLS-1$ //$NON-NLS-2$
+			ChessCraft.handleExpectedResponse(player, true);
+		} else if (name.equals(STAKE) && ChessCraft.economy != null) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
-				stakeIncr = plugin.getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
+				stakeIncr = ChessConfig.getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
 			} else {
-				stakeIncr = plugin.getConfig().getDouble("stake.largeIncrement"); //$NON-NLS-1$
+				stakeIncr = ChessConfig.getConfig().getDouble("stake.largeIncrement"); //$NON-NLS-1$
 			}
 			if (action == Action.RIGHT_CLICK_BLOCK) {
 				stakeIncr = -stakeIncr;
@@ -270,19 +298,19 @@ public class ControlPanel {
 			if (game == null || (!game.getPlayerWhite().isEmpty() && !game.getPlayerBlack().isEmpty())) {
 				return;
 			}
-			plugin.getCommandExecutor().tryChangeStake(player, game, stakeIncr);
-			view.getControlPanel().updateSignButtonText("stake", getStakeStr(game)); //$NON-NLS-1$
+			game.adjustStake(stakeIncr);
+			view.getControlPanel().updateSignButtonText(STAKE, getStakeStr(game)); //$NON-NLS-1$
 		}
 	}
 
 	private String getStakeStr(ChessGame game) {
 		if (game == null) {
-			double stake = plugin.getConfig().getDouble("stake.default"); //$NON-NLS-1$
-			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			double stake = ChessConfig.getConfig().getDouble("stake.default"); //$NON-NLS-1$
+			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			return Messages.getString("ControlPanel.stakeBtn") + stakeStr; //$NON-NLS-1$
 		} else {
 			double stake = game.getStake();
-			String stakeStr = ChessEconomy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
+			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
 			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
 			return col + "Stake;;&4" + stakeStr; //$NON-NLS-1$
 		}

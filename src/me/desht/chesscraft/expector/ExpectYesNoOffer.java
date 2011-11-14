@@ -1,13 +1,12 @@
 package me.desht.chesscraft.expector;
 
-import me.desht.chesscraft.ChessCraft;
-import me.desht.util.ChessUtils;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.Messages;
 
 import org.bukkit.entity.Player;
 
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.util.ChessUtils;
 
 public class ExpectYesNoOffer extends ExpectData {
 
@@ -16,8 +15,7 @@ public class ExpectYesNoOffer extends ExpectData {
 	private String offeree;
 	private boolean accepted;
 
-	public ExpectYesNoOffer(ChessCraft plugin, ChessGame game, String offerer, String offeree) {
-		super(plugin);
+	public ExpectYesNoOffer(ChessGame game, String offerer, String offeree) {
 		this.game = game;
 		this.offerer = offerer;
 		this.offeree = offeree;
