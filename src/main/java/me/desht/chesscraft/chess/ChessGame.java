@@ -40,7 +40,7 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.Duration;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.chess.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
@@ -1513,27 +1513,27 @@ public class ChessGame {
 		String black = getPlayerBlack().isEmpty() ? "?" : getPlayerBlack(); //$NON-NLS-1$
 
 		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
-		MessageBuffer.clear(player);
-		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
-		MessageBuffer.add(player, bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
+		MessagePager pager = MessagePager.getPager(player).clear();
+		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
+		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
 		if (ChessCraft.economy != null) {
-			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
 		}
-		MessageBuffer.add(player, bullet + (getPosition().getToPlay() == Chess.WHITE ? 
+		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
 				Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 		if (getState() == GameState.RUNNING) {
-			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock",
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock",
 			                                                      ChessGame.secondsToHMS(getTimeWhite()),
 			                                                      ChessGame.secondsToHMS(getTimeBlack())));
 		}
 		if (getInvited().equals("*")) { //$NON-NLS-1$
-			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
 		} else if (!getInvited().isEmpty()) {
-			MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
 		}
-		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
+		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
 		List<Short> h = getHistory();
 		for (int i = 0; i < h.size(); i += 2) {
 			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1)); //$NON-NLS-1$
@@ -1541,9 +1541,9 @@ public class ChessGame {
 			if (i < h.size() - 1) {
 				sb.append("  ").append(Move.getString(h.get(i + 1))); //$NON-NLS-1$
 			}
-			MessageBuffer.add(player, sb.toString());
+			pager.add(sb.toString());
 		}
 
-		MessageBuffer.showPage(player);
+		pager.showPage();
 	}
 }

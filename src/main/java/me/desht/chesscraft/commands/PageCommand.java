@@ -6,7 +6,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 
 public class PageCommand extends AbstractCommand {
 
@@ -17,20 +17,21 @@ public class PageCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+		MessagePager pager = MessagePager.getPager(player);
 		if (args.length < 1) {
 			// default is to advance one page and display
-			MessageBuffer.nextPage(player);
-			MessageBuffer.showPage(player);
+			pager.nextPage();
+			pager.showPage();
 		} else if (ChessUtils.partialMatch(args[0], "n")) { //$NON-NLS-1$
-			MessageBuffer.nextPage(player);
-			MessageBuffer.showPage(player);
+			pager.nextPage();
+			pager.showPage();
 		} else if (ChessUtils.partialMatch(args[0], "p")) { //$NON-NLS-1$
-			MessageBuffer.prevPage(player);
-			MessageBuffer.showPage(player);
+			pager.prevPage();
+			pager.showPage();
 		} else {
 			try {
 				int pageNum = Integer.parseInt(args[0]);
-				MessageBuffer.showPage(player, pageNum);
+				pager.showPage(pageNum);
 			} catch (NumberFormatException e) {
 				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[0])); //$NON-NLS-1$
 			}

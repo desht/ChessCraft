@@ -21,7 +21,7 @@ import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -616,23 +616,23 @@ public class BoardView implements PositionListener {
 		Cuboid bounds = getOuterBounds();
 		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 
-		MessageBuffer.clear(player);
-		MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
+		MessagePager pager = MessagePager.getPager(player).clear();
+		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
 		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
 		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyle())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyle())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyle())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyle())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
 		                                                      getWhiteSquareMat(), getBlackSquareMat()));
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
 		                                                      getFrameMat()));
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
-		MessageBuffer.add(player, bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getIsLit())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getIsLit())); //$NON-NLS-1$
 
-		MessageBuffer.showPage(player);
+		pager.showPage();
 	}
 }

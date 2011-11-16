@@ -28,7 +28,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 import me.desht.chesscraft.blocks.MaterialWithData;
 
 public class ChessPlayerListener extends PlayerListener {
@@ -161,7 +161,7 @@ public class ChessPlayerListener extends PlayerListener {
 				}
 			}
 		}
-		MessageBuffer.delete(event.getPlayer());
+		MessagePager.deletePager(event.getPlayer());
 	}
 
 	private void cancelMove(Location loc) {

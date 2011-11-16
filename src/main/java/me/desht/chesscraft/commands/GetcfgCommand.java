@@ -7,7 +7,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 
 public class GetcfgCommand extends AbstractCommand {
 
@@ -20,11 +20,11 @@ public class GetcfgCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		if (args.length < 1) {
-			MessageBuffer.clear(player);
+			MessagePager pager = MessagePager.getPager(player).clear();
 			for (String line : ChessConfig.getConfigList()) {
-				MessageBuffer.add(player, line);
+				pager.add(line);
 			}
-			MessageBuffer.showPage(player);
+			pager.showPage();
 		} else {
 			String res = plugin.getConfig().getString(args[0]);
 			if (res != null) {

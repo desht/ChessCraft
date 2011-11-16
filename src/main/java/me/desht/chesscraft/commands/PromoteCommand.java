@@ -13,7 +13,7 @@ import me.desht.chesscraft.util.ChessUtils;
 public class PromoteCommand extends AbstractCommand {
 
 	public PromoteCommand() {
-		super("chess p", 1, 1);
+		super("chess pr", 1, 1);
 		setPermissionNode("chesscraft.commands.promote");
 		setUsage("/chess promote");
 	}

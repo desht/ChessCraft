@@ -12,7 +12,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.results.ScoreRecord;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessageBuffer;
+import me.desht.chesscraft.util.MessagePager;
 import me.desht.chesscraft.util.MinecraftChatStr;
 import me.desht.chesscraft.util.PermissionUtils;
 
@@ -68,7 +68,7 @@ public class ListCommand extends AbstractCommand {
 			return;
 		}
 
-		MessageBuffer.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		for (ChessGame game : ChessGame.listGames(true)) {
 			String name = game.getName();
 			String curGameMarker = "  "; //$NON-NLS-1$
@@ -84,9 +84,9 @@ public class ListCommand extends AbstractCommand {
 			if (game.getInvited().length() > 0) {
 				info.append(Messages.getString("ChessCommandExecutor.invited", game.getInvited())); //$NON-NLS-1$
 			}
-			MessageBuffer.add(player, curGameMarker + name + info);
+			pager.add(curGameMarker + name + info);
 		}
-		MessageBuffer.showPage(player);
+		pager.showPage();
 	}
 
 	void listBoards(Player player) throws ChessException {
@@ -97,19 +97,19 @@ public class ListCommand extends AbstractCommand {
 			return;
 		}
 
-		MessageBuffer.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		for (BoardView bv : BoardView.listBoardViews(true)) {
 			String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
-			MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.boardList", bv.getName(), ChessUtils.formatLoc(bv.getA1Square()), //$NON-NLS-1$
-			                                             bv.getBoardStyle(), gameName));
+			pager.add(Messages.getString("ChessCommandExecutor.boardList", bv.getName(), ChessUtils.formatLoc(bv.getA1Square()), //$NON-NLS-1$
+			                             bv.getBoardStyle(), gameName));
 		}
-		MessageBuffer.showPage(player);
+		pager.showPage();
 	}
 
 	void listAIs(Player player) throws ChessException {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.list.ai");
 		
-		MessageBuffer.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		LinkedList<String> lines = new LinkedList<String>();
 		for (AI_Def ai : ChessAI.listAIs(true)) {
 			StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList", //$NON-NLS-1$
@@ -119,7 +119,7 @@ public class ListCommand extends AbstractCommand {
 				sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (ai.getPayoutMultiplier() * 100))); //$NON-NLS-1$
 			}
 
-			if (ai.getComment() != null && player != null && ((lines.size() + 1) % MessageBuffer.getPageSize()) == 0) {
+			if (ai.getComment() != null && player != null && ((lines.size() + 1) % MessagePager.getPageSize()) == 0) {
 				lines.add(""); // ensure description and comment are on the same page  $NON-NLS-1$
 			}
 			lines.add(sb.toString());
@@ -128,8 +128,8 @@ public class ListCommand extends AbstractCommand {
 			}
 		}
 		lines = MinecraftChatStr.alignTags(lines, true);
-		MessageBuffer.add(player, lines);
-		MessageBuffer.showPage(player);
+		pager.add(lines);
+		pager.showPage();
 	}
 
 	void listScores(Player player, String[] args) throws ChessException {
@@ -148,12 +148,12 @@ public class ListCommand extends AbstractCommand {
 			viewName = args[2];
 		}
 		
-		MessageBuffer.clear(player);
+		MessagePager pager = MessagePager.getPager(player).clear();
 		int row = 1;
 		for (ScoreRecord sr : Results.getResultsHandler().getView(viewName).getScores(n)) {
-			MessageBuffer.add(player, Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
+			pager.add(Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
 			row++;
 		}
-		MessageBuffer.showPage(player);
+		pager.showPage();
 	}
 }
