@@ -1,6 +1,9 @@
 name: ChessCraft
-main: me.desht.chesscraft.ChessCraft
 version: 0.4.999
+description: Play Chess in the world of Minecraft
+authors: [ desht, jascotty2 ]
+website: http://dev.bukkit.org/server-mods/chesscraft
+main: me.desht.chesscraft.ChessCraft
 softdepend: [ Vault, WorldEdit, ScrollingMenuSign ]
 commands:
   chess:
