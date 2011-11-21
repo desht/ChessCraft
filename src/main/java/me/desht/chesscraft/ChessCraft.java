@@ -96,16 +96,6 @@ public class ChessCraft extends JavaPlugin {
 
 		persistence = new ChessPersistence();
 		expecter = new ExpectResponse();
-
-		TimeControl tc = new TimeControl("G/20");
-		YamlConfiguration conf = new YamlConfiguration();
-		conf.set("tc", tc);
-		try {
-			conf.save(new File(getDataFolder(), "tc.yml"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
