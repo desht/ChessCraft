@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
 import me.desht.chesscraft.commands.CommandManager;
@@ -32,12 +33,15 @@ import me.desht.chesscraft.commands.StartCommand;
 import me.desht.chesscraft.commands.TeleportCommand;
 import me.desht.chesscraft.commands.YesCommand;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -90,9 +94,19 @@ public class ChessCraft extends JavaPlugin {
 		blockListener = new ChessBlockListener(this);
 		entityListener = new ChessEntityListener(this);
 
-		persistence = new ChessPersistence(this);
+		persistence = new ChessPersistence();
 		expecter = new ExpectResponse();
 
+		TimeControl tc = new TimeControl("G/20");
+		YamlConfiguration conf = new YamlConfiguration();
+		conf.set("tc", tc);
+		try {
+			conf.save(new File(getDataFolder(), "tc.yml"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
 		//		Results.getResultsHandler().addTestData();

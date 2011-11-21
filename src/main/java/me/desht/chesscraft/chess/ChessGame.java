@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -17,7 +18,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
@@ -28,6 +32,7 @@ import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 
@@ -49,7 +54,7 @@ import me.desht.chesscraft.enums.GameState;
  * @author des
  *
  */
-public class ChessGame {
+public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
 	private static final Map<String, ChessGame> currentGame = new HashMap<String, ChessGame>();
@@ -62,8 +67,7 @@ public class ChessGame {
 	private GameState state;
 	private int fromSquare;
 	private long started, finished, lastMoved;
-	private long lastCheck;
-	private int timeWhite, timeBlack;
+	private TimeControl tcWhite, tcBlack;
 	private List<Short> history;
 	private int result;
 	private double stake;
@@ -80,12 +84,12 @@ public class ChessGame {
 		}
 		playerWhite = playerName == null ? "" : playerName; //$NON-NLS-1$
 		playerBlack = ""; //$NON-NLS-1$
-		timeWhite = timeBlack = 0;
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
 		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
-		lastCheck = lastMoved = started = System.currentTimeMillis();
+		tcWhite = new TimeControl(null);
+		tcBlack = new TimeControl(null);
 		finished = 0;
 		result = Chess.RES_NOT_FINISHED;
 		aiHasMoved = false;
@@ -103,7 +107,7 @@ public class ChessGame {
 	}
 
 	@SuppressWarnings("unchecked")
-	public ChessGame(ConfigurationSection map) throws ChessException, IllegalMoveException {		
+	public ChessGame(ConfigurationSection map) throws ChessException, IllegalMoveException {
 		view = BoardView.getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
@@ -116,18 +120,22 @@ public class ChessGame {
 		invited = map.getString("invited"); //$NON-NLS-1$
 		List<Integer> hTmp = (List<Integer>) map.getList("moves"); //$NON-NLS-1$
 		history = new ArrayList<Short>();
+		if (map.contains("timeWhite")) {
+			tcWhite = new TimeControl(map.isLong("timeWhite") ? map.getLong("timeWhite") : map.getInt("timeWhite"));
+			tcBlack = new TimeControl(map.isLong("timeBlack") ? map.getLong("timeBlack") : map.getInt("timeBlack"));
+		} else {
+			tcWhite = (TimeControl) map.get("tcWhite");
+			tcBlack = (TimeControl) map.get("tcBlack");
+		}
 		for (int m : hTmp) {
 			history.add((short) m);
 		}
 		started = map.getLong("started"); //$NON-NLS-1$
 		finished = map.getLong("finished", state == GameState.FINISHED ? System.currentTimeMillis() : 0);
-		lastCheck = System.currentTimeMillis();
 		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
 		result = map.getInt("result"); //$NON-NLS-1$
 		promotionPiece[Chess.WHITE] = map.getInt("promotionWhite"); //$NON-NLS-1$
 		promotionPiece[Chess.BLACK] = map.getInt("promotionBlack"); //$NON-NLS-1$
-		timeWhite = map.getInt("timeWhite", 0);
-		timeBlack = map.getInt("timeBlack", 0);
 		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
 
 		if (isAIPlayer(playerWhite)) {
@@ -156,7 +164,49 @@ public class ChessGame {
 		
 		view.setGame(this);
 		getPosition().addPositionListener(view);
+	}
 
+	public Map<String, Object> serialize() {
+		Map<String, Object> map = new HashMap<String, Object>();
+	
+		map.put("name", name); //$NON-NLS-1$
+		map.put("boardview", view.getName()); //$NON-NLS-1$
+		map.put("playerWhite", playerWhite); //$NON-NLS-1$
+		map.put("playerBlack", playerBlack); //$NON-NLS-1$
+		map.put("state", state.toString()); //$NON-NLS-1$
+		map.put("invited", invited); //$NON-NLS-1$
+		map.put("moves", history); //$NON-NLS-1$
+		map.put("started", started); //$NON-NLS-1$
+		map.put("finished", finished); //$NON-NLS-1$
+		map.put("lastMoved", lastMoved); //$NON-NLS-1$
+		map.put("result", result); //$NON-NLS-1$
+		map.put("promotionWhite", promotionPiece[Chess.WHITE]); //$NON-NLS-1$
+		map.put("promotionBlack", promotionPiece[Chess.BLACK]); //$NON-NLS-1$
+		map.put("tcWhite", tcWhite); //$NON-NLS-1$
+		map.put("tcBlack", tcBlack); //$NON-NLS-1$
+		map.put("stake", stake); //$NON-NLS-1$
+		map.put("aiHasMoved", aiHasMoved); //$NON-NLS-1$
+		map.put("aiFromSqi", aiFromSqi); //$NON-NLS-1$
+		map.put("aiToSqi", aiToSqi); //$NON-NLS-1$
+	
+		return map;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static ChessGame deserialize(Map <String,Object> map) throws ChessException, IllegalMoveException {
+		Configuration conf = new MemoryConfiguration();
+		
+		// this seems really ugly... need to explicitly deserialize sub-objects?	
+		conf.set("tcWhite", TimeControl.deserialize((Map<String,Object>) map.get("tcWhite")));
+		conf.set("tcBlack", TimeControl.deserialize((Map<String,Object>) map.get("tcBlack")));
+		
+		for (Entry<String, Object> e : map.entrySet()) {
+			if (!conf.contains(e.getKey())) {
+				conf.set(e.getKey(), e.getValue());
+			}
+		}
+		
+		return new ChessGame(conf);
 	}
 
 	/**
@@ -216,34 +266,8 @@ public class ChessGame {
 		cpGame.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
 	}
 
-	public Map<String, Object> freeze() {
-		Map<String, Object> map = new HashMap<String, Object>();
-
-		map.put("name", name); //$NON-NLS-1$
-		map.put("boardview", view.getName()); //$NON-NLS-1$
-		map.put("playerWhite", playerWhite); //$NON-NLS-1$
-		map.put("playerBlack", playerBlack); //$NON-NLS-1$
-		map.put("state", state.toString()); //$NON-NLS-1$
-		map.put("invited", invited); //$NON-NLS-1$
-		map.put("moves", history); //$NON-NLS-1$
-		map.put("started", started); //$NON-NLS-1$
-		map.put("finished", finished); //$NON-NLS-1$
-		map.put("lastMoved", lastMoved); //$NON-NLS-1$
-		map.put("result", result); //$NON-NLS-1$
-		map.put("promotionWhite", promotionPiece[Chess.WHITE]); //$NON-NLS-1$
-		map.put("promotionBlack", promotionPiece[Chess.BLACK]); //$NON-NLS-1$
-		map.put("timeWhite", timeWhite); //$NON-NLS-1$
-		map.put("timeBlack", timeBlack); //$NON-NLS-1$
-		map.put("stake", stake); //$NON-NLS-1$
-		map.put("aiHasMoved", aiHasMoved); //$NON-NLS-1$
-		map.put("aiFromSqi", aiFromSqi); //$NON-NLS-1$
-		map.put("aiToSqi", aiToSqi); //$NON-NLS-1$
-
-		return map;
-	}
-
 	public void save() {
-		ChessCraft.getInstance().getSaveDatabase().saveGame(this);
+		ChessCraft.getInstance().getSaveDatabase().savePersistable("game", this);
 	}
 
 	public void autoSave() {
@@ -251,102 +275,6 @@ public class ChessGame {
 			save();
 		}
 	}
-
-//	@SuppressWarnings("unchecked")
-//	public boolean thaw(Map<String, Object> map) throws ChessException, IllegalMoveException {
-//		playerWhite = (String) map.get("playerWhite"); //$NON-NLS-1$
-//		playerBlack = (String) map.get("playerBlack"); //$NON-NLS-1$
-//		state = GameState.valueOf((String) map.get("state")); //$NON-NLS-1$
-//		invited = (String) map.get("invited"); //$NON-NLS-1$
-//		List<Integer> hTmp = (List<Integer>) map.get("moves"); //$NON-NLS-1$
-//		history.clear();
-//		for (int m : hTmp) {
-//			history.add((short) m);
-//		}
-//		started = (Long) map.get("started"); //$NON-NLS-1$
-//		if (map.containsKey("finished")) { //$NON-NLS-1$
-//			// a simple cast to Long won't work here
-//			finished = Long.parseLong(map.get("finished").toString()); //$NON-NLS-1$
-//		} else {
-//			finished = state == GameState.FINISHED ? System.currentTimeMillis() : 0;
-//		}
-//		if (map.containsKey("lastMoved")) { //$NON-NLS-1$
-//			// a simple cast to Long won't work here
-//			lastMoved = Long.parseLong(map.get("lastMoved").toString()); //$NON-NLS-1$
-//		} else {
-//			lastMoved = System.currentTimeMillis();
-//		}
-//		result = (Integer) map.get("result"); //$NON-NLS-1$
-//		promotionPiece[Chess.WHITE] = (Integer) map.get("promotionWhite"); //$NON-NLS-1$
-//		promotionPiece[Chess.BLACK] = (Integer) map.get("promotionBlack"); //$NON-NLS-1$
-//		if (map.containsKey("timeWhite")) { //$NON-NLS-1$
-//			timeWhite = (Integer) map.get("timeWhite"); //$NON-NLS-1$
-//			timeBlack = (Integer) map.get("timeBlack"); //$NON-NLS-1$
-//		}
-//		if (map.containsKey("stake")) { //$NON-NLS-1$
-//			stake = (Double) map.get("stake"); //$NON-NLS-1$
-//		}
-//
-//		if (isAIPlayer(playerWhite)) {
-//			aiPlayer = ChessAI.getNewAI(this, playerWhite, true);
-//			playerWhite = aiPlayer.getName();
-//			aiPlayer.init(true);
-//			// ai vs ai
-//			if (isAIPlayer(playerBlack)) {
-//				aiPlayer2 = ChessAI.getNewAI(this, playerBlack, true);
-//				playerBlack = aiPlayer2.getName();
-//				aiPlayer2.init(false);
-//			}
-//		} else if (isAIPlayer(playerBlack)) {
-//			aiPlayer = ChessAI.getNewAI(this, playerBlack, true);
-//			playerBlack = aiPlayer.getName();
-//			aiPlayer.init(false);
-//		}
-//
-//		if (map.containsKey("aiHasMoved")) {
-//			aiHasMoved = (Boolean) map.get("aiHasMoved");
-//			aiFromSqi = (Integer) map.get("aiFromSqi");
-//			aiToSqi = (Integer) map.get("aiToSqi");
-//		}
-//
-//		setupChesspressoGame();
-//
-//		// Replay the move history to restore the saved board position.  We do this
-//		// instead of just saving the position so that the Chesspresso ChessGame model
-//		// includes a history of the moves, suitable for creating a PGN file.
-//		for (short move : history) {
-//			getPosition().doMove(move);
-//		}
-//		// repeat for the ai engine (doesn't support loading from FEN)
-//		if (aiPlayer != null) {
-//			for (short move : history) {
-//				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-//			}
-//			aiPlayer.loadDone(); // tell ai to start on next move
-//		}
-//		if (aiPlayer2 != null) {
-//			for (short move : history) {
-//				aiPlayer2.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
-//			}
-//			aiPlayer2.loadDone(); // tell ai to start on next move
-//		}
-//		// note; could still be problematic.. ai vs ai doesn't load correctly
-//
-//		// now check for if ai needs to start
-//		if (getPosition().getToPlay() == Chess.WHITE && isAIPlayer(playerWhite)) {
-//			aiPlayer.setUserMove(false); // tell ai to start thinking
-//		} else if (getPosition().getToPlay() == Chess.BLACK && isAIPlayer(playerBlack)) {
-//			if (isAIPlayer(playerWhite)) {
-//				aiPlayer2.setUserMove(false);
-//			} else {
-//				aiPlayer.setUserMove(false);
-//			}
-//		}
-//
-//		getPosition().addPositionListener(view);
-//
-//		return true;
-//	}
 
 	public String getName() {
 		return name;
@@ -366,14 +294,6 @@ public class ChessGame {
 
 	public String getPlayerBlack() {
 		return playerBlack;
-	}
-
-	public int getTimeWhite() {
-		return timeWhite;
-	}
-
-	public int getTimeBlack() {
-		return timeBlack;
 	}
 
 	public String getInvited() {
@@ -439,6 +359,14 @@ public class ChessGame {
 		this.stake = newStake;
 	}
 
+	public TimeControl getTcWhite() {
+		return tcWhite;
+	}
+
+	public TimeControl getTcBlack() {
+		return tcBlack;
+	}
+
 	/**
 	 * Housekeeping task, called every <tick_interval> seconds as a scheduled sync task.
 	 */
@@ -451,19 +379,30 @@ public class ChessGame {
 	}
 
 	private void updateChessClocks() {
-		// update the clocks
-		long now = System.currentTimeMillis();
-		long diff = now - lastCheck;
-		lastCheck = now;
-		if (getPosition().getToPlay() == Chess.WHITE) {
-			timeWhite += diff;
-			getView().getControlPanel().updateClock(Chess.WHITE, timeWhite);
-		} else {
-			timeBlack += diff;
-			getView().getControlPanel().updateClock(Chess.BLACK, timeBlack);
+		switch (getPosition().getToPlay()) {
+		case Chess.WHITE:
+			tcWhite.tick();
+			getView().getControlPanel().updateClock(Chess.WHITE, tcWhite);
+			break;
+		case Chess.BLACK:
+			tcBlack.tick();
+			getView().getControlPanel().updateClock(Chess.BLACK, tcBlack);
+			break;
+		default:
+			ChessCraftLogger.warning("Game " + getName() + ": unexpected to-play value: " + getPosition().getToPlay());
 		}
 	}
 
+	public void setTimeControl(String spec) throws ChessException {
+		ensureGameState(GameState.SETTING_UP);
+		try {
+			tcWhite = new TimeControl(spec);
+			tcBlack = new TimeControl(spec);
+		} catch (IllegalArgumentException e) {
+			throw new ChessException(e.getMessage());
+		}
+	}
+	
 	public void swapColours() {
 		clockTick();
 		String tmp = playerWhite;
@@ -917,7 +856,7 @@ public class ChessGame {
 	 * Called when a game is permanently deleted.
 	 */
 	public void deletePermanently() {
-		ChessCraft.getInstance().getSaveDatabase().removeGameSavefile(this);
+		ChessCraft.getInstance().getSaveDatabase().unpersist(this);
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
@@ -1117,12 +1056,12 @@ public class ChessGame {
 		getHistory().clear();
 	}
 
-	public static String secondsToHMS(int n) {
-		n /= 1000;
+	public static String milliSecondsToHMS(long l) {
+		l /= 1000;
 
-		int secs = n % 60;
-		int hrs = n / 3600;
-		int mins = (n - (hrs * 3600)) / 60;
+		long secs = l % 60;
+		long hrs = l / 3600;
+		long mins = (l - (hrs * 3600)) / 60;
 
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
@@ -1284,8 +1223,7 @@ public class ChessGame {
 					}
 				}
 				// TODO: if multiple matches, check if only one is waiting for
-				// more players
-				// (and return that one)
+				// more players (and return that one)
 			}
 			throw new ChessException(Messages.getString("Game.noSuchGame", name)); //$NON-NLS-1$
 		}
@@ -1364,6 +1302,11 @@ public class ChessGame {
 		return false;
 	}
 
+	/**
+	 * Return true if either player in this game is an AI player
+	 * 
+	 * @return
+	 */
 	public boolean isAIGame() {
 		return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
 	}
@@ -1407,11 +1350,11 @@ public class ChessGame {
 	/**
 	 * Convenience method to create a new chess game.
 	 * 
-	 * @param playerName
-	 * @param gameName
-	 * @param boardName
-	 * @return
-	 * @throws ChessException
+	 * @param player		The player who is creating the game
+	 * @param gameName		Name of the game - may be null, in which case a name will be generated
+	 * @param boardName		Name of the board for the game - may be null, in which case a free board will be picked
+	 * @return	The game object
+	 * @throws ChessException	if there is any problem creating the game
 	 */
 	public static ChessGame createGame(Player player, String gameName, String boardName) throws ChessException {
 		BoardView bv;
@@ -1524,9 +1467,7 @@ public class ChessGame {
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
 				Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 		if (getState() == GameState.RUNNING) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock",
-			                                                      ChessGame.secondsToHMS(getTimeWhite()),
-			                                                      ChessGame.secondsToHMS(getTimeBlack())));
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));
 		}
 		if (getInvited().equals("*")) { //$NON-NLS-1$
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
@@ -1545,5 +1486,10 @@ public class ChessGame {
 		}
 
 		pager.showPage();
+	}
+
+	@Override
+	public File getSaveDirectory() {
+		return ChessConfig.getGamesPersistDirectory();
 	}
 }

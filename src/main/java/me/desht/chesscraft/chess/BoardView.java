@@ -1,17 +1,21 @@
 package me.desht.chesscraft.chess;
 
 import me.desht.chesscraft.chess.ChessGame;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import chesspresso.Chess;
 import chesspresso.position.PositionListener;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ControlPanel;
 import me.desht.chesscraft.Messages;
@@ -33,10 +37,13 @@ import me.desht.chesscraft.enums.Direction;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-public class BoardView implements PositionListener {
+public class BoardView implements PositionListener, ConfigurationSerializable, ChessPersistable {
 
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private String name;
@@ -72,7 +79,7 @@ public class BoardView implements PositionListener {
 
 	}
 	
-	public BoardView(ChessCraft plugin, ConfigurationSection conf) throws ChessException {
+	public BoardView(ConfigurationSection conf) throws ChessException {
 		@SuppressWarnings("unchecked")
 		List<Object> origin = conf.getList("origin"); //$NON-NLS-1$
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
@@ -90,6 +97,31 @@ public class BoardView implements PositionListener {
 		setA1Center(where, dir);
 	}
 
+	@Override
+	public Map<String, Object> serialize() {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("name", name); //$NON-NLS-1$
+		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
+		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
+		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
+		result.put("direction", chessBoard.getRotation().name());
+		return result;
+	}
+
+	public static BoardView deserialize(Map<String, Object> map) throws ChessException {
+		Configuration conf = new MemoryConfiguration();
+		
+		for (Entry<String, Object> e : map.entrySet()) {
+			if (!conf.contains(e.getKey())) {
+				conf.set(e.getKey(), e.getValue());
+			}
+		}
+		
+		return new BoardView(conf);
+	}
+	
+	
 	private final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
 		// only allow the board center to be set once (?)
 		if (loc != null && chessBoard.getA1Center() == null) {
@@ -123,19 +155,8 @@ public class BoardView implements PositionListener {
 		}
 	}
 
-	public Map<String, Object> freeze() {
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("name", name); //$NON-NLS-1$
-		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
-		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
-		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
-		result.put("direction", chessBoard.getRotation().name());
-		return result;
-	}
-
 	public void save() {
-		ChessCraft.getInstance().getSaveDatabase().saveBoard(this);
+		ChessCraft.getInstance().getSaveDatabase().savePersistable("board", this);
 	}
 
 	public void autoSave() {
@@ -339,7 +360,6 @@ public class BoardView implements PositionListener {
 		if (bounds == null) {
 			return false;
 		}
-//		bounds.inset(Direction.Horizontal, 1);
 		bounds.shift(Direction.Up, minHeight);
 		bounds.expand(Direction.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
@@ -393,6 +413,11 @@ public class BoardView implements PositionListener {
 		delete(false, null);
 	}
 
+	public void deletePermanently(Player p) {
+		delete(true, p);
+		ChessCraft.getInstance().getSaveDatabase().unpersist(this);
+	}
+	
 	public void delete(boolean deleteBlocks, Player p) {
 		if (deleteBlocks) {
 			restoreTerrain(p);
@@ -634,5 +659,10 @@ public class BoardView implements PositionListener {
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getIsLit())); //$NON-NLS-1$
 
 		pager.showPage();
+	}
+
+	@Override
+	public File getSaveDirectory() {
+		return ChessConfig.getBoardPersistDirectory();
 	}
 }

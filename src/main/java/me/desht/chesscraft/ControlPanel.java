@@ -2,6 +2,8 @@ package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,8 +107,8 @@ public class ControlPanel {
 		signMat.applyToBlock(whiteClockSign.getBlock());
 		signMat.applyToBlock(blackClockSign.getBlock());
 
-		updateClock(Chess.WHITE, game == null ? 0 : game.getTimeWhite());
-		updateClock(Chess.BLACK, game == null ? 0 : game.getTimeBlack());
+		updateClock(Chess.WHITE, game == null ? null : game.getTcWhite());
+		updateClock(Chess.BLACK, game == null ? null : game.getTcBlack());
 
 		repaintSignButtons();
 	}
@@ -348,7 +350,7 @@ public class ControlPanel {
 		}
 	}
 
-	public void updateClock(int colour, int t) {
+	public void updateClock(int colour, TimeControl tc) {
 		Location l;
 		if (colour == Chess.WHITE) {
 			l = whiteClockSign;
@@ -358,8 +360,11 @@ public class ControlPanel {
 		if (l.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) l.getBlock().getState();
 			setSignLabel(s, ChessGame.getColour(colour));
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.secondsToHMS(t))); //$NON-NLS-1$
-			s.update();
+			if (tc == null) {
+				s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.milliSecondsToHMS(0)));	//$NON-NLS-1$
+			} else {
+				s.setLine(2, ChessUtils.parseColourSpec("&4" + tc.getClockString())); //$NON-NLS-1$
+			}
 		}
 	}
 
