@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class TeleportCommand extends AbstractCommand {
 
 	public TeleportCommand() {
-		super("chess t", 0, 1);
+		super("chess tp", 0, 1);
 		setPermissionNode("chesscraft.commands.teleport");
 		setUsage("/chess tp [<game-name>]");
 	}

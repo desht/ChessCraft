@@ -21,6 +21,9 @@ public class StakeCommand extends AbstractCommand {
 		String stakeStr = args[0];
 		try {
 			ChessGame game = ChessGame.getCurrentGame(player);
+			if (game == null) {
+				return true;
+			}
 			double amount = Double.parseDouble(stakeStr);
 			if (amount <= 0.0) {
 				throw new ChessException(Messages.getString("ChessCommandExecutor.noNegativeStakes")); //$NON-NLS-1$

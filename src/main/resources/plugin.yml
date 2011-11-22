@@ -68,6 +68,7 @@ permissions:
       chesscraft.commands.list.game: true
       chesscraft.commands.list.ai: true
       chesscraft.commands.list.scores: true
+      chesscraft.commands.tc: true
   chesscraft.commands.create.board:
     description: Allows you to create chessboards
     default: op
@@ -146,4 +147,6 @@ permissions:
   chesscraft.commands.promote:
     description: Allows you to set your preferred pawn promotion piece
     default: true
-    
+  chesscraft.commands.tc:
+    description: Allows time controls to be set for a game
+    default: true

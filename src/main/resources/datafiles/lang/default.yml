@@ -71,6 +71,7 @@ ChessCommandExecutor:
     stake: "Stake: {0}"
     whiteToPlay: "White to play"
     halfMoves: "{0,number,integer} half-moves made"
+    timeControlType: "Time Control: {0}"
   goingToSpawn: "Can't find a safe place to send you - going to spawn point."
   invalidFromSquare: "Invalid FROM square in {0}"
   invalidMoveString: "Invalid move string {0}"
@@ -101,6 +102,7 @@ ChessCommandExecutor:
   sideSwapOfferedYou: "You have offered to swap sides with &6{0}&-."
   stakeChanged: "Stake for this game is now {0}."
   teleportDestObstructed: "Teleport destination obstructed!"
+  timeControlSet: "Time control for this game set to {0} ({1})"
   typeYesOrNo: "Type &f/chess yes&- to accept, or &f/chess no&- to decline."
 
 ChessConfig:
@@ -156,6 +158,8 @@ ControlPanel:
   stakeBtn: "Stake;;"
   startGameBtn: ";Start;Game"
   teleportOutBtn: ";Teleport;Out"
+  timeElapsed: "Elapsed"
+  timeRemaining: "Remaining"
   whitePawnPromotionBtn: "White Pawn;Promotion;;&4"
   yesBtn: ";;Yes"
 
@@ -218,6 +222,7 @@ Game:
     - "Game started!  You are playing &f{0}&-."
     - "To move a piece, look at it while holding {1}, and left-click."
   startPrompt: "Start the game by typing &f/game start&-."
+  timeControlWarning: "You have {0,number,integer} seconds left to move!"
   white: "White"
   youAreInvited: "You have been invited to this game by &6{0}&-."
   yourMove: "It is your move &f({0})&-."

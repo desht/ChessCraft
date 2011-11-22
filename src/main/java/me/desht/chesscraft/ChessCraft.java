@@ -3,7 +3,6 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
-import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
 import me.desht.chesscraft.commands.CommandManager;
@@ -31,17 +30,15 @@ import me.desht.chesscraft.commands.SetcfgCommand;
 import me.desht.chesscraft.commands.StakeCommand;
 import me.desht.chesscraft.commands.StartCommand;
 import me.desht.chesscraft.commands.TeleportCommand;
+import me.desht.chesscraft.commands.TimeControlCommand;
 import me.desht.chesscraft.commands.YesCommand;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -326,6 +323,7 @@ public class ChessCraft extends JavaPlugin {
 		cmds.registerCommand(new StakeCommand());
 		cmds.registerCommand(new StartCommand());
 		cmds.registerCommand(new TeleportCommand());
+		cmds.registerCommand(new TimeControlCommand());
 		cmds.registerCommand(new YesCommand());
 	}
 }

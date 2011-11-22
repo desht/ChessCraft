@@ -34,5 +34,8 @@ league:
     draw_points: 1
     loss_points: 0
 autostart: true
+time_control:
+    default: none
+    warn_seconds: 10
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

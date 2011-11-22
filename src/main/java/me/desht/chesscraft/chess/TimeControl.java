@@ -20,30 +20,37 @@ public class TimeControl implements ConfigurationSerializable {
 	private int rolloverPhase;
 	private int rolloverMovesMade;
 	private List<RolloverPhase> rollovers = new ArrayList<TimeControl.RolloverPhase>();
-	private long lastChecked;
+	private long lastChecked = System.currentTimeMillis();
+	private boolean active = false;
 
-	public TimeControl(String spec) {
-		this.spec = spec;
-		if (spec == null || spec.isEmpty()) {
+	public TimeControl() {
+		this(0L);
+	}
+	
+	public TimeControl(String specStr) {
+		spec = specStr.toUpperCase();
+		if (spec.isEmpty() || spec.startsWith("N")) {
 			controlType = ControlType.NONE;
 		} else if (spec.startsWith("G/")) {
 			// game in - minutes
 			int t = Integer.parseInt(spec.substring(2));
 			remainingTime = totalTime = t * 60000;
+			controlType = ControlType.GAME_IN;
 		} else if (spec.startsWith("M/")) {
 			// move in - seconds
 			int t = Integer.parseInt(spec.substring(2));
 			remainingTime = totalTime = t * 1000;
+			controlType = ControlType.MOVE_IN;
 		} else if (!spec.isEmpty() && Character.isDigit(spec.charAt(0))) {
 			for (String s0 : spec.split(";")) {
 				rollovers.add(new RolloverPhase(s0));
 			}
 			rolloverPhase = rolloverMovesMade = 0;
 			remainingTime = rollovers.get(0).getMinutes() * 60000;
+			controlType = ControlType.ROLLOVER;
 		} else {
 			throw new IllegalArgumentException("Invalid time control specification: " + spec);
 		}
-		lastChecked = System.currentTimeMillis();
 	}
 
 	public TimeControl(long elapsed) {
@@ -52,7 +59,6 @@ public class TimeControl implements ConfigurationSerializable {
 		this.spec = "";
 		this.remainingTime = this.totalTime = 0L;
 		this.rolloverMovesMade = this.rolloverPhase = 0;
-		this.lastChecked = System.currentTimeMillis();
 	}
 
 	@Override
@@ -87,17 +93,24 @@ public class TimeControl implements ConfigurationSerializable {
 		return elapsed;
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	public long getRemainingTime() {
 		return controlType == ControlType.NONE ? Long.MAX_VALUE : remainingTime;
 	}
 
 	public String getClockString() {
 		switch (getControlType()) {
-		// TODO: fill in other control type cases
 		case NONE:
 			return ChessGame.milliSecondsToHMS(getElapsed());
 		default:
-			return "???";
+			return ChessGame.milliSecondsToHMS(getRemainingTime());
 		}
 	}
 
@@ -122,7 +135,7 @@ public class TimeControl implements ConfigurationSerializable {
 			}
 			return Joiner.on(", then ").join(l);
 		case NONE:
-			return "Elapsed : " + (elapsed / 1000) + " seconds";
+			return "None";
 		default:
 			return "???";	
 		}
@@ -134,14 +147,16 @@ public class TimeControl implements ConfigurationSerializable {
 	public void tick() {
 		long offset = System.currentTimeMillis() - lastChecked;
 		lastChecked = System.currentTimeMillis();
-		elapsed += offset;
-		if (controlType != ControlType.NONE) {
-			remainingTime -= offset;	
+		if (active) {
+			elapsed += offset;
+			if (controlType != ControlType.NONE) {
+				remainingTime -= offset;	
+			}
 		}
 	}
 
 	/**
-	 * The player has made a move - adjust time control accordingly.
+	 * The player has made a move - adjust time control accordingly, and deactivate the clock.
 	 */
 	public void moveMade() {
 		switch (controlType) {
@@ -160,6 +175,7 @@ public class TimeControl implements ConfigurationSerializable {
 			remainingTime += carryOver;
 			remainingTime += rollovers.get(rolloverPhase).getIncrement();
 		}
+		setActive(false);
 	}
 
 	private class RolloverPhase {

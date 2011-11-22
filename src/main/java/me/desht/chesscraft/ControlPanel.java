@@ -50,7 +50,7 @@ public class ControlPanel {
 	private static final String RESIGN = "resign";
 	private static final String START = "start";
 	private static final String CREATE_GAME = "create.game";
-	
+
 	public static final int PANEL_WIDTH = 8;
 	private BoardView view;
 	private BoardOrientation boardDir = null, signDir = null;
@@ -76,8 +76,8 @@ public class ControlPanel {
 
 		toMoveIndicator = panelBlocks.clone();
 		toMoveIndicator.inset(Direction.Vertical, 1).
-				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
-				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
+		expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
+		expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
 		// .inset(Direction.Horizontal, PANEL_WIDTH / 2);
 		//if (view.getName().contains("ter")) toMoveIndicator.weSelect(plugin.getServer().getPlayer("jascotty2"));
 
@@ -129,18 +129,18 @@ public class ControlPanel {
 
 		createSignButton(1, 2, CREATE_GAME, Messages.getString("ControlPanel.createGameBtn"), signMat, game == null); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(2, 2, INVITE_PLAYER, Messages.getString("ControlPanel.invitePlayerBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
-				&& (!hasWhite || !hasBlack));
+		                 && (!hasWhite || !hasBlack));
 		createSignButton(3, 2, INVITE_ANYONE, Messages.getString("ControlPanel.inviteAnyoneBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
-				&& (!hasWhite || !hasBlack));
+		                 && (!hasWhite || !hasBlack));
 		createSignButton(4, 2, START, Messages.getString("ControlPanel.startGameBtn"), signMat, settingUp); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(5, 2, OFFER_DRAW, Messages.getString("ControlPanel.offerDrawBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(6, 2, RESIGN, Messages.getString("ControlPanel.resignBtn"), signMat, running); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(7, 2, GAME_INFO, Messages.getString("ControlPanel.gameInfoBtn"), signMat, game != null); //$NON-NLS-1$ //$NON-NLS-2$
 
 		createSignButton(1, 1, WHITE_PROMOTE, Messages.getString("ControlPanel.whitePawnPromotionBtn") + getPromoStr(game, Chess.WHITE), //$NON-NLS-1$ //$NON-NLS-2$
-				signMat, hasWhite);
+		                 signMat, hasWhite);
 		createSignButton(6, 1, BLACK_PROMOTE, Messages.getString("ControlPanel.blackPawnPromotionBtn") + getPromoStr(game, Chess.BLACK), //$NON-NLS-1$ //$NON-NLS-2$
-				signMat, hasBlack);
+		                 signMat, hasBlack);
 
 		Player pw = game == null ? null : Bukkit.getServer().getPlayer(game.getPlayerWhite());
 		String offerw = getOfferText(pw);
@@ -178,22 +178,22 @@ public class ControlPanel {
 				realZ = signDir.getZ();
 
 		switch(signDir){
-			case NORTH:
-				realX += panelBlocks.getLowerX();
-				realZ += panelBlocks.getLowerZ() + x;
-				break;
-			case EAST:
-				realX += panelBlocks.getUpperX() - x;
-				realZ += panelBlocks.getLowerZ();
-				break;
-			case SOUTH:
-				realX += panelBlocks.getLowerX();
-				realZ += panelBlocks.getUpperZ() - x;
-				break;
-			case WEST:
-				realX += panelBlocks.getLowerX() + x;
-				realZ += panelBlocks.getLowerZ();
-				break;
+		case NORTH:
+			realX += panelBlocks.getLowerX();
+			realZ += panelBlocks.getLowerZ() + x;
+			break;
+		case EAST:
+			realX += panelBlocks.getUpperX() - x;
+			realZ += panelBlocks.getLowerZ();
+			break;
+		case SOUTH:
+			realX += panelBlocks.getLowerX();
+			realZ += panelBlocks.getUpperZ() - x;
+			break;
+		case WEST:
+			realX += panelBlocks.getLowerX() + x;
+			realZ += panelBlocks.getLowerZ();
+			break;
 		}
 		return new Location(view.getA1Square().getWorld(), realX, realY, realZ);
 	}
@@ -232,13 +232,16 @@ public class ControlPanel {
 
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		ChessGame game = view.getGame();
-		SignButton button = buttonLocs.get(block.getLocation());
+		Location loc = block.getLocation();
+		SignButton button = buttonLocs.get(loc);
 
-		if (button == null) {
+		if (loc.equals(whiteClockSign) || loc.equals(blackClockSign)) {
+			// doesn't matter which time control we use here, they should both have the same parameters
+			ChessUtils.statusMessage(player, game.getTcWhite().toString());
 			return;
 		}
 
-		if (!button.isEnabled()) {
+		if (button == null || !button.isEnabled()) {
 			return;
 		}
 
@@ -246,7 +249,7 @@ public class ControlPanel {
 		if (!name.startsWith("*")) {
 			PermissionUtils.requirePerms(player, "chesscraft.commands." + name);
 		}
-		
+
 		if (name.equals(CREATE_GAME)) { //$NON-NLS-1$
 			ChessGame.createGame(player, null, view.getName());
 		} else if (name.equals(START)) { //$NON-NLS-1$
@@ -306,15 +309,16 @@ public class ControlPanel {
 	}
 
 	private String getStakeStr(ChessGame game) {
+		String buttonText = Messages.getString("ControlPanel.stakeBtn"); //$NON-NLS-1$
 		if (game == null) {
 			double stake = ChessConfig.getConfig().getDouble("stake.default"); //$NON-NLS-1$
 			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
-			return Messages.getString("ControlPanel.stakeBtn") + stakeStr; //$NON-NLS-1$
+			return buttonText + stakeStr;
 		} else {
 			double stake = game.getStake();
 			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
 			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
-			return col + "Stake;;&4" + stakeStr; //$NON-NLS-1$
+			return col + buttonText + "&4" + stakeStr; //$NON-NLS-1$
 		}
 	}
 
@@ -362,10 +366,22 @@ public class ControlPanel {
 			setSignLabel(s, ChessGame.getColour(colour));
 			if (tc == null) {
 				s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.milliSecondsToHMS(0)));	//$NON-NLS-1$
+				s.setLine(3, "");
 			} else {
 				s.setLine(2, ChessUtils.parseColourSpec("&4" + tc.getClockString())); //$NON-NLS-1$
+				switch (tc.getControlType()) {
+				case NONE:
+					s.setLine(3, Messages.getString("ControlPanel.timeElapsed"));
+					break;
+				default:
+					s.setLine(3, Messages.getString("ControlPanel.timeRemaining"));
+					break;
+				}
 			}
+		} else {
+			ChessCraftLogger.warning("Block at " + l + " should be a sign but is not!");
 		}
+
 	}
 
 	private void setSignLabel(Sign s, String text) {
@@ -378,7 +394,7 @@ public class ControlPanel {
 			s.setLine(1, lines[1]);
 		}
 	}
-	
+
 	protected static Cuboid getBoardControlPanel(BoardView view) {
 
 		BoardOrientation dir = view.getDirection();
@@ -390,44 +406,44 @@ public class ControlPanel {
 
 		// apply applicable rotation (panel on the left-side of board)
 		switch (dir) {
-			case NORTH:
-				x -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-				z += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-				break;
-			case EAST:
-				z -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-				x -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-				break;
-			case SOUTH:
-				x += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-				z -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-				break;
-			case WEST:
-				z += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-				x += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-				break;
-			default:
-				ChessCraftLogger.severe("Unexpected BoardOrientation value ", new Exception());
-				return null;
+		case NORTH:
+			x -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+			z += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+			break;
+		case EAST:
+			z -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+			x -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+			break;
+		case SOUTH:
+			x += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+			z -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+			break;
+		case WEST:
+			z += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
+			x += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+			break;
+		default:
+			ChessCraftLogger.severe("Unexpected BoardOrientation value ", new Exception());
+			return null;
 		}
 
 		Cuboid panel = new Cuboid(new Location(a1.getWorld(), x, y, z));
 		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
 
 	}
-	
+
 	protected static byte getSignDir(BoardOrientation signDir){
 		switch(signDir){
-			case NORTH:
-				return 4;
-			case EAST:
-				return 2;
-			case SOUTH:
-				return 5;
-			case WEST:
-				return 3;
-			default:
-				return 0;
+		case NORTH:
+			return 4;
+		case EAST:
+			return 2;
+		case SOUTH:
+			return 5;
+		case WEST:
+			return 3;
+		default:
+			return 0;
 		}
 	}
 }
