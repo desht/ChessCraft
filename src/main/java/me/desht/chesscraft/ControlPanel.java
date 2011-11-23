@@ -235,9 +235,9 @@ public class ControlPanel {
 		Location loc = block.getLocation();
 		SignButton button = buttonLocs.get(loc);
 
-		if (loc.equals(whiteClockSign) || loc.equals(blackClockSign)) {
+		if (game != null && (loc.equals(whiteClockSign) || loc.equals(blackClockSign))) {
 			// doesn't matter which time control we use here, they should both have the same parameters
-			ChessUtils.statusMessage(player, game.getTcWhite().toString());
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", game.getTcWhite().toString()));
 			return;
 		}
 

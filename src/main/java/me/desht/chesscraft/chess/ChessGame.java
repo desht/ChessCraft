@@ -54,6 +54,10 @@ import me.desht.chesscraft.enums.GameState;
  * @author des
  *
  */
+/**
+ * @author des
+ *
+ */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
@@ -75,6 +79,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private ChessAI aiPlayer2 = null; // for testing ai vs ai
 	private boolean aiHasMoved;
 	private int aiFromSqi, aiToSqi;
+	private int[] tcWarned = new int[2];
 
 	public ChessGame(String name, BoardView view, String playerName) throws ChessException {
 		this.view = view;
@@ -89,7 +94,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
 		setTimeControl(ChessConfig.getConfig().getString("time_control.default"));
-		tcWhite.setActive(true);
 		created = System.currentTimeMillis();
 		started = finished = 0L;
 		result = Chess.RES_NOT_FINISHED;
@@ -244,7 +248,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		// set chess clock activity appropriately
 		tcWhite.setActive(getPosition().getToPlay() == Chess.WHITE);
 		tcBlack.setActive(!tcWhite.isActive());
-		
+
 		// now check for if AI needs to start
 		if (getPosition().getToPlay() == Chess.WHITE && isAIPlayer(playerWhite)) {
 			aiPlayer.setUserMove(false); // tell ai to start thinking
@@ -386,24 +390,25 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return;
 		}
 		checkForAIMove();
-		updateChessClocks();
+		updateChessClocks(false);
 	}
 
-	private void updateChessClocks() {
-		updateChessClock(Chess.WHITE, tcWhite);
-		updateChessClock(Chess.BLACK, tcBlack);
+	private void updateChessClocks(boolean updateBoth) {
+		updateChessClock(Chess.WHITE, tcWhite, updateBoth);
+		updateChessClock(Chess.BLACK, tcBlack, updateBoth);
 	}
-	
+
 	/**
 	 * Update one chess clock.
 	 * 
 	 * @param colour	Colour of the player's clock
 	 * @param tc		The clock to update
 	 */
-	private void updateChessClock(int colour, TimeControl tc) {
-		if (tc.isActive()) {
-			tc.tick();
-			int warningTime = ChessConfig.getConfig().getInt("time_control.warn_seconds");
+	private void updateChessClock(int colour, TimeControl tc, boolean updateBoth) {
+		tc.tick();
+		
+		if (tc.isActive() || updateBoth) {
+			int warningTime = ChessConfig.getConfig().getInt("time_control.warn_seconds") >>> tcWarned[colour];
 			getView().getControlPanel().updateClock(colour, tc);
 			String playerName = colour == Chess.WHITE ? playerWhite : playerBlack;
 			if (tc.getRemainingTime() <= 0) {
@@ -412,12 +417,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				} catch (ChessException e) {
 					ChessCraftLogger.severe("unexpected exception: " + e.getMessage(), e);
 				}
-			} else if (tc.getRemainingTime() / 1000 <= warningTime) {
+			} else if (needToWarn(tc.getRemainingTime(), warningTime)) {
 				alert(playerName, Messages.getString("Game.timeControlWarning", tc.getRemainingTime() / 1000));
+				tcWarned[colour]++;
 			}
 		}
 	}
 	
+	private boolean needToWarn(long remaining, int warningTime) {
+		warningTime *= 1000;
+		int tickInt = (ChessConfig.getConfig().getInt("tick_interval") * 1000) + 50;	// fudge for inaccuracy of tick timer
+		return remaining <= warningTime && remaining > warningTime - tickInt;
+	}
+
 	public void setTimeControl(String spec) throws ChessException {
 		ensureGameState(GameState.SETTING_UP);
 		try {
@@ -463,7 +475,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		getView().getControlPanel().repaintSignButtons();
 		alert(otherPlayer, Messages.getString("Game.playerJoined", playerName)); //$NON-NLS-1$
 		clearInvitation();
-		
+
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
 			if (ChessConfig.getConfig().getBoolean("autostart", true)) {
 				start(playerName);
@@ -554,6 +566,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		invited = ""; //$NON-NLS-1$
 	}
 
+	/**
+	 * Start the game.
+	 * 
+	 * @param playerName	Player who is starting the game
+	 * @throws ChessException	if anything goes wrong
+	 */
 	public void start(String playerName) throws ChessException {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.SETTING_UP);
@@ -573,9 +591,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessCraft.economy.format(stake))); //$NON-NLS-1$
 		}
 
-		if (ChessConfig.getConfig().getBoolean("auto_teleport_on_join", true)) {
+		if (ChessConfig.getConfig().getBoolean("auto_teleport_on_join")) {
 			summonPlayers();
 		}
+		
 		int wandId = new MaterialWithData(ChessConfig.getConfig().getString("wand_item")).getMaterial();
 		String wand = Material.getMaterial(wandId).toString();
 		alert(playerWhite, Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
@@ -593,6 +612,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		clearInvitation();
 		started = lastMoved = System.currentTimeMillis();
+		tcWhite.setActive(true);
 		setState(GameState.RUNNING);
 
 		autoSave();
@@ -713,65 +733,131 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		int prevToMove = getPosition().getToPlay();
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
-		try {
-			short realMove = checkMove(move);
-			if (ChessConfig.getConfig().getBoolean("highlight_last_move")) { //$NON-NLS-1$
-				view.highlightSquares(fromSquare, toSquare);
-			}
-			getPosition().doMove(realMove);
-			lastMoved = System.currentTimeMillis();
-			history.add(realMove);
-			
-			autoSave();
-			
-			if (getPosition().getToPlay() == Chess.WHITE) {
-				tcBlack.moveMade();
-				tcWhite.setActive(true);
-			} else {
-				tcWhite.moveMade();
-				tcBlack.setActive(true);
-			}
-			updateChessClocks();
-			
-			if (getPosition().isMate()) {
-				cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-1$ //$NON-NLS-2$
-				result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
-				setState(GameState.FINISHED);
-				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
-			} else if (getPosition().isStaleMate()) {
-				result = Chess.RES_DRAW;
-				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
-				setState(GameState.FINISHED);
-				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Stalemate);
-			} else if (getPosition().getHalfMoveClock() >= 50) {
-				result = Chess.RES_DRAW;
-				cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
-				setState(GameState.FINISHED);
-				announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.FiftyMoveRule);
-			} else {
-				// the game continues...
-				String nextPlayer = getPlayerToMove();
-				if (isAIPlayer(nextPlayer)) {
-					if (nextPlayer.equals(playerBlack) && isAIPlayer(playerWhite)) {
-						// ai vs ai
-						aiPlayer2.userMove(fromSquare, toSquare);
-					} else {
-						aiPlayer.userMove(fromSquare, toSquare);
-					}
-				} else {
-					String checkNotify = getPosition().isCheck() ? Messages.getString("Game.check") : ""; //$NON-NLS-1$ //$NON-NLS-2$
-					alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN()) //$NON-NLS-1$
-					      + checkNotify);
-					alert(nextPlayer, Messages.getString("Game.yourMove", getColour(getPosition().getToPlay()))); //$NON-NLS-1$
-				}
-			}
-			this.fromSquare = Chess.NO_SQUARE;
-		} catch (IllegalMoveException e) {
-			throw e;
+		short realMove = validateMove(move);
+		
+		// at this point we know the move is a valid move, so go ahead and make the necessary changes
+		
+		if (ChessConfig.getConfig().getBoolean("highlight_last_move")) { //$NON-NLS-1$
+			view.highlightSquares(fromSquare, toSquare);
 		}
-		//		if (!ChessBoard.useOldLighting) {
-		//			view.doLighting(true);
-		//		}
+		
+		getPosition().doMove(realMove);
+		lastMoved = System.currentTimeMillis();
+		history.add(realMove);
+		toggleChessClocks();
+		autoSave();
+		this.fromSquare = Chess.NO_SQUARE;
+
+		if (checkForFinishingPosition())
+			return;
+
+		// the game continues...
+		String nextPlayer = getPlayerToMove();
+		if (isAIPlayer(nextPlayer)) {
+			if (nextPlayer.equals(playerBlack) && isAIPlayer(playerWhite)) {
+				// ai vs ai
+				aiPlayer2.userMove(fromSquare, toSquare);
+			} else {
+				aiPlayer.userMove(fromSquare, toSquare);
+			}
+		} else {
+			String checkNotify = getPosition().isCheck() ? Messages.getString("Game.check") : ""; //$NON-NLS-1$ //$NON-NLS-2$
+			alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN()) //$NON-NLS-1$
+			      + checkNotify);
+			alert(nextPlayer, Messages.getString("Game.yourMove", getColour(getPosition().getToPlay()))); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Check the current game position to see if the game is over.
+	 * 
+	 * @return	true if game is over, false if not
+	 */
+	private boolean checkForFinishingPosition() {
+		if (getPosition().isMate()) {
+			cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-1$ //$NON-NLS-2$
+			result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
+			setState(GameState.FINISHED);
+			announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Checkmate);
+			return true;
+		} else if (getPosition().isStaleMate()) {
+			result = Chess.RES_DRAW;
+			cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
+			setState(GameState.FINISHED);
+			announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.Stalemate);
+			return true;
+		} else if (getPosition().getHalfMoveClock() >= 50) {
+			result = Chess.RES_DRAW;
+			cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
+			setState(GameState.FINISHED);
+			announceResult(getPlayerNotToMove(), getPlayerToMove(), GameResult.FiftyMoveRule);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if the move is really allowed.  Also account for special cases:
+	 * castling, en passant, pawn promotion
+	 * 
+	 * @param move	move to check
+	 * @return 	move, if allowed
+	 * @throws IllegalMoveException if not allowed
+	 */
+	private short validateMove(short move) throws IllegalMoveException {
+		int sqiFrom = Move.getFromSqi(move);
+		int sqiTo = Move.getToSqi(move);
+		int toPlay = getPosition().getToPlay();
+	
+		if (getPosition().getPiece(sqiFrom) == Chess.KING) {
+			// Castling?
+			if (sqiFrom == Chess.E1 && sqiTo == Chess.G1 || sqiFrom == Chess.E8 && sqiTo == Chess.G8) {
+				move = Move.getShortCastle(toPlay);
+			} else if (sqiFrom == Chess.E1 && sqiTo == Chess.C1 || sqiFrom == Chess.E8 && sqiTo == Chess.C8) {
+				move = Move.getLongCastle(toPlay);
+			}
+		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN
+				&& (Chess.sqiToRow(sqiTo) == 7 || Chess.sqiToRow(sqiTo) == 0)) {
+			// Promotion?
+			boolean capturing = getPosition().getPiece(sqiTo) != Chess.NO_PIECE;
+			move = Move.getPawnMove(sqiFrom, sqiTo, capturing, promotionPiece[toPlay]);
+		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN && getPosition().getPiece(sqiTo) == Chess.NO_PIECE) {
+			// En passant?
+			int toCol = Chess.sqiToCol(sqiTo);
+			int fromCol = Chess.sqiToCol(sqiFrom);
+			if ((toCol == fromCol - 1 || toCol == fromCol + 1)
+					&& (Chess.sqiToRow(sqiFrom) == 4 && Chess.sqiToRow(sqiTo) == 5 || Chess.sqiToRow(sqiFrom) == 3
+					&& Chess.sqiToRow(sqiTo) == 2)) {
+				move = Move.getEPMove(sqiFrom, sqiTo);
+			}
+		}
+	
+		for (short aMove : getPosition().getAllMoves()) {
+			if (move == aMove) {
+				return move;
+			}
+		}
+		throw new IllegalMoveException(move);
+	}
+
+	/**
+	 * Handle chess clock switching when a move has been made.
+	 */
+	private void toggleChessClocks() {
+		if (getPosition().getToPlay() == Chess.WHITE) {
+			tcBlack.moveMade();
+			if (tcBlack.isNewPhase()) {
+				alert(playerBlack, Messages.getString("Game.newTimeControlPhase", tcBlack.phaseString()));
+			}
+			tcWhite.setActive(true);
+		} else {
+			tcWhite.moveMade();
+			if (tcWhite.isNewPhase()) {
+				alert(playerWhite, Messages.getString("Game.newTimeControlPhase", tcWhite.phaseString()));
+			}
+			tcBlack.setActive(true);
+		}
+		updateChessClocks(true);
 	}
 
 	public boolean isAIPlayer(String name) {
@@ -923,50 +1009,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	/**
-	 * Check if the move is really allowed.  Also account for special cases:
-	 * castling, en passant, pawn promotion
-	 * 
-	 * @param move	move to check
-	 * @return 	move, if allowed
-	 * @throws IllegalMoveException if not allowed
-	 */
-	private short checkMove(short move) throws IllegalMoveException {
-		int sqiFrom = Move.getFromSqi(move);
-		int sqiTo = Move.getToSqi(move);
-		int toPlay = getPosition().getToPlay();
-
-		if (getPosition().getPiece(sqiFrom) == Chess.KING) {
-			// Castling?
-			if (sqiFrom == Chess.E1 && sqiTo == Chess.G1 || sqiFrom == Chess.E8 && sqiTo == Chess.G8) {
-				move = Move.getShortCastle(toPlay);
-			} else if (sqiFrom == Chess.E1 && sqiTo == Chess.C1 || sqiFrom == Chess.E8 && sqiTo == Chess.C8) {
-				move = Move.getLongCastle(toPlay);
-			}
-		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN
-				&& (Chess.sqiToRow(sqiTo) == 7 || Chess.sqiToRow(sqiTo) == 0)) {
-			// Promotion?
-			boolean capturing = getPosition().getPiece(sqiTo) != Chess.NO_PIECE;
-			move = Move.getPawnMove(sqiFrom, sqiTo, capturing, promotionPiece[toPlay]);
-		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN && getPosition().getPiece(sqiTo) == Chess.NO_PIECE) {
-			// En passant?
-			int toCol = Chess.sqiToCol(sqiTo);
-			int fromCol = Chess.sqiToCol(sqiFrom);
-			if ((toCol == fromCol - 1 || toCol == fromCol + 1)
-					&& (Chess.sqiToRow(sqiFrom) == 4 && Chess.sqiToRow(sqiTo) == 5 || Chess.sqiToRow(sqiFrom) == 3
-					&& Chess.sqiToRow(sqiTo) == 2)) {
-				move = Move.getEPMove(sqiFrom, sqiTo);
-			}
-		}
-
-		for (short aMove : getPosition().getAllMoves()) {
-			if (move == aMove) {
-				return move;
-			}
-		}
-		throw new IllegalMoveException(move);
-	}
-
 	public int playingAs(String name) {
 		if (name.equalsIgnoreCase(playerWhite)) {
 			return Chess.WHITE;
@@ -1008,7 +1050,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public void alert(Player player, String message) {
 		ChessUtils.alertMessage(player, Messages.getString("Game.alertPrefix", getName()) + message); //$NON-NLS-1$
 	}
-	
+
 	public void alert(String playerName, String message) {
 		if (playerName.isEmpty() || isAIPlayer(playerName)) {
 			return;
@@ -1502,8 +1544,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
 					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
+		
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
 		if (getState() == GameState.RUNNING) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
 		}
 		if (getInvited().equals("*")) { //$NON-NLS-1$

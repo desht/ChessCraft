@@ -127,11 +127,12 @@ public class Messages {
 
 	public static String getString(String key) {
 		if (messages == null) {
+			ChessCraftLogger.warning("No messages catalog!?!");
 			return "!" + key + "!";
 		}
 		String s = getKey(messages, key);
 		if (s == null) {
-			ChessCraftLogger.warning(null, new Exception("Unexpected missing key '" + key + "'"));
+			ChessCraftLogger.warning("Missing message key '" + key + "'");
 			s = getKey(fallbackMessages, key);
 			if (s == null) {
 				s = "!" + key + "!";

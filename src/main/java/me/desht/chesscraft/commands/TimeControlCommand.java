@@ -7,6 +7,8 @@ import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.entity.Player;
 
+import chesspresso.Chess;
+
 public class TimeControlCommand extends AbstractCommand {
 
 	public TimeControlCommand() {
@@ -21,6 +23,9 @@ public class TimeControlCommand extends AbstractCommand {
 
 		ChessGame game = ChessGame.getCurrentGame(player, true);
 		game.setTimeControl(tcSpec);
+		game.getView().getControlPanel().updateClock(Chess.WHITE, game.getTcWhite());
+		game.getView().getControlPanel().updateClock(Chess.BLACK, game.getTcBlack());
+		
 		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTcWhite().toString()));
 		
 		return true;

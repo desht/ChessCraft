@@ -22,6 +22,7 @@ public class TimeControl implements ConfigurationSerializable {
 	private List<RolloverPhase> rollovers = new ArrayList<TimeControl.RolloverPhase>();
 	private long lastChecked = System.currentTimeMillis();
 	private boolean active = false;
+	private boolean newPhase;
 
 	public TimeControl() {
 		this(0L);
@@ -93,11 +94,16 @@ public class TimeControl implements ConfigurationSerializable {
 		return elapsed;
 	}
 
+	public boolean isNewPhase() {
+		return newPhase;
+	}
+
 	public boolean isActive() {
 		return active;
 	}
 
 	public void setActive(boolean active) {
+		lastChecked = System.currentTimeMillis();	// ensure the next tick() gets a good offset
 		this.active = active;
 	}
 
@@ -122,23 +128,28 @@ public class TimeControl implements ConfigurationSerializable {
 		// TODO: i18n needed here
 		switch (controlType) {
 		case MOVE_IN:
-			return "Move in " + (totalTime / 1000) + " seconds";
+			return "Move in " + (totalTime / 1000) + "s";
 		case GAME_IN:
-			return "Game in " + (totalTime / 60000) + " minutes";
+			return "Game in " + (totalTime / 60000) + "m";
 		case ROLLOVER:
 			List<String> l = new ArrayList<String>();
 			for (RolloverPhase rp : rollovers) {
-				String s = rp.getMoves() + " moves in " + rp.getMinutes() + " minutes";
-				if (rp.getIncrement() > 0) {
-					s = s + " (" + (rp.getIncrement() / 1000) + " seconds)";
-				}
+				l.add(rp.toString());
 			}
-			return Joiner.on(", then ").join(l);
+			return Joiner.on(" => ").join(l);
 		case NONE:
 			return "None";
 		default:
 			return "???";	
 		}
+	}
+	
+	public String phaseString() {
+		return rollovers.get(rolloverPhase).toString();
+	}
+	
+	public String phaseString(int phase) {
+		return rollovers.get(phase).toString();
 	}
 
 	/**
@@ -159,27 +170,28 @@ public class TimeControl implements ConfigurationSerializable {
 	 * The player has made a move - adjust time control accordingly, and deactivate the clock.
 	 */
 	public void moveMade() {
+		newPhase = false;
 		switch (controlType) {
 		case MOVE_IN:
 			remainingTime = totalTime;
 			break;
 		case ROLLOVER:
 			rolloverMovesMade++;
-			long carryOver = 0;
+			System.out.println("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
+			System.out.println("need " + rollovers.get(rolloverPhase).getMoves());
 			if (rolloverMovesMade == rollovers.get(rolloverPhase).getMoves()) {
 				rolloverMovesMade = 0;
 				rolloverPhase = (rolloverPhase + 1) % rollovers.size();
-				carryOver = remainingTime;
+				remainingTime += rollovers.get(rolloverPhase).getMinutes() * 60000;
+				newPhase = true;
 			}
-			remainingTime = rollovers.get(rolloverPhase).getMinutes() * 60000;
-			remainingTime += carryOver;
 			remainingTime += rollovers.get(rolloverPhase).getIncrement();
 		}
 		setActive(false);
 	}
 
 	private class RolloverPhase {
-		private long increment;
+		private long increment;	// milliseconds
 		private int moves;
 		private int minutes;
 
@@ -187,7 +199,7 @@ public class TimeControl implements ConfigurationSerializable {
 			String[] fields = spec.split("/");
 			switch (fields.length) {
 			case 3:
-				this.increment = Long.parseLong(fields[2]);
+				this.increment = Long.parseLong(fields[2]) * 1000;
 				// fall through
 			case 2:
 				this.moves = Integer.parseInt(fields[0]);
@@ -208,6 +220,16 @@ public class TimeControl implements ConfigurationSerializable {
 
 		public int getMinutes() {
 			return minutes;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder s = new StringBuilder();
+			s.append(getMoves()).append("Mv / ").append(getMinutes()).append("m");
+			if (getIncrement() > 0) {
+				s.append(" + ").append(getIncrement() / 1000).append("s");
+			}
+			return s.toString();
 		}
 	}
 }
