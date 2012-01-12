@@ -86,7 +86,7 @@ public class ChessCraft extends JavaPlugin {
 		description = this.getDescription();
 		util = new ChessUtils();
 		ChessConfig.init(this);
-
+		
 		playerListener = new ChessPlayerListener(this);
 		blockListener = new ChessBlockListener(this);
 		entityListener = new ChessEntityListener(this);
@@ -100,18 +100,7 @@ public class ChessCraft extends JavaPlugin {
 
 		PluginManager pm = getServer().getPluginManager();
 		
-		Plugin vault =  pm.getPlugin("Vault");
-		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			if (setupEconomy()) {
-				ChessCraftLogger.info("Detected economy plugin: " + economy.getName());
-			}
-			if (setupPermission()) {
-				ChessCraftLogger.info("Detected permissions plugin: " + permission.getName());
-			}
-		} else {
-			ChessCraftLogger.info("Vault not loaded: no economy support & superperms-only permission support");
-		}
-		
+		setupVault(pm);
 		setupSMS();
 		setupWorldEdit();
 
@@ -176,6 +165,21 @@ public class ChessCraft extends JavaPlugin {
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
 			return true;
+		}
+	}
+	
+	private void setupVault(PluginManager pm) {
+		Plugin vault =  pm.getPlugin("Vault");
+		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
+			ChessCraftLogger.info("Loaded Vault v" + vault.getDescription().getVersion());
+			if (!setupEconomy()) {
+				ChessCraftLogger.warning("No economy plugin detected - economy command costs not available");
+			}
+			if (!setupPermission()) {
+				ChessCraftLogger.warning("No permissions plugin detected");
+			}
+		} else {
+			ChessCraftLogger.warning("Vault not loaded: no economy support & superperms-only permission support");
 		}
 	}
 	

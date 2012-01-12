@@ -133,8 +133,12 @@ public class TimeControl implements ConfigurationSerializable {
 			return "Game in " + (totalTime / 60000) + "m";
 		case ROLLOVER:
 			List<String> l = new ArrayList<String>();
-			for (RolloverPhase rp : rollovers) {
-				l.add(rp.toString());
+			for (int i = 0; i < rollovers.size(); i++) {
+				if (i == rolloverPhase) {
+					l.add("[ " + rollovers.get(i).toString() + " ]");
+				} else {
+					l.add(rollovers.get(i).toString());
+				}
 			}
 			return Joiner.on(" => ").join(l);
 		case NONE:
