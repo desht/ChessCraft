@@ -147,8 +147,8 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
 				continue;
 			}
-			for (Location l : bounds.corners()) {
-				if (bv.getOuterBounds().contains(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+			for (Block b : bounds.corners()) {
+				if (bv.getOuterBounds().contains(b)) {
 					throw new ChessException(Messages.getString("BoardView.boardWouldIntersect", bv.getName())); //$NON-NLS-1$
 				}
 			}

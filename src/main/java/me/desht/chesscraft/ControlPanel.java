@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -90,9 +89,8 @@ public class ControlPanel {
 	}
 
 	public void repaint() {
-		World w = view.getA1Square().getWorld();
-		for (Location l : panelBlocks) {
-			view.getControlPanelMat().applyToBlock(w.getBlockAt(l));
+		for (Block b: panelBlocks) {
+			view.getControlPanelMat().applyToBlock(b);
 		}
 
 		ChessGame game = view.getGame();
@@ -330,8 +328,8 @@ public class ControlPanel {
 	}
 
 	public void updateToMoveIndicator(MaterialWithData mat) {
-		for (Location l : toMoveIndicator) {
-			mat.applyToBlock(l.getBlock());
+		for (Block b : toMoveIndicator) {
+			mat.applyToBlock(b);
 		}
 	}
 

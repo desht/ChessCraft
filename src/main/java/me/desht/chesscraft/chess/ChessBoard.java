@@ -23,7 +23,7 @@ import me.desht.chesscraft.regions.Cuboid;
 import net.minecraft.server.EnumSkyBlock;
 import net.minecraft.server.World;
 import org.bukkit.Location;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 
 public class ChessBoard {
@@ -331,8 +331,8 @@ public class ChessBoard {
 		aboveFullBoard.setWalls(boardStyle.enclosureMat.getMaterial(), boardStyle.enclosureMat.getData());
 
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
-		for (Location l : roof) {
-			boardStyle.enclosureMat.applyToBlock(l.getBlock());
+		for (Block b : roof) {
+			boardStyle.enclosureMat.applyToBlock(b);
 		}
 	}
 
@@ -340,9 +340,9 @@ public class ChessBoard {
 		if (board == null) {
 			return;
 		}
-		for (Location l : frameBoard) {
-			if (!board.contains(l)) {
-				boardStyle.frameMat.applyToBlock(l.getBlock());
+		for (Block b : frameBoard) {
+			if (!board.contains(b.getLocation())) {
+				boardStyle.frameMat.applyToBlock(b);
 			}
 		}
 	}
@@ -402,20 +402,20 @@ public class ChessBoard {
 					boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
 			switch (boardStyle.highlightStyle) {
 			case EDGES:
-				for (Location loc : sq.walls()) {
-					squareHighlightColor.applyToBlock(loc.getBlock());
+				for (Block b : sq.walls()) {
+					squareHighlightColor.applyToBlock(b);
 				}
 				break;
 			case CORNERS:
-				for (Location loc : sq.corners()) {
-					squareHighlightColor.applyToBlock(loc.getBlock());
+				for (Block b : sq.corners()) {
+					squareHighlightColor.applyToBlock(b);
 				}
 				break;
 			case CHECKERED:
 			case CHEQUERED:
-				for (Location loc : sq) {
-					if ((loc.getBlockX() - loc.getBlockZ()) % 2 == 0) {
-						squareHighlightColor.applyToBlock(loc.getBlock());
+				for (Block b : sq) {
+					if ((b.getLocation().getBlockX() - b.getLocation().getBlockZ()) % 2 == 0) {
+						squareHighlightColor.applyToBlock(b.getLocation().getBlock());
 					}
 				}
 				break;
@@ -473,11 +473,16 @@ public class ChessBoard {
 			// of placing glowstone on the chessboard
 			try {
 				World w = ((CraftWorld) frameBoard.getWorld()).getHandle();
-				for (Location l : frameBoard) {
-					while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
-						l.add(0, 1, 0);
+				for (Block b : frameBoard) {
+					int x = b.getLocation().getBlockX();
+					int y = b.getLocation().getBlockY() + 1;
+					int z = b.getLocation().getBlockZ();
+					while (b.getWorld().getBlockAt(x, y, z).getTypeId() > 0 && y < 128) {
+//					while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
+//						l.add(0, 1, 0);
+						y++;
 					}
-					w.a(EnumSkyBlock.BLOCK, l.getBlockX(), l.getBlockY(), l.getBlockZ(), 15);
+					w.a(EnumSkyBlock.BLOCK, x, y, z, 15);
 				}
 				return;
 			} catch (Throwable t) {
@@ -533,9 +538,9 @@ public class ChessBoard {
 			Cuboid frameLight = board.clone();
 			frameLight.outset(Direction.Horizontal, boardStyle.frameWidth / 2);
 			int i = boardStyle.frameWidth / 2;
-			for (Location l : frameLight.walls()) {
+			for (Block b : frameLight.walls()) {
 				if (i++ % boardStyle.squareSize == 0) {
-					mat.applyToBlock(l.getBlock());
+					mat.applyToBlock(b);
 				}
 			}
 		}
