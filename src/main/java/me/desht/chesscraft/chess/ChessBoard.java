@@ -29,8 +29,9 @@ import org.bukkit.craftbukkit.CraftWorld;
 public class ChessBoard {
 	private static BoardLightingMethod lightingMethod = BoardLightingMethod.CRAFTBUKKIT;
 	
-	public static final String DEFAULT_PIECE_STYLE = "Standard",
-			DEFAULT_BOARD_STYLE = "Standard";
+	public static final String DEFAULT_PIECE_STYLE = "Standard";
+	public static final String DEFAULT_BOARD_STYLE = "Standard";
+	
 	// <editor-fold defaultstate="collapsed" desc="Variables">
 	//cuboid regions of areas on the board
 	/**
