@@ -3,27 +3,22 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.chess.BoardView;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class ChessBlockListener extends BlockListener {
+public class ChessBlockListener implements Listener {
 
-	ChessCraft plugin;
-
-	public ChessBlockListener(ChessCraft plugin) {
-		this.plugin = plugin;
-	}
-
-	@Override
+	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfig().getBoolean("no_building", true)) {
+		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -32,12 +27,12 @@ public class ChessBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfig().getBoolean("no_building", true)) {
+		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -46,12 +41,12 @@ public class ChessBlockListener extends BlockListener {
 		}
 	}
 	
-	@Override
+	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfig().getBoolean("no_building", true)) {
+		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 
@@ -60,12 +55,12 @@ public class ChessBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-		if (!plugin.getConfig().getBoolean("no_burning", true)) {
+		if (!ChessConfig.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
 
@@ -74,7 +69,7 @@ public class ChessBlockListener extends BlockListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.isCancelled())
 			return;

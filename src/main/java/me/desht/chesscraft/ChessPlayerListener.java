@@ -12,12 +12,13 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import chesspresso.Chess;
@@ -31,16 +32,11 @@ import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
 import me.desht.chesscraft.blocks.MaterialWithData;
 
-public class ChessPlayerListener extends PlayerListener {
-
-	private ChessCraft plugin;
+public class ChessPlayerListener implements Listener {
+	
 	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
 
-	public ChessPlayerListener(ChessCraft plugin) {
-		this.plugin = plugin;
-	}
-
-	@Override
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.isCancelled()) {
 			return;
@@ -89,7 +85,7 @@ public class ChessPlayerListener extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onPlayerAnimation(PlayerAnimationEvent event) {
 		Player player = event.getPlayer();
 
@@ -97,7 +93,7 @@ public class ChessPlayerListener extends PlayerListener {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				String wand = plugin.getConfig().getString("wand_item"); //$NON-NLS-1$
+				String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
 				int wandId = (new MaterialWithData(wand)).getMaterial();
 				if (player.getItemInHand().getTypeId() == wandId) {
 					HashSet<Byte> transparent = new HashSet<Byte>();
@@ -132,13 +128,13 @@ public class ChessPlayerListener extends PlayerListener {
 
 	}
 
-	@Override
+	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
 		String who = event.getPlayer().getName();
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				plugin.playerRejoined(who);
+				ChessCraft.getInstance().playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
 						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
@@ -149,13 +145,13 @@ public class ChessPlayerListener extends PlayerListener {
 		}
 	}
 
-	@Override
+	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
-		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
+		int timeout = ChessConfig.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				plugin.playerLeft(who);
+				ChessCraft.getInstance().playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
 					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$
 				}

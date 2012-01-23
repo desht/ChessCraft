@@ -31,12 +31,8 @@ commands:
       /chess setcfg <item> <value>
       /chess getcfg [<item>]
 permissions:
-  chesscraft.*:
-    description: Gives access to all ChessCraft commands
-    children:
-      chesscraft.admin: true
-      chesscraft.basic: true
   chesscraft.admin:
+    default: op
     description: Gives access to ChessCraft administration commands
     children:
       chesscraft.commands.create.board: true
@@ -47,7 +43,9 @@ permissions:
       chesscraft.commands.setcfg: true
       chesscraft.commands.save: true
       chesscraft.commands.reload: true
+      chesscraft.basic: true
   chesscraft.basic:
+    default: true
     description: Gives access to basic ChessCraft commands
     children:
       chesscraft.commands.create.game: true
