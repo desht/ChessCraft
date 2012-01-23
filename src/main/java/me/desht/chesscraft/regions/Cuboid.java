@@ -15,17 +15,20 @@ import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
 
-//imports for weSelect()
-import me.desht.chesscraft.ChessCraft;
-
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
 
-public class Cuboid implements Iterable<Location>, Cloneable {
+public class Cuboid implements Iterable<Block>, Cloneable {
 
+	private static WorldEditPlugin wep = null;
+	
 	protected Location lowerNE; // min x,y,z
 	protected Location upperSW; // max x,y,z
 
+	public static void setWorldEdit(WorldEditPlugin p) {
+		wep = p;
+	}
+	
 	public Cuboid(Location l1, Location l2) {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
@@ -66,38 +69,38 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		return lowerNE == null ? (upperSW == null ? null : upperSW.getWorld()) : lowerNE.getWorld();
 	}
 
-	public List<Location> corners() {
-		List<Location> res = new ArrayList<Location>(8);
+	public List<Block> corners() {
+		List<Block> res = new ArrayList<Block>(8);
 		World w = lowerNE.getWorld();
 		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
 		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
-		res.add(new Location(w, minX, minY, minZ));
-		res.add(new Location(w, minX, minY, maxZ));
-		res.add(new Location(w, minX, maxY, minZ));
-		res.add(new Location(w, minX, maxY, maxZ));
-		res.add(new Location(w, maxX, minY, minZ));
-		res.add(new Location(w, maxX, minY, maxZ));
-		res.add(new Location(w, maxX, maxY, minZ));
-		res.add(new Location(w, maxX, maxY, maxZ));
+		res.add(w.getBlockAt(minX, minY, minZ));
+		res.add(w.getBlockAt(minX, minY, maxZ));
+		res.add(w.getBlockAt(minX, maxY, minZ));
+		res.add(w.getBlockAt(minX, maxY, maxZ));
+		res.add(w.getBlockAt(maxX, minY, minZ));
+		res.add(w.getBlockAt(maxX, minY, maxZ));
+		res.add(w.getBlockAt(maxX, maxY, minZ));
+		res.add(w.getBlockAt(maxX, maxY, maxZ));
 		return res;
 
 	}
 
-	public List<Location> walls() {
-		List<Location> res = new ArrayList<Location>(8);
+	public List<Block> walls() {
+		List<Block> res = new ArrayList<Block>(8);
 		World w = lowerNE.getWorld();
 		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
 		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
 		for (int x = minX; x <= maxX; ++x) {
 			for (int y = minY; y <= maxY; ++y) {
-				res.add(new Location(w, x, y, minZ));
-				res.add(new Location(w, x, y, maxZ));
+				res.add(w.getBlockAt(x, y, minZ));
+				res.add(w.getBlockAt(x, y, maxZ));
 			}
 		}
 		for (int z = minZ; z <= maxZ; ++z) {
 			for (int y = minY; y <= maxY; ++y) {
-				res.add(new Location(w, minX, y, z));
-				res.add(new Location(w, maxX, y, z));
+				res.add(w.getBlockAt(minX, y, z));
+				res.add(w.getBlockAt(maxX, y, z));
 			}
 		}
 		return res;
@@ -190,6 +193,10 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 			return false;
 		}
 	}
+	
+	public boolean contains(Block b) {
+		return contains(b.getLocation());
+	}
 
 	public boolean contains(Location l) {
 		if (l.getWorld() != lowerNE.getWorld()) {
@@ -205,9 +212,9 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	public byte averageLightLevel() {
 		long total = 0;
 		int n = 0;
-		for (Location l : this) {
-			if (l.getBlock().isEmpty()) {
-				total += l.getBlock().getLightLevel();
+		for (Block b : this) {
+			if (b.isEmpty()) {
+				total += b.getLightLevel();
 				++n;
 			}
 		}
@@ -221,8 +228,7 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	 */
 	public void clear() {
 		// first remove blocks that might pop off & leave a drop
-		for (Location l : this) {
-			Block b = l.getBlock();
+		for (Block b : this) {
 			if (BlockType.shouldPlaceLast(b.getTypeId())) {
 				b.setTypeId(0);
 			}// also check if this is a container
@@ -236,8 +242,8 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 			}
 		}
 		// now wipe all (remaining) blocks
-		for (Location l : this) {
-			l.getBlock().setTypeId(0);
+		for (Block b : this) {
+			b.setTypeId(0);
 		}
 	}
 
@@ -245,8 +251,8 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		if (blockID == 0) {
 			clear();
 		} else {
-			for (Location l : this) {
-				l.getBlock().setTypeId(blockID);
+			for (Block b : this) {
+				b.setTypeId(blockID);
 			}
 		}
 	}
@@ -256,12 +262,12 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 			clear();
 		} else {
 			if (data != null) {
-				for (Location l : this) {
-					l.getBlock().setTypeIdAndData(blockID, data, true);
+				for (Block b : this) {
+					b.setTypeIdAndData(blockID, data, true);
 				}
 			} else {
-				for (Location l : this) {
-					l.getBlock().setTypeId(blockID, true);
+				for (Block b : this) {
+					b.setTypeId(blockID, true);
 				}
 			}
 		}
@@ -278,27 +284,27 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 		if (data != null) {
 			for (int x = minX; x <= maxX; ++x) {
 				for (int y = minY; y <= maxY; ++y) {
-					(new Location(w, x, y, minZ)).getBlock().setTypeIdAndData(blockID, data, true);
-					(new Location(w, x, y, maxZ)).getBlock().setTypeIdAndData(blockID, data, true);
+					w.getBlockAt(x, y, minZ).setTypeIdAndData(blockID, data, true);
+					w.getBlockAt(x, y, maxZ).setTypeIdAndData(blockID, data, true);
 				}
 			}
 			for (int z = minZ; z <= maxZ; ++z) {
 				for (int y = minY; y <= maxY; ++y) {
-					(new Location(w, minX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
-					(new Location(w, maxX, y, z)).getBlock().setTypeIdAndData(blockID, data, true);
+					w.getBlockAt(minX, y, z).setTypeIdAndData(blockID, data, true);
+					w.getBlockAt(maxX, y, z).setTypeIdAndData(blockID, data, true);
 				}
 			}
 		} else {
 			for (int x = minX; x <= maxX; ++x) {
 				for (int y = minY; y <= maxY; ++y) {
-					(new Location(w, x, y, minZ)).getBlock().setTypeId(blockID, true);
-					(new Location(w, x, y, maxZ)).getBlock().setTypeId(blockID, true);
+					w.getBlockAt(x, y, minZ).setTypeId(blockID, true);
+					w.getBlockAt(x, y, maxZ).setTypeId(blockID, true);
 				}
 			}
 			for (int z = minZ; z <= maxZ; ++z) {
 				for (int y = minY; y <= maxY; ++y) {
-					(new Location(w, minX, y, z)).getBlock().setTypeId(blockID, true);
-					(new Location(w, maxX, y, z)).getBlock().setTypeId(blockID, true);
+					w.getBlockAt(minX, y, z).setTypeId(blockID, true);
+					w.getBlockAt(maxX, y, z).setTypeId(blockID, true);
 				}
 			}
 		}
@@ -316,7 +322,7 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	}
 
 	@Override
-	public Iterator<Location> iterator() {
+	public Iterator<Block> iterator() {
 		return new CuboidIterator(lowerNE, upperSW);
 	}
 
@@ -367,10 +373,10 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	}
 
 	public void weSelect(String playerName){
-		if(lowerNE != null){
+		if (lowerNE != null){
 			List<Player> players = lowerNE.getWorld().getPlayers();
-			for(Player p : players){
-				if(p.getName().equalsIgnoreCase(playerName)){
+			for (Player p : players){
+				if (p.getName().equalsIgnoreCase(playerName)){
 					weSelect(p);
 					return;
 				}
@@ -379,23 +385,47 @@ public class Cuboid implements Iterable<Location>, Cloneable {
 	}
 
 	public void weSelect(Player p) {
-		if (p != null) {
-			// didn't call "ChessCraft.getWorldEdit()" to keep packages generic
-//			org.bukkit.Server sv = p.getServer();
-//			org.bukkit.plugin.PluginManager m = sv.getPluginManager();
-//			org.bukkit.plugin.Plugin we = m.getPlugin("WorldEdit");
-//			if (we != null && we instanceof com.sk89q.worldedit.bukkit.WorldEditPlugin) {
-//				com.sk89q.worldedit.bukkit.selections.CuboidSelection s =
-//						new com.sk89q.worldedit.bukkit.selections.CuboidSelection(
-//						getWorld(), getUpperSW(), getLowerNE());
-//				((com.sk89q.worldedit.bukkit.WorldEditPlugin) we).setSelection(p, s);
-//			}
-			WorldEditPlugin wep = ChessCraft.getWorldEdit();
-			if (wep != null) {
-//				CuboidSelection s = new CuboidSelection(getWorld(), getUpperSW(), getLowerNE());
-//				wep.setSelection(p, s);
-				WorldEditUtils.weSelect(this, p);
-			}
+		if (p != null && wep != null) {
+			WorldEditUtils.weSelect(this, p);
 		}
 	}
+	
+	public class CuboidIterator implements Iterator<Block> {
+
+		private Location base;
+		private int x, y, z;
+		private int sizeX, sizeY, sizeZ;
+
+		public CuboidIterator(Location l1, Location l2) {
+			base = l1.clone();
+			sizeX = Math.abs(l2.getBlockX() - l1.getBlockX()) + 1;
+			sizeY = Math.abs(l2.getBlockY() - l1.getBlockY()) + 1;
+			sizeZ = Math.abs(l2.getBlockZ() - l1.getBlockZ()) + 1;
+			x = y = z = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return x < sizeX && y < sizeY && z < sizeZ;
+		}
+
+		@Override
+		public Block next() {
+			Block b = base.getWorld().getBlockAt(base.getBlockX() + x, base.getBlockY() + y, base.getBlockZ() + z);
+			if (++x >= sizeX) {
+				x = 0;
+				if (++y >= sizeY) {
+					y = 0;
+					++z;
+				}
+			}
+			return b;
+		}
+
+		@Override
+		public void remove() {
+			// nop
+		}
+	}
+
 }

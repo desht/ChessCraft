@@ -47,6 +47,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.enums.ExpectAction;
@@ -214,6 +215,7 @@ public class ChessCraft extends JavaPlugin {
 		Plugin p = this.getServer().getPluginManager().getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
+			Cuboid.setWorldEdit(worldEditPlugin);
 			ChessCraftLogger.log("WorldEdit plugin detected - chess board terrain saving enabled.");
 		} else {
 			ChessCraftLogger.log("WorldEdit plugin not detected - chess board terrain saving disabled.");

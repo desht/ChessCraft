@@ -6,6 +6,7 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 
 public class ChessStone {
 
@@ -64,7 +65,8 @@ public class ChessStone {
 		//System.out.println("painting piece.. " + ibx + ", " + ibz + ", " + iby + ", [" + square.getSizeX() + ", " + square.getSizeZ() + "]");
 		boolean secondPassNeeded = false;
 		// first scan for solid blocks
-		for (Location l : square) {
+		for (Block b : square) {
+			Location l = b.getLocation();
 			MaterialWithData mat = piece.getMaterial(
 					l.getBlockX() - ibx,
 					l.getBlockY() - iby,
@@ -79,7 +81,8 @@ public class ChessStone {
 			}
 		}
 		if (secondPassNeeded) {
-			for (Location l : square) {
+			for (Block b : square) {
+				Location l = b.getLocation();
 				MaterialWithData mat = piece.getMaterial(
 						l.getBlockX() - ibx,
 						l.getBlockY() - iby,

@@ -12,10 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class MessagePager {
-
-	//	private static final Map<String, List<String>> bufferMap = new HashMap<String, List<String>>();
-	//	private static final Map<String, Integer> currentPage = new HashMap<String, Integer>();
-
+	
 	private static final String CONSOLE = "&CONSOLE";
 	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
 	private static final Map<String, MessagePager> pagers = new HashMap<String, MessagePager>();
@@ -52,18 +49,6 @@ public class MessagePager {
 		}
 		return pagers.get(playerName);
 	}
-
-	//	/**
-	//	 * initialize the buffer for the player if necessary
-	//	 * 
-	//	 * @param p
-	//	 */
-	//	static private void init(Player p) {
-	//		if (!bufferMap.containsKey(name(p))) {
-	//			bufferMap.put(name(p), new ArrayList<String>());
-	//			currentPage.put(name(p), 1);
-	//		}
-	//	}
 
 	/**
 	 * Delete the message buffer for the player. Should be called when the
