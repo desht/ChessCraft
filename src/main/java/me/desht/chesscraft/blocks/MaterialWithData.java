@@ -104,9 +104,9 @@ public class MaterialWithData implements Cloneable {
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
 			if (data != null) {
-				c.set(material, data);
+				c.set(material, data, true);
 			} else {
-				c.set(material);
+				c.set(material, true);
 			}
 		}
 	}

@@ -44,7 +44,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener, ConfigurationSerializable, ChessPersistable {
-
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private String name;
 	// null indicates board not used by any game yet

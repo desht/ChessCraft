@@ -314,13 +314,14 @@ public class ChessBoard {
 		if (board != null) {
 			clearAll();
 			paintEnclosure();
-			paintBoard();
 			paintFrame();
+			paintBoard();
 			if (fromSquare >= 0 || toSquare >= 0) {
 				highlightSquares(fromSquare, toSquare);
 			} else {
 				forceLightUpdate();
 			}
+			fullBoard.initLighting();
 			//if(chessGameCallback != null) paintChessPieces(chessGameCallback);
 		}
 	}
@@ -332,39 +333,20 @@ public class ChessBoard {
 		aboveFullBoard.setWalls(boardStyle.enclosureMat.getMaterial(), boardStyle.enclosureMat.getData());
 
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
-		for (Block b : roof) {
-			boardStyle.enclosureMat.applyToBlock(b);
-		}
+		boardStyle.enclosureMat.applyToCuboid(roof);
 	}
 
 	public void paintFrame() {
 		if (board == null) {
 			return;
 		}
-		for (Block b : frameBoard) {
-			if (!board.contains(b.getLocation())) {
-				boardStyle.frameMat.applyToBlock(b);
-			}
-		}
+		boardStyle.frameMat.applyToCuboid(frameBoard);
 	}
 
 	public void paintBoard() {
 		if (board == null) {
 			return;
 		}
-		// TODO? time methods for most optimal
-		//		for (int row = 0; row < 8; ++row) {
-		//			int firstBlack = row % 2;
-		//			for (int r = 0; r < boardStyle.squareSize; ++r) {
-		//				for (int col = 0; col < 8; ++col) {
-		//					MaterialWithData m = (col + firstBlack) % 2 == 0
-		//							? boardStyle.blackSquareMat : boardStyle.whiteSquareMat;
-		//					for (int c = 0; c < boardStyle.squareSize; ++c) {
-		//						//TODO: chessboard square direction determined by rotation
-		//					}
-		//				}
-		//			}
-		//		}
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				Cuboid sq = getSquare(row, col);
@@ -440,12 +422,11 @@ public class ChessBoard {
 			return;
 		}
 		Cuboid p = getPieceRegion(row, col);
-		p.clear();
+		p.clear(true);
 
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = chessPieceSet.getPiece(stone);
 			if (cStone != null) {
-				//System.out.println("painting " + Chess.getOpponentStone(stone));
 				cStone.paintInto(p, rotation);
 			} else {
 				ChessCraftLogger.severe("unknown piece: " + stone);
@@ -472,24 +453,11 @@ public class ChessBoard {
 			// Since calling craftbukkit methods directly is prone to failure, we'll catch
 			// any possible exceptions/errors and fall back to the slower but safer method
 			// of placing glowstone on the chessboard
-			try {
-				World w = ((CraftWorld) frameBoard.getWorld()).getHandle();
-				for (Block b : frameBoard) {
-					int x = b.getLocation().getBlockX();
-					int y = b.getLocation().getBlockY() + 1;
-					int z = b.getLocation().getBlockZ();
-					while (b.getWorld().getBlockAt(x, y, z).getTypeId() > 0 && y < 128) {
-//					while (l.getBlock().getRelative(BlockFace.UP).getTypeId() > 0) {
-//						l.add(0, 1, 0);
-						y++;
-					}
-					w.a(EnumSkyBlock.BLOCK, x, y, z, 15);
-				}
+			if (isLighted == light && force == false) {
 				return;
-			} catch (Throwable t) {
-				ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
-				lightingMethod = BoardLightingMethod.GLOWSTONE;
 			}
+			lightArea(frameBoard);
+			isLighted = true;
 		}
 
 		if (lightingMethod == BoardLightingMethod.GLOWSTONE) {
@@ -548,6 +516,31 @@ public class ChessBoard {
 	}
 
 	/**
+	 * Use NMS methods to fake the lighting over the given Cuboid area.
+	 * 
+	 * @param area
+	 */
+	private void lightArea(Cuboid area) {
+		try {
+			long start = System.nanoTime();
+			World w = ((CraftWorld) area.getWorld()).getHandle();
+			for (Block b : area) {
+				int x = b.getLocation().getBlockX();
+				int y = b.getLocation().getBlockY() + 1;
+				int z = b.getLocation().getBlockZ();
+				while (b.getWorld().getBlockAt(x, y, z).getTypeId() > 0 && y < 128) {
+					y++;
+				}
+				w.a(EnumSkyBlock.BLOCK, x, y, z, 15);
+			}
+			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
+		} catch (Throwable t) {
+			ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
+			lightingMethod = BoardLightingMethod.GLOWSTONE;
+		}
+	}
+	
+	/**
 	 * Force lighting update - if lighting is on for the board, force
 	 * all lights to be redrawn.  This would be done after any operation
 	 * that overwrote squares on the board (e.g. full repaint, square
@@ -572,6 +565,7 @@ public class ChessBoard {
 		if (board == null || boardStyle.highlightStyle == HighlightStyle.NONE) {
 			return;
 		}
+		// erase the old highlight, if any
 		if (fromSquare >= 0 || toSquare >= 0) {
 			if (boardStyle.highlightStyle == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, false);
@@ -585,6 +579,7 @@ public class ChessBoard {
 
 		forceLightUpdate();
 
+		// draw the new highlight
 		if (from >= 0 || to >= 0) {
 			if (boardStyle.highlightStyle == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, true);
@@ -643,7 +638,7 @@ public class ChessBoard {
 			Cuboid toClear = board.clone();
 			toClear.shift(Direction.Up, 1);
 			toClear.expand(Direction.Up, boardStyle.height - 1);
-			toClear.clear();
+			toClear.clear(true);
 		}
 	}
 
@@ -652,7 +647,7 @@ public class ChessBoard {
 	 */
 	public void clearAll() {
 		if (fullBoard != null) {
-			fullBoard.clear();
+			fullBoard.clear(true);
 		}
 	}
 

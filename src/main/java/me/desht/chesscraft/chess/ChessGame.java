@@ -59,7 +59,6 @@ import me.desht.chesscraft.enums.GameState;
  *
  */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
-
 	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
 	private static final Map<String, ChessGame> currentGame = new HashMap<String, ChessGame>();
 	private String name;
@@ -111,7 +110,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		getPosition().addPositionListener(view);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ChessGame(ConfigurationSection map) throws ChessException, IllegalMoveException {
 		view = BoardView.getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
@@ -122,18 +120,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		playerWhite = map.getString("playerWhite"); //$NON-NLS-1$
 		playerBlack = map.getString("playerBlack"); //$NON-NLS-1$
 		state = GameState.valueOf(map.getString("state")); //$NON-NLS-1$
+		fromSquare = Chess.NO_SQUARE;
 		invited = map.getString("invited"); //$NON-NLS-1$
-		List<Integer> hTmp = (List<Integer>) map.getList("moves"); //$NON-NLS-1$
+		List<Integer> hTmp = map.getIntegerList("moves"); //$NON-NLS-1$
 		history = new ArrayList<Short>();
+		for (int m : hTmp) {
+			history.add((short) m);
+		}
 		if (map.contains("timeWhite")) {
 			tcWhite = new TimeControl(map.isLong("timeWhite") ? map.getLong("timeWhite") : map.getInt("timeWhite"));
 			tcBlack = new TimeControl(map.isLong("timeBlack") ? map.getLong("timeBlack") : map.getInt("timeBlack"));
 		} else {
 			tcWhite = (TimeControl) map.get("tcWhite");
 			tcBlack = (TimeControl) map.get("tcBlack");
-		}
-		for (int m : hTmp) {
-			history.add((short) m);
 		}
 		created = map.getLong("created", System.currentTimeMillis()); //$NON-NLS-1$
 		started = map.getLong("started"); //$NON-NLS-1$
@@ -199,20 +198,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return map;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static ChessGame deserialize(Map <String,Object> map) throws ChessException, IllegalMoveException {
 		Configuration conf = new MemoryConfiguration();
-
-		// this seems really ugly... need to explicitly deserialize sub-objects?	
-		conf.set("tcWhite", TimeControl.deserialize((Map<String,Object>) map.get("tcWhite")));
-		conf.set("tcBlack", TimeControl.deserialize((Map<String,Object>) map.get("tcBlack")));
-
 		for (Entry<String, Object> e : map.entrySet()) {
-			if (!conf.contains(e.getKey())) {
-				conf.set(e.getKey(), e.getValue());
-			}
+			conf.set(e.getKey(), e.getValue());
 		}
-
 		return new ChessGame(conf);
 	}
 

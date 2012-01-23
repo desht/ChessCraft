@@ -6,10 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import com.google.common.base.Joiner;
 
 public class TimeControl implements ConfigurationSerializable {
+
+	static {
+		System.out.println("register time control class....");
+		ConfigurationSerialization.registerClass(TimeControl.class);
+	}
+	
 	public enum ControlType { NONE, ROLLOVER, MOVE_IN, GAME_IN };
 
 	private String spec;

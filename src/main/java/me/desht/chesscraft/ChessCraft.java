@@ -3,6 +3,7 @@ package me.desht.chesscraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
 import me.desht.chesscraft.commands.CommandManager;
@@ -39,6 +40,7 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -81,6 +83,13 @@ public class ChessCraft extends JavaPlugin {
 
 	/*-----------------------------------------------------------------*/
 	@Override
+	public void onLoad() {
+		ConfigurationSerialization.registerClass(BoardView.class);
+		ConfigurationSerialization.registerClass(ChessGame.class);
+		ConfigurationSerialization.registerClass(TimeControl.class);
+	}
+	
+	@Override
 	public void onEnable() {
 		instance = this;
 		description = this.getDescription();
@@ -105,19 +114,6 @@ public class ChessCraft extends JavaPlugin {
 		setupWorldEdit();
 
 		ChessAI.initThreading(this);
-
-//		pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.PLAYER_ANIMATION, playerListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.ENTITY_TARGET, entityListener, Event.Priority.Normal, this);
-//		pm.registerEvent(Event.Type.CREATURE_SPAWN, entityListener, Event.Priority.Normal, this);
 
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);

@@ -89,9 +89,8 @@ public class ControlPanel {
 	}
 
 	public void repaint() {
-		for (Block b: panelBlocks) {
-			view.getControlPanelMat().applyToBlock(b);
-		}
+		panelBlocks.set(view.getControlPanelMat(), true);
+		panelBlocks.initLighting();
 
 		ChessGame game = view.getGame();
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
@@ -376,6 +375,7 @@ public class ControlPanel {
 					break;
 				}
 			}
+			s.update();
 		} else {
 			ChessCraftLogger.warning("Block at " + l + " should be a sign but is not!");
 		}

@@ -76,7 +76,7 @@ public class ChessStone {
 				if (BlockType.shouldPlaceLast(mat.getMaterial())) {
 					secondPassNeeded = true;
 				} else {
-					mat.applyToBlock(l.getBlock());
+					mat.applyToBlock(b);
 				}
 			}
 		}
@@ -90,7 +90,7 @@ public class ChessStone {
 				if (mat != null) {
 					// place blocks couldn't place first
 					//if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-					mat.applyToBlock(l.getBlock());
+					mat.applyToBlock(b);
 					//}
 				}
 			}

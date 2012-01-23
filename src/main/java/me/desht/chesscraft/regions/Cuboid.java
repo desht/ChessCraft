@@ -7,13 +7,16 @@ import java.util.List;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.util.WorldEditUtils;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 // imports for clear()
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.blocks.MaterialWithData;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
@@ -21,23 +24,23 @@ import org.bukkit.entity.Player;
 public class Cuboid implements Iterable<Block>, Cloneable {
 
 	private static WorldEditPlugin wep = null;
-	
+
 	protected Location lowerNE; // min x,y,z
 	protected Location upperSW; // max x,y,z
 
 	public static void setWorldEdit(WorldEditPlugin p) {
 		wep = p;
 	}
-	
+
 	public Cuboid(Location l1, Location l2) {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
 		}
 
 		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()),
-				Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
+		                       Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
 		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()),
-				Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
+		                       Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
 
 	}
 
@@ -61,8 +64,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public Location getCenter() {
 		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()),
-				getLowerY() + (getUpperY() - getLowerY()),
-				getLowerZ() + (getUpperZ() - getLowerZ()));
+		                    getLowerY() + (getUpperY() - getLowerY()),
+		                    getLowerZ() + (getUpperZ() - getLowerZ()));
 	}
 
 	public World getWorld() {
@@ -109,26 +112,26 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public Cuboid expand(Direction dir, int amount) {
 		//TODO: if negative amount, don't collapse beyond self
 		switch (dir) {
-			case North:
-				lowerNE.setX(lowerNE.getBlockX() - amount);
-				break;
-			case South:
-				upperSW.setX(upperSW.getBlockX() + amount);
-				break;
-			case East:
-				lowerNE.setZ(lowerNE.getBlockZ() - amount);
-				break;
-			case West:
-				upperSW.setZ(upperSW.getBlockZ() + amount);
-				break;
-			case Down:
-				lowerNE.setY(lowerNE.getBlockY() - amount);
-				break;
-			case Up:
-				upperSW.setY(upperSW.getBlockY() + amount);
-				break;
-			default:
-				throw new IllegalArgumentException("invalid direction " + dir);
+		case North:
+			lowerNE.setX(lowerNE.getBlockX() - amount);
+			break;
+		case South:
+			upperSW.setX(upperSW.getBlockX() + amount);
+			break;
+		case East:
+			lowerNE.setZ(lowerNE.getBlockZ() - amount);
+			break;
+		case West:
+			upperSW.setZ(upperSW.getBlockZ() + amount);
+			break;
+		case Down:
+			lowerNE.setY(lowerNE.getBlockY() - amount);
+			break;
+		case Up:
+			upperSW.setY(upperSW.getBlockY() + amount);
+			break;
+		default:
+			throw new IllegalArgumentException("invalid direction " + dir);
 		}
 		return this;
 	}
@@ -139,22 +142,22 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public Cuboid outset(Direction dir, int amount) {
 		switch (dir) {
-			case Horizontal:
-				expand(Direction.North, amount);
-				expand(Direction.South, amount);
-				expand(Direction.East, amount);
-				expand(Direction.West, amount);
-				break;
-			case Vertical:
-				expand(Direction.Down, amount);
-				expand(Direction.Up, amount);
-				break;
-			case Both:
-				outset(Direction.Horizontal, amount);
-				outset(Direction.Vertical, amount);
-				break;
-			default:
-				throw new IllegalArgumentException("invalid direction " + dir);
+		case Horizontal:
+			expand(Direction.North, amount);
+			expand(Direction.South, amount);
+			expand(Direction.East, amount);
+			expand(Direction.West, amount);
+			break;
+		case Vertical:
+			expand(Direction.Down, amount);
+			expand(Direction.Up, amount);
+			break;
+		case Both:
+			outset(Direction.Horizontal, amount);
+			outset(Direction.Vertical, amount);
+			break;
+		default:
+			throw new IllegalArgumentException("invalid direction " + dir);
 		}
 		return this;
 	}
@@ -165,22 +168,22 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public Direction opposite(Direction dir) {
 		switch (dir) {
-			case North:
-				return Direction.South;
-			case South:
-				return Direction.North;
-			case West:
-				return Direction.East;
-			case East:
-				return Direction.West;
-			case Up:
-				return Direction.Down;
-			case Down:
-				return Direction.Up;
-			case Horizontal:
-				return Direction.Vertical;
-			case Vertical:
-				return Direction.Horizontal;
+		case North:
+			return Direction.South;
+		case South:
+			return Direction.North;
+		case West:
+			return Direction.East;
+		case East:
+			return Direction.West;
+		case Up:
+			return Direction.Down;
+		case Down:
+			return Direction.Up;
+		case Horizontal:
+			return Direction.Vertical;
+		case Vertical:
+			return Direction.Horizontal;
 		}
 		return Direction.Unknown;
 	}
@@ -193,7 +196,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			return false;
 		}
 	}
-	
+
 	public boolean contains(Block b) {
 		return contains(b.getLocation());
 	}
@@ -218,7 +221,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				++n;
 			}
 		}
-		return (byte) (total / n);
+		return n > 0 ? (byte) (total / n) : 0;
 	}
 
 	/**
@@ -226,13 +229,17 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * blocks, and are not included...) also does not scan the faces of the
 	 * region for drops when the region is cleared
 	 */
-	public void clear() {
+	public void clear(boolean fast) {
 		// first remove blocks that might pop off & leave a drop
 		for (Block b : this) {
 			if (BlockType.shouldPlaceLast(b.getTypeId())) {
-				b.setTypeId(0);
-			}// also check if this is a container
-			else if (BlockType.isContainerBlock(b.getTypeId())) {
+				if (fast) {
+					setBlockFast(b, 0);
+				} else {
+					b.setTypeId(0);
+				}
+			} else if (BlockType.isContainerBlock(b.getTypeId())) {
+				// also check if this is a container, and empty it if necessary
 				BlockState state = b.getState();
 				if (state instanceof org.bukkit.block.ContainerBlock) {
 					org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock) state;
@@ -242,39 +249,113 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 		// now wipe all (remaining) blocks
-		for (Block b : this) {
-			b.setTypeId(0);
-		}
-	}
-
-	public void set(int blockID) {
-		if (blockID == 0) {
-			clear();
+		if (fast) {
+			for (Block b : this) {
+				setBlockFast(b, 0);
+			}
 		} else {
 			for (Block b : this) {
-				b.setTypeId(blockID);
+				b.setTypeId(0);
 			}
 		}
 	}
 
-	public void set(int blockID, Byte data) {
+	public void set(int blockID, boolean fast) {
+//		long start = System.nanoTime();
+		
 		if (blockID == 0) {
-			clear();
+			clear(fast);
 		} else {
-			if (data != null) {
+			if (fast) {
 				for (Block b : this) {
-					b.setTypeIdAndData(blockID, data, true);
+					setBlockFast(b, blockID);
 				}
 			} else {
 				for (Block b : this) {
-					b.setTypeId(blockID, true);
+					b.setTypeId(blockID);
 				}
 			}
 		}
+		
+//		System.out.println("Cuboid set " + blockID + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	public void set(int blockID, Byte data, boolean fast) {
+//		long start = System.nanoTime();
+		
+		if (blockID == 0) {
+			clear(fast);
+		} else {
+			if (data != null) {
+				if (fast) {
+					for (Block b : this) {
+						setBlockFast(b, blockID, data);
+					}
+				} else {
+					for (Block b : this) {
+						b.setTypeIdAndData(blockID, data, false);
+					}
+				}
+			} else {
+				if (fast) {
+					for (Block b : this) {
+						setBlockFast(b, blockID);
+					}
+				} else {
+					for (Block b : this) {
+						b.setTypeId(blockID, false);
+					}
+				}
+			}
+		}
+		
+//		System.out.println("Cuboid set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	public void set(MaterialWithData mat, boolean fast) {
+		set(mat.getMaterial(), mat.getData(), fast);
+	}
+
+	private boolean setBlockFast(Block b, int typeId) {
+		Chunk c = b.getChunk();
+		net.minecraft.server.Chunk chunk = ((CraftChunk) c).getHandle();
+		return chunk.a(b.getX() & 15, b.getY(), b.getZ() & 15, typeId);
+	}
+
+	private boolean setBlockFast(Block b, int typeId, byte data) {
+		Chunk c = b.getChunk();
+		net.minecraft.server.Chunk chunk = ((CraftChunk) c).getHandle();
+		return chunk.a(b.getX() & 15, b.getY(), b.getZ() & 15, typeId, data);
 	}
 
 	public void setWalls(int blockID) {
 		setWalls(blockID, null);
+	}
+	
+	/**
+	 * Get a list of the chunks which are fully or partially contained in this cuboid.
+	 * 
+	 * @return a list of Chunk objects
+	 */
+	public List<Chunk> getChunks() {
+		List<Chunk> res = new ArrayList<Chunk>();
+		
+		World w = getLowerNE().getWorld();
+		int x1 = getLowerX(); int x2 = getUpperX();
+		int z1 = getLowerZ(); int z2 = getUpperZ();
+		for (int x = x1; x <= x2; x += 16) {
+			for (int z = z1; z <= z2; z += 16) {
+				res.add(w.getChunkAt(x, z));
+			}
+		}
+		return res;
+	}
+	
+	public void initLighting() {
+		for (Chunk c : getChunks()) {
+//			System.out.println("chunk " + c + ": relight");
+			((CraftChunk)c).getHandle().initLighting(); 
+		}
 	}
 
 	public void setWalls(int blockID, Byte data) {
@@ -389,7 +470,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			WorldEditUtils.weSelect(this, p);
 		}
 	}
-	
+
 	public class CuboidIterator implements Iterator<Block> {
 
 		private Location base;
