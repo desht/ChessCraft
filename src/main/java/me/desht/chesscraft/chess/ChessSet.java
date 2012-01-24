@@ -21,7 +21,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	protected File file = null;
 
 	public ChessSet(Map<Integer, PieceTemplate> stones) {
-		for(int i : stones.keySet()){
+		for (int i : stones.keySet()){
 			stoneCache.put(i, new ChessStone(i, stones.get(i)));
 		}
 	} // end default constructor

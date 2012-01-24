@@ -26,7 +26,7 @@ ChessCommandExecutor:
   AIpayout: "payout={0,number,integer}%"
   algebraicNotation: "&5 (standard algebraic notation)"
   allBoardsRedrawn: "All boards have been redrawn."
-  boardCantBeDeleted: "Can''t delete board &6{0}&- - it is being used by game &6{0}&-."
+  boardCantBeDeleted: "Can''t delete board &6{0}&- - it is being used by game &6{1}&-."
   boardCreationPrompt:
     - "Left-click a block: create board &6{0}&-. Right-click: cancel."
     - "This block will become the centre of the board's A1 square."

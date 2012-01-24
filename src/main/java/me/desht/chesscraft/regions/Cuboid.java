@@ -16,6 +16,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -234,7 +235,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		for (Block b : this) {
 			if (BlockType.shouldPlaceLast(b.getTypeId())) {
 				if (fast) {
-					setBlockFast(b, 0);
+					BlockUtils.setBlockFast(b, 0);
 				} else {
 					b.setTypeId(0);
 				}
@@ -251,7 +252,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		// now wipe all (remaining) blocks
 		if (fast) {
 			for (Block b : this) {
-				setBlockFast(b, 0);
+				BlockUtils.setBlockFast(b, 0);
 			}
 		} else {
 			for (Block b : this) {
@@ -268,7 +269,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		} else {
 			if (fast) {
 				for (Block b : this) {
-					setBlockFast(b, blockID);
+					BlockUtils.setBlockFast(b, blockID);
 				}
 			} else {
 				for (Block b : this) {
@@ -289,7 +290,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			if (data != null) {
 				if (fast) {
 					for (Block b : this) {
-						setBlockFast(b, blockID, data);
+						BlockUtils.setBlockFast(b, blockID, data);
 					}
 				} else {
 					for (Block b : this) {
@@ -299,7 +300,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			} else {
 				if (fast) {
 					for (Block b : this) {
-						setBlockFast(b, blockID);
+						BlockUtils.setBlockFast(b, blockID);
 					}
 				} else {
 					for (Block b : this) {
@@ -314,18 +315,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public void set(MaterialWithData mat, boolean fast) {
 		set(mat.getMaterial(), mat.getData(), fast);
-	}
-
-	private boolean setBlockFast(Block b, int typeId) {
-		Chunk c = b.getChunk();
-		net.minecraft.server.Chunk chunk = ((CraftChunk) c).getHandle();
-		return chunk.a(b.getX() & 15, b.getY(), b.getZ() & 15, typeId);
-	}
-
-	private boolean setBlockFast(Block b, int typeId, byte data) {
-		Chunk c = b.getChunk();
-		net.minecraft.server.Chunk chunk = ((CraftChunk) c).getHandle();
-		return chunk.a(b.getX() & 15, b.getY(), b.getZ() & 15, typeId, data);
 	}
 
 	public void setWalls(int blockID) {

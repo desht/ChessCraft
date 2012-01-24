@@ -100,6 +100,30 @@ public class MaterialWithData implements Cloneable {
 			}
 		}
 	}
+	
+	/**
+	 * Use direct NMS calls to apply this block.  The caller is responsible for ensuring that
+	 * lighting is re-initialised afterwards.
+	 * 
+	 * @param b
+	 */
+	public void applyToBlockFast(Block b) {
+		if (b != null) {
+			if (data != null) {
+				BlockUtils.setBlockFast(b, material, data);
+			} else {
+				BlockUtils.setBlockFast(b, material);
+			}
+			if (text != null && (material == 63 || material == 68)) {
+				// updating a wall sign or floor sign, with text
+				Sign sign = (Sign) b.getState().getData();
+				for (int i = 0; i < 4; i++) {
+					sign.setLine(i, text[i]);
+				}
+				sign.update();
+			}
+		}
+	}
 
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {

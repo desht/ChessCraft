@@ -71,7 +71,7 @@ public class ChessBoard {
 	 */
 	private ChessSet chessPieceSet = null;
 	/**
-	 * this is which side white is on
+	 * this is the direction white faces
 	 */
 	private BoardOrientation rotation = BoardOrientation.NORTH;
 	/**
@@ -198,7 +198,7 @@ public class ChessBoard {
 			 */
 			int maxH = -1, maxV = -1;
 			for (ChessStone c : chessPieceSet) {
-				PieceTemplate p = c.getPiece(rotation);
+				PieceTemplate p = c.getPieceTemplate(rotation);
 				maxH = Math.max(maxH, p.getSizeX());
 				maxH = Math.max(maxH, p.getSizeZ());
 				maxV = Math.max(maxV, p.getSizeY());
@@ -522,7 +522,7 @@ public class ChessBoard {
 	 */
 	private void lightArea(Cuboid area) {
 		try {
-			long start = System.nanoTime();
+//			long start = System.nanoTime();
 			World w = ((CraftWorld) area.getWorld()).getHandle();
 			for (Block b : area) {
 				int x = b.getLocation().getBlockX();
@@ -533,7 +533,7 @@ public class ChessBoard {
 				}
 				w.a(EnumSkyBlock.BLOCK, x, y, z, 15);
 			}
-			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
+//			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
 		} catch (Throwable t) {
 			ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
 			lightingMethod = BoardLightingMethod.GLOWSTONE;

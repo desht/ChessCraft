@@ -26,7 +26,7 @@ ChessCommandExecutor:
   AIpayout: "pago={0,number,integer}%"
   algebraicNotation: "&5 (Notacion algebraica estandar)"
   allBoardsRedrawn: "Todas las mesas han sido redibujadas."
-  boardCantBeDeleted: "No se puede borrar la mesa &6{0}&- - esta siendo usada por la partida&6{0}&-."
+  boardCantBeDeleted: "No se puede borrar la mesa &6{0}&- - esta siendo usada por la partida&6{1}&-."
   boardCreationPrompt:
     - "Haz click izquierdo en un bloque: Crea la mesa &6{0}&-. Click derecho: cancelar."
     - "Este bloque sera el centro del cuadrado A1 de la mesa."

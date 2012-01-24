@@ -11,20 +11,17 @@ import org.bukkit.block.Block;
 public class ChessStone {
 
 	int stone;
-	PieceTemplate rotatedStones[];
+	PieceTemplate rotatedStones[] = new PieceTemplate[4];
 
 	public ChessStone(int stone, PieceTemplate t) {
 		this.stone = stone;
 
-		int r = 0;
-		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
-			r = 180;
-		}
-		
+		// we only instantiate the north-facing piece for now
+		// saves storing in memory a load of templates we might never need
 		rotatedStones = new PieceTemplate[4];
-		for (int i = 0; i < 4; ++i, r += 90) {
-			rotatedStones[i] = new PieceTemplate(t);
-			rotatedStones[i].rotate(r);
+		rotatedStones[0] = new PieceTemplate(t);
+		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
+			rotatedStones[0].rotate(180);
 		}
 	}
 
@@ -32,24 +29,37 @@ public class ChessStone {
 		return stone;
 	}
 
-	public PieceTemplate getPiece(BoardOrientation direction) {
-		return direction == null ? null : rotatedStones[direction.ordinal()];
+	/**
+	 * Get the rotated piece template for the given direction, instantiating it if necessary.
+	 * 
+	 * @param direction		the board's orientation (the direction that white faces)
+	 * @return		the rotated piece
+	 */
+	public PieceTemplate getPieceTemplate(BoardOrientation direction) {
+		int n = direction.ordinal();
+		if (rotatedStones[n] == null) {
+			rotatedStones[n] = new PieceTemplate(rotatedStones[0]);
+			rotatedStones[n].rotate(n * 90);
+		}
+		return rotatedStones[n];
 	}
 
 	/**
-	 * simply applies the stone template to this region <br>
-	 * <b>this assumes that the area is empty</b>
-	 * if the set does not fit in the center of the region,
-	 * will be shifted to the north & east
-	 * @param square area to fill
-	 * @param direction which way white faces
+	 * Paint this stone into the given Cuboid region, which represents one
+	 * square on the chessboard.  The stone will be centred in
+	 * the region (even if it's larger, which it shouldn't be).
+	 *
+	 * @param square the Cuboid area to fill
+	 * @param direction the board's orientation (the direction that white faces)
 	 */
 	public synchronized void paintInto(Cuboid square, BoardOrientation direction) {
-		PieceTemplate piece = rotatedStones[direction.ordinal()];
+		PieceTemplate piece = getPieceTemplate(direction);
 		
-		int ibx = square.getLowerX(),
-				ibz = square.getLowerZ(),
-				iby = square.getLowerY();
+		int ibx = square.getLowerX();
+		int ibz = square.getLowerZ();
+		int iby = square.getLowerY();
+		
+		// centre the piece on the square
 		if (piece.getSizeX() < square.getSizeX()) {
 			ibx += (square.getSizeX() - piece.getSizeX()) / 2; // truncate to lower number
 		} else if (piece.getSizeX() > square.getSizeX()) {
@@ -62,38 +72,36 @@ public class ChessStone {
 			// technically shouldn't reach here
 			ibz -= (piece.getSizeZ() - square.getSizeZ()) / 2;
 		}
+		
 		//System.out.println("painting piece.. " + ibx + ", " + ibz + ", " + iby + ", [" + square.getSizeX() + ", " + square.getSizeZ() + "]");
 		boolean secondPassNeeded = false;
+		
 		// first scan for solid blocks
 		for (Block b : square) {
 			Location l = b.getLocation();
-			MaterialWithData mat = piece.getMaterial(
-					l.getBlockX() - ibx,
-					l.getBlockY() - iby,
-					l.getBlockZ() - ibz);
+			MaterialWithData mat = piece.getMaterial(l.getBlockX() - ibx, l.getBlockY() - iby, l.getBlockZ() - ibz);
 			if (mat != null) {
-				// can't safely place first, so will need to scan a second time
 				if (BlockType.shouldPlaceLast(mat.getMaterial())) {
+					// can't safely place first, so will need to scan a second time
 					secondPassNeeded = true;
 				} else {
-					mat.applyToBlock(b);
+					mat.applyToBlockFast(b);
 				}
 			}
 		}
 		if (secondPassNeeded) {
+			// place any blocks that we couldn't place in the first pass
 			for (Block b : square) {
 				Location l = b.getLocation();
-				MaterialWithData mat = piece.getMaterial(
-						l.getBlockX() - ibx,
-						l.getBlockY() - iby,
-						l.getBlockZ() - ibz);
+				MaterialWithData mat = piece.getMaterial(l.getBlockX() - ibx, l.getBlockY() - iby, l.getBlockZ() - ibz);;
 				if (mat != null) {
-					// place blocks couldn't place first
-					//if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-					mat.applyToBlock(b);
-					//}
+					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
+						mat.applyToBlockFast(b);
+					}
 				}
 			}
 		}
+		
+		square.initLighting();
 	}
 }
