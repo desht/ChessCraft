@@ -9,9 +9,9 @@ import me.desht.chesscraft.exceptions.ChessException;
 public class OfferDrawCommand extends AbstractCommand {
 
 	public OfferDrawCommand() {
-		super("chess offerdraw", 0, 1);
+		super("chess o d", 0, 1);
 		setPermissionNode("chesscraft.commands.offer.draw");
-		setUsage("/chess offerdraw");
+		setUsage("/chess offer draw");
 	}
 
 	@Override

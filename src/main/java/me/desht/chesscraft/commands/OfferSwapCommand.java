@@ -9,9 +9,9 @@ import me.desht.chesscraft.exceptions.ChessException;
 public class OfferSwapCommand extends AbstractCommand {
 
 	public OfferSwapCommand() {
-		super("chess offerswap", 0, 1);
-		setPermissionNode("chesscraft.commands.offerswap");
-		setUsage("/chess offerswap");
+		super("chess o s", 0, 1);
+		setPermissionNode("chesscraft.commands.offer.swap");
+		setUsage("/chess offer swap");
 	}
 
 	@Override
