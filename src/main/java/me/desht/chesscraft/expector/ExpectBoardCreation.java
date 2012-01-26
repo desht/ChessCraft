@@ -11,7 +11,7 @@ import me.desht.chesscraft.util.ChessUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ExpectBoardCreation extends ExpectData {
+public class ExpectBoardCreation extends ExpectBase {
 
 	String boardName;
 	String style;

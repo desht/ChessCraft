@@ -24,7 +24,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 
-import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.enums.GameState;
@@ -50,8 +49,8 @@ public class ChessPlayerListener implements Listener {
 				return;
 			}
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-					ChessCraft.expecter.cancelAction(player, ExpectAction.BoardCreation);
+				if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
+					ChessCraft.expecter.cancelAction(player, ExpectBoardCreation.class);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
@@ -62,11 +61,11 @@ public class ChessPlayerListener implements Listener {
 					}
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
+				if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
 					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.expecter.getAction(player,
-							ExpectAction.BoardCreation);
+							ExpectBoardCreation.class);
 					a.setLocation(b.getLocation());
-					ChessCraft.expecter.handleAction(player, ExpectAction.BoardCreation);
+					ChessCraft.expecter.handleAction(player, ExpectBoardCreation.class);
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -78,8 +77,8 @@ public class ChessPlayerListener implements Listener {
 			}
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
-			if (ChessCraft.expecter.isExpecting(player, ExpectAction.BoardCreation)) {
-				ChessCraft.expecter.cancelAction(player, ExpectAction.BoardCreation);
+			if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
+				ChessCraft.expecter.cancelAction(player, ExpectBoardCreation.class);
 				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}

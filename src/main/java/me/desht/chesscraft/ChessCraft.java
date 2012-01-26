@@ -52,10 +52,11 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectResponse;
-import me.desht.chesscraft.expector.ExpectYesNoOffer;
+import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -88,27 +89,27 @@ public class ChessCraft extends JavaPlugin {
 		ConfigurationSerialization.registerClass(ChessGame.class);
 		ConfigurationSerialization.registerClass(TimeControl.class);
 	}
-	
+
 	@Override
 	public void onEnable() {
 		instance = this;
 		description = this.getDescription();
 		util = new ChessUtils();
 		ChessConfig.init(this);
-		
+
 		playerListener = new ChessPlayerListener();
 		blockListener = new ChessBlockListener();
 		entityListener = new ChessEntityListener();
 
 		persistence = new ChessPersistence();
 		expecter = new ExpectResponse();
-		
+
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
 		//		Results.getResultsHandler().addTestData();
 
 		PluginManager pm = getServer().getPluginManager();
-		
+
 		setupVault(pm);
 		setupSMS();
 		setupWorldEdit();
@@ -118,19 +119,13 @@ public class ChessCraft extends JavaPlugin {
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);
 		pm.registerEvents(playerListener, this);
-		
-		registerCommands();
-		
-		if (getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
 
-			@Override
-			public void run() {
-				delayedInitTasks();
-			}
-		}) == -1) {
-			ChessCraftLogger.warning("Couldn't schedule persisted data reloading.  Loading immediately, but multi-world"
-					+ "support might not work, and board views may be inconsistent (use /chess redraw to fix).");
-			delayedInitTasks();
+		registerCommands();
+
+		persistence.reload();
+		util.setupRepeatingTask(this, 1);
+		if (ChessCraft.getSMS() != null) {
+			SMSIntegration.createMenus();
 		}
 
 		ChessCraftLogger.log("Version " + description.getVersion() + " is enabled!");
@@ -167,7 +162,7 @@ public class ChessCraft extends JavaPlugin {
 			return true;
 		}
 	}
-	
+
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
@@ -180,14 +175,6 @@ public class ChessCraft extends JavaPlugin {
 			}
 		} else {
 			ChessCraftLogger.warning("Vault not loaded: no economy support & superperms-only permission support");
-		}
-	}
-	
-	private void delayedInitTasks() {
-		persistence.reload();
-		util.setupRepeatingTask(this, 1);
-		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.createMenus();
 		}
 	}
 
@@ -249,7 +236,7 @@ public class ChessCraft extends JavaPlugin {
 		setLastPos(player, player.getLocation());
 		player.teleport(loc);
 	}
-	
+
 	public static Location getLastPos(Player player) {
 		return lastPos.get(player.getName());
 	}
@@ -265,7 +252,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	
+
 	public void playerLeft(String who) {
 		loggedOutAt.put(who, System.currentTimeMillis());
 	}
@@ -277,30 +264,30 @@ public class ChessCraft extends JavaPlugin {
 	public long getPlayerLeftAt(String who) {
 		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
 	}
-	
+
 	/*-----------------------------------------------------------------*/
 
 	public static ChessCraft getInstance() {
 		return instance;
 	}
-	
+
 	public static void handleExpectedResponse(Player player, boolean isAccepted) throws ChessException {
-		ExpectYesNoOffer a = null;
-		if (expecter.isExpecting(player, ExpectAction.DrawResponse)) {
-			a = (ExpectYesNoOffer) expecter.getAction(player, ExpectAction.DrawResponse);
+		ExpectYesNoResponse a = null;
+		if (expecter.isExpecting(player, ExpectDrawResponse.class)) {
+			a = (ExpectYesNoResponse) expecter.getAction(player, ExpectDrawResponse.class);
 			a.setReponse(isAccepted);
-			expecter.handleAction(player, ExpectAction.DrawResponse);
-		} else if (expecter.isExpecting(player, ExpectAction.SwapResponse)) {
-			a = (ExpectYesNoOffer) expecter.getAction(player, ExpectAction.SwapResponse);
+			expecter.handleAction(player, ExpectDrawResponse.class);
+		} else if (expecter.isExpecting(player, ExpectSwapResponse.class)) {
+			a = (ExpectYesNoResponse) expecter.getAction(player, ExpectSwapResponse.class);
 			a.setReponse(isAccepted);
-			expecter.handleAction(player, ExpectAction.SwapResponse);
+			expecter.handleAction(player, ExpectSwapResponse.class);
 		}
 
 		if (a != null) {
 			a.getGame().getView().getControlPanel().repaintSignButtons();
 		}
 	}
-	
+
 	private void registerCommands() {
 		cmds.registerCommand(new ArchiveCommand());
 		cmds.registerCommand(new ClaimVictoryCommand());

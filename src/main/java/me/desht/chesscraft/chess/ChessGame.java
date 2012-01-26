@@ -38,8 +38,8 @@ import me.desht.chesscraft.SMSIntegration;
 
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.expector.ExpectYesNoOffer;
-import me.desht.chesscraft.enums.ExpectAction;
+import me.desht.chesscraft.expector.ExpectDrawResponse;
+import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.results.Results;
@@ -1482,8 +1482,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensureGameState(GameState.RUNNING);
 
 		String other = getOtherPlayer(player.getName());
-		ChessCraft.expecter.expectingResponse(player, ExpectAction.DrawResponse,
-		                                      new ExpectYesNoOffer(this, player.getName(), other), other);
+		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, player.getName(), other), other);
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", other)); //$NON-NLS-1$
 		alert(other, Messages.getString("ChessCommandExecutor.drawOfferedOther", player.getName())); //$NON-NLS-1$
@@ -1505,8 +1504,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			ChessCraft.expecter.expectingResponse(player, ExpectAction.SwapResponse,
-			                                      new ExpectYesNoOffer(this, player.getName(), other), other);
+			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, player.getName(), other), other);
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", other)); //$NON-NLS-1$ 
 			alert(other, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", player.getName())); //$NON-NLS-1$ 
 			alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$

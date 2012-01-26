@@ -5,7 +5,6 @@ import java.util.Map;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.util.ChessUtils;
@@ -34,8 +33,7 @@ public class CreateBoardCommand extends AbstractCommand {
 		BoardView testBoard = new BoardView(name, null, style, pieceStyle);
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.expecter.expectingResponse(player, ExpectAction.BoardCreation,
-		                                  new ExpectBoardCreation(name,style, pieceStyle));
+		ChessCraft.expecter.expectingResponse(player, new ExpectBoardCreation(name, style, pieceStyle));
 		
 		return true;
 	}

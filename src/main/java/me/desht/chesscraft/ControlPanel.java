@@ -19,8 +19,9 @@ import chesspresso.Chess;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectDrawResponse;
+import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.enums.ExpectAction;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.PermissionUtils;
@@ -160,9 +161,9 @@ public class ControlPanel {
 	private String getOfferText(Player p) {
 		if (p == null) {
 			return ""; //$NON-NLS-1$
-		} else if (ChessCraft.expecter.isExpecting(p, ExpectAction.DrawResponse)) {
+		} else if (ChessCraft.expecter.isExpecting(p, ExpectDrawResponse.class)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (ChessCraft.expecter.isExpecting(p, ExpectAction.SwapResponse)) {
+		} else if (ChessCraft.expecter.isExpecting(p, ExpectSwapResponse.class)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$
@@ -286,7 +287,7 @@ public class ControlPanel {
 		} else if (name.equals(WHITE_YES) || name.equals(BLACK_YES)) { //$NON-NLS-1$ //$NON-NLS-2$
 			ChessCraft.handleExpectedResponse(player, true);
 		} else if (name.equals(WHITE_NO) || name.equals(BLACK_NO)) { //$NON-NLS-1$ //$NON-NLS-2$
-			ChessCraft.handleExpectedResponse(player, true);
+			ChessCraft.handleExpectedResponse(player, false);
 		} else if (name.equals(STAKE) && ChessCraft.economy != null) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
