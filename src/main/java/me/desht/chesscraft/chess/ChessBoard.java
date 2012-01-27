@@ -9,6 +9,8 @@ package me.desht.chesscraft.chess;
 import chesspresso.Chess;
 import chesspresso.position.Position;
 import java.io.File;
+
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessPieceLibrary;
 import me.desht.chesscraft.chess.pieces.ChessStone;
@@ -92,13 +94,11 @@ public class ChessBoard {
 	//	protected Position chessGameCallback = null;
 	// </editor-fold>
 
-	public ChessBoard(File boardStyleFolder, File pieceStyleFolder,
-			String boardStyleStr, String pieceStyleStr) throws ChessException {
+	public ChessBoard(String boardStyleStr, String pieceStyleStr) throws ChessException {
 		//		this.boardStyleStr = boardStyleStr;
 		//		this.pieceStyleStr = pieceStyleStr;
-		setBoardStyle(boardStyleFolder, boardStyleStr);
-		setPieceStyle(pieceStyleFolder,
-				pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleStr);
+		setBoardStyle(boardStyleStr);
+		setPieceStyle(pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleName);
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Accessors">
@@ -177,12 +177,10 @@ public class ChessBoard {
 		return rotation;
 	}
 
-	// </editor-fold>
-	// <editor-fold defaultstate="collapsed" desc="Modifiers">
-	public final void setPieceStyle(File pieceStyleFolder, String pieceStyle) throws ChessException {
+	public final void setPieceStyle(String pieceStyle) throws ChessException {
 		chessPieceSet = ChessPieceLibrary.getChessSet(pieceStyle == null ? DEFAULT_PIECE_STYLE : pieceStyle);
 		if (chessPieceSet == null) {
-			setPieceStyle(new File(pieceStyleFolder, pieceStyle + ".yml"));
+			setPieceStyle(new File(ChessConfig.getPieceStyleDirectory(), pieceStyle + ".yml"));
 		}
 	}
 
@@ -213,22 +211,13 @@ public class ChessBoard {
 
 		}
 	}
-
-	public final void setBoardStyle(File boardStyleFolder, String boardStyle) throws ChessException {
+	
+	public final void setBoardStyle(String boardStyleName) throws ChessException {
 		try {
-			this.boardStyle = BoardStyle.loadNewStyle(boardStyleFolder, boardStyle == null ? DEFAULT_BOARD_STYLE : boardStyle);
+			this.boardStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
 		} catch (Exception e) {
-			ChessCraftLogger.severe("can't load board style " + boardStyle, e);
-			throw new ChessException("Board style '" + boardStyle + "' is not available.");
-		}
-	}
-
-	public final void setBoardStyle(File boardStyleFile) throws ChessException {
-		try {
-			this.boardStyle = BoardStyle.loadNewStyle(boardStyleFile);
-		} catch (Exception e) {
-			ChessCraftLogger.severe("can't load board style " + boardStyle, e);
-			throw new ChessException("Board style '" + boardStyle + "' is not available.");
+			ChessCraftLogger.severe("can't load board style " + boardStyleName, e);
+			throw new ChessException("Board style '" + boardStyleName + "' is not available.");
 		}
 	}
 
@@ -238,7 +227,7 @@ public class ChessBoard {
 	 */
 	void reloadStyles() throws ChessException {
 		if (boardStyle != null) {
-			setBoardStyle(boardStyle.getBoardStyleFile());
+			setBoardStyle(boardStyle.getName());
 		}
 		if (chessPieceSet != null) {
 			setPieceStyle(chessPieceSet.getFile());
@@ -372,7 +361,7 @@ public class ChessBoard {
 			Cuboid sq = getSquare(row, col);
 			MaterialWithData squareHighlightColor =
 					boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
-			switch (boardStyle.highlightStyle) {
+			switch (boardStyle.getHighlightStyle()) {
 			case EDGES:
 				for (Block b : sq.walls()) {
 					squareHighlightColor.applyToBlock(b);
@@ -532,7 +521,7 @@ public class ChessBoard {
 				while (b.getWorld().getBlockAt(x, y, z).getTypeId() > 0 && y < 128) {
 					y++;
 				}
-				w.a(EnumSkyBlock.BLOCK, x, y, z, 15);
+				w.a(EnumSkyBlock.BLOCK, x, y, z, boardStyle.lightLevel);
 			}
 //			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
 		} catch (Throwable t) {

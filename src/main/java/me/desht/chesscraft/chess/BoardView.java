@@ -71,8 +71,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
-				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
+		chessBoard = new ChessBoard(bStyle, pStyle);
 
 		setA1Center(where, dir);
 
@@ -91,8 +90,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(ChessConfig.getBoardStyleDirectory(),
-				ChessConfig.getPieceStyleDirectory(), bStyle, pStyle);
+		chessBoard = new ChessBoard(bStyle, pStyle);
 		setA1Center(where, dir);
 	}
 
@@ -196,10 +194,10 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return chessBoard.getBoardStyle().getHeight();
 	}
 
-	public Boolean getIsLit() {
-		return chessBoard.getBoardStyle().getIsLit();
+	public int getLightLevel() {
+		return chessBoard.getBoardStyle().getLightLevel();
 	}
-
+	
 	public ControlPanel getControlPanel() {
 		return controlPanel;
 	}
@@ -250,7 +248,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	public void doLighting(boolean force) {
-		if (getBounds() == null || !chessBoard.getBoardStyle().getIsLit()) {
+		if (getBounds() == null) {
 			return;
 		}
 
@@ -666,7 +664,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		                                                      getFrameMat()));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getIsLit())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getLightLevel() > 0)); //$NON-NLS-1$
 
 		pager.showPage();
 	}

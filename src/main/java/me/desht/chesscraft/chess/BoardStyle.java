@@ -6,10 +6,15 @@
  */
 package me.desht.chesscraft.chess;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
+
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.HighlightStyle;
@@ -20,15 +25,15 @@ public class BoardStyle {
 
 	public static final int MIN_HEIGHT = 3, MIN_FRAMEWIDTH = 2, MIN_SQUARESIZE = 1;
 	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 20, MAX_SQUARESIZE = 20;
-	protected int frameWidth, squareSize, height;
-	protected MaterialWithData blackSquareMat, whiteSquareMat;
-	protected MaterialWithData enclosureMat, frameMat, controlPanelMat;
-	protected MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
-	protected HighlightStyle highlightStyle;
-	public boolean isLit;
-	protected String styleName;
-	protected File boardStyleFile;
-	public String pieceStyleStr;
+	
+	int frameWidth, squareSize, height;
+	MaterialWithData blackSquareMat, whiteSquareMat;
+	MaterialWithData enclosureMat, frameMat, controlPanelMat;
+	MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
+	HighlightStyle highlightStyle;
+	int lightLevel;
+	String styleName;
+	String pieceStyleName;
 
 	// protected - have to use BoardStyle.loadNewStyle to get a new one..
 	protected BoardStyle() {
@@ -50,8 +55,12 @@ public class BoardStyle {
 		return squareSize;
 	}
 
-	public boolean getIsLit() {
-		return isLit;
+	public int getLightLevel() {
+		return lightLevel;
+	}
+
+	public void setLightLevel(int lightLevel) {
+		this.lightLevel = lightLevel;
 	}
 
 	public MaterialWithData getBlackSquareMaterial() {
@@ -94,10 +103,6 @@ public class BoardStyle {
 		return highlightWhiteSquareMat == null ? highlightMat : highlightWhiteSquareMat;
 	}
 
-	public File getBoardStyleFile() {
-		return boardStyleFile;
-	}
-
 	public void setBlackSquareMaterial(MaterialWithData blackSquareMat) {
 		if (blackSquareMat != null) {
 			this.blackSquareMat = blackSquareMat;
@@ -130,12 +135,12 @@ public class BoardStyle {
 		}
 	}
 
-	public void setFrameWidth(int frameWidth) {
+	private void setFrameWidth(int frameWidth) {
 		this.frameWidth = frameWidth < MIN_FRAMEWIDTH ? MIN_FRAMEWIDTH
 				: (frameWidth > MAX_FRAMEWIDTH ? MAX_FRAMEWIDTH : frameWidth);
 	}
 
-	public void setHeight(int height) {
+	private void setHeight(int height) {
 		this.height = height < MIN_HEIGHT ? MIN_HEIGHT
 				: (height > MAX_HEIGHT ? MAX_HEIGHT : height);
 	}
@@ -156,60 +161,89 @@ public class BoardStyle {
 		this.highlightWhiteSquareMat = highlightWhiteSquareMat;
 	}
 
-	public void setSquareSize(int squareSize) {
+	private void setSquareSize(int squareSize) {
 		this.squareSize = squareSize < MIN_SQUARESIZE ? MIN_SQUARESIZE
 				: (squareSize > MAX_SQUARESIZE ? MAX_SQUARESIZE : squareSize);
 	}
 
-	public void loadStyle(File boardStyleFolder, String boardStyle) throws FileNotFoundException, ChessException {
-		BoardStyle st = loadNewStyle(boardStyleFolder, boardStyle);
-
-		this.frameWidth = st.frameWidth;
-		this.squareSize = st.squareSize;
-		this.height = st.height;
-		this.blackSquareMat = st.blackSquareMat;
-		this.whiteSquareMat = st.whiteSquareMat;
-		this.enclosureMat = st.enclosureMat;
-		this.frameMat = st.frameMat;
-		this.controlPanelMat = st.controlPanelMat;
-		this.highlightMat = st.highlightMat;
-		this.highlightWhiteSquareMat = st.highlightWhiteSquareMat;
-		this.highlightBlackSquareMat = st.highlightBlackSquareMat;
-		this.highlightStyle = st.highlightStyle;
-		this.isLit = st.isLit;
-		this.styleName = st.styleName;
-		this.pieceStyleStr = st.pieceStyleStr;
-		this.boardStyleFile = st.boardStyleFile;
+	public void saveStyle(String newStyleName) throws ChessException {
+		File newFile = new File(ChessConfig.getBoardStyleDirectory(), newStyleName + ".yml");
+		
+		// yeah, it would be nice to use YAML libs to save this, but I'm putting comments in
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
+			out.write("# Chess board style definition\n\n");
+			out.write("# NOTE: all materials must be quoted, even if they're just integers, or\n");
+			out.write("# you will get a java.lang.ClassCastException when the style is loaded.\n\n");
+			out.write("# width/length of the board squares, in blocks\n");
+			out.write("square_size: " + squareSize + "\n");
+			out.write("# width in blocks of the frame surrounding the board\n");
+			out.write("frame_width: " + frameWidth + "\n");
+			out.write("# height of the board - number of squares of clear air between board and enclosure roof\n");
+			out.write("height: " + height + "\n");
+			out.write("# material/data for the white squares\n");
+			out.write("white_square: '" + whiteSquareMat + "'\n");
+			out.write("# material/data for the black squares\n");
+			out.write("black_square: '" + blackSquareMat + "'\n");
+			out.write("# material/data for the frame\n");
+			out.write("frame: '" + frameMat + "'\n");
+			out.write("# material/data for the enclosure (if you don't use glass or air, then light the board!)\n");
+			out.write("enclosure: '" + enclosureMat + "'\n");
+			out.write("# board lighting level (0-15)\n");
+			out.write("light_level: " + lightLevel + "\n");
+			out.write("# style of chess set to use (see ../pieces/*.yml)\n");
+			out.write("# the style chosen must fit within the square_size specified above\n");
+			out.write("piece_style: " + pieceStyleName + "\n");
+			out.write("# material/data for the control panel (default: 'frame' setting)\n");
+			out.write("panel: " + controlPanelMat + "\n");
+			out.write("# highlighting style (NONE, CORNERS, EDGES, LINE, CHECKERED)\n");
+			out.write("highlight_style: " + highlightStyle + "\n");
+			out.write("# highlighting material (default: glowstone)\n");
+			out.write("highlight: " + highlightMat + "\n");
+			out.write("# highlighting material on white squares (default: 'highlight' setting)\n");
+			out.write("highlight: " + highlightWhiteSquareMat + "\n");
+			out.write("# highlighting material on black squares (default: 'highlight' setting)\n");
+			out.write("highlight: " + highlightBlackSquareMat + "\n");
+			out.close();
+			
+			styleName = newStyleName;
+		} catch (IOException e) {
+			throw new ChessException(e.getMessage());
+		}
 	}
 
-	public static BoardStyle loadNewStyle(File boardStyleFolder, String boardStyle)
-			throws FileNotFoundException, ChessException {
-		return loadNewStyle(new File(boardStyleFolder, boardStyle + ".yml"));
-	}
-	
-	public static BoardStyle loadNewStyle(File f)
-			throws FileNotFoundException, ChessException {
+	public static BoardStyle loadNewStyle(String boardStyle) throws FileNotFoundException, ChessException {
 		Yaml yaml = new Yaml();
+		
+		File f = new File(ChessConfig.getBoardStyleDirectory(), boardStyle + ".yml");
 
 		FileInputStream in = new FileInputStream(f);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> styleMap = (Map<String, Object>) yaml.load(in);
 
 		for (String k : new String[]{"square_size", "frame_width", "height",
-					"lit", "black_square", "white_square", "frame", "enclosure"}) {
-			if (styleMap.get(k) == null) {
+					"black_square", "white_square", "frame", "enclosure"}) {
+			if (!styleMap.containsKey(k)) {
 				throw new ChessException("required field '" + k + "' is missing");
 			}
 		}
+		if (!styleMap.containsKey("lit") && !styleMap.containsKey("light_level")) {
+			throw new ChessException("must have at least one of 'lit' or 'light_level'");
+		}
+		
 		BoardStyle style = new BoardStyle();
-		style.boardStyleFile = f;
 		style.styleName = f.getName().replaceFirst("\\.yml$", "");
 
 		style.setSquareSize((Integer) styleMap.get("square_size"));
 		style.setFrameWidth((Integer) styleMap.get("frame_width"));
 		style.setHeight((Integer) styleMap.get("height"));
-		style.isLit = (Boolean) styleMap.get("lit");
-		style.pieceStyleStr = (String) styleMap.get("piece_style");
+		style.pieceStyleName = (String) styleMap.get("piece_style");
+
+		if (styleMap.containsKey("lit")) {
+			style.lightLevel = 15;
+		} else {
+			style.lightLevel = (Integer) styleMap.get("light_level");
+		}
 
 		style.blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
 		style.whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
