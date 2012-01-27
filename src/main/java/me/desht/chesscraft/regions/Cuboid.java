@@ -382,7 +382,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 //				}
 //			}
 //		}
-		
+
 		for (Chunk c : getChunks()) {
 			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
 		}

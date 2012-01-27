@@ -119,8 +119,7 @@ public class TerrainBackup {
 		boolean restored = false;
 		try {
 			TerrainBackup tb = new TerrainBackup(player, view);
-			tb.reloadTerrain();
-			restored = true;
+			restored = tb.reloadTerrain();
 		} catch (FilenameException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
