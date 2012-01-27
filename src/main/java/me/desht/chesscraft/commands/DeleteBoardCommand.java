@@ -18,6 +18,7 @@ public class DeleteBoardCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+		notFromConsole(player);
 		BoardView bv = BoardView.getBoardView(args[0]);
 		String boardName = bv.getName();
 		if (bv.getGame() == null) {

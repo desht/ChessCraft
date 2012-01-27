@@ -236,7 +236,7 @@ public class ChessBoard {
 	 * reload the styles in-use
 	 * @throws ChessException
 	 */
-	public void reloadStyles() throws ChessException {
+	void reloadStyles() throws ChessException {
 		if (boardStyle != null) {
 			setBoardStyle(boardStyle.getBoardStyleFile());
 		}
@@ -245,12 +245,8 @@ public class ChessBoard {
 		}
 	}
 
-	public void setA1Center(Location a1) {
-		setA1Center(a1, this.rotation);
-	}
-
 	// TODO: rotation & locations untested
-	public void setA1Center(Location a1, BoardOrientation rotation) {
+	void setA1Center(Location a1, BoardOrientation rotation) {
 		this.rotation = rotation;
 		if (a1 == null) {
 			// clear existing location / region data
@@ -297,22 +293,22 @@ public class ChessBoard {
 		}
 	}
 
-	public static BoardLightingMethod getLightingMethod() {
+	static BoardLightingMethod getLightingMethod() {
 		return lightingMethod;
 	}
 
-	public static void setLightingMethod(BoardLightingMethod lightingMethod) {
+	static void setLightingMethod(BoardLightingMethod lightingMethod) {
 		ChessBoard.lightingMethod = lightingMethod;
 	}
 
 	// </editor-fold>
 	/**
-	 * paint whole board
+	 * Paint everything!
 	 * (board, frame, enclosure, control panel, lighting)
 	 */
-	public void paintAll() {
+	void paintAll() {
 		if (board != null) {
-			clearAll();
+			fullBoard.clear(true);
 			paintEnclosure();
 			paintFrame();
 			paintBoard();
@@ -322,31 +318,24 @@ public class ChessBoard {
 				forceLightUpdate();
 			}
 			fullBoard.initLighting();
-			//if(chessGameCallback != null) paintChessPieces(chessGameCallback);
+			fullBoard.sendClientChanges();
 		}
 	}
 
-	public void paintEnclosure() {
-		if (board == null) {
-			return;
-		}
+	private void paintEnclosure() {
 		aboveFullBoard.setWalls(boardStyle.enclosureMat.getMaterial(), boardStyle.enclosureMat.getData());
 
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
 		boardStyle.enclosureMat.applyToCuboid(roof);
 	}
 
-	public void paintFrame() {
-		if (board == null) {
-			return;
-		}
+	private void paintFrame() {
+		// TODO this paints the entire square within the frame extents, including the part that will
+		// be overwritten by the actual squares.  Should really only paint the area round the outside.
 		boardStyle.frameMat.applyToCuboid(frameBoard);
 	}
 
-	public void paintBoard() {
-		if (board == null) {
-			return;
-		}
+	private void paintBoard() {
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				Cuboid sq = getSquare(row, col);
@@ -356,11 +345,11 @@ public class ChessBoard {
 		}
 	}
 
-	public void paintBoardSquare(int i) {
+	private void paintBoardSquare(int i) {
 		paintBoardSquare(i / 8, i % 8);
 	}
 
-	public void paintBoardSquare(int row, int col) {
+	private void paintBoardSquare(int row, int col) {
 		if (board == null) {
 			return;
 		}
@@ -369,11 +358,11 @@ public class ChessBoard {
 				? boardStyle.blackSquareMat : boardStyle.whiteSquareMat).applyToCuboid(sq);
 	}
 
-	public void highlightBoardSquare(int i, boolean highlight) {
-		highlightBoardSquare(i / 8, i % 8, highlight);
+	private void highlightBoardSquare(int sqi, boolean highlight) {
+		highlightBoardSquare(sqi / 8, sqi % 8, highlight);
 	}
 
-	public void highlightBoardSquare(int row, int col, boolean highlight) {
+	private void highlightBoardSquare(int row, int col, boolean highlight) {
 		if (board == null) {
 			return;
 		}
@@ -406,7 +395,12 @@ public class ChessBoard {
 		}
 	}
 
-	public void paintChessPieces(Position chessGame) {
+	/**
+	 * Paint all chess pieces according to the given ChessPresso Position.
+	 * 
+	 * @param chessGame
+	 */
+	void paintChessPieces(Position chessGame) {
 		if (board == null) {
 			return;
 		}
@@ -417,7 +411,14 @@ public class ChessBoard {
 		}
 	}
 
-	public void paintChessPiece(int row, int col, int stone) {
+	/**
+	 * Draw the chess piece represented by stone into the given row and column.
+	 * 
+	 * @param row
+	 * @param col
+	 * @param stone
+	 */
+	void paintChessPiece(int row, int col, int stone) {
 		if (board == null) {
 			return;
 		}
@@ -434,17 +435,17 @@ public class ChessBoard {
 		}
 	}
 
-	public void lightBoard(boolean light) {
+	void lightBoard(boolean light) {
 		lightBoard(light, false);
 	}
 
 	/**
-	 * applies lighting to the board <br>
-	 * - overrides the boardStyle's preference
+	 * Apply lighting to the board, overriding the boardStyle's preference
+	 * 
 	 * @param light if the board is lit up
 	 * @param force force lighting to be redone even it doesn't seem to have changed
 	 */
-	public void lightBoard(boolean light, boolean force) {
+	void lightBoard(boolean light, boolean force) {
 		if (board == null) {
 			return;
 		}
@@ -541,12 +542,12 @@ public class ChessBoard {
 	}
 	
 	/**
-	 * Force lighting update - if lighting is on for the board, force
+	 * Force a lighting update - if lighting is on for the board, force
 	 * all lights to be redrawn.  This would be done after any operation
 	 * that overwrote squares on the board (e.g. full repaint, square
 	 * highlight repaint...)
 	 */
-	public void forceLightUpdate() {
+	private void forceLightUpdate() {
 		if (isLighted) {
 			// force a lighting update
 			lightBoard(true, true);
@@ -554,14 +555,14 @@ public class ChessBoard {
 	}
 
 	/**
-	 * highlight two squares on the chessboard <br />
-	 * (erases previous highlight, if any) <br />
-	 * will use the highlight square colors per-square color, if set, <br />
-	 * or just the global highlight block
-	 * @param from index of the first square
-	 * @param to index of the second square
+	 * Highlight two squares on the chessboard, erasing previous highlight, if any.
+	 * Use the highlight square colors per-square color, if set,
+	 * or just the global highlight block otherwise.
+	 * 
+	 * @param from	square index of the first square
+	 * @param to	square index of the second square
 	 */
-	public void highlightSquares(int from, int to) {
+	void highlightSquares(int from, int to) {
 		if (board == null || boardStyle.highlightStyle == HighlightStyle.NONE) {
 			return;
 		}
@@ -603,7 +604,7 @@ public class ChessBoard {
 		}
 		Cuboid s1 = getSquare(Chess.sqiToRow(from), Chess.sqiToCol(from));
 		Cuboid s2 = getSquare(Chess.sqiToRow(to), Chess.sqiToCol(to));
-		//TODO: need to diferintiate rotation here, too...
+		//TODO: need to differentiate rotation here, too...
 		Location loc1 = s1.getRelativeBlock(s1.getSizeX() / 2, 0, s1.getSizeZ() / 2).getLocation();
 		Location loc2 = s2.getRelativeBlock(s2.getSizeX() / 2, 0, s2.getSizeZ() / 2).getLocation();
 
@@ -629,35 +630,24 @@ public class ChessBoard {
 			}
 		}
 	}
-
+	
 	/**
-	 * clear the board of pieces
+	 * Clear full area associated with this board
 	 */
-	public void clearBoard() {
-		if (board != null) {
-			Cuboid toClear = board.clone();
-			toClear.shift(Direction.Up, 1);
-			toClear.expand(Direction.Up, boardStyle.height - 1);
-			toClear.clear(true);
-		}
-	}
-
-	/**
-	 * clear full area associated with this board
-	 */
-	public void clearAll() {
+	void clearAll() {
 		if (fullBoard != null) {
 			fullBoard.clear(true);
 		}
 	}
 
 	/**
-	 * get the cuboid region for this square <i>of the chessboard itself</i>
+	 * Get the Cuboid region for this square <i>of the chessboard itself</i>
+	 * 
 	 * @param row
 	 * @param col
-	 * @return the region associated with this square
+	 * @return a Cuboid representing the square
 	 */
-	public Cuboid getSquare(int row, int col) {
+	private Cuboid getSquare(int row, int col) {
 		if (board == null || !(row >= 0 && col >= 0 && row < 8 && col < 8)) {
 			return null;
 		}
@@ -695,28 +685,30 @@ public class ChessBoard {
 	}
 
 	/**
-	 * get the region above a square in which a chesspiece gets put
-	 * @param row
-	 * @param col
-	 * @return
+	 * Get the region above a square into which a chesspiece gets drawn
+	 * 
+	 * @param row	the board row
+	 * @param col	the board column
+	 * @return		a Cuboid representing the drawing space
 	 */
-	public Cuboid getPieceRegion(int row, int col) {
+	private Cuboid getPieceRegion(int row, int col) {
 		if (board == null) {
 			return null;
 		}
-		// copy-paste of above, but with height
+		
 		Cuboid sq = getSquare(row, col);
-		sq.expand(Direction.Up, boardStyle.height - 1);
-		sq.shift(Direction.Up, 1);
+		sq.expand(Direction.Up, boardStyle.height - 1).shift(Direction.Up, 1);
+		
 		return sq;
 	}
 
 	/**
-	 * gets the index of the square clicked
-	 * @param loc location to check
-	 * @return the square index, or -1 if not on the board
+	 * Get the Chesspresso index of the square clicked
+	 * 
+	 * @param loc location that was clicked
+	 * @return the square index, or Chess.NO_SQUARE if not on the board
 	 */
-	public int getSquareAt(Location loc) {
+	int getSquareAt(Location loc) {
 		if (board == null || !areaBoard.contains(loc)) {
 			return Chess.NO_SQUARE;
 		}

@@ -7,6 +7,7 @@ import java.util.List;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.util.WorldEditUtils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -41,9 +42,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 
 		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()),
-				Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
+		                       Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
 		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()),
-				Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
+		                       Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
 
 	}
 
@@ -67,8 +68,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public Location getCenter() {
 		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()),
-				getLowerY() + (getUpperY() - getLowerY()),
-				getLowerZ() + (getUpperZ() - getLowerZ()));
+		                    getLowerY() + (getUpperY() - getLowerY()),
+		                    getLowerZ() + (getUpperZ() - getLowerZ()));
 	}
 
 	public World getWorld() {
@@ -231,6 +232,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * delete blocks in bounds, but don't allow items to drop (paintings are not
 	 * blocks, and are not included...) also does not scan the faces of the
 	 * region for drops when the region is cleared
+	 *
+	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
+	 * 			lighting recalculation
 	 */
 	public void clear(boolean fast) {
 		// first remove blocks that might pop off & leave a drop
@@ -342,36 +346,49 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return res;
 	}
 
+	/**
+	 * Force lighting to be recalculated for all chunks occupied by the cuboid.
+	 */
 	public void initLighting() {
 		for (Chunk c : getChunks()) {
-			//			System.out.println("chunk " + c + ": relight");
-			((CraftChunk)c).getHandle().initLighting(); 
+			((CraftChunk)c).getHandle().initLighting();
+			//			System.out.println("chunk " + c + ": relighted"); 
 		}
 	}
 
 	/**
-	 * Any clients within the threshold distance (DIST_SQUARED) of the cuboid may need
-	 * to be notified of any fast changes that happened.  Add the chunk coordinates of 
-	 * affected chunks to those players' chunk coord queue.
+	 * Any players within the threshold distance (DIST_SQUARED) of the cuboid may need
+	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
+	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
+	 * chunk queue.
 	 */
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public void sendClientChanges() {
-		int threshold = Bukkit.getServer().getViewDistance();
-		threshold = threshold * threshold;
-
-		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
+//		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
+//		System.out.println("view dist = " + threshold);
+//		threshold = threshold * threshold;
+//
+//		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
+//		for (Chunk c : getChunks()) {
+//			pairs.add(new ChunkCoordIntPair(c.getX() >> 4, c.getZ() >> 4));
+//		}
+//		int centerX = getLowerX() + getSizeX() / 2;	
+//		int centerZ = getLowerZ() + getSizeZ() / 2;
+//		for (Player player : lowerNE.getWorld().getPlayers()) {
+//			int px = player.getLocation().getBlockX();
+//			int pz = player.getLocation().getBlockZ();
+//			System.out.println("px = " + px + ", pz = " + pz + "   cx = " + centerX + ", cz = " + centerZ + "   threshold = " + threshold);
+//			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
+//				EntityPlayer ep = ((CraftPlayer) player).getHandle();
+//				ep.chunkCoordIntPairQueue.addAll(pairs);
+//				for (ChunkCoordIntPair p : pairs) {
+//					System.out.println("send " + player.getName() + ": chunk change: " + p.x + "," + p.z);
+//				}
+//			}
+//		}
+		
 		for (Chunk c : getChunks()) {
-			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
-		}
-		int centerX = getLowerX() + getSizeX() / 2;	
-		int centerZ = getLowerZ() + getSizeZ() / 2;
-		for (Player player : lowerNE.getWorld().getPlayers()) {
-			int px = player.getLocation().getBlockX();
-			int pz = player.getLocation().getBlockZ();
-			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
-				EntityPlayer ep = ((CraftPlayer) player).getHandle();
-				ep.chunkCoordIntPairQueue.addAll(pairs);
-			}
+			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
 		}
 	}
 

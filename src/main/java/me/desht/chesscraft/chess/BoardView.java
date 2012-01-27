@@ -424,10 +424,14 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		BoardView.removeBoardView(getName());
 	}
 
-	public void restoreTerrain(Player player) {
+	private void restoreTerrain(Player player) {
 		chessBoard.clearAll();
 		if (ChessCraft.getWorldEdit() != null) {
+			// WorldEdit should take care of changes being pushed to client
 			TerrainBackup.reload(player, this);
+		} else {
+			// ensure client sees the changes we made
+			chessBoard.getFullBoard().sendClientChanges();
 		}
 	}
 
@@ -603,9 +607,10 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 
 	public void wipe() {
 		chessBoard.clearAll();
+		chessBoard.getFullBoard().sendClientChanges();
 	}
 
-	public void highlightSquares(int fromSquare, int toSquare) {
+	void highlightSquares(int fromSquare, int toSquare) {
 		chessBoard.highlightSquares(fromSquare, toSquare);
 	}
 

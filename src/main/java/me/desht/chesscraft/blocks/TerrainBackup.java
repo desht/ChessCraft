@@ -82,9 +82,9 @@ public class TerrainBackup {
 		}
 	}
 
-	private void reloadTerrain() {
+	private boolean reloadTerrain() {
 		if (wep == null) {
-			return;
+			return false;
 		}
 
 		try {
@@ -97,11 +97,12 @@ public class TerrainBackup {
 			if (!saveFile.delete()) {
 				ChessCraftLogger.log(Level.WARNING, Messages.getString("TerrainBackup.cantDeleteTerrain", saveFile)); //$NON-NLS-1$
 			}
+			return true;
 		} catch (Exception e) {
 			// DataException, IOException, EmptyClipboardException,
 			// MaxChangedBlocksException
 			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantRestoreTerrain", e.getMessage())); //$NON-NLS-1$
-
+			return false;
 		}
 	}
 
@@ -115,12 +116,17 @@ public class TerrainBackup {
 	}
 
 	public static void reload(Player player, BoardView view) {
+		boolean restored = false;
 		try {
 			TerrainBackup tb = new TerrainBackup(player, view);
 			tb.reloadTerrain();
+			restored = true;
 		} catch (FilenameException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
-			// can't restore the terrain, so just replace with air
+		}
+		if (!restored) {
+			// can't restore the terrain, so just replace with air to avoid potentially
+			// valuable blocks being left around for the picking
 			view.wipe();
 		}
 	}
