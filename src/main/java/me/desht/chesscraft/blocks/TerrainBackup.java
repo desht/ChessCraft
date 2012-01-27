@@ -115,7 +115,7 @@ public class TerrainBackup {
 		}
 	}
 
-	public static void reload(Player player, BoardView view) {
+	public static boolean reload(Player player, BoardView view) {
 		boolean restored = false;
 		try {
 			TerrainBackup tb = new TerrainBackup(player, view);
@@ -123,10 +123,6 @@ public class TerrainBackup {
 		} catch (FilenameException e) {
 			ChessCraftLogger.log(Level.WARNING, e.getMessage());
 		}
-		if (!restored) {
-			// can't restore the terrain, so just replace with air to avoid potentially
-			// valuable blocks being left around for the picking
-			view.wipe();
-		}
+		return restored;
 	}
 }

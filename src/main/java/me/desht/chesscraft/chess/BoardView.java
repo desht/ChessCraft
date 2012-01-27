@@ -412,15 +412,15 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	public void deleteTemporary() {
-		delete(false, null);
+		deleteCommon(false, null);
 	}
 
 	public void deletePermanently(Player p) {
-		delete(true, p);
+		deleteCommon(true, p);
 		ChessCraft.getInstance().getSaveDatabase().unpersist(this);
 	}
 	
-	public void delete(boolean deleteBlocks, Player p) {
+	private void deleteCommon(boolean deleteBlocks, Player p) {
 		if (deleteBlocks) {
 			restoreTerrain(p);
 		}
@@ -428,17 +428,21 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	private void restoreTerrain(Player player) {
-		chessBoard.clearAll();
+		boolean restored = false;
+		
 		if (ChessCraft.getWorldEdit() != null) {
-			// WorldEdit should take care of changes being pushed to client
-			TerrainBackup.reload(player, this);
-		} else {
-			// ensure client sees the changes we made
+			// WorldEdit will take care of changes being pushed to client
+			restored = TerrainBackup.reload(player, this);
+		}
+		
+		if (!restored) {
+			// we couldn't restore the original terrain - just set the board to air
+			chessBoard.clearAll();
 			chessBoard.getFullBoard().sendClientChanges();
 		}
 	}
 
-	public Location findSafeLocationOutside() {
+	private Location findSafeLocationOutside() {
 		final int MAX_DIST = 100;
 
 		// search north from the board's northeast corner
@@ -610,11 +614,6 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 			}
 		}
 		return null;
-	}
-
-	public void wipe() {
-		chessBoard.clearAll();
-		chessBoard.getFullBoard().sendClientChanges();
 	}
 
 	void highlightSquares(int fromSquare, int toSquare) {

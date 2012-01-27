@@ -2,13 +2,10 @@ package me.desht.chesscraft.listeners;
 
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.chess.BoardView;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -79,15 +76,6 @@ public class ChessBlockListener implements Listener {
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
-//		Block b = event.getBlock();
-//		BoardView bv = BoardView.partOfChessBoard(b.getLocation());
-//		if (bv == null) {
-//			return;
-//		}
-//		
-//		if (b.getState() instanceof Sign) {
-//			event.setCancelled(true);
-//		}
 	}
 	
 	/**
@@ -103,16 +91,5 @@ public class ChessBlockListener implements Listener {
 			event.setCancelled(true);
 		}
 	}
-//	
-//	/**
-//	 * Cancelling form events...
-//	 * 
-//	 * @param event
-//	 */
-//	@EventHandler
-//	public void onBlockForm(BlockFormEvent event) {		
-//		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
-//			event.setCancelled(true);
-//		}
-//	}
+
 }

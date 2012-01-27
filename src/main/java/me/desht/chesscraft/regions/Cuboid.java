@@ -7,6 +7,7 @@ import java.util.List;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.util.WorldEditUtils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,10 +15,13 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
+import net.minecraft.server.ChunkCoordIntPair;
+import net.minecraft.server.EntityPlayer;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
@@ -358,34 +362,34 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
 	 * chunk queue.
 	 */
-//	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public void sendClientChanges() {
-//		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
+		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
 //		System.out.println("view dist = " + threshold);
-//		threshold = threshold * threshold;
-//
-//		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
-//		for (Chunk c : getChunks()) {
-//			pairs.add(new ChunkCoordIntPair(c.getX() >> 4, c.getZ() >> 4));
-//		}
-//		int centerX = getLowerX() + getSizeX() / 2;	
-//		int centerZ = getLowerZ() + getSizeZ() / 2;
-//		for (Player player : lowerNE.getWorld().getPlayers()) {
-//			int px = player.getLocation().getBlockX();
-//			int pz = player.getLocation().getBlockZ();
+		threshold = threshold * threshold;
+
+		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
+		for (Chunk c : getChunks()) {
+			pairs.add(new ChunkCoordIntPair(c.getX() >> 4, c.getZ() >> 4));
+		}
+		int centerX = getLowerX() + getSizeX() / 2;	
+		int centerZ = getLowerZ() + getSizeZ() / 2;
+		for (Player player : lowerNE.getWorld().getPlayers()) {
+			int px = player.getLocation().getBlockX();
+			int pz = player.getLocation().getBlockZ();
 //			System.out.println("px = " + px + ", pz = " + pz + "   cx = " + centerX + ", cz = " + centerZ + "   threshold = " + threshold);
-//			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
-//				EntityPlayer ep = ((CraftPlayer) player).getHandle();
-//				ep.chunkCoordIntPairQueue.addAll(pairs);
+			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
+				EntityPlayer ep = ((CraftPlayer) player).getHandle();
+				ep.chunkCoordIntPairQueue.addAll(pairs);
 //				for (ChunkCoordIntPair p : pairs) {
 //					System.out.println("send " + player.getName() + ": chunk change: " + p.x + "," + p.z);
 //				}
-//			}
-//		}
-
-		for (Chunk c : getChunks()) {
-			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
+			}
 		}
+
+//		for (Chunk c : getChunks()) {
+//			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
+//		}
 	}
 
 	public void setWalls(int blockID, Byte data) {

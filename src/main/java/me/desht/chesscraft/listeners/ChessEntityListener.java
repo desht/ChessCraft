@@ -15,7 +15,6 @@ import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -77,25 +76,6 @@ public class ChessEntityListener implements Listener {
 			}
 		}
 	}
-	
-//	@EventHandler
-//	public void onEntityCombust(EntityCombustEvent event) {
-//		if (event.isCancelled()) {
-//			return;
-//		}
-//		
-//		if (!ChessConfig.getConfig().getBoolean("no_burning")) { //$NON-NLS-1$
-//			return;
-//		}
-//		
-//		// outset by 1 to avoid combusting if walking into or out of a board with lava walls
-//		if (BoardView.partOfChessBoard(event.getEntity().getLocation(), 1) != null) {
-//			event.setDuration(0);
-////			event.setCancelled(true);
-//			event.getEntity().setFireTicks(0);
-//			System.out.println("combustion stopped");
-//		}
-//	}
 
 	@EventHandler
 	public void onEntityDamage(EntityDamageEvent event) {
