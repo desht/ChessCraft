@@ -14,16 +14,18 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
+import net.minecraft.server.ChunkCoordIntPair;
+import net.minecraft.server.EntityPlayer;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
 
 public class Cuboid implements Iterable<Block>, Cloneable {
-
 	private static WorldEditPlugin wep = null;
 
 	protected Location lowerNE; // min x,y,z
@@ -39,9 +41,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 
 		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()),
-		                       Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
+				Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
 		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()),
-		                       Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
+				Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
 
 	}
 
@@ -65,8 +67,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	public Location getCenter() {
 		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()),
-		                    getLowerY() + (getUpperY() - getLowerY()),
-		                    getLowerZ() + (getUpperZ() - getLowerZ()));
+				getLowerY() + (getUpperY() - getLowerY()),
+				getLowerZ() + (getUpperZ() - getLowerZ()));
 	}
 
 	public World getWorld() {
@@ -262,8 +264,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public void set(int blockID, boolean fast) {
-//		long start = System.nanoTime();
-		
+		//		long start = System.nanoTime();
+
 		if (blockID == 0) {
 			clear(fast);
 		} else {
@@ -277,13 +279,13 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				}
 			}
 		}
-		
-//		System.out.println("Cuboid set " + blockID + ": " + (System.nanoTime() - start) + "ns");
+
+		//		System.out.println("Cuboid set " + blockID + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	public void set(int blockID, Byte data, boolean fast) {
-//		long start = System.nanoTime();
-		
+		//		long start = System.nanoTime();
+
 		if (blockID == 0) {
 			clear(fast);
 		} else {
@@ -309,8 +311,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				}
 			}
 		}
-		
-//		System.out.println("Cuboid set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+
+		//		System.out.println("Cuboid set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	public void set(MaterialWithData mat, boolean fast) {
@@ -320,7 +322,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public void setWalls(int blockID) {
 		setWalls(blockID, null);
 	}
-	
+
 	/**
 	 * Get a list of the chunks which are fully or partially contained in this cuboid.
 	 * 
@@ -328,7 +330,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public List<Chunk> getChunks() {
 		List<Chunk> res = new ArrayList<Chunk>();
-		
+
 		World w = getLowerNE().getWorld();
 		int x1 = getLowerX(); int x2 = getUpperX();
 		int z1 = getLowerZ(); int z2 = getUpperZ();
@@ -339,11 +341,37 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 		return res;
 	}
-	
+
 	public void initLighting() {
 		for (Chunk c : getChunks()) {
-//			System.out.println("chunk " + c + ": relight");
+			//			System.out.println("chunk " + c + ": relight");
 			((CraftChunk)c).getHandle().initLighting(); 
+		}
+	}
+
+	/**
+	 * Any clients within the threshold distance (DIST_SQUARED) of the cuboid may need
+	 * to be notified of any fast changes that happened.  Add the chunk coordinates of 
+	 * affected chunks to those players' chunk coord queue.
+	 */
+	@SuppressWarnings("unchecked")
+	public void sendClientChanges() {
+		int threshold = Bukkit.getServer().getViewDistance();
+		threshold = threshold * threshold;
+
+		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
+		for (Chunk c : getChunks()) {
+			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
+		}
+		int centerX = getLowerX() + getSizeX() / 2;	
+		int centerZ = getLowerZ() + getSizeZ() / 2;
+		for (Player player : lowerNE.getWorld().getPlayers()) {
+			int px = player.getLocation().getBlockX();
+			int pz = player.getLocation().getBlockZ();
+			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
+				EntityPlayer ep = ((CraftPlayer) player).getHandle();
+				ep.chunkCoordIntPairQueue.addAll(pairs);
+			}
 		}
 	}
 
