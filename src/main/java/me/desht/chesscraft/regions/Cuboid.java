@@ -336,8 +336,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		List<Chunk> res = new ArrayList<Chunk>();
 
 		World w = getLowerNE().getWorld();
-		int x1 = getLowerX(); int x2 = getUpperX();
-		int z1 = getLowerZ(); int z2 = getUpperZ();
+		int x1 = getLowerX() & ~0xf; int x2 = getUpperX() & ~0xf;
+		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
 		for (int x = x1; x <= x2; x += 16) {
 			for (int z = z1; z <= z2; z += 16) {
 				res.add(w.getChunkAt(x, z));
@@ -349,7 +349,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Force lighting to be recalculated for all chunks occupied by the cuboid.
 	 */
-	public void initLighting() {
+	public void initLighting() {	
 		for (Chunk c : getChunks()) {
 			((CraftChunk)c).getHandle().initLighting();
 			//			System.out.println("chunk " + c + ": relighted"); 
