@@ -48,6 +48,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.desht.chesscraft.listeners.ChessBlockListener;
+import me.desht.chesscraft.listeners.ChessEntityListener;
+import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;

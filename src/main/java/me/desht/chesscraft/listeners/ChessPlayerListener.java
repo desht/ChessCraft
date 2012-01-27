@@ -1,5 +1,8 @@
-package me.desht.chesscraft;
+package me.desht.chesscraft.listeners;
 
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -17,9 +21,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
@@ -159,6 +166,23 @@ public class ChessPlayerListener implements Listener {
 		MessagePager.deletePager(event.getPlayer());
 	}
 
+	@EventHandler
+	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
+		if (BoardView.partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
+			event.setCancelled(true);
+			// seems just cancelling the event doesn't stop the bucket getting filled?
+			event.setItemStack(new ItemStack(Material.BUCKET, 1));
+			System.out.println("no no!");
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+		if (BoardView.partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+	
 	private void cancelMove(Location loc) {
 		BoardView bv = BoardView.onChessBoard(loc);
 		if (bv == null) {

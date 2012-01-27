@@ -7,7 +7,6 @@ import java.util.List;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.util.WorldEditUtils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,13 +14,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import net.minecraft.server.ChunkCoordIntPair;
-import net.minecraft.server.EntityPlayer;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;

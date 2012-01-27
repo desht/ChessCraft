@@ -388,15 +388,18 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	/**
-	 * check if this is somewhere within the board bounds
+	 * Check if this is somewhere within the board bounds.
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc		location to check
+	 * @param fudge		fudge factor - check within a slightly larger area
 	 * @return true if the location is *anywhere* within the board <br>
 	 *         including frame & enclosure
 	 */
 	public boolean isPartOfBoard(Location loc) {
-		Cuboid o = chessBoard.getFullBoard();
+		return isPartOfBoard(loc, 0);
+	}
+	public boolean isPartOfBoard(Location loc, int fudge) {
+		Cuboid o = chessBoard.getFullBoard().outset(Direction.Both, fudge);
 		return o != null && o.contains(loc);
 	}
 
@@ -565,14 +568,18 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView partOfChessBoard(Location loc) {
+		return partOfChessBoard(loc, 0);
+	}
+
+	public static BoardView partOfChessBoard(Location loc, int fudge) {
 		for (BoardView bv : listBoardViews()) {
-			if (bv.isPartOfBoard(loc)) {
+			if (bv.isPartOfBoard(loc, fudge)) {
 				return bv;
 			}
 		}
 		return null;
 	}
-
+	
 	/**
 	 * match if loc is above a board square but below the roof
 	 * 

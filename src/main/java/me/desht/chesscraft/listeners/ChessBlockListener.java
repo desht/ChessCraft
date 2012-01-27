@@ -1,5 +1,6 @@
-package me.desht.chesscraft;
+package me.desht.chesscraft.listeners;
 
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.chess.BoardView;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -7,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -73,15 +76,43 @@ public class ChessBlockListener implements Listener {
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.isCancelled())
 			return;
-		
-		Block b = event.getBlock();
-		BoardView bv = BoardView.partOfChessBoard(b.getLocation());
-		if (bv == null) {
-			return;
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
 		}
-		
-		if (b.getState() instanceof Sign) {
+//		Block b = event.getBlock();
+//		BoardView bv = BoardView.partOfChessBoard(b.getLocation());
+//		if (bv == null) {
+//			return;
+//		}
+//		
+//		if (b.getState() instanceof Sign) {
+//			event.setCancelled(true);
+//		}
+	}
+	
+	/**
+	 * Cancelling liquid flow events makes it possible to use water & lava for walls & chess pieces.
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onBlockFromTo(BlockFromToEvent event) {		
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		} else if (BoardView.partOfChessBoard(event.getToBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
+//	
+//	/**
+//	 * Cancelling form events...
+//	 * 
+//	 * @param event
+//	 */
+//	@EventHandler
+//	public void onBlockForm(BlockFormEvent event) {		
+//		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+//			event.setCancelled(true);
+//		}
+//	}
 }
