@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import org.bukkit.configuration.ConfigurationSection;
+
 import me.desht.chesscraft.blocks.MaterialWithData;
 
 import me.desht.chesscraft.exceptions.ChessException;
@@ -16,17 +18,17 @@ public class PieceTemplate {
 	List<List<String>> pieceData = null;
 	Map<Character, String> pieceMaterials = null;
 
-	public PieceTemplate(List<List<String>> data, Map<String, String> matMap) throws ChessException {
+	public PieceTemplate(List<List<String>> data, ConfigurationSection matMap) throws ChessException {
 		sizeY = data.size();
 		sizeZ = data.get(0).size();
 		sizeX = data.get(0).get(0).length();
 
 		Map<Character, MaterialWithData> mats = new HashMap<Character, MaterialWithData>();
-		for (Entry<String, String> entry : matMap.entrySet()) {
-			if (entry.getKey().length() != 1) {
-				throw new ChessException("invalid key loading PieceTemplate: " + entry.getKey());
+		for (String k : matMap.getKeys(false)) {
+			if (k.length() != 1) {
+				throw new ChessException("invalid key loading PieceTemplate: " + k);
 			}
-			mats.put(entry.getKey().charAt(0), new MaterialWithData(entry.getValue()));
+			mats.put(k.charAt(0), new MaterialWithData(matMap.getString(k)));
 		}
 
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
@@ -175,7 +177,8 @@ public class PieceTemplate {
 	}
 
 	/**
-	 * (Re)generate the piece data array and material map
+	 * (Re)generate the piece data array and material map.  This could be used to generate a new piece style
+	 * definition from an existing piece.
 	 */
 	private void scan() {
 		pieceData = new ArrayList<List<String>>(sizeY);

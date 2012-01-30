@@ -29,6 +29,14 @@ public class ChessStone {
 		return stone;
 	}
 
+	public int getWidth() {
+		return Math.max(rotatedStones[0].getSizeX(), rotatedStones[0].getSizeZ());
+	}
+	
+	public int getHeight() {
+		return rotatedStones[0].getSizeY();
+	}
+	
 	/**
 	 * Get the rotated piece template for the given direction, instantiating it if necessary.
 	 * 

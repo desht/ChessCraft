@@ -8,13 +8,9 @@ package me.desht.chesscraft.chess;
 
 import chesspresso.Chess;
 import chesspresso.position.Position;
-import java.io.File;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.chess.pieces.ChessPieceLibrary;
 import me.desht.chesscraft.chess.pieces.ChessStone;
-import me.desht.chesscraft.chess.pieces.PieceTemplate;
 import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
@@ -30,10 +26,10 @@ import org.bukkit.craftbukkit.CraftWorld;
 
 public class ChessBoard {
 	private static BoardLightingMethod lightingMethod = BoardLightingMethod.CRAFTBUKKIT;
-	
+
 	public static final String DEFAULT_PIECE_STYLE = "Standard";
 	public static final String DEFAULT_BOARD_STYLE = "Standard";
-	
+
 	// <editor-fold defaultstate="collapsed" desc="Variables">
 	//cuboid regions of areas on the board
 	/**
@@ -144,15 +140,14 @@ public class ChessBoard {
 	/**
 	 * @return the name of the board style used
 	 */
-	public String getBoardStyleStr() {
-		//return boardStyleStr;
+	public String getBoardStyleName() {
 		return boardStyle != null ? boardStyle.getName() : null;
 	}
 
 	/**
 	 * @return the name of the piece style being used
 	 */
-	public String getPieceStyleStr() {
+	public String getPieceStyleName() {
 		return chessPieceSet != null ? chessPieceSet.getName() : null;
 	}
 
@@ -178,40 +173,23 @@ public class ChessBoard {
 	}
 
 	public final void setPieceStyle(String pieceStyle) throws ChessException {
-		chessPieceSet = ChessPieceLibrary.getChessSet(pieceStyle == null ? DEFAULT_PIECE_STYLE : pieceStyle);
-		if (chessPieceSet == null) {
-			setPieceStyle(new File(ChessConfig.getPieceStyleDirectory(), pieceStyle + ".yml"));
+		if (boardStyle == null) {
+			return;
 		}
+
+		ChessSet newChessSet = ChessSet.getChessSet(pieceStyle);
+
+		// ensure the new chess set actually fits this board
+		if (newChessSet.getMaxWidth() > boardStyle.squareSize) {
+			throw new ChessException("Set '" + chessPieceSet.getName() + "' is too wide for this board!");
+		}
+		if (newChessSet.getMaxHeight() > boardStyle.height) {
+			throw new ChessException("Set '" + chessPieceSet.getName() + "' is too tall for this board!");
+		}
+
+		chessPieceSet = newChessSet;
 	}
 
-	public final void setPieceStyle(File pieceStyleFile) throws ChessException {
-		chessPieceSet = ChessPieceLibrary.getChessSet(pieceStyleFile);
-		if (chessPieceSet == null) {
-			chessPieceSet = ChessPieceLibrary.loadChessSet(pieceStyleFile);
-		}
-		if (boardStyle != null) {
-			/**
-			 * Overall sanity checking on board parameters
-			 * @throws ChessException if any of the piece sizes are too big
-			 */
-			int maxH = -1, maxV = -1;
-			for (ChessStone c : chessPieceSet) {
-				PieceTemplate p = c.getPieceTemplate(rotation);
-				maxH = Math.max(maxH, p.getSizeX());
-				maxH = Math.max(maxH, p.getSizeZ());
-				maxV = Math.max(maxV, p.getSizeY());
-			}
-
-			if (maxH > boardStyle.squareSize) {
-				throw new ChessException("Set '" + chessPieceSet.getName() + "' is too wide for this board!");
-			}
-			if (maxV > boardStyle.height) {
-				throw new ChessException("Set '" + chessPieceSet.getName() + "' is too tall for this board!");
-			}
-
-		}
-	}
-	
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
 		try {
 			this.boardStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
@@ -222,15 +200,16 @@ public class ChessBoard {
 	}
 
 	/**
-	 * reload the styles in-use
-	 * @throws ChessException
+	 * Reload the board and piece styles in-use
+	 * 
+	 * @throws ChessException if board or piece style cannot be loaded
 	 */
 	void reloadStyles() throws ChessException {
 		if (boardStyle != null) {
 			setBoardStyle(boardStyle.getName());
 		}
 		if (chessPieceSet != null) {
-			setPieceStyle(chessPieceSet.getFile());
+			setPieceStyle(chessPieceSet.getName());
 		}
 	}
 
@@ -252,27 +231,27 @@ public class ChessBoard {
 			if (rotation == BoardOrientation.NORTH) {
 				// N = +, +
 				a1Corner = new Location(a1.getWorld(), a1.getBlockX() + xOff,
-						a1.getBlockY(), a1.getBlockZ() + zOff);
+				                        a1.getBlockY(), a1.getBlockZ() + zOff);
 				h8Corner = new Location(a1.getWorld(), a1Corner.getBlockX() - boardStyle.squareSize * 8 + 1,
-						a1Corner.getBlockY(), a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
+				                        a1Corner.getBlockY(), a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
 			} else if (rotation == BoardOrientation.EAST) {
 				// E = -, +
 				a1Corner = new Location(a1.getWorld(), a1.getBlockX() - xOff,
-						a1.getBlockY(), a1.getBlockZ() + zOff);
+				                        a1.getBlockY(), a1.getBlockZ() + zOff);
 				h8Corner = new Location(a1.getWorld(), a1Corner.getBlockX() + boardStyle.squareSize * 8 - 1,
-						a1Corner.getBlockY(), a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
+				                        a1Corner.getBlockY(), a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
 			} else if (rotation == BoardOrientation.SOUTH) {
 				// S = -, -
 				a1Corner = new Location(a1.getWorld(), a1.getBlockX() - xOff,
-						a1.getBlockY(), a1.getBlockZ() - zOff);
+				                        a1.getBlockY(), a1.getBlockZ() - zOff);
 				h8Corner = new Location(a1.getWorld(), a1Corner.getBlockX() + boardStyle.squareSize * 8 - 1,
-						a1Corner.getBlockY(), a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
+				                        a1Corner.getBlockY(), a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
 			} else { // if (rotation == BoardOrientation.WEST) {
 				// W = +, -
 				a1Corner = new Location(a1.getWorld(), a1.getBlockX() + xOff,
-						a1.getBlockY(), a1.getBlockZ() - zOff);
+				                        a1.getBlockY(), a1.getBlockZ() - zOff);
 				h8Corner = new Location(a1.getWorld(), a1Corner.getBlockX() - boardStyle.squareSize * 8 + 1,
-						a1Corner.getBlockY(), a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
+				                        a1Corner.getBlockY(), a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
 			}
 			board = new Cuboid(a1Corner, h8Corner);
 			areaBoard = board.clone().expand(Direction.Up, boardStyle.height);
@@ -512,7 +491,7 @@ public class ChessBoard {
 	 */
 	private void lightArea(Cuboid area) {
 		try {
-//			long start = System.nanoTime();
+			//			long start = System.nanoTime();
 			World w = ((CraftWorld) area.getWorld()).getHandle();
 			for (Block b : area) {
 				int x = b.getLocation().getBlockX();
@@ -523,13 +502,13 @@ public class ChessBoard {
 				}
 				w.a(EnumSkyBlock.BLOCK, x, y, z, boardStyle.lightLevel);
 			}
-//			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
+			//			ChessCraftLogger.info("relit area in " + (System.nanoTime() - start) + " ns");
 		} catch (Throwable t) {
 			ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
 			lightingMethod = BoardLightingMethod.GLOWSTONE;
 		}
 	}
-	
+
 	/**
 	 * Force a lighting update - if lighting is on for the board, force
 	 * all lights to be redrawn.  This would be done after any operation
@@ -619,7 +598,7 @@ public class ChessBoard {
 			}
 		}
 	}
-	
+
 	/**
 	 * Clear full area associated with this board
 	 */
@@ -644,29 +623,29 @@ public class ChessBoard {
 		switch (rotation) {
 		case NORTH:
 			sq = new Cuboid(a1Corner.clone().add(
-					boardStyle.getSquareSize() * -row, 0,
-					boardStyle.getSquareSize() * -col));
+			                                     boardStyle.getSquareSize() * -row, 0,
+			                                     boardStyle.getSquareSize() * -col));
 			sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
 			sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
 			break;
 		case EAST:
 			sq = new Cuboid(a1Corner.clone().add(
-					boardStyle.getSquareSize() * col, 0,
-					boardStyle.getSquareSize() * -row));
+			                                     boardStyle.getSquareSize() * col, 0,
+			                                     boardStyle.getSquareSize() * -row));
 			sq.expand(Direction.East, boardStyle.getSquareSize() - 1);
 			sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
 			break;
 		case SOUTH:
 			sq = new Cuboid(a1Corner.clone().add(
-					boardStyle.getSquareSize() * row, 0,
-					boardStyle.getSquareSize() * col));
+			                                     boardStyle.getSquareSize() * row, 0,
+			                                     boardStyle.getSquareSize() * col));
 			sq.expand(Direction.South, boardStyle.getSquareSize() - 1);
 			sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
 			break;
 		case WEST:
 			sq = new Cuboid(a1Corner.clone().add(
-					boardStyle.getSquareSize() * -col, 0,
-					boardStyle.getSquareSize() * row));
+			                                     boardStyle.getSquareSize() * -col, 0,
+			                                     boardStyle.getSquareSize() * row));
 			sq.expand(Direction.West, boardStyle.getSquareSize() - 1);
 			sq.expand(Direction.North, boardStyle.getSquareSize() - 1);
 		}
@@ -684,10 +663,10 @@ public class ChessBoard {
 		if (board == null) {
 			return null;
 		}
-		
+
 		Cuboid sq = getSquare(row, col);
 		sq.expand(Direction.Up, boardStyle.height - 1).shift(Direction.Up, 1);
-		
+
 		return sq;
 	}
 

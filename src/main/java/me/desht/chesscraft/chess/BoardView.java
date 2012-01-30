@@ -45,13 +45,12 @@ import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
+	
 	private String name;
-	// null indicates board not used by any game yet
-	private ChessGame game = null;
+	private ChessGame game = null;			// null indicates board not currently used by any game
 	private ControlPanel controlPanel;
 	private ChessBoard chessBoard = null;
-	// for lighting updates
-	private byte lastLevel = -1;
+	private byte lastLightingLevel = -1;	// for lighting updates
 
 	public BoardView(String bName, String bStyle) throws ChessException {
 		this(bName, null, bStyle, null);
@@ -99,8 +98,8 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", name); //$NON-NLS-1$
 		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		result.put("pieceStyle", chessBoard.getPieceStyleStr()); //$NON-NLS-1$
-		result.put("boardStyle", chessBoard.getBoardStyleStr()); //$NON-NLS-1$
+		result.put("pieceStyle", chessBoard.getPieceStyleName()); //$NON-NLS-1$
+		result.put("boardStyle", chessBoard.getBoardStyleName()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
 		result.put("direction", chessBoard.getRotation().name());
 		return result;
@@ -166,12 +165,16 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return name;
 	}
 
-	public String getBoardStyle() {
-		return chessBoard.getBoardStyleStr();
+	public File getSaveDirectory() {
+		return ChessConfig.getBoardPersistDirectory();
 	}
 
-	public String getPieceStyle() {
-		return chessBoard.getPieceStyleStr();
+	public String getBoardStyleName() {
+		return chessBoard.getBoardStyleName();
+	}
+
+	public String getPieceStyleName() {
+		return chessBoard.getPieceStyleName();
 	}
 
 	public ChessGame getGame() {
@@ -180,6 +183,10 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 
 	public Location getA1Square() {
 		return chessBoard.getA1Corner();
+	}
+	
+	public ControlPanel getControlPanel() {
+		return controlPanel;
 	}
 
 	public int getFrameWidth() {
@@ -196,10 +203,6 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 
 	public int getLightLevel() {
 		return chessBoard.getBoardStyle().getLightLevel();
-	}
-	
-	public ControlPanel getControlPanel() {
-		return controlPanel;
 	}
 
 	public MaterialWithData getBlackSquareMat() {
@@ -252,26 +255,16 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 			return;
 		}
 
-//        byte level = getOuterBounds().getUpperSW().getBlock().getLightLevel();
-//        byte level = getBounds().shift(Direction.Up, height/2)
-//                .getUpperSW().getBlock().getLightLevel();
-//        Player jas = plugin.getServer().getPlayer("jascotty2");
-//        if(jas!=null && getName().contains("ter")){
-//            Cuboid c = getBounds().shift(Direction.Up, 2).
-//				inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
-//				expand(Direction.Up, getHeight() / 2);
-//			c.weSelect(jas);
-//        }
 		if (ChessBoard.getLightingMethod() == BoardLightingMethod.GLOWSTONE) {
 			byte level = getBounds().shift(Direction.Up, 2).
 					inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
 					expand(Direction.Up, getHeight() / 2).
 					averageLightLevel();
 
-			if (!force && isBright(level) == isBright(lastLevel) && lastLevel >= 0) {
+			if (!force && isBright(level) == isBright(lastLightingLevel) && lastLightingLevel >= 0) {
 				return;
 			}
-			lastLevel = level;
+			lastLightingLevel = level;
 			chessBoard.lightBoard(!isBright(level));
 		} else if (ChessBoard.getLightingMethod() == BoardLightingMethod.CRAFTBUKKIT) {
 			chessBoard.lightBoard(true);
@@ -287,22 +280,25 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	/**
-	 * get the bounds of the board itself
+	 * Get the bounds of the board itself
 	 * 
-	 * @return the bounds of the chess board - the innermost ring of the frame
+	 * @return the bounds of the chess board
 	 */
 	public Cuboid getBounds() {
 		return chessBoard.getBoard();
 	}
 
 	/**
-	 * get the region that encloses the outer extremities of this board
-	 * @return
+	 * Get the region that encloses the outer extremities of this board
+	 * 
+	 * @return	The outermost bounding box - outer edge of the frame
 	 */
 	public Cuboid getOuterBounds() {
 		return chessBoard.getFullBoard();
 	}
 
+	//--------------------- Chesspresso Listener methods --------------------------------
+	
 	@Override
 	public void castlesChanged(int castles) {
 		// TODO Auto-generated method stub
@@ -343,6 +339,8 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		controlPanel.updateToMoveIndicator(mat);
 	}
 
+	//-------------------------------------------------------------------------------------
+	
 	public void setGame(ChessGame game) {
 		if (this.game != null) {
 			this.game.getPosition().removePositionListener(this);
@@ -440,6 +438,11 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		}
 	}
 
+	/**
+	 * Find a safe location to teleport a player out of this board
+	 * 
+	 * @return	The location
+	 */
 	private Location findSafeLocationOutside() {
 		final int MAX_DIST = 100;
 
@@ -460,7 +463,41 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		}
 	}
 
-	/*------------------------------------------------------------------------------_*/
+	void highlightSquares(int fromSquare, int toSquare) {
+		chessBoard.highlightSquares(fromSquare, toSquare);
+	}
+
+	public void reloadStyle() throws ChessException {
+		chessBoard.reloadStyles();
+	}
+
+	public void showBoardDetail(Player player) {
+		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
+		Cuboid bounds = getOuterBounds();
+		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
+	
+		MessagePager pager = MessagePager.getPager(player).clear();
+		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
+		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
+		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
+		                                                      getWhiteSquareMat(), getBlackSquareMat()));
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
+		                                                      getFrameMat()));
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getLightLevel() > 0)); //$NON-NLS-1$
+	
+		pager.showPage();
+	}
+
+	/*----------------------static methods--------------------------------------*/
+	
 	public static void addBoardView(String name, BoardView view) {
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardCreated(view);
@@ -614,14 +651,6 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return null;
 	}
 
-	void highlightSquares(int fromSquare, int toSquare) {
-		chessBoard.highlightSquares(fromSquare, toSquare);
-	}
-
-	public void reloadStyle() throws ChessException {
-		chessBoard.reloadStyles();
-	}
-	
 	public static void teleportOut(Player player) throws ChessException {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 		
@@ -642,35 +671,5 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		} else {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
-	}
-	
-	public void showBoardDetail(Player player) {
-		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
-		Cuboid bounds = getOuterBounds();
-		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
-
-		MessagePager pager = MessagePager.getPager(player).clear();
-		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
-		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
-		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyle())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyle())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
-		                                                      getWhiteSquareMat(), getBlackSquareMat()));
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
-		                                                      getFrameMat()));
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getLightLevel() > 0)); //$NON-NLS-1$
-
-		pager.showPage();
-	}
-
-	@Override
-	public File getSaveDirectory() {
-		return ChessConfig.getBoardPersistDirectory();
 	}
 }

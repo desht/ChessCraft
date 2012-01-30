@@ -275,9 +275,8 @@ public class ChessConfig {
 	private static void versionChanged(String oldVersion, String currentVersion) {
 		int rel1 = getRelease(oldVersion);
 		int rel2 = getRelease(currentVersion);
-		if (rel1 < 4000 && rel2 >= 4000) {
-			// "large" chess set definition is different in v0.4+ - block rotation is handled
-			// by ChessCraft, not the definition file.  Force re-extraction.
+		if (rel1 < 4000 && rel2 >= 4000 || rel1 < 5000 && rel2 >= 5000) {
+			// "large" chess set definition is different in v0.4+ and again in v0.5+
 			new File(pieceStyleDir, "large.yml").delete();
 		}
 	}

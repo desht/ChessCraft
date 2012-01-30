@@ -8,18 +8,18 @@ package me.desht.chesscraft.chess;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
 
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
-import org.yaml.snakeyaml.Yaml;
+
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BoardStyle {
 
@@ -169,7 +169,9 @@ public class BoardStyle {
 	public void saveStyle(String newStyleName) throws ChessException {
 		File newFile = new File(ChessConfig.getBoardStyleDirectory(), newStyleName + ".yml");
 		
-		// yeah, it would be nice to use YAML libs to save this, but I'm putting comments in
+		// TODO: disallow overwriting a built-in style name?
+		
+		// It would be nice to use the configuration API to save this, but I want comments
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
 			out.write("# Chess board style definition\n\n");
@@ -213,71 +215,44 @@ public class BoardStyle {
 	}
 
 	public static BoardStyle loadNewStyle(String boardStyle) throws FileNotFoundException, ChessException {
-		Yaml yaml = new Yaml();
-		
-		File f = new File(ChessConfig.getBoardStyleDirectory(), boardStyle + ".yml");
+		Configuration c = YamlConfiguration.loadConfiguration(new File(ChessConfig.getBoardStyleDirectory(), boardStyle + ".yml"));
 
-		FileInputStream in = new FileInputStream(f);
-		@SuppressWarnings("unchecked")
-		Map<String, Object> styleMap = (Map<String, Object>) yaml.load(in);
-
-		for (String k : new String[]{"square_size", "frame_width", "height",
-					"black_square", "white_square", "frame", "enclosure"}) {
-			if (!styleMap.containsKey(k)) {
-				throw new ChessException("required field '" + k + "' is missing");
+		for (String k : new String[] {
+				"square_size", "frame_width", "height",
+				"black_square", "white_square", "frame", "enclosure"}) {
+			if (!c.contains(k)) {
+				throw new ChessException("board style is missing required field '" + k + "'");
 			}
 		}
-		if (!styleMap.containsKey("lit") && !styleMap.containsKey("light_level")) {
-			throw new ChessException("must have at least one of 'lit' or 'light_level'");
+		if (!c.contains("lit") && !c.contains("light_level")) {
+			throw new ChessException("board style must have at least one of 'lit' or 'light_level'");
 		}
 		
 		BoardStyle style = new BoardStyle();
-		style.styleName = f.getName().replaceFirst("\\.yml$", "");
+		style.styleName = boardStyle;
 
-		style.setSquareSize((Integer) styleMap.get("square_size"));
-		style.setFrameWidth((Integer) styleMap.get("frame_width"));
-		style.setHeight((Integer) styleMap.get("height"));
-		style.pieceStyleName = (String) styleMap.get("piece_style");
+		style.setSquareSize(c.getInt("square_size"));
+		style.setFrameWidth(c.getInt("frame_width"));
+		style.setHeight(c.getInt("height"));
+		style.pieceStyleName = c.getString("piece_style");
 
-		if (styleMap.containsKey("lit")) {
+		if (c.contains("lit")) {
 			style.lightLevel = 15;
 		} else {
-			style.lightLevel = (Integer) styleMap.get("light_level");
+			style.lightLevel = c.getInt("light_level");
 		}
 
-		style.blackSquareMat = new MaterialWithData((String) styleMap.get("black_square"));
-		style.whiteSquareMat = new MaterialWithData((String) styleMap.get("white_square"));
-		style.frameMat = new MaterialWithData((String) styleMap.get("frame"));
-		style.enclosureMat = new MaterialWithData((String) styleMap.get("enclosure"));
+		style.blackSquareMat = new MaterialWithData(c.getString("black_square"));
+		style.whiteSquareMat = new MaterialWithData(c.getString("white_square"));
+		style.frameMat = new MaterialWithData(c.getString("frame"));
+		style.enclosureMat = new MaterialWithData(c.getString("enclosure"));
 
-		/**************  added optional parameters  **************/
-		if (styleMap.get("panel") != null) {
-			style.controlPanelMat = new MaterialWithData((String) styleMap.get("panel"));
-		}
-		if (styleMap.get("highlight") != null) {
-			style.highlightMat = new MaterialWithData((String) styleMap.get("highlight"));
-		} else {
-			style.highlightMat = new MaterialWithData(89);
-		}
-
-		if (styleMap.get("highlight_white_square") != null) {
-			style.highlightWhiteSquareMat = new MaterialWithData(
-					(String) styleMap.get("highlight_white_square"));
-		} else {
-			style.highlightWhiteSquareMat = null;
-		}
-
-		if (styleMap.get("highlight_black_square") != null) {
-			style.highlightBlackSquareMat = new MaterialWithData(
-					(String) styleMap.get("highlight_black_square"));
-		} else {
-			style.highlightBlackSquareMat = null;
-		}
-
-		style.highlightStyle = HighlightStyle.getStyle((String) styleMap.get("highlight_style"));
-		if (style.highlightStyle == null) {
-			style.highlightStyle = HighlightStyle.CORNERS;
-		}
+		/************** optional parameters  **************/		
+		style.controlPanelMat = new MaterialWithData(c.getString("panel", style.frameMat.toString()));
+		style.highlightMat = new MaterialWithData(c.getString("highlight", "glowstone"));
+		style.highlightWhiteSquareMat = new MaterialWithData(c.getString("highlight_white_square", style.highlightMat.toString()));
+		style.highlightBlackSquareMat = new MaterialWithData(c.getString("highlight_black_square", style.highlightMat.toString()));
+		style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
 
 		return style;
 	}
