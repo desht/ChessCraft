@@ -11,7 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -51,8 +51,8 @@ public class ChessEntityListener implements Listener {
 		if (BoardView.partOfChessBoard(event.getEntity().getLocation()) != null
 				|| BoardView.partOfChessBoard(event.getTarget().getLocation()) != null) {
 			event.setCancelled(true);
-			// don't remove tame (pet) wolves
-			if (!(event.getEntity() instanceof Wolf && ((Wolf) event.getEntity()).isTamed())) {
+			// don't remove tame creatures
+			if (!(event.getEntity() instanceof Tameable && ((Tameable) event.getEntity()).isTamed())) {
 				event.getEntity().remove();
 			}
 		}
