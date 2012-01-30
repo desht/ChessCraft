@@ -11,12 +11,13 @@ import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.entity.Player;
 
-public class CreateBoardCommand extends AbstractCommand {
+public class BoardCreationCommand extends AbstractCommand {
 
-	public CreateBoardCommand() {
-		super("chess c b", 1, 3);
+	public BoardCreationCommand() {
+		super("chess b c", 1, 3);
+		addAlias("chess c b");	// backwards compat
 		setPermissionNode("chesscraft.commands.create.board");
-		setUsage("/chess create board <board-name> [-style <style-name>]");
+		setUsage("/chess board create <board-name> [-style <style-name>]");
 	}
 
 	@Override

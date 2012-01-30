@@ -8,10 +8,11 @@ import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.entity.Player;
 
-public class DeleteBoardCommand extends AbstractCommand {
+public class BoardDeletionCommand extends AbstractCommand {
 
-	public DeleteBoardCommand() {
-		super("chess d b", 1, 1);
+	public BoardDeletionCommand() {
+		super("chess b d", 1, 1);
+		addAlias("chess d b");
 		setPermissionNode("chesscraft.commands.delete.board");
 		setUsage("/chess delete board <board-name>");
 	}
