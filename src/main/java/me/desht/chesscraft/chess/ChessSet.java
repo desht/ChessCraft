@@ -97,11 +97,16 @@ public class ChessSet implements Iterable<ChessStone> {
 	
 	@SuppressWarnings("unchecked")
 	public static ChessSet loadChessSet(String setFileName) throws ChessException {
-		if (!setFileName.endsWith(".yml")) {
-			setFileName = setFileName + ".yml";
+		File f = new File(ChessConfig.getPieceStyleDirectory(), setFileName.toLowerCase() + ".yml");
+		if (!f.canRead()) {
+			throw new ChessException("piece style file is not readable");
 		}
-		Configuration c = YamlConfiguration.loadConfiguration(new File(ChessConfig.getPieceStyleDirectory(), setFileName));
-
+		Configuration c = YamlConfiguration.loadConfiguration(f);
+		requireSection(c, "name");
+		requireSection(c, "pieces");
+		requireSection(c, "materials.white");
+		requireSection(c, "materials.black");
+		
 		String setName = c.getString("name");
 		Map<Integer, PieceTemplate> stoneToTemplate = new HashMap<Integer, PieceTemplate>();
 		
@@ -117,6 +122,11 @@ public class ChessSet implements Iterable<ChessStone> {
 		ChessSet set = new ChessSet(setName, stoneToTemplate);
 		ChessCraftLogger.log("loaded set " + setName + " OK.");
 		return set;
+	}
+	
+	private static void requireSection(Configuration c, String key) throws ChessException {
+		if (!c.contains(key))
+			throw new ChessException("piece style file is missing required section '" + key + "'");
 	}
 	
 	//-------------------------------- iterator class

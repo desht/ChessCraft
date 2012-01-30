@@ -26,7 +26,6 @@ public class CommandManager {
 		for (AbstractCommand cmd : cmdList) {
 			if (cmd.matchesSubCommand(label, args)) {
 				if (cmd.matchesArgCount(label, args)) {
-					System.out.println("matched cmd " + cmd.getClass().getName() + " args = " + cmd.getArgs());
 					PermissionUtils.requirePerms(player, cmd.getPermissionNode());
 					String[] actualArgs = cmd.getArgs();
 					res = cmd.execute(plugin, player, actualArgs);

@@ -178,25 +178,26 @@ public class ChessBoard {
 		}
 
 		ChessSet newChessSet = ChessSet.getChessSet(pieceStyle);
-
 		// ensure the new chess set actually fits this board
-		if (newChessSet.getMaxWidth() > boardStyle.squareSize) {
-			throw new ChessException("Set '" + chessPieceSet.getName() + "' is too wide for this board!");
-		}
-		if (newChessSet.getMaxHeight() > boardStyle.height) {
-			throw new ChessException("Set '" + chessPieceSet.getName() + "' is too tall for this board!");
+		if (newChessSet.getMaxWidth() > boardStyle.squareSize || newChessSet.getMaxHeight() > boardStyle.height) {
+			throw new ChessException("Set '" + newChessSet.getName() + "' is too large for this board!");
 		}
 
 		chessPieceSet = newChessSet;
 	}
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
-		try {
-			this.boardStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
-		} catch (Exception e) {
-			ChessCraftLogger.severe("can't load board style " + boardStyleName, e);
-			throw new ChessException("Board style '" + boardStyleName + "' is not available.");
+		BoardStyle newStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
+		
+		// we don't allow any changes to the board's dimensions, only changes to the appearance of the board
+		if (boardStyle != null &&
+				(boardStyle.frameWidth != newStyle.frameWidth ||
+				boardStyle.squareSize != newStyle.squareSize ||
+				boardStyle.height != newStyle.height)) {
+			throw new ChessException("New board style dimensions do not match the current board dimensions");
 		}
+		
+		boardStyle = newStyle;
 	}
 
 	/**
@@ -295,7 +296,7 @@ public class ChessBoard {
 
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
 		boardStyle.enclosureMat.applyToCuboid(roof);
-		
+
 		if (!boardStyle.enclosureMat.equals(boardStyle.strutsMat)) {
 			paintStruts();
 		}
@@ -312,7 +313,7 @@ public class ChessBoard {
 		c.set(boardStyle.strutsMat, true);
 		c.shift(Direction.North, frameBoard.getSizeZ() - 1);
 		c.set(boardStyle.strutsMat, true);
-		
+
 		// horizontal struts along roof edge
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
 		for (Block b : roof.walls()) {

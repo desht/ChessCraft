@@ -61,8 +61,10 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					style.setHighlightStyle(HighlightStyle.getStyle(val));
 				} else if (partialMatch(attr, "light_level")) {
 					style.setLightLevel(Integer.parseInt(val));
-				} else if (partialMatch(attr, "pieces")) {
+				} else if (partialMatch(attr, "piecestyle")) {
 					bv.getChessBoard().setPieceStyle(val);
+				} else if (partialMatch(attr, "boardstyle")) {
+					bv.getChessBoard().setBoardStyle(val);
 				} else {
 					throw new ChessException("Unknown attribute '" + attr + "'.");
 				}

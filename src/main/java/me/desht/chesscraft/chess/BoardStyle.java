@@ -178,7 +178,7 @@ public class BoardStyle {
 	}
 
 	public void saveStyle(String newStyleName) throws ChessException {
-		File newFile = new File(ChessConfig.getBoardStyleDirectory(), newStyleName + ".yml");
+		File newFile = new File(ChessConfig.getBoardStyleDirectory(), newStyleName.toLowerCase() + ".yml");
 		
 		// TODO: disallow overwriting a built-in style name?
 		
@@ -227,8 +227,12 @@ public class BoardStyle {
 		}
 	}
 
-	public static BoardStyle loadNewStyle(String boardStyle) throws FileNotFoundException, ChessException {
-		Configuration c = YamlConfiguration.loadConfiguration(new File(ChessConfig.getBoardStyleDirectory(), boardStyle + ".yml"));
+	public static BoardStyle loadNewStyle(String boardStyle) throws ChessException {
+		File f = new File(ChessConfig.getBoardStyleDirectory(), boardStyle.toLowerCase() + ".yml");
+		if (!f.canRead()) {
+			throw new ChessException("board style file is not readable");
+		}
+		Configuration c = YamlConfiguration.loadConfiguration(f);
 
 		for (String k : new String[] {
 				"square_size", "frame_width", "height",
