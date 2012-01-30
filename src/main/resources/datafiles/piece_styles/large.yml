@@ -15,10 +15,10 @@ materials:
     L: '65:4'
     K: '65:5'
     T: '50'
-    Y: '50:3'
-    U: '50:4'
-    I: '50:2'
-    R: '50:1'
+    Y: '50:4'
+    U: '50:3'
+    I: '50:1'
+    R: '50:2'
   white:
     O: AIR
     X: IRON_BLOCK
@@ -26,10 +26,10 @@ materials:
     L: '65:4'
     K: '65:5'
     T: '50'
-    Y: '50:3'
-    U: '50:4'
-    I: '50:2'
-    R: '50:1'
+    Y: '50:4'
+    U: '50:3'
+    I: '50:1'
+    R: '50:2'
 
 # Piece definitions
 # This is a list of list of strings such that:
