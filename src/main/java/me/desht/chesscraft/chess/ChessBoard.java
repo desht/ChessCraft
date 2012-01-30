@@ -295,6 +295,29 @@ public class ChessBoard {
 
 		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
 		boardStyle.enclosureMat.applyToCuboid(roof);
+		
+		if (!boardStyle.enclosureMat.equals(boardStyle.strutsMat)) {
+			paintStruts();
+		}
+	}
+
+	private void paintStruts() {
+		// vertical struts at the frame corners
+		Cuboid c = new Cuboid(frameBoard.getLowerNE());
+		c.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height);
+		c.set(boardStyle.strutsMat, true);
+		c.shift(Direction.South, frameBoard.getSizeX() - 1);
+		c.set(boardStyle.strutsMat, true);
+		c.shift(Direction.West, frameBoard.getSizeZ() - 1);
+		c.set(boardStyle.strutsMat, true);
+		c.shift(Direction.North, frameBoard.getSizeZ() - 1);
+		c.set(boardStyle.strutsMat, true);
+		
+		// horizontal struts along roof edge
+		Cuboid roof = new Cuboid(frameBoard).shift(Direction.Up, boardStyle.height + 1);
+		for (Block b : roof.walls()) {
+			boardStyle.strutsMat.applyToBlockFast(b);
+		}
 	}
 
 	private void paintFrame() {

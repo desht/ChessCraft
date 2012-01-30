@@ -23,8 +23,10 @@ black_square: obsidian
 frame: wood
 # material/data for the enclosure (if you don't use glass, then you better have lit = true!)
 enclosure: glass
-# is the board lit up?
-lit: true
+# material/data for the enclosure struts
+struts: iron_block
+# the board's light level
+light_level: 15
 # style of chess set to use (see ../pieces/*.yml)
 # the style chosen must fit within the square_size specified above
 piece_style: Standard

@@ -16,6 +16,6 @@ public enum HighlightStyle {
 				return h;
 			}
 		}
-		return null;
+		throw new IllegalArgumentException("unknown highlight style: " + style);
 	}
 }

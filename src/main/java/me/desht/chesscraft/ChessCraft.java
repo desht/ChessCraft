@@ -5,6 +5,8 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.commands.ArchiveCommand;
+import me.desht.chesscraft.commands.BoardStyleSaveCommand;
+import me.desht.chesscraft.commands.BoardStyleSetCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
 import me.desht.chesscraft.commands.CommandManager;
 import me.desht.chesscraft.commands.CreateBoardCommand;
@@ -293,6 +295,8 @@ public class ChessCraft extends JavaPlugin {
 
 	private void registerCommands() {
 		cmds.registerCommand(new ArchiveCommand());
+		cmds.registerCommand(new BoardStyleSetCommand());
+		cmds.registerCommand(new BoardStyleSaveCommand());
 		cmds.registerCommand(new ClaimVictoryCommand());
 		cmds.registerCommand(new CreateBoardCommand());
 		cmds.registerCommand(new CreateGameCommand());

@@ -90,7 +90,7 @@ public class ControlPanel {
 	}
 
 	public void repaint() {
-		panelBlocks.set(view.getControlPanelMat(), true);
+		panelBlocks.set(view.getControlPanelMaterial(), true);
 		panelBlocks.initLighting();
 
 		ChessGame game = view.getGame();

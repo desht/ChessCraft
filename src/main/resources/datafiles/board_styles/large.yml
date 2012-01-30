@@ -9,11 +9,13 @@ white_square: IRON_BLOCK
 # material/data for the black squares
 black_square: OBSIDIAN
 # material/data for the frame
-frame: '5'
+frame: WOOD
 # material/data for the enclosure (if you don't use glass, then you better have lit = true!)
-enclosure: air
-# is the board lit up?
-lit: true
+enclosure: AIR
+# material/data for the enclosure struts
+struts: AIR
+# the board's light level
+light_level: 15
 # style of chess set to use (see ../pieces/*.yml)
 # the style chosen must fit within the square_size specified above
 piece_style: large

@@ -44,6 +44,7 @@ public abstract class AbstractCommand {
 	public boolean matchesSubCommand(String label, String[] args) {
 		if (!label.equalsIgnoreCase(this.command))
 			return false;
+		
 		if (args.length < subCommands.length)
 			return false;
 		

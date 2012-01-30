@@ -165,6 +165,10 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return name;
 	}
 
+	public ChessBoard getChessBoard() {
+		return chessBoard;
+	}
+	
 	public File getSaveDirectory() {
 		return ChessConfig.getBoardPersistDirectory();
 	}
@@ -205,23 +209,27 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return chessBoard.getBoardStyle().getLightLevel();
 	}
 
-	public MaterialWithData getBlackSquareMat() {
+	public MaterialWithData getBlackSquareMaterial() {
 		return chessBoard.getBoardStyle().getBlackSquareMaterial();
 	}
 
-	public MaterialWithData getWhiteSquareMat() {
+	public MaterialWithData getWhiteSquareMaterial() {
 		return chessBoard.getBoardStyle().getWhiteSquareMaterial();
 	}
 
-	public MaterialWithData getFrameMat() {
+	public MaterialWithData getFrameMaterial() {
 		return chessBoard.getBoardStyle().getFrameMaterial();
 	}
 
-	public MaterialWithData getControlPanelMat() {
+	public MaterialWithData getControlPanelMaterial() {
 		return chessBoard.getBoardStyle().getControlPanelMaterial();
 	}
 
-	public MaterialWithData getEnclosureMat() {
+	public MaterialWithData getEnclosureMaterial() {
+		return chessBoard.getBoardStyle().getEnclosureMaterial();
+	}
+
+	public MaterialWithData getStrutsMaterial() {
 		return chessBoard.getBoardStyle().getEnclosureMaterial();
 	}
 
@@ -328,11 +336,11 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	public void toPlayChanged(int toPlay) {
 		MaterialWithData mat;
 		if (toPlay == Chess.WHITE) {
-			mat = getWhiteSquareMat();
+			mat = getWhiteSquareMaterial();
 		} else if (toPlay == Chess.BLACK) {
-			mat = getBlackSquareMat();
+			mat = getBlackSquareMaterial();
 		} else if (toPlay == Chess.NOBODY) {
-			mat = getControlPanelMat();
+			mat = getControlPanelMaterial();
 		} else {
 			return; // should never get here
 		}
@@ -486,10 +494,11 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
-		                                                      getWhiteSquareMat(), getBlackSquareMat()));
+		                                                      getWhiteSquareMaterial(), getBlackSquareMaterial()));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
-		                                                      getFrameMat()));
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMat())); //$NON-NLS-1$
+		                                                      getFrameMaterial()));
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getLightLevel() > 0)); //$NON-NLS-1$
 	

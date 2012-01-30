@@ -30,6 +30,7 @@ public class BoardStyle {
 	MaterialWithData blackSquareMat, whiteSquareMat;
 	MaterialWithData enclosureMat, frameMat, controlPanelMat;
 	MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
+	MaterialWithData strutsMat;
 	HighlightStyle highlightStyle;
 	int lightLevel;
 	String styleName;
@@ -60,7 +61,9 @@ public class BoardStyle {
 	}
 
 	public void setLightLevel(int lightLevel) {
-		this.lightLevel = lightLevel;
+		if (lightLevel >= 0 && lightLevel <= 15) {
+			this.lightLevel = lightLevel;
+		}
 	}
 
 	public MaterialWithData getBlackSquareMaterial() {
@@ -91,6 +94,10 @@ public class BoardStyle {
 		return highlightMat;
 	}
 
+	public MaterialWithData getStrutsMaterial() {
+		return strutsMat;
+	}
+	
 	public MaterialWithData getHighlightMaterial(boolean isWhiteSquare) {
 		return isWhiteSquare ? getWhiteSquareHighlightMaterial() : getBlackSquareHighlightMaterial();
 	}
@@ -109,7 +116,7 @@ public class BoardStyle {
 		}
 	}
 
-	public void setWhiteSquareMat(MaterialWithData whiteSquareMat) {
+	public void setWhiteSquareMaterial(MaterialWithData whiteSquareMat) {
 		if (whiteSquareMat != null) {
 			this.whiteSquareMat = whiteSquareMat;
 		}
@@ -127,6 +134,10 @@ public class BoardStyle {
 		} else {
 			this.enclosureMat = enclosureMat;
 		}
+	}
+
+	public void setStrutsMaterial(MaterialWithData strutsMat) {
+		this.strutsMat = strutsMat;
 	}
 
 	public void setFrameMaterial(MaterialWithData frameMat) {
@@ -191,21 +202,23 @@ public class BoardStyle {
 			out.write("frame: '" + frameMat + "'\n");
 			out.write("# material/data for the enclosure (if you don't use glass or air, then light the board!)\n");
 			out.write("enclosure: '" + enclosureMat + "'\n");
+			out.write("# material/data for the enclosure struts (default: 'enclosure' setting)\n");
+			out.write("struts: '" + strutsMat + "'\n");
 			out.write("# board lighting level (0-15)\n");
 			out.write("light_level: " + lightLevel + "\n");
 			out.write("# style of chess set to use (see ../pieces/*.yml)\n");
 			out.write("# the style chosen must fit within the square_size specified above\n");
 			out.write("piece_style: " + pieceStyleName + "\n");
 			out.write("# material/data for the control panel (default: 'frame' setting)\n");
-			out.write("panel: " + controlPanelMat + "\n");
+			out.write("panel: '" + controlPanelMat + "'\n");
 			out.write("# highlighting style (NONE, CORNERS, EDGES, LINE, CHECKERED)\n");
 			out.write("highlight_style: " + highlightStyle + "\n");
 			out.write("# highlighting material (default: glowstone)\n");
-			out.write("highlight: " + highlightMat + "\n");
+			out.write("highlight: '" + highlightMat + "'\n");
 			out.write("# highlighting material on white squares (default: 'highlight' setting)\n");
-			out.write("highlight: " + highlightWhiteSquareMat + "\n");
+			out.write("highlight_white_square: '" + highlightWhiteSquareMat + "'\n");
 			out.write("# highlighting material on black squares (default: 'highlight' setting)\n");
-			out.write("highlight: " + highlightBlackSquareMat + "\n");
+			out.write("highlight_black_square: '" + highlightBlackSquareMat + "'\n");
 			out.close();
 			
 			styleName = newStyleName;
@@ -249,6 +262,7 @@ public class BoardStyle {
 
 		/************** optional parameters  **************/		
 		style.controlPanelMat = new MaterialWithData(c.getString("panel", style.frameMat.toString()));
+		style.strutsMat = new MaterialWithData(c.getString("struts", style.enclosureMat.toString()));
 		style.highlightMat = new MaterialWithData(c.getString("highlight", "glowstone"));
 		style.highlightWhiteSquareMat = new MaterialWithData(c.getString("highlight_white_square", style.highlightMat.toString()));
 		style.highlightBlackSquareMat = new MaterialWithData(c.getString("highlight_black_square", style.highlightMat.toString()));
