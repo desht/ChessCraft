@@ -363,7 +363,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
 		
-		System.out.println("move done! " + fromSqi + "->" + toSqi);
+//		System.out.println("move done! " + fromSqi + "->" + toSqi);
 		highlightSquares(fromSqi, toSqi);
 	}
 
