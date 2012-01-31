@@ -1,4 +1,14 @@
-v0.4 (development)
+v0.5 (dev)
+* Requires CB 1.1-R1 (build 1818).  This will not work with earlier releases.
+* ChessCraft now uses the Vault plugin for economy support.  The Register plugin is no longer required at all.
+* Added time controls: specify a time limit for the game, time limit for each move, or more complex "rollover" limits (e.g. "40 moves in 60 minutes, then 20 moves in 60 minutes ...")
+* Added ability to change (most) board style parameters on the fly, and to save new board styles with your updated style parameters (style parameters affecting board dimensions cannot be changed after a board has been created).
+* Chess board lighting no longer handled by peppering the board with glowstone at night - boards should now stay at a constant light level all day round.
+* Chess board and piece drawing is now *much* faster and lighter on the server.  Memory usage for the plugin should be slightly lower too.
+* Significant internal code cleanup and streamlining.  Now uses Bukkit 1.1 event model for improved performance.
+* Board and game save files (under plugins/ChessCraft/data) have changed format slightly (to take advantage of the Bukkit serialization API), but will be auto-migrated to the new v0.5 format.
+* Now uses Maven to build the project.
+v0.4
 board rotation now supported - board orientation is decided by player orientation when created
 messages are now customizable and stored in external message file - new config option "locale" for language file to use
 added game results logging
