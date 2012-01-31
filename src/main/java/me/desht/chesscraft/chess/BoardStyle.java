@@ -8,7 +8,6 @@ package me.desht.chesscraft.chess;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 

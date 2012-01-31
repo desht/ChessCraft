@@ -425,6 +425,8 @@ public class ChessBoard {
 				ChessCraftLogger.severe("unknown piece: " + stone);
 			}
 		}
+		
+		p.sendClientChanges();
 	}
 
 	void lightBoard(boolean light) {

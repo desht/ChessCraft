@@ -69,21 +69,22 @@ import net.milkbowl.vault.permission.Permission;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 public class ChessCraft extends JavaPlugin {
-
-	private static PluginDescriptionFile description;
-	private static Map<String, Location> lastPos = new HashMap<String, Location>();
-	protected ChessPlayerListener playerListener;
-	protected ChessBlockListener blockListener;
-	protected ChessEntityListener entityListener;
-	public ChessPersistence persistence;
+	
+	private static ChessCraft instance;
+	private static WorldEditPlugin worldEditPlugin;
+	private static ScrollingMenuSign smsPlugin;
 	public static ExpectResponse expecter;
-	public ChessConfig config = null;
-	public ChessUtils util = null;
 	public static Economy economy = null;
 	public static Permission permission = null;
-	protected static WorldEditPlugin worldEditPlugin = null;
-	private static ScrollingMenuSign smsPlugin;
-	private static ChessCraft instance;
+	
+	private ChessPlayerListener playerListener;
+	private ChessBlockListener blockListener;
+	private ChessEntityListener entityListener;
+	public ChessPersistence persistence;
+	public ChessConfig config = null;
+	public ChessUtils util = null;
+	
+	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 	private final CommandManager cmds = new CommandManager(this);
 
@@ -98,7 +99,7 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		description = this.getDescription();
+		PluginDescriptionFile description = this.getDescription();
 		util = new ChessUtils();
 		ChessConfig.init(this);
 
@@ -151,6 +152,13 @@ public class ChessCraft extends JavaPlugin {
 			view.deleteTemporary();
 		}
 		Results.shutdown();
+		
+		instance = null;
+		economy = null;
+		permission = null;
+		smsPlugin = null;
+		worldEditPlugin = null;
+		
 		ChessCraftLogger.log("disabled!");
 	}
 
@@ -237,22 +245,22 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	public static void teleportPlayer(Player player, Location loc) {
+	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
 		player.teleport(loc);
 	}
 
-	public static Location getLastPos(Player player) {
+	public Location getLastPos(Player player) {
 		return lastPos.get(player.getName());
 	}
 
-	public static void setLastPos(Player player, Location loc) {
+	public void setLastPos(Player player, Location loc) {
 		lastPos.put(player.getName(), loc);
 	}
 
 	/*-----------------------------------------------------------------*/
 
-	public ChessPersistence getSaveDatabase(){
+	public ChessPersistence getPersistenceHandler() {
 		return persistence;
 	}
 
@@ -295,12 +303,12 @@ public class ChessCraft extends JavaPlugin {
 
 	private void registerCommands() {
 		cmds.registerCommand(new ArchiveCommand());
-		cmds.registerCommand(new BoardStyleSetCommand());
-		cmds.registerCommand(new BoardStyleSaveCommand());
-		cmds.registerCommand(new ClaimVictoryCommand());
 		cmds.registerCommand(new BoardCreationCommand());
-		cmds.registerCommand(new CreateGameCommand());
 		cmds.registerCommand(new BoardDeletionCommand());
+		cmds.registerCommand(new BoardStyleSaveCommand());
+		cmds.registerCommand(new BoardStyleSetCommand());
+		cmds.registerCommand(new ClaimVictoryCommand());
+		cmds.registerCommand(new CreateGameCommand());
 		cmds.registerCommand(new DeleteGameCommand());
 		cmds.registerCommand(new FenCommand());
 		cmds.registerCommand(new GameCommand());

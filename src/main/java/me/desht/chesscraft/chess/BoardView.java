@@ -12,6 +12,9 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import chesspresso.Chess;
+import chesspresso.move.Move;
+import chesspresso.position.ImmutablePosition;
+import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
@@ -43,7 +46,7 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-public class BoardView implements PositionListener, ConfigurationSerializable, ChessPersistable {
+public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	
 	private String name;
@@ -152,7 +155,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	public void save() {
-		ChessCraft.getInstance().getSaveDatabase().savePersistable("board", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
 
 	public void autoSave() {
@@ -305,7 +308,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		return chessBoard.getFullBoard();
 	}
 
-	//--------------------- Chesspresso Listener methods --------------------------------
+	//--------------------- Chesspresso PositionListener impl. --------------------------------
 	
 	@Override
 	public void castlesChanged(int castles) {
@@ -347,13 +350,35 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		controlPanel.updateToMoveIndicator(mat);
 	}
 
-	//-------------------------------------------------------------------------------------
+	//-----------------Chesspresso PositionChangeListener impl. ----------------------
 	
+	@Override
+	public void notifyPositionChanged(ImmutablePosition position) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void notifyMoveDone(ImmutablePosition position, short move) {
+		int fromSqi = Move.getFromSqi(move);
+		int toSqi = Move.getToSqi(move);
+		
+		System.out.println("move done! " + fromSqi + "->" + toSqi);
+		highlightSquares(fromSqi, toSqi);
+	}
+
+	@Override
+	public void notifyMoveUndone(ImmutablePosition position) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public void setGame(ChessGame game) {
-		if (this.game != null) {
-			this.game.getPosition().removePositionListener(this);
-		}
 		this.game = game;
+		if (game != null) {
+			game.getPosition().addPositionListener(this);
+			game.getPosition().addPositionChangeListener(this);
+		}
 		paintAll();
 		chessBoard.highlightSquares(-1, -1);
 	}
@@ -421,7 +446,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 
 	public void deletePermanently(Player p) {
 		deleteCommon(true, p);
-		ChessCraft.getInstance().getSaveDatabase().unpersist(this);
+		ChessCraft.getInstance().getPersistenceHandler().unpersist(this);
 	}
 	
 	private void deleteCommon(boolean deleteBlocks, Player p) {
@@ -664,19 +689,19 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 		
 		BoardView bv = partOfChessBoard(player.getLocation());
-		Location prev = ChessCraft.getLastPos(player);
+		Location prev = ChessCraft.getInstance().getLastPos(player);
 		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
 			// try to get the player out of this board safely
 			Location loc = bv.findSafeLocationOutside();
 			if (loc != null) {
-				ChessCraft.teleportPlayer(player, loc);
+				ChessCraft.getInstance().teleportPlayer(player, loc);
 			} else {
-				ChessCraft.teleportPlayer(player, player.getWorld().getSpawnLocation());
+				ChessCraft.getInstance().teleportPlayer(player, player.getWorld().getSpawnLocation());
 				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
 			}
 		} else if (prev != null) {
 			// go back to previous location
-			ChessCraft.teleportPlayer(player, prev);
+			ChessCraft.getInstance().teleportPlayer(player, prev);
 		} else {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}

@@ -80,6 +80,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private int aiFromSqi, aiToSqi;
 	private int[] tcWarned = new int[2];
 
+	/**
+	 * Constructor: Creating a new Chess game.
+	 * 
+	 * @param name	Name of the game
+	 * @param view	The board on which to create the game
+	 * @param playerName	Name of the player who is setting up the game
+	 * @throws ChessException	If the game can't be created for any reason
+	 */
 	public ChessGame(String name, BoardView view, String playerName) throws ChessException {
 		this.view = view;
 		this.name = name;
@@ -107,9 +115,15 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		setupChesspressoGame();
 
 		view.setGame(this);
-		getPosition().addPositionListener(view);
 	}
 
+	/**
+	 * Constructor: Restoring a saved Chess game.
+	 * 
+	 * @param map	Saved game data
+	 * @throws ChessException	If the game can't be created for any reason
+	 * @throws IllegalMoveException	If the game data contains an illegal Chess move
+	 */
 	public ChessGame(ConfigurationSection map) throws ChessException, IllegalMoveException {
 		view = BoardView.getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
@@ -168,7 +182,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		replayMoves();
 
 		view.setGame(this);
-		getPosition().addPositionListener(view);
 	}
 
 	public Map<String, Object> serialize() {
@@ -204,6 +217,15 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			conf.set(e.getKey(), e.getValue());
 		}
 		return new ChessGame(conf);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public File getSaveDirectory() {
+		return ChessConfig.getGamesPersistDirectory();
 	}
 
 	/**
@@ -268,17 +290,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void save() {
-		ChessCraft.getInstance().getSaveDatabase().savePersistable("game", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("game", this);
 	}
 
 	public void autoSave() {
 		if (ChessConfig.getConfig().getBoolean("autosave")) { //$NON-NLS-1$
 			save();
 		}
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public final Position getPosition() {
@@ -370,6 +388,24 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public TimeControl getTcBlack() {
 		return tcBlack;
+	}
+
+	public int getPromotionPiece(int colour) {
+		return promotionPiece[colour];
+	}
+
+	public void setPromotionPiece(String playerName, int piece) throws ChessException {
+		ensurePlayerInGame(playerName);
+	
+		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT) {
+			throw new ChessException(Messages.getString("Game.invalidPromoPiece", Chess.pieceToChar(piece))); //$NON-NLS-1$
+		}
+		if (playerName.equals(playerWhite)) {
+			promotionPiece[Chess.WHITE] = piece;
+		}
+		if (playerName.equals(playerBlack)) {
+			promotionPiece[Chess.BLACK] = piece;
+		}
 	}
 
 	/**
@@ -628,7 +664,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return; // already there
 		}
 		Location loc = bv.getControlPanel().getLocationTP();
-		ChessCraft.teleportPlayer(player, loc);
+		ChessCraft.getInstance().teleportPlayer(player, loc);
 		ChessGame.setCurrentGame(playerName, this);
 	}
 
@@ -672,24 +708,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(winner, loser, GameResult.Forfeited);
 	}
 
-	public int getPromotionPiece(int colour) {
-		return promotionPiece[colour];
-	}
-
-	public void setPromotionPiece(String playerName, int piece) throws ChessException {
-		ensurePlayerInGame(playerName);
-
-		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT) {
-			throw new ChessException(Messages.getString("Game.invalidPromoPiece", Chess.pieceToChar(piece))); //$NON-NLS-1$
-		}
-		if (playerName.equals(playerWhite)) {
-			promotionPiece[Chess.WHITE] = piece;
-		}
-		if (playerName.equals(playerBlack)) {
-			promotionPiece[Chess.BLACK] = piece;
-		}
-	}
-
 	public void drawn() throws ChessException {
 		ensureGameState(GameState.RUNNING);
 
@@ -713,7 +731,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		doMove(playerName, toSquare, fromSquare);
 	}
 
-	public synchronized void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
+	public void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
 		ensureGameState(GameState.RUNNING);
 		ensurePlayerToMove(playerName);
 		if (fromSquare == Chess.NO_SQUARE) {
@@ -725,13 +743,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		short realMove = validateMove(move);
 		
-		// at this point we know the move is a valid move, so go ahead and make the necessary changes
-		
-		if (ChessConfig.getConfig().getBoolean("highlight_last_move")) { //$NON-NLS-1$
-			view.highlightSquares(fromSquare, toSquare);
-		}
-		
-		getPosition().doMove(realMove);
+		// At this point we know the move is a valid move, so go ahead and make the necessary changes...
+	
+		getPosition().doMove(realMove);	// the board view will repaint itself at this point
 		lastMoved = System.currentTimeMillis();
 		history.add(realMove);
 		toggleChessClocks();
@@ -966,7 +980,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * Called when a game is permanently deleted.
 	 */
 	public void deletePermanently() {
-		ChessCraft.getInstance().getSaveDatabase().unpersist(this);
+		ChessCraft.getInstance().getPersistenceHandler().unpersist(this);
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
@@ -1023,17 +1037,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			return "1/2-1/2"; //$NON-NLS-1$
-		}
-	}
-
-	public static String getColour(int c) {
-		switch (c) {
-		case Chess.WHITE:
-			return Messages.getString("Game.white"); //$NON-NLS-1$
-		case Chess.BLACK:
-			return Messages.getString("Game.black"); //$NON-NLS-1$
-		default:
-			return "???"; //$NON-NLS-1$
 		}
 	}
 
@@ -1106,32 +1109,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return f;
 	}
 
-	/**
-	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
-	 * month wrong :( )
-	 * 
-	 * @param date
-	 *            date to convert
-	 * @return PGN format of the date
-	 */
-	private static String dateToPGNDate(long when) {
-		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when)); //$NON-NLS-1$
-	}
-
 	public void setFen(String fen) {
 		getPosition().set(new Position(fen));
 		// manually overriding the position invalidates the move history
 		getHistory().clear();
-	}
-
-	public static String milliSecondsToHMS(long l) {
-		l /= 1000;
-
-		long secs = l % 60;
-		long hrs = l / 3600;
-		long mins = (l - (hrs * 3600)) / 60;
-
-		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
 
 	private int getNextPromotionPiece(int colour) {
@@ -1218,10 +1199,192 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return stake <= 0.0 || ChessCraft.economy == null || ChessCraft.economy.has(playerName, stake);
 	}
 
+	/**
+	 * Check if the given player is allowed to delete this game
+	 * 
+	 * @param pl
+	 * @return
+	 */
+	public boolean playerCanDelete(Player pl) {
+		if (pl == null) {
+			return false;
+		}
+		String plN = pl.getName();
+		if (state == GameState.SETTING_UP) {
+			if (!playerWhite.isEmpty() && playerBlack.isEmpty()) {
+				return playerWhite.equalsIgnoreCase(plN);
+			} else if (playerWhite.isEmpty() && !playerBlack.isEmpty()) {
+				return playerBlack.equalsIgnoreCase(plN);
+			} else if (playerWhite.equalsIgnoreCase(plN)) {
+				Player other = pl.getServer().getPlayer(playerBlack);
+				return other == null || !other.isOnline();
+			} else if (playerBlack.equalsIgnoreCase(plN)) {
+				Player other = pl.getServer().getPlayer(playerWhite);
+				return other == null || !other.isOnline();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Return true if either player in this game is an AI player
+	 * 
+	 * @return
+	 */
+	public boolean isAIGame() {
+		return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
+	}
+
+	/**
+	 * Adjust the game's stake by the given amount.
+	 * 
+	 * @param playerName
+	 * @param adjustment
+	 * @throws ChessException
+	 */
+	public void adjustStake(double adjustment) throws ChessException {
+		double newStake = getStake() + adjustment;
+		if (newStake < 0.0)
+			return;
+		if (ChessCraft.economy != null) {
+			String playerName = playerWhite.isEmpty() ? playerBlack : playerWhite;
+			if (newStake > ChessCraft.economy.getBalance(playerName)) {
+				newStake = ChessCraft.economy.getBalance(playerName);
+			}
+		}
+		setStake(newStake);
+	}
+
+	/**
+	 * Have the given player offer a draw.
+	 * 
+	 * @param player
+	 * @throws ChessException
+	 */
+	public void offerDraw(Player player) throws ChessException {
+		ensurePlayerInGame(player.getName());
+		ensurePlayerToMove(player.getName());
+		ensureGameState(GameState.RUNNING);
+	
+		String other = getOtherPlayer(player.getName());
+		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, player.getName(), other), other);
+	
+		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", other)); //$NON-NLS-1$
+		alert(other, Messages.getString("ChessCommandExecutor.drawOfferedOther", player.getName())); //$NON-NLS-1$
+		alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+		getView().getControlPanel().repaintSignButtons();
+	}
+
+	/**
+	 * Have the given player offer to swap sides.
+	 * 
+	 * @param player
+	 * @throws ChessException
+	 */
+	public void offerSwap(Player player) throws ChessException {
+		ensurePlayerInGame(player.getName());
+	
+		String other = getOtherPlayer(player.getName());
+		if (other.isEmpty()) {
+			// no other player yet - just swap
+			swapColours();
+		} else {
+			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, player.getName(), other), other);
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", other)); //$NON-NLS-1$ 
+			alert(other, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", player.getName())); //$NON-NLS-1$ 
+			alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+		}
+		getView().getControlPanel().repaintSignButtons();
+	}
+
+	/**
+	 * Display details for the game to the given player.
+	 * 
+	 * @param player
+	 */
+	public void showGameDetail(Player player) {
+		String white = getPlayerWhite().isEmpty() ? "?" : getPlayerWhite(); //$NON-NLS-1$
+		String black = getPlayerBlack().isEmpty() ? "?" : getPlayerBlack(); //$NON-NLS-1$
+	
+		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
+		MessagePager pager = MessagePager.getPager(player).clear();
+		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
+		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
+		if (ChessCraft.economy != null) {
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+		}
+		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
+				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
+					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
+		
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
+		if (getState() == GameState.RUNNING) {
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
+		}
+		if (getInvited().equals("*")) { //$NON-NLS-1$
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
+		} else if (!getInvited().isEmpty()) {
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
+		}
+		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
+		List<Short> h = getHistory();
+		for (int i = 0; i < h.size(); i += 2) {
+			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1)); //$NON-NLS-1$
+			sb.append(Move.getString(h.get(i)));
+			if (i < h.size() - 1) {
+				sb.append("  ").append(Move.getString(h.get(i + 1))); //$NON-NLS-1$
+			}
+			pager.add(sb.toString());
+		}
+	
+		pager.showPage();
+	}
+
+	/**
+	 * Make a note that the AI has made its move.  This can be acted upon by the 
+	 * periodic ticker task.  We can't just do the move directly, because that would
+	 * lead to making non-thread-safe Bukkit/Minecraft calls from the AI thread.
+	 * 
+	 * @param fromSqi
+	 * @param toSqi
+	 */
+	synchronized void aiHasMoved(int fromSqi, int toSqi) {
+		aiHasMoved = true;
+		aiFromSqi = fromSqi;
+		aiToSqi = toSqi;
+	}
+
+	/**
+	 * If it's been noted that the AI has moved in its game model, make the
+	 * actual move in our game model too.
+	 */
+	private synchronized void checkForAIMove() {
+		if (aiHasMoved) {
+			try {
+				aiHasMoved = false;
+				if (getPlayerToMove().equals(playerBlack) && isAIPlayer(playerWhite)) {
+					// ai vs ai
+					doMove(aiPlayer2.getName(), aiToSqi, aiFromSqi);
+				} else {
+					doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
+				}
+			} catch (IllegalMoveException e) {
+				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+			} catch (ChessException e) {
+				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+			}
+		}
+	}
+
 	/*--------------------------------------------------------------------------------*/
-	public static void addGame(String gameName, ChessGame game) {
-		if (game != null && !chessGames.containsKey(gameName)) {
-			chessGames.put(gameName, game);
+	public static void addGame(String gameName, ChessGame game) throws ChessException {
+		if (game != null) {
+			if (!chessGames.containsKey(gameName)) {
+				chessGames.put(gameName, game);
+			} else {
+				throw new ChessException("trying to register duplicate game " + gameName);
+			}
 		}
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.gameCreated(game);
@@ -1344,78 +1507,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Check if the given player is allowed to delete this game
-	 * 
-	 * @param pl
-	 * @return
-	 */
-	public boolean playerCanDelete(Player pl) {
-		if (pl == null) {
-			return false;
-		}
-		String plN = pl.getName();
-		if (state == GameState.SETTING_UP) {
-			if (!playerWhite.isEmpty() && playerBlack.isEmpty()) {
-				return playerWhite.equalsIgnoreCase(plN);
-			} else if (playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-				return playerBlack.equalsIgnoreCase(plN);
-			} else if (playerWhite.equalsIgnoreCase(plN)) {
-				Player other = pl.getServer().getPlayer(playerBlack);
-				return other == null || !other.isOnline();
-			} else if (playerBlack.equalsIgnoreCase(plN)) {
-				Player other = pl.getServer().getPlayer(playerWhite);
-				return other == null || !other.isOnline();
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Return true if either player in this game is an AI player
-	 * 
-	 * @return
-	 */
-	public boolean isAIGame() {
-		return isAIPlayer(playerWhite) || isAIPlayer(playerBlack);
-	}
-
-	/**
-	 * Make a note that the AI has made its move.  This can be acted upon by the 
-	 * periodic ticker task.  We can't just do the move directly, because that would
-	 * lead to making non-thread-safe Bukkit/Minecraft calls from the AI thread.
-	 * 
-	 * @param fromSqi
-	 * @param toSqi
-	 */
-	void aiHasMoved(int fromSqi, int toSqi) {
-		aiHasMoved = true;
-		aiFromSqi = fromSqi;
-		aiToSqi = toSqi;
-	}
-
-	/**
-	 * If it's been noted that the AI has moved in its game model, make the
-	 * actual move in our game model too.
-	 */
-	private void checkForAIMove() {
-		if (aiHasMoved) {
-			try {
-				aiHasMoved = false;
-				if (getPlayerToMove().equals(playerBlack) && isAIPlayer(playerWhite)) {
-					// ai vs ai
-					doMove(aiPlayer2.getName(), aiToSqi, aiFromSqi);
-				} else {
-					doMove(aiPlayer.getName(), aiToSqi, aiFromSqi);
-				}
-			} catch (IllegalMoveException e) {
-				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
-			} catch (ChessException e) {
-				alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
-			}
-		}
-	}
-
-	/**
 	 * Convenience method to create a new chess game.
 	 * 
 	 * @param player		The player who is creating the game
@@ -1431,133 +1522,55 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			bv = BoardView.getBoardView(boardName);
 		}
-
+	
 		String playerName = player.getName();
-
+	
 		if (gameName == null || gameName.equals("-")) {
 			gameName = ChessGame.makeGameName(playerName);
 		}
-
+	
 		ChessGame game = new ChessGame(gameName, bv, playerName);
 		ChessGame.addGame(gameName, game);
 		ChessGame.setCurrentGame(playerName, game);
 		bv.getControlPanel().repaintSignButtons();
-
+	
 		game.autoSave();
-
+	
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$ 
-
+	
 		return game;
 	}
 
-	/**
-	 * Adjust the game's stake by the given amount.
-	 * 
-	 * @param playerName
-	 * @param adjustment
-	 * @throws ChessException
-	 */
-	public void adjustStake(double adjustment) throws ChessException {
-		double newStake = getStake() + adjustment;
-		if (newStake < 0.0)
-			return;
-		if (ChessCraft.economy != null) {
-			String playerName = playerWhite.isEmpty() ? playerBlack : playerWhite;
-			if (newStake > ChessCraft.economy.getBalance(playerName)) {
-				newStake = ChessCraft.economy.getBalance(playerName);
-			}
+	public static String getColour(int c) {
+		switch (c) {
+		case Chess.WHITE:
+			return Messages.getString("Game.white"); //$NON-NLS-1$
+		case Chess.BLACK:
+			return Messages.getString("Game.black"); //$NON-NLS-1$
+		default:
+			return "???"; //$NON-NLS-1$
 		}
-		setStake(newStake);
 	}
 
 	/**
-	 * Have the given player offer a draw.
+	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
+	 * month wrong :( )
 	 * 
-	 * @param player
-	 * @throws ChessException
+	 * @param date
+	 *            date to convert
+	 * @return PGN format of the date
 	 */
-	public void offerDraw(Player player) throws ChessException {
-		ensurePlayerInGame(player.getName());
-		ensurePlayerToMove(player.getName());
-		ensureGameState(GameState.RUNNING);
-
-		String other = getOtherPlayer(player.getName());
-		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, player.getName(), other), other);
-
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", other)); //$NON-NLS-1$
-		alert(other, Messages.getString("ChessCommandExecutor.drawOfferedOther", player.getName())); //$NON-NLS-1$
-		alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
-		getView().getControlPanel().repaintSignButtons();
+	private static String dateToPGNDate(long when) {
+		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when)); //$NON-NLS-1$
 	}
 
-	/**
-	 * Have the given player offer to swap sides.
-	 * 
-	 * @param player
-	 * @throws ChessException
-	 */
-	public void offerSwap(Player player) throws ChessException {
-		ensurePlayerInGame(player.getName());
-
-		String other = getOtherPlayer(player.getName());
-		if (other.isEmpty()) {
-			// no other player yet - just swap
-			swapColours();
-		} else {
-			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, player.getName(), other), other);
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", other)); //$NON-NLS-1$ 
-			alert(other, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", player.getName())); //$NON-NLS-1$ 
-			alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
-		}
-		getView().getControlPanel().repaintSignButtons();
-	}
-
-	/**
-	 * Display details for the game to the given player.
-	 * 
-	 * @param player
-	 */
-	public void showGameDetail(Player player) {
-		String white = getPlayerWhite().isEmpty() ? "?" : getPlayerWhite(); //$NON-NLS-1$
-		String black = getPlayerBlack().isEmpty() ? "?" : getPlayerBlack(); //$NON-NLS-1$
-
-		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
-		MessagePager pager = MessagePager.getPager(player).clear();
-		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
-		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
-		if (ChessCraft.economy != null) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
-		}
-		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
-				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
-					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
-		
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
-		if (getState() == GameState.RUNNING) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
-		}
-		if (getInvited().equals("*")) { //$NON-NLS-1$
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
-		} else if (!getInvited().isEmpty()) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
-		}
-		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
-		List<Short> h = getHistory();
-		for (int i = 0; i < h.size(); i += 2) {
-			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1)); //$NON-NLS-1$
-			sb.append(Move.getString(h.get(i)));
-			if (i < h.size() - 1) {
-				sb.append("  ").append(Move.getString(h.get(i + 1))); //$NON-NLS-1$
-			}
-			pager.add(sb.toString());
-		}
-
-		pager.showPage();
-	}
-
-	@Override
-	public File getSaveDirectory() {
-		return ChessConfig.getGamesPersistDirectory();
+	public static String milliSecondsToHMS(long l) {
+		l /= 1000;
+	
+		long secs = l % 60;
+		long hrs = l / 3600;
+		long mins = (l - (hrs * 3600)) / 60;
+	
+		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
 }
