@@ -230,7 +230,7 @@ public class BoardView implements PositionListener, ConfigurationSerializable, C
 	}
 
 	public MaterialWithData getStrutsMaterial() {
-		return chessBoard.getBoardStyle().getEnclosureMaterial();
+		return chessBoard.getBoardStyle().getStrutsMaterial();
 	}
 
 	public BoardOrientation getDirection() {
