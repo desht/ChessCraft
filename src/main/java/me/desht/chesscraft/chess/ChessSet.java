@@ -97,10 +97,8 @@ public class ChessSet implements Iterable<ChessStone> {
 	
 	@SuppressWarnings("unchecked")
 	public static ChessSet loadChessSet(String setFileName) throws ChessException {
-		File f = new File(ChessConfig.getPieceStyleDirectory(), setFileName.toLowerCase() + ".yml");
-		if (!f.canRead()) {
-			throw new ChessException("piece style file is not readable");
-		}
+		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setFileName);
+		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		requireSection(c, "name");
 		requireSection(c, "pieces");

@@ -177,13 +177,13 @@ public class BoardStyle {
 	}
 
 	public void saveStyle(String newStyleName) throws ChessException {
-		File newFile = new File(ChessConfig.getBoardStyleDirectory(), newStyleName.toLowerCase() + ".yml");
+		File f = new File(ChessConfig.getBoardStyleDirectory(), "custom" + File.separator + newStyleName.toLowerCase() + ".yml");
 		
 		// TODO: disallow overwriting a built-in style name?
 		
 		// It would be nice to use the configuration API to save this, but I want comments
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(newFile));
+			BufferedWriter out = new BufferedWriter(new FileWriter(f));
 			out.write("# Chess board style definition\n\n");
 			out.write("# NOTE: all materials must be quoted, even if they're just integers, or\n");
 			out.write("# you will get a java.lang.ClassCastException when the style is loaded.\n\n");
@@ -227,10 +227,8 @@ public class BoardStyle {
 	}
 
 	public static BoardStyle loadNewStyle(String boardStyle) throws ChessException {
-		File f = new File(ChessConfig.getBoardStyleDirectory(), boardStyle.toLowerCase() + ".yml");
-		if (!f.canRead()) {
-			throw new ChessException("board style file is not readable");
-		}
+		File f = ChessConfig.getResourceFile(ChessConfig.getBoardStyleDirectory(), boardStyle);
+		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 
 		for (String k : new String[] {
