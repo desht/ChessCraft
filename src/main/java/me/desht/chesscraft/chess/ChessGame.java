@@ -434,7 +434,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		tc.tick();
 		
 		if (tc.isActive() || updateBoth) {
-			int warningTime = ChessConfig.getConfig().getInt("time_control.warn_seconds") >>> tcWarned[colour];
 			getView().getControlPanel().updateClock(colour, tc);
 			String playerName = colour == Chess.WHITE ? playerWhite : playerBlack;
 			if (tc.getRemainingTime() <= 0) {
@@ -443,17 +442,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				} catch (ChessException e) {
 					ChessCraftLogger.severe("unexpected exception: " + e.getMessage(), e);
 				}
-			} else if (needToWarn(tc.getRemainingTime(), warningTime)) {
-				alert(playerName, Messages.getString("Game.timeControlWarning", tc.getRemainingTime() / 1000));
+			} else if (needToWarn(tc, colour)) {
+				alert(playerName, Messages.getString("Game.timeControlWarning", tc.getRemainingTime() / 1000 + 1));
 				tcWarned[colour]++;
 			}
 		}
 	}
 	
-	private boolean needToWarn(long remaining, int warningTime) {
-		warningTime *= 1000;
+	private boolean needToWarn(TimeControl tc, int colour) {
+		long remaining = tc.getRemainingTime();
+		long t = ChessConfig.getConfig().getInt("time_control.warn_seconds") * 1000;
+		long tot = tc.getTotalTime();
+		long warning = Math.min(t, tot) >>> tcWarned[colour];
+		
 		int tickInt = (ChessConfig.getConfig().getInt("tick_interval") * 1000) + 50;	// fudge for inaccuracy of tick timer
-		return remaining <= warningTime && remaining > warningTime - tickInt;
+		return remaining <= warning && remaining > warning - tickInt;
 	}
 
 	public void setTimeControl(String spec) throws ChessException {
