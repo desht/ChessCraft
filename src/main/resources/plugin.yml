@@ -43,6 +43,8 @@ permissions:
       chesscraft.commands.setcfg: true
       chesscraft.commands.save: true
       chesscraft.commands.reload: true
+      chesscraft.commands.board.set: true
+      chesscraft.commands.board.save: true
       chesscraft.basic: true
   chesscraft.basic:
     default: true
@@ -148,3 +150,10 @@ permissions:
   chesscraft.commands.tc:
     description: Allows time controls to be set for a game
     default: true
+  chesscraft.commands.board.set
+    description: Allows you to set board style parameters on the fly
+    default: op
+  chesscraft.commands.board.save
+    description: Allows you to save updated board style parameters
+    default: op
+      
