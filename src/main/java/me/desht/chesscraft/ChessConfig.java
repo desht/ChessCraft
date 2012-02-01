@@ -56,9 +56,9 @@ public class ChessConfig {
 		}
 		
 		setupDirectoryStructure();
-
 		configFileInitialise();
-
+		extractResources();
+		
 		try {
 			Messages.init();
 		} catch (IOException e) {
@@ -162,7 +162,9 @@ public class ChessConfig {
 			// [plugins]/ChessCraft/data/boards/schematics
 			createDir(schematicsDir);
 		}
-
+	}
+	
+	private static void extractResources() {
 		extractResource("/AI_settings.yml", pluginDir); //$NON-NLS-1$
 
 		extractResource("/datafiles/board_styles/standard.yml", boardStyleDir); //$NON-NLS-1$
@@ -283,9 +285,9 @@ public class ChessConfig {
 		
 		String currentVersion = plugin.getDescription().getVersion();
 		if (currentVersion != null && !config.getString("version").equals(currentVersion)) {
+			versionChanged(config.getString("version"), currentVersion);
 			setConfigItem(null, "version", currentVersion);
 			saveNeeded = true;
-			versionChanged(config.getString("version"), currentVersion);
 		}
 		if (saveNeeded) {
 			plugin.saveConfig();
@@ -301,10 +303,6 @@ public class ChessConfig {
 	private static void versionChanged(String oldVersion, String currentVersion) {
 		int rel1 = getRelease(oldVersion);
 		int rel2 = getRelease(currentVersion);
-		if (rel1 < 4000 && rel2 >= 4000 || rel1 < 5000 && rel2 >= 5000) {
-			// "large" chess set definition is different in v0.4+ and again in v0.5+
-			new File(pieceStyleDir, "large.yml").delete();
-		}
 		if (rel1 < 5000 && rel2 >= 5000) {
 			// remove old upper-cased style files
 			new File(pieceStyleDir, "Standard.yml").delete();
