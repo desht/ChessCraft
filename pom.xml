@@ -73,6 +73,15 @@
 		      </plugin>
 -->
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/java/fr/free/jchecs/ai</directory>
+				<targetPath>fr/free/jchecs/ai</targetPath>
+				<includes>
+					<include>jchecs.opn</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
 	<dependencies>
 		<dependency>

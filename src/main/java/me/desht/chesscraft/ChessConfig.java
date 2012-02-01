@@ -8,6 +8,8 @@ package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.exceptions.ChessException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -137,8 +139,10 @@ public class ChessConfig {
 		createDir(languagesDir);
 		// [plugins]/ChessCraft/board_styles
 		createDir(boardStyleDir);
+		createDir(new File(boardStyleDir, "custom"));
 		// [plugins]/ChessCraft/piece_styles
 		createDir(pieceStyleDir);
+		createDir(new File(pieceStyleDir, "custom"));
 		// [plugins]/ChessCraft/data
 		createDir(dataDir);
 		// [plugins]/ChessCraft/data/games
@@ -195,7 +199,9 @@ public class ChessConfig {
 		} else if (!of.isFile()) {
 			return;
 		}
-		if (of.exists() && !force) {
+		
+		// if the file exists and is newer than the JAR, then we'll leave it alone
+		if (of.exists() && of.lastModified() > getJarFile().lastModified() && !force) {
 			return;
 		}
 
@@ -238,6 +244,26 @@ public class ChessConfig {
 	}
 
 	/**
+	 * Find a YAML resource file in the given directory.  Look first in the custom/ subdirectory
+	 * and then in the directory itself.
+	 * 
+	 * @param dir
+	 * @param filename
+	 * @return
+	 * @throws ChessException
+	 */
+	public static File getResourceFile(File dir, String filename) throws ChessException {
+		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
+		if (!f.canRead()) {
+			f = new File(dir, filename.toLowerCase() + ".yml");
+			if (!f.canRead()) {
+				throw new ChessException("resource file '" + filename + "' is not readable");
+			}
+		}
+		return f;
+	}
+	
+	/**
 	 * Load the existing config file (config.yml) and see if there are any items
 	 * in configDefaults which are not in the file. If so, update the config
 	 * with defaults from configDefaults (preserving existing settings) and
@@ -278,6 +304,11 @@ public class ChessConfig {
 		if (rel1 < 4000 && rel2 >= 4000 || rel1 < 5000 && rel2 >= 5000) {
 			// "large" chess set definition is different in v0.4+ and again in v0.5+
 			new File(pieceStyleDir, "large.yml").delete();
+		}
+		if (rel1 < 5000 && rel2 >= 5000) {
+			// remove old upper-cased style files
+			new File(pieceStyleDir, "Standard.yml").delete();
+			new File(boardStyleDir, "Standard.yml").delete();
 		}
 	}
 

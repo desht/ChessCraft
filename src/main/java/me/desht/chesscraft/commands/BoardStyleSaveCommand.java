@@ -12,20 +12,20 @@ import org.bukkit.entity.Player;
 public class BoardStyleSaveCommand extends AbstractCommand {
 
 	public BoardStyleSaveCommand() {
-		super("chess b sa", 1, 1);
+		super("chess b sa", 0, 1);
 		setPermissionNode("chesscraft.commands.board.save");
-		setUsage("/chess board save <new-style-name>");
+		setUsage("/chess board save [<new-style-name>]");
 	}
 
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		String newStyleName = args[0];
-		
 		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
 		if (bv == null) {
 			throw new ChessException("You are not standing on a chess board.");
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
+
+		String newStyleName = args.length > 0 ? args[0] : style.getName();
 		
 		style.saveStyle(newStyleName);
 		bv.getChessBoard().setBoardStyle(newStyleName);
