@@ -44,6 +44,34 @@
 					<useProjectReferences>false</useProjectReferences>
 				</configuration>
 			</plugin>
+<!--
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+				  <execution>
+				    <phase>package</phase>
+				    <goals>
+				      <goal>shade</goal>
+				    </goals>
+				    <configuration>
+				      <artifactSet>
+					<includes>
+					  <include>me.desht:dhutils</include>
+					</includes>
+				      </artifactSet>
+				      <relocations>
+				        <relocation>
+				          <pattern>me.desht.dhutils</pattern>
+				          <shadedPattern>me.desht.chesscraft.dhutils</shadedPattern>
+				        </relocation>
+				      </relocations>
+				    </configuration>
+				  </execution>
+				</executions>
+		      </plugin>
+-->
 		</plugins>
 	</build>
 	<dependencies>
@@ -78,6 +106,13 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
+<!--
+		<dependency>
+			<groupId>me.desht</groupId>
+			<artifactId>dhutils</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+-->
 
 	</dependencies>
 	<dependencyManagement>
