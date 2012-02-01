@@ -181,8 +181,8 @@ public class TimeControl implements ConfigurationSerializable {
 			break;
 		case ROLLOVER:
 			rolloverMovesMade++;
-			System.out.println("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
-			System.out.println("need " + rollovers.get(rolloverPhase).getMoves());
+//			System.out.println("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
+//			System.out.println("need " + rollovers.get(rolloverPhase).getMoves());
 			if (rolloverMovesMade == rollovers.get(rolloverPhase).getMoves()) {
 				rolloverMovesMade = 0;
 				rolloverPhase = (rolloverPhase + 1) % rollovers.size();
