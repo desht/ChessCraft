@@ -1,25 +1,35 @@
 package me.desht.chesscraft;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.Class;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.sk89q.worldedit.util.YAMLConfiguration;
+
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.views.SMSView;
 
 public class SMSIntegration {
 
-	private static final String TP_GAME = "cc:tp-game"; //$NON-NLS-1$
-	private static final String CREATE_GAME = "cc:create-game"; //$NON-NLS-1$
-	private static final String BOARD_INFO = "cc:board-info"; //$NON-NLS-1$
-	private static final String GAME_INFO = "cc:game-info"; //$NON-NLS-1$
-	private static final String DEL_GAME = "cc:delete-game"; //$NON-NLS-1$
+	private static final String TP_GAME = "cc_tp-game"; //$NON-NLS-1$
+	private static final String CREATE_GAME = "cc_create-game"; //$NON-NLS-1$
+	private static final String BOARD_INFO = "cc_board-info"; //$NON-NLS-1$
+	private static final String GAME_INFO = "cc_game-info"; //$NON-NLS-1$
+	private static final String DEL_GAME = "cc_delete-game"; //$NON-NLS-1$
 	private static SMSHandler smsHandler;
 	// older versions will throw a methodnotfound if try notifyObservers
 	private static boolean canNotify = false;
@@ -46,21 +56,22 @@ public class SMSIntegration {
 
 		for (BoardView bv : BoardView.listBoardViews(true)) {
 			boardCreated(bv);
-
 		}
 
 		// now enable autosaving
 		for (SMSMenu menu : smsHandler.listMenus()) {
-			if (menu.getName().startsWith("cc:")) { //$NON-NLS-1$
+			if (menu.getName().startsWith("cc_")) { //$NON-NLS-1$
 				menu.setAutosave(true);
 			}
 		}
+		
+		cleanupOldMenuNames();
 	}
 
 	public static void deleteMenus() {
 		List<String> toDelete = new ArrayList<String>();
 		for (SMSMenu menu : smsHandler.listMenus()) {
-			if (menu.getName().startsWith("cc:")) { //$NON-NLS-1$
+			if (menu.getName().startsWith("cc_")) { //$NON-NLS-1$
 				toDelete.add(menu.getName());
 			}
 		}
@@ -165,6 +176,53 @@ public class SMSIntegration {
 			} catch (SMSException e) {
 				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
+		}
+	}
+
+	private static void cleanupOldMenuNames() {
+		if (smsHandler.checkMenu("cc:tp-game")) {
+			// clean up the old-style named menus (they didn't work on Windows due to the colon... oops)
+			try {
+				boolean smsReloadNeeded = false;
+				
+				// update any existing views to attach to the new menus
+				for (SMSView view : SMSView.listViews()) {
+					if (view.getName().startsWith("cc:")) {
+						smsReloadNeeded = true;
+						migrateView(view.getName(), view.getMenu().getName());
+					}
+				}
+				// get rid of the old menus
+				smsHandler.deleteMenu("cc:tp-game");
+				smsHandler.deleteMenu("cc:create-game");
+				smsHandler.deleteMenu("cc:board-info");
+				smsHandler.deleteMenu("cc:game-info");
+				smsHandler.deleteMenu("cc:delete-game");
+				
+				if (smsReloadNeeded) {
+					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sms reload");
+				}
+				
+				ChessCraftLogger.info("Updated all ChessCraft/ScrollingMenuSign menus & view to new naming standard ('cc_' prefix)");
+			} catch (SMSException e) {
+				ChessCraftLogger.warning("Caught exception while cleaning up obsolete SMS menus", e);
+			}
+		}
+	}
+
+	private static void migrateView(String viewName, String menuName) {
+		File f1 = new File(SMSConfig.getViewsFolder(), viewName + ".yml");
+		viewName = viewName.replaceFirst("cc:", "cc_");
+		menuName = menuName.replaceFirst("cc:", "cc_");
+		File f2 = new File(SMSConfig.getViewsFolder(), viewName + ".yml");
+		
+		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f1);
+		conf.set("name", viewName);
+		conf.set("menu", menuName);
+		try {
+			conf.save(f2);
+		} catch (IOException e) {
+			ChessCraftLogger.warning("Can't rewrite view: " + f2, e);
 		}
 	}
 }
