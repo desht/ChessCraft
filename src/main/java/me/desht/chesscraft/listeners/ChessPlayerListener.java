@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -172,13 +173,19 @@ public class ChessPlayerListener implements Listener {
 			event.setCancelled(true);
 			// seems just cancelling the event doesn't stop the bucket getting filled?
 			event.setItemStack(new ItemStack(Material.BUCKET, 1));
-			System.out.println("no no!");
 		}
 	}
 	
 	@EventHandler
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		if (BoardView.partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerPortal(PlayerPortalEvent event) {
+		if (BoardView.partOfChessBoard(event.getFrom()) != null) {
 			event.setCancelled(true);
 		}
 	}
