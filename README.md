@@ -1,4 +1,4 @@
-# ChessCraft v0.5pre
+# ChessCraft v0.5.1
 
 ChessCraft is a Bukkit plugin that allows you to play chess on your CraftBukkit Minecraft server.
  
