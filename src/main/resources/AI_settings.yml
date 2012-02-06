@@ -119,6 +119,6 @@ AI:
     funName:
     engine: "Random"
     depth: 1
-    enabled: true
-    payout_multiplier: 0.1
+    enabled: false
+    payout_multiplier: 0.0
     comment: Completely stupid.
