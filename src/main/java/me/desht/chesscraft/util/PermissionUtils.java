@@ -17,9 +17,9 @@ public class PermissionUtils {
 		if (player == null || node == null) {
 			return true;
 		} else {
-			if (ChessCraft.permission != null) { 
+			if (ChessCraft.permission != null && !ChessCraft.permission.hasSuperPermsCompat()) {
 				return ChessCraft.permission.has(player, node);
-			} else { 
+			} else {
 				return player.hasPermission(node);
 			}
 		}
