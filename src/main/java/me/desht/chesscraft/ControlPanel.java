@@ -4,6 +4,7 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -310,13 +311,24 @@ public class ControlPanel {
 		String buttonText = Messages.getString("ControlPanel.stakeBtn"); //$NON-NLS-1$
 		if (game == null) {
 			double stake = ChessConfig.getConfig().getDouble("stake.default"); //$NON-NLS-1$
-			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			String stakeStr = getStakeStr(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			return buttonText + stakeStr;
 		} else {
 			double stake = game.getStake();
-			String stakeStr = ChessCraft.economy.format(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
+			String stakeStr = getStakeStr(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
 			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
 			return col + buttonText + "&4" + stakeStr; //$NON-NLS-1$
+		}
+	}
+
+	private String getStakeStr(double stake) {
+		try {
+			return ChessCraft.economy.format(stake);
+		} catch (Exception e) {
+			ChessCraftLogger.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
+			e.printStackTrace();
+			ChessCraftLogger.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
+			return new DecimalFormat("#0.00").format(stake);
 		}
 	}
 
