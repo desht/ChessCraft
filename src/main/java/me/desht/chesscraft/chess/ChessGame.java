@@ -94,6 +94,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
 		}
+		if (view.isDesigning()) {
+			throw new ChessException(Messages.getString("Game.boardInDesignMode")); //$NON-NLS-1$
+		}
 		playerWhite = playerName == null ? "" : playerName; //$NON-NLS-1$
 		playerBlack = ""; //$NON-NLS-1$
 		state = GameState.SETTING_UP;
@@ -128,6 +131,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		view = BoardView.getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
+		}
+		if (view.isDesigning()) {
+			throw new ChessException(Messages.getString("Game.boardInDesignMode")); //$NON-NLS-1$
 		}
 
 		name = map.getString("name");

@@ -21,10 +21,11 @@ public class ChessBlockListener implements Listener {
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
-			event.setCancelled(true);
+		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
+			return;
 		}
+		event.setCancelled(true);
 	}
 
 	@EventHandler
@@ -35,10 +36,11 @@ public class ChessBlockListener implements Listener {
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
-			event.setCancelled(true);
+		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
+			return;
 		}
+		event.setCancelled(true);
 	}
 	
 	@EventHandler
@@ -49,10 +51,11 @@ public class ChessBlockListener implements Listener {
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
-			event.setCancelled(true);
+		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
+			return;
 		}
+		event.setCancelled(true);
 	}
 
 	@EventHandler

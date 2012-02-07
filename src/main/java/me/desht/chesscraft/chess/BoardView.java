@@ -88,12 +88,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		
 		Location where = ChessPersistence.thawLocation(origin);
 		
-		this.name = conf.getString("name");
+		this.name = conf.getString("name"); //$NON-NLS-1$
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 		chessBoard = new ChessBoard(bStyle, pStyle);
+		
 		setA1Center(where, dir);
+		setDesigning(conf.getBoolean("designing", false)); //$NON-NLS-1$
 	}
 
 	@Override
@@ -104,7 +106,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		result.put("pieceStyle", chessBoard.getPieceStyleName()); //$NON-NLS-1$
 		result.put("boardStyle", chessBoard.getBoardStyleName()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
-		result.put("direction", chessBoard.getRotation().name());
+		result.put("direction", chessBoard.getRotation().name()); //$NON-NLS-1$
+		result.put("designing", isDesigning()); //$NON-NLS-1$
 		return result;
 	}
 
@@ -238,6 +241,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public BoardOrientation getDirection() {
 		return chessBoard.getRotation();
+	}
+
+	public boolean isDesigning() {
+		return chessBoard.isDesigning();
+	}
+
+	public void setDesigning(boolean designing) {
+		chessBoard.setDesigning(designing);
 	}
 
 	public void paintAll() {
@@ -434,6 +445,20 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public boolean isControlPanel(Location loc) {
 		return controlPanel.getPanelBlocks().contains(loc);
+	}
+
+	/**
+	 * Check if the given location is OK for designing on by the given player.
+	 * 
+	 * @param location
+	 * @return
+	 */
+	public boolean canDesignHere(Player player, Location location) {
+		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer"))
+			return false;
+		
+		int sqi = chessBoard.getSquareAt(location);
+		return Chess.sqiToCol(sqi) < 5 && Chess.sqiToCol(sqi) >= 0 && Chess.sqiToRow(sqi) < 2 && Chess.sqiToRow(sqi) >= 0;
 	}
 
 	public int getSquareAt(Location loc) {

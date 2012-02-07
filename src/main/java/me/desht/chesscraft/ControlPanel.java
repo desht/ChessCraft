@@ -126,7 +126,7 @@ public class ControlPanel {
 			createSignButton(7, 1, STAKE, getStakeStr(game), signMat, game != null); //$NON-NLS-1$
 		}
 
-		createSignButton(1, 2, CREATE_GAME, Messages.getString("ControlPanel.createGameBtn"), signMat, game == null); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(1, 2, CREATE_GAME, Messages.getString("ControlPanel.createGameBtn"), signMat, game == null && !view.isDesigning()); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(2, 2, INVITE_PLAYER, Messages.getString("ControlPanel.invitePlayerBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$
 		                 && (!hasWhite || !hasBlack));
 		createSignButton(3, 2, INVITE_ANYONE, Messages.getString("ControlPanel.inviteAnyoneBtn"), signMat, settingUp //$NON-NLS-1$ //$NON-NLS-2$

@@ -30,60 +30,35 @@ public class ChessBoard {
 	public static final String DEFAULT_PIECE_STYLE = "Standard";
 	public static final String DEFAULT_BOARD_STYLE = "Standard";
 
-	// <editor-fold defaultstate="collapsed" desc="Variables">
-	//cuboid regions of areas on the board
-	/**
-	 * region that defines the board itself - just the squares
-	 */
+	// region that defines the board itself - just the squares
 	private Cuboid board;
-	/**
-	 * area above the board squares
-	 */
+	// area above the board squares
 	private Cuboid areaBoard;
-	/**
-	 * region outset by the frame
-	 */
+	// region outset by the frame
 	private Cuboid frameBoard;
-	/**
-	 * area <i>above</i> the board
-	 */
+	 // area <i>above</i> the board
 	private Cuboid aboveFullBoard;
-	/**
-	 * the full board region (board, frame, and area above)
-	 */
+	//the full board region (board, frame, and area above)
 	private Cuboid fullBoard;
-	/**
-	 * if highlight_last_move, what squares (indices) are highlighted
-	 */
+	// if highlight_last_move, what squares (indices) are highlighted
 	private int fromSquare = -1, toSquare = -1;
-	/**
-	 * if the last lighting update is active
-	 */
+	// if the last lighting update is active
 	private boolean isLighted = false;
-	/**
-	 * settings related to how the board is drawn
-	 */
+	// settings related to how the board is drawn
 	private BoardStyle boardStyle = null;
-	/**
-	 * the set of chess pieces that go with this board
-	 */
+	//the set of chess pieces that go with this board
 	private ChessSet chessPieceSet = null;
-	/**
-	 * this is the direction white faces
-	 */
+	//this is the direction white faces
 	private BoardOrientation rotation = BoardOrientation.NORTH;
-	/**
-	 * the center of the A1 square (lower-left on the board)
-	 */
+	// the center of the A1 square (lower-left on the board)
 	private Location a1Center = null;
-	/**
-	 * the lower-left-most part (outer corner) of the a1 square (depends on rotation)
-	 */
+	// the lower-left-most part (outer corner) of the a1 square (depends on rotation)
 	private Location a1Corner = null;
-	/**
-	 * the upper-right-most part (outer corner) of the h8 square (depends on rotation)
-	 */
+	//the upper-right-most part (outer corner) of the h8 square (depends on rotation)
 	private Location h8Corner = null;
+	// are we in designer mode?
+	private boolean designing = false;
+	
 	//	/**
 	//	 * if a chess board has been drawn, this is a save for paintAll()
 	//	 */
@@ -170,6 +145,14 @@ public class ChessBoard {
 	 */
 	public BoardOrientation getRotation() {
 		return rotation;
+	}
+
+	public boolean isDesigning() {
+		return designing;
+	}
+
+	public void setDesigning(boolean designing) {
+		this.designing = designing;
 	}
 
 	public final void setPieceStyle(String pieceStyle) throws ChessException {
@@ -277,10 +260,15 @@ public class ChessBoard {
 	 */
 	void paintAll() {
 		if (board != null) {
-			fullBoard.clear(true);
+			if (!designing) {
+				fullBoard.clear(true);
+			}
 			paintEnclosure();
 			paintFrame();
 			paintBoard();
+			if (designing) {
+				paintDesignIndicators();
+			}
 			if (fromSquare >= 0 || toSquare >= 0) {
 				highlightSquares(fromSquare, toSquare);
 			} else {
@@ -427,6 +415,22 @@ public class ChessBoard {
 		}
 		
 		p.sendClientChanges();
+	}
+
+	/**
+	 * Board is in designer mode - paint some markers on unused squares
+	 */
+	private void paintDesignIndicators() {
+		MaterialWithData marker = new MaterialWithData("wool:red");	// configurable?
+		for (int row = 0; row < 8; ++row) {
+			for (int col = 0; col < 8; ++col) {
+				if (row < 2 && col < 5) {
+					continue;
+				}
+				Cuboid sq = getSquare(row, col).shift(Direction.Up, 1).inset(Direction.Horizontal, 1);
+				sq.set(marker, true);
+			}
+		}
 	}
 
 	void lightBoard(boolean light) {

@@ -167,6 +167,10 @@ ControlPanel:
   whitePawnPromotionBtn: "White Pawn;Promotion;;&4"
   yesBtn: ";;Yes"
 
+Designer:
+  inDesignMode: "Board &6{0}&- is now in design mode."
+  outOfDesignMode: "Board &6{0}&- is now out of design mode."
+  
 ExpectBoardCreation:
   boardCreated: "Board &6{0}&- has been created at {1}."
 
@@ -180,6 +184,7 @@ ExpectYesNoOffer:
 
 Game:
   boardAlreadyHasGame: "That board already has a game on it."
+  boardInDesignMode: "That board is being used for piece designing."
   sitePGN: " in Minecraftia"
   AIisBusy: "That AI is currently busy playing a game."
   alertPrefix: "&6:: &-Game &6{0}&-: "

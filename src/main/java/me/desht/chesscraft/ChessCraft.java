@@ -13,6 +13,7 @@ import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.CreateGameCommand;
 import me.desht.chesscraft.commands.BoardDeletionCommand;
 import me.desht.chesscraft.commands.DeleteGameCommand;
+import me.desht.chesscraft.commands.DesignCommand;
 import me.desht.chesscraft.commands.FenCommand;
 import me.desht.chesscraft.commands.GameCommand;
 import me.desht.chesscraft.commands.GetcfgCommand;
@@ -310,6 +311,7 @@ public class ChessCraft extends JavaPlugin {
 		cmds.registerCommand(new ClaimVictoryCommand());
 		cmds.registerCommand(new CreateGameCommand());
 		cmds.registerCommand(new DeleteGameCommand());
+		cmds.registerCommand(new DesignCommand());
 		cmds.registerCommand(new FenCommand());
 		cmds.registerCommand(new GameCommand());
 		cmds.registerCommand(new GetcfgCommand());
