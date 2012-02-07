@@ -53,6 +53,7 @@ public class ControlPanel {
 	private static final String CREATE_GAME = "create.game";
 
 	public static final int PANEL_WIDTH = 8;
+	
 	private BoardView view;
 	private BoardOrientation boardDir = null, signDir = null;
 	private MaterialWithData signMat;
@@ -75,12 +76,9 @@ public class ControlPanel {
 
 		panelBlocks = getBoardControlPanel(view);
 
-		toMoveIndicator = panelBlocks.clone();
-		toMoveIndicator.inset(Direction.Vertical, 1).
-		expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
-		expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
-		// .inset(Direction.Horizontal, PANEL_WIDTH / 2);
-		//if (view.getName().contains("ter")) toMoveIndicator.weSelect(plugin.getServer().getPlayer("jascotty2"));
+		toMoveIndicator = panelBlocks.inset(Direction.Vertical, 1).
+				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
+				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
 
 		signMat = new MaterialWithData(68, getSignDir(signDir));
 
@@ -151,6 +149,12 @@ public class ControlPanel {
 		createSignButton(7, 0, BLACK_NO, offerb + ";;No", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/**
+	 * Get a teleport-in location for this control panel.  Player will be standing in front of the
+	 * control panel, facing it.
+	 * 
+	 * @return
+	 */
 	public Location getLocationTP(){
 		Location l = (new Cuboid(toMoveIndicator.getCenter())).
 				shift(signDir.getDirection(), 3).

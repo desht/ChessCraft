@@ -9,10 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.sk89q.worldedit.util.YAMLConfiguration;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.util.ChessUtils;

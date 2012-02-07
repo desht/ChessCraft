@@ -399,8 +399,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (bounds == null) {
 			return false;
 		}
-		bounds.shift(Direction.Up, minHeight);
-		bounds.expand(Direction.Up, maxHeight - minHeight);
+		bounds = bounds.shift(Direction.Up, minHeight).expand(Direction.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
 	}
 

@@ -29,8 +29,11 @@ import org.bukkit.entity.Player;
 public class Cuboid implements Iterable<Block>, Cloneable {
 	private static WorldEditPlugin wep = null;
 
-	protected Location lowerNE; // min x,y,z
-	protected Location upperSW; // max x,y,z
+	private final World world;
+	private final int x1, y1, z1;
+	private final int x2, y2, z2;
+	//	protected final Location lowerNE; // min x,y,z
+	//	protected final Location upperSW; // max x,y,z
 
 	public static void setWorldEdit(WorldEditPlugin p) {
 		wep = p;
@@ -40,30 +43,39 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
 		}
-
-		lowerNE = new Location(l1.getWorld(), Math.min(l1.getX(), l2.getX()),
-		                       Math.min(l1.getY(), l2.getY()), Math.min(l1.getZ(), l2.getZ()));
-		upperSW = new Location(l1.getWorld(), Math.max(l1.getX(), l2.getX()),
-		                       Math.max(l1.getY(), l2.getY()), Math.max(l1.getZ(), l2.getZ()));
-
+		world = l1.getWorld();
+		x1 = Math.min(l1.getBlockX(), l2.getBlockX());
+		y1 = Math.min(l1.getBlockY(), l2.getBlockY());
+		z1 = Math.min(l1.getBlockZ(), l2.getBlockZ());
+		x2 = Math.max(l1.getBlockX(), l2.getBlockX());
+		y2 = Math.max(l1.getBlockY(), l2.getBlockY());
+		z2 = Math.max(l1.getBlockZ(), l2.getBlockZ());
 	}
 
 	public Cuboid(Location l1) {
-		lowerNE = l1.clone();//new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
-		upperSW = l1.clone();//new Location(l1.getWorld(), l1.getX(), l1.getY(), l1.getZ());
+		this(l1, l1);
 	}
 
-	public Cuboid(Cuboid copy) {
-		this.lowerNE = copy.lowerNE.clone();
-		this.upperSW = copy.upperSW.clone();
+	public Cuboid(Cuboid other) {
+		this(other.world, other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
+	}
+
+	public Cuboid(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
+		this.world = world;
+		this.x1 = x1;
+		this.x2 = x2;
+		this.y1 = y1;
+		this.y2 = y2;
+		this.z1 = z1;
+		this.z2 = z2;
 	}
 
 	public Location getLowerNE() {
-		return lowerNE;
+		return new Location(world, x1, y1, z1);
 	}
 
 	public Location getUpperSW() {
-		return upperSW;
+		return new Location(world, x2, y2, z2);
 	}
 
 	public Location getCenter() {
@@ -73,71 +85,63 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public World getWorld() {
-		return lowerNE == null ? (upperSW == null ? null : upperSW.getWorld()) : lowerNE.getWorld();
+		return world;
 	}
 
 	public List<Block> corners() {
 		List<Block> res = new ArrayList<Block>(8);
-		World w = lowerNE.getWorld();
-		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
-		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
-		res.add(w.getBlockAt(minX, minY, minZ));
-		res.add(w.getBlockAt(minX, minY, maxZ));
-		res.add(w.getBlockAt(minX, maxY, minZ));
-		res.add(w.getBlockAt(minX, maxY, maxZ));
-		res.add(w.getBlockAt(maxX, minY, minZ));
-		res.add(w.getBlockAt(maxX, minY, maxZ));
-		res.add(w.getBlockAt(maxX, maxY, minZ));
-		res.add(w.getBlockAt(maxX, maxY, maxZ));
+		res.add(world.getBlockAt(x1, y1, z1));
+		res.add(world.getBlockAt(x1, y1, z2));
+		res.add(world.getBlockAt(x1, y2, z1));
+		res.add(world.getBlockAt(x1, y2, z2));
+		res.add(world.getBlockAt(x2, y1, z1));
+		res.add(world.getBlockAt(x2, y1, z2));
+		res.add(world.getBlockAt(x2, y2, z1));
+		res.add(world.getBlockAt(x2, y2, z2));
 		return res;
 
 	}
 
 	public List<Block> walls() {
 		List<Block> res = new ArrayList<Block>(8);
-		World w = lowerNE.getWorld();
-		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
-		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
-		for (int x = minX; x <= maxX; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
-				res.add(w.getBlockAt(x, y, minZ));
-				res.add(w.getBlockAt(x, y, maxZ));
+		for (int x = x1; x <= x2; ++x) {
+			for (int y = y1; y <= y2; ++y) {
+				res.add(world.getBlockAt(x, y, z1));
+				res.add(world.getBlockAt(x, y, z2));
 			}
 		}
-		for (int z = minZ; z <= maxZ; ++z) {
-			for (int y = minY; y <= maxY; ++y) {
-				res.add(w.getBlockAt(minX, y, z));
-				res.add(w.getBlockAt(maxX, y, z));
+		for (int z = z1; z <= z2; ++z) {
+			for (int y = y1; y <= y2; ++y) {
+				res.add(world.getBlockAt(x1, y, z));
+				res.add(world.getBlockAt(x2, y, z));
 			}
 		}
 		return res;
 	}
 
-	public Cuboid expand(Direction dir, int amount) {
-		//TODO: if negative amount, don't collapse beyond self
+	public Cuboid expand(Direction dir, int amount) {		
 		switch (dir) {
 		case North:
-			lowerNE.setX(lowerNE.getBlockX() - amount);
-			break;
+			return new Cuboid(world, x1 - amount, y1, z1, x2, y2, z2);
+			//			lowerNE.setX(lowerNE.getBlockX() - amount);
 		case South:
-			upperSW.setX(upperSW.getBlockX() + amount);
-			break;
+			return new Cuboid(world, x1, y1, z1, x2 + amount, y2, z2);
+			//			upperSW.setX(upperSW.getBlockX() + amount);
 		case East:
-			lowerNE.setZ(lowerNE.getBlockZ() - amount);
-			break;
+			return new Cuboid(world, x1, y1, z1 - amount, x2, y2, z2);
+			//			lowerNE.setZ(lowerNE.getBlockZ() - amount);
 		case West:
-			upperSW.setZ(upperSW.getBlockZ() + amount);
-			break;
+			return new Cuboid(world, x1, y1, z1, x2, y2, z2 + amount);
+			//			upperSW.setZ(upperSW.getBlockZ() + amount);
 		case Down:
-			lowerNE.setY(lowerNE.getBlockY() - amount);
-			break;
+			return new Cuboid(world, x1, y1 - amount, z1, x2, y2, z2);
+			//			lowerNE.setY(lowerNE.getBlockY() - amount);
 		case Up:
-			upperSW.setY(upperSW.getBlockY() + amount);
-			break;
+			return new Cuboid(world, x1, y1, z1, x2, y2 + amount, z2);
+			//			upperSW.setY(upperSW.getBlockY() + amount);
 		default:
 			throw new IllegalArgumentException("invalid direction " + dir);
 		}
-		return this;
 	}
 
 	public Cuboid shift(Direction dir, int amount) {
@@ -145,25 +149,21 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public Cuboid outset(Direction dir, int amount) {
+		Cuboid c;
 		switch (dir) {
 		case Horizontal:
-			expand(Direction.North, amount);
-			expand(Direction.South, amount);
-			expand(Direction.East, amount);
-			expand(Direction.West, amount);
+			c = expand(Direction.North, amount).expand(Direction.South, amount).expand(Direction.East, amount).expand(Direction.West, amount);
 			break;
 		case Vertical:
-			expand(Direction.Down, amount);
-			expand(Direction.Up, amount);
+			c = expand(Direction.Down, amount).expand(Direction.Up, amount);
 			break;
 		case Both:
-			outset(Direction.Horizontal, amount);
-			outset(Direction.Vertical, amount);
+			c = outset(Direction.Horizontal, amount).outset(Direction.Vertical, amount);
 			break;
 		default:
 			throw new IllegalArgumentException("invalid direction " + dir);
 		}
-		return this;
+		return c;
 	}
 
 	public Cuboid inset(Direction dir, int amount) {
@@ -193,12 +193,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public boolean contains(int x, int y, int z) {
-		if (x >= lowerNE.getBlockX() && x <= upperSW.getBlockX() && y >= lowerNE.getBlockY()
-				&& y <= upperSW.getBlockY() && z >= lowerNE.getBlockZ() && z <= upperSW.getBlockZ()) {
-			return true;
-		} else {
-			return false;
-		}
+		return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
 	}
 
 	public boolean contains(Block b) {
@@ -206,7 +201,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public boolean contains(Location l) {
-		if (l.getWorld() != lowerNE.getWorld()) {
+		if (l.getWorld() != world) {
 			return false;
 		}
 		return contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
@@ -365,7 +360,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	@SuppressWarnings("unchecked")
 	public void sendClientChanges() {
 		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
-//		System.out.println("view dist = " + threshold);
+		//		System.out.println("view dist = " + threshold);
 		threshold = threshold * threshold;
 
 		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
@@ -374,52 +369,49 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 		int centerX = getLowerX() + getSizeX() / 2;	
 		int centerZ = getLowerZ() + getSizeZ() / 2;
-		for (Player player : lowerNE.getWorld().getPlayers()) {
+		for (Player player : world.getPlayers()) {
 			int px = player.getLocation().getBlockX();
 			int pz = player.getLocation().getBlockZ();
-//			System.out.println("px = " + px + ", pz = " + pz + "   cx = " + centerX + ", cz = " + centerZ + "   threshold = " + threshold);
+			//			System.out.println("px = " + px + ", pz = " + pz + "   cx = " + centerX + ", cz = " + centerZ + "   threshold = " + threshold);
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
 				EntityPlayer ep = ((CraftPlayer) player).getHandle();
 				ep.chunkCoordIntPairQueue.addAll(pairs);
-//				for (ChunkCoordIntPair p : pairs) {
-//					System.out.println("send " + player.getName() + ": chunk change: " + p.x + "," + p.z);
-//				}
+				//				for (ChunkCoordIntPair p : pairs) {
+				//					System.out.println("send " + player.getName() + ": chunk change: " + p.x + "," + p.z);
+				//				}
 			}
 		}
 
-//		for (Chunk c : getChunks()) {
-//			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
-//		}
+		//		for (Chunk c : getChunks()) {
+		//			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
+		//		}
 	}
 
 	public void setWalls(int blockID, Byte data) {
-		World w = lowerNE.getWorld();
-		int minX = lowerNE.getBlockX(), minY = lowerNE.getBlockY(), minZ = lowerNE.getBlockZ();
-		int maxX = upperSW.getBlockX(), maxY = upperSW.getBlockY(), maxZ = upperSW.getBlockZ();
 		if (data != null) {
-			for (int x = minX; x <= maxX; ++x) {
-				for (int y = minY; y <= maxY; ++y) {
-					w.getBlockAt(x, y, minZ).setTypeIdAndData(blockID, data, true);
-					w.getBlockAt(x, y, maxZ).setTypeIdAndData(blockID, data, true);
+			for (int x = x1; x <= x2; ++x) {
+				for (int y = y1; y <= y2; ++y) {
+					world.getBlockAt(x, y, z1).setTypeIdAndData(blockID, data, true);
+					world.getBlockAt(x, y, z2).setTypeIdAndData(blockID, data, true);
 				}
 			}
-			for (int z = minZ; z <= maxZ; ++z) {
-				for (int y = minY; y <= maxY; ++y) {
-					w.getBlockAt(minX, y, z).setTypeIdAndData(blockID, data, true);
-					w.getBlockAt(maxX, y, z).setTypeIdAndData(blockID, data, true);
+			for (int z = z1; z <= z2; ++z) {
+				for (int y = y1; y <= y2; ++y) {
+					world.getBlockAt(x1, y, z).setTypeIdAndData(blockID, data, true);
+					world.getBlockAt(x2, y, z).setTypeIdAndData(blockID, data, true);
 				}
 			}
 		} else {
-			for (int x = minX; x <= maxX; ++x) {
-				for (int y = minY; y <= maxY; ++y) {
-					w.getBlockAt(x, y, minZ).setTypeId(blockID, true);
-					w.getBlockAt(x, y, maxZ).setTypeId(blockID, true);
+			for (int x = x1; x <= x2; ++x) {
+				for (int y = y1; y <= y2; ++y) {
+					world.getBlockAt(x, y, z1).setTypeId(blockID, true);
+					world.getBlockAt(x, y, z2).setTypeId(blockID, true);
 				}
 			}
-			for (int z = minZ; z <= maxZ; ++z) {
-				for (int y = minY; y <= maxY; ++y) {
-					w.getBlockAt(minX, y, z).setTypeId(blockID, true);
-					w.getBlockAt(maxX, y, z).setTypeId(blockID, true);
+			for (int z = z1; z <= z2; ++z) {
+				for (int y = y1; y <= y2; ++y) {
+					world.getBlockAt(x1, y, z).setTypeId(blockID, true);
+					world.getBlockAt(x2, y, z).setTypeId(blockID, true);
 				}
 			}
 		}
@@ -433,12 +425,12 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return
 	 */
 	public Block getRelativeBlock(int x, int y, int z) {
-		return lowerNE.clone().add(x, y, z).getBlock();
+		return world.getBlockAt(x1 + x, y1 + y, z1 + z);
 	}
 
 	@Override
 	public Iterator<Block> iterator() {
-		return new CuboidIterator(lowerNE, upperSW);
+		return new CuboidIterator(world, x1, y1, z1, x2, y2, z2);
 	}
 
 	@Override
@@ -448,55 +440,51 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	@Override
 	public String toString() {
-		return lowerNE.toString() + " -> " + upperSW.toString();
+		return new String("Cuboid: " + world.getName() + "," + x1 + "," + y1 + "," + z1 + "=>" + x2 + "," + y2 + "," + z2);
 	}
 
 	public int getSizeX() {
-		return (upperSW.getBlockX() - lowerNE.getBlockX()) + 1;
+		return (x2 - x1) + 1;
 	}
 
 	public int getSizeY() {
-		return (upperSW.getBlockY() - lowerNE.getBlockY()) + 1;
+		return (y2 - y1) + 1;
 	}
 
 	public int getSizeZ() {
-		return (upperSW.getBlockZ() - lowerNE.getBlockZ()) + 1;
+		return (z2 - z1) + 1;
 	}
 
 	public int getLowerX() {
-		return lowerNE.getBlockX();
+		return x1;
 	}
 
 	public int getLowerY() {
-		return lowerNE.getBlockY();
+		return y1;
 	}
 
 	public int getLowerZ() {
-		return lowerNE.getBlockZ();
+		return z1;
 	}
 
 	public int getUpperX() {
-		return upperSW.getBlockX();
+		return x2;
 	}
 
 	public int getUpperY() {
-		return upperSW.getBlockY();
+		return y2;
 	}
 
 	public int getUpperZ() {
-		return upperSW.getBlockZ();
+		return z2;
 	}
 
-	public void weSelect(String playerName){
-		if (lowerNE != null){
-			List<Player> players = lowerNE.getWorld().getPlayers();
-			for (Player p : players){
-				if (p.getName().equalsIgnoreCase(playerName)){
-					weSelect(p);
-					return;
-				}
-			}
+	public void weSelect(String playerName) {
+		Player p = Bukkit.getPlayer(playerName);
+		if (p == null || p.getWorld() != world) {
+			return;
 		}
+		weSelect(p);
 	}
 
 	public void weSelect(Player p) {
@@ -506,16 +494,19 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public class CuboidIterator implements Iterator<Block> {
-
-		private Location base;
+		private World w;
+		private int baseX, baseY, baseZ;
 		private int x, y, z;
 		private int sizeX, sizeY, sizeZ;
 
-		public CuboidIterator(Location l1, Location l2) {
-			base = l1.clone();
-			sizeX = Math.abs(l2.getBlockX() - l1.getBlockX()) + 1;
-			sizeY = Math.abs(l2.getBlockY() - l1.getBlockY()) + 1;
-			sizeZ = Math.abs(l2.getBlockZ() - l1.getBlockZ()) + 1;
+		public CuboidIterator(World w, int x1, int y1, int z1, int x2, int y2, int z2) {
+			this.w = w;
+			baseX = x1;
+			baseY = y1;
+			baseZ = z1;
+			sizeX = Math.abs(x2 - x1) + 1;
+			sizeY = Math.abs(y2 - y1) + 1;
+			sizeZ = Math.abs(z2 - z1) + 1;
 			x = y = z = 0;
 		}
 
@@ -526,7 +517,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 		@Override
 		public Block next() {
-			Block b = base.getWorld().getBlockAt(base.getBlockX() + x, base.getBlockY() + y, base.getBlockZ() + z);
+			Block b = w.getBlockAt(baseX + x, baseY + y, baseZ + z);
 			if (++x >= sizeX) {
 				x = 0;
 				if (++y >= sizeY) {

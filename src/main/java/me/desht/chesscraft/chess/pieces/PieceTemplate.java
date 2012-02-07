@@ -93,6 +93,10 @@ public class PieceTemplate {
 		return pieceArray[0][0].length;
 	}
 
+	void useMaterialMap(Map<Character, String> materialMap) {
+		pieceMaterials = materialMap;
+	}
+
 	public MaterialWithData getMaterial(int x, int y, int z) {
 		return x >= 0 && y >= 0 && z >= 0
 				&& pieceArray.length > x
