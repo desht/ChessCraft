@@ -730,4 +730,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
 	}
+	
+	public static void validateStyle(String boardStyle, String pieceStyle) throws ChessException {
+		new ChessBoard(boardStyle, pieceStyle);
+	}
 }

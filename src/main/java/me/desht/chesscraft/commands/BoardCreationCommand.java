@@ -29,9 +29,8 @@ public class BoardCreationCommand extends AbstractCommand {
 		String style = options.get("style"); //$NON-NLS-1$
 		String pieceStyle = options.get("pstyle"); //$NON-NLS-1$
 		
-		@SuppressWarnings("unused")
-		// we create this temporary board only to check that the style & piece styles are valid & compatible
-		BoardView testBoard = new BoardView(name, null, style, pieceStyle);
+		// this will throw an exception if the styles are in any way invalid or incompatible
+		BoardView.validateStyle(style, pieceStyle);
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
 		ChessCraft.expecter.expectingResponse(player, new ExpectBoardCreation(name, style, pieceStyle));

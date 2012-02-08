@@ -124,9 +124,8 @@ public class ChessPlayerListener implements Listener {
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
 		} catch (IllegalMoveException e) {
-			if (targetBlock != null) {
-				cancelMove(targetBlock.getLocation());
-			}
+			// targetBlock must be non-null at this point
+			cancelMove(targetBlock.getLocation());
 			ChessUtils.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
 		} catch (IllegalStateException e) {
 			// player.getTargetBlock() throws this exception occasionally - it appears

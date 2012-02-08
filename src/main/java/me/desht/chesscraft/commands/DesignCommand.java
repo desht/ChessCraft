@@ -37,7 +37,7 @@ public class DesignCommand extends AbstractCommand {
 			ChessUtils.statusMessage(player, Messages.getString(bv.isDesigning() ? "Designer.inDesignMode" : "Designer.outOfDesignMode", bv.getName()));
 			bv.paintAll();
 		} else if (args[0].equalsIgnoreCase("save")) {
-			
+			ChessUtils.statusMessage(player, "save not implemented yet...");
 		}
 		
 		return true;

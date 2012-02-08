@@ -9,7 +9,7 @@ import org.bukkit.block.Sign;
 public class MaterialWithData implements Cloneable {
 
 	int material;
-	Byte data;
+	byte data;
 	String[] text;	// sign text
 
 	public MaterialWithData(int mat, Byte d) {
@@ -19,7 +19,7 @@ public class MaterialWithData implements Cloneable {
 
 	public MaterialWithData(int mat) {
 		material = mat;
-		data = null;
+		data = 0;
 	}
 
 	public MaterialWithData(MaterialWithData m) {
@@ -33,7 +33,7 @@ public class MaterialWithData implements Cloneable {
 		String[] matAndText = string.split("=");
 		String[] matAndData = matAndText[0].split(":");
 		
-		data = null;
+		data = 0;
 		text = matAndText.length > 1 ? makeText(matAndText[1]) : null;
 		
 		if (matAndData[0].matches("^[0-9]+$")) {
@@ -85,11 +85,12 @@ public class MaterialWithData implements Cloneable {
 
 	public void applyToBlock(Block b) {
 		if (b != null) {
-			if (data != null) {
-				b.setTypeIdAndData(material, data, false);
-			} else {
-				b.setTypeId(material);
-			}
+//			if (data != null) {
+//				b.setTypeIdAndData(material, data, false);
+//			} else {
+//				b.setTypeId(material);
+//			}
+			b.setTypeIdAndData(material, data, false);
 			if (text != null && (material == 63 || material == 68)) {
 				// updating a wall sign or floor sign, with text
 				Sign sign = (Sign) b.getState().getData();
@@ -109,11 +110,12 @@ public class MaterialWithData implements Cloneable {
 	 */
 	public void applyToBlockFast(Block b) {
 		if (b != null) {
-			if (data != null) {
-				BlockUtils.setBlockFast(b, material, data);
-			} else {
-				BlockUtils.setBlockFast(b, material);
-			}
+//			if (data != null) {
+//				BlockUtils.setBlockFast(b, material, data);
+//			} else {
+//				BlockUtils.setBlockFast(b, material);
+//			}
+			BlockUtils.setBlockFast(b, material, data);
 			if (text != null && (material == 63 || material == 68)) {
 				// updating a wall sign or floor sign, with text
 				Sign sign = (Sign) b.getState().getData();
@@ -127,11 +129,12 @@ public class MaterialWithData implements Cloneable {
 
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
-			if (data != null) {
-				c.set(material, data, true);
-			} else {
-				c.set(material, true);
-			}
+//			if (data != null) {
+//				c.set(material, data, true);
+//			} else {
+//				c.set(material, true);
+//			}
+			c.set(material, data, true);
 		}
 	}
 
@@ -141,8 +144,10 @@ public class MaterialWithData implements Cloneable {
 		if (material == 35) // wool
 		{
 			s.append(":").append(DyeColor.getByData(data).toString());
-		} else if (data != null) {
-			s.append(":").append(data.toString());
+//		} else if (data != null) {
+//			s.append(":").append(data.toString());
+		} else {
+			s.append(":").append(Byte.toString(data));
 		}
 		return s.toString();
 	}
@@ -175,8 +180,10 @@ public class MaterialWithData implements Cloneable {
 		MaterialWithData other = (MaterialWithData) obj;
 		if (material != other.material) {
 			return false;
-		} else if (data == null && other.data == null) {
-			return true;
+//		} else if (data == null && other.data == null) {
+//			return true;
+//		} else if (!data.equals(other.data)) {
+//			return false;
 		} else if (data != other.data) {
 			return false;
 		} else {
@@ -185,9 +192,9 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	public void rotate(int rotation) {
-		if (data == null) {
-			return;
-		}
+//		if (data == null) {
+//			return;
+//		}
 		switch(rotation){
 			case 270:
 				data = (byte) BlockData.rotate90Reverse(material, data);
