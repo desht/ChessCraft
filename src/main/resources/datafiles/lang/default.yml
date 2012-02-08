@@ -38,7 +38,7 @@ ChessCommandExecutor:
     frameWidth: "Frame width: &f{0,number,integer} ({1})"
     game: "Game: &f{0}"
     height: "Height: &f{0,number,integer}"
-    isLit: "Lit: &f{0}"
+    lightLevel: "Light level: &f{0}"
     boardExtents: "Board Extents: &f{0} - {1}"
     pieceStyle: "Piece Style: &f{0}"
     squareSize: "Square size: &f{0,number,integer} ({1}/{2})"
@@ -54,6 +54,7 @@ ChessCommandExecutor:
   chessSaved: "Chess boards and games have been saved."
   configKeySet: "{0} is now set to: {1}"
   configReloaded: "Configuration (config.yml) has been reloaded"
+  designMode: "Board is in design mode (set &6{0}&-)."
   drawOfferedOther: "&6{0}&- has offered a draw."
   drawOfferedYou: "You have offered a draw to &6{0}&-."
   gameCreated:
@@ -170,6 +171,12 @@ ControlPanel:
 Designer:
   inDesignMode: "Board &6{0}&- is now in design mode."
   outOfDesignMode: "Board &6{0}&- is now out of design mode."
+  styleSaved:
+  - "Piece style &6{0}&- has been saved."
+  - "Use &f/chess board set piecestyle {0}&- while standing on a suitable board to use it."
+  styleLoaded:
+  - "Piece style &6{0}&- has been copied onto the board.  You can make changes now."
+  - "Use &f/chess design save [<new-style-name>] to save it."
   
 ExpectBoardCreation:
   boardCreated: "Board &6{0}&- has been created at {1}."

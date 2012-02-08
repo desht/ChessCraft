@@ -3,6 +3,7 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 
@@ -33,11 +34,29 @@ public class DesignCommand extends AbstractCommand {
 		
 		if (args.length == 0) {
 			// toggle in and out of design mode
-			bv.setDesigning(!bv.isDesigning());
-			ChessUtils.statusMessage(player, Messages.getString(bv.isDesigning() ? "Designer.inDesignMode" : "Designer.outOfDesignMode", bv.getName()));
+			if (bv.isDesigning()) {
+				bv.getChessBoard().setDesigner(null);
+				ChessUtils.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
+			} else {
+				bv.getChessBoard().setDesigner(new PieceDesigner(bv, bv.getPieceStyleName()));
+				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
+			}
 			bv.paintAll();
 		} else if (args[0].equalsIgnoreCase("save")) {
-			ChessUtils.statusMessage(player, "save not implemented yet...");
+			PieceDesigner designer = bv.getChessBoard().getDesigner();
+			if (args.length >= 2) {
+				designer.setSetName(args[1]);
+			}
+			designer.scan();
+			designer.save();
+			ChessUtils.statusMessage(player, Messages.getString("Designer.styleSaved", designer.getSetName()));
+		} else if (args[0].equalsIgnoreCase("load")) {
+			PieceDesigner designer = bv.getChessBoard().getDesigner();
+			if (args.length >= 2) {
+				designer.setSetName(args[1]);
+			}
+			designer.load();
+			ChessUtils.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 		}
 		
 		return true;

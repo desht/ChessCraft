@@ -33,6 +33,7 @@ import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
+import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
@@ -95,7 +96,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard = new ChessBoard(bStyle, pStyle);
 		
 		setA1Center(where, dir);
-		setDesigning(conf.getBoolean("designing", false)); //$NON-NLS-1$
+		String designerName = conf.getString("designer");
+		if (designerName != null && !designerName.isEmpty()) {
+			setDesigner(new PieceDesigner(this, designerName));
+		}
 	}
 
 	@Override
@@ -107,7 +111,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		result.put("boardStyle", chessBoard.getBoardStyleName()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
 		result.put("direction", chessBoard.getRotation().name()); //$NON-NLS-1$
-		result.put("designing", isDesigning()); //$NON-NLS-1$
+		if (isDesigning()) {
+			result.put("designer", chessBoard.getDesigner().getSetName()); //$NON-NLS-1$
+		} else {
+			result.put("designer", "");
+		}
 		return result;
 	}
 
@@ -244,11 +252,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public boolean isDesigning() {
-		return chessBoard.isDesigning();
+		return chessBoard.isDesiging();
 	}
 
-	public void setDesigning(boolean designing) {
-		chessBoard.setDesigning(designing);
+	public void setDesigner(PieceDesigner designer) {
+		chessBoard.setDesigner(designer);
 	}
 
 	public void paintAll() {
@@ -366,7 +374,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	@Override
 	public void notifyPositionChanged(ImmutablePosition position) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -374,7 +381,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
 		
-//		System.out.println("move done! " + fromSqi + "->" + toSqi);
 		highlightSquares(fromSqi, toSqi);
 	}
 
@@ -504,7 +510,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		final int MAX_DIST = 100;
 
 		// search north from the board's northeast corner
-		Location dest0 = chessBoard.getFullBoard().getLowerNE().clone();
+		Location dest0 = chessBoard.getFullBoard().getLowerNE();
 		Block b;
 		int dist = 0;
 		do {
@@ -549,8 +555,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.isLit", getLightLevel() > 0)); //$NON-NLS-1$
-	
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel())); //$NON-NLS-1$
+
+		if (chessBoard.getDesigner() != null) {
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
+		}
+		
 		pager.showPage();
 	}
 

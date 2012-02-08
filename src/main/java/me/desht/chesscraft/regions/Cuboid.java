@@ -32,8 +32,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	private final World world;
 	private final int x1, y1, z1;
 	private final int x2, y2, z2;
-	//	protected final Location lowerNE; // min x,y,z
-	//	protected final Location upperSW; // max x,y,z
 
 	public static void setWorldEdit(WorldEditPlugin p) {
 		wep = p;
@@ -78,16 +76,29 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return new Location(world, x2, y2, z2);
 	}
 
+	/**
+	 * Get the Location at the centre of the Cuboid
+	 * 
+	 * @return
+	 */
 	public Location getCenter() {
 		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()),
 		                    getLowerY() + (getUpperY() - getLowerY()),
 		                    getLowerZ() + (getUpperZ() - getLowerZ()));
 	}
 
+	/**
+	 * Get the Cuboid's world.
+	 * @return
+	 */
 	public World getWorld() {
 		return world;
 	}
 
+	/**
+	 * Return a list of Blocks at the eight corners of the Cuboid.
+	 * @return
+	 */
 	public List<Block> corners() {
 		List<Block> res = new ArrayList<Block>(8);
 		res.add(world.getBlockAt(x1, y1, z1));
@@ -102,6 +113,11 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	}
 
+	/**
+	 * Return a list of blocks representing the four vertical walls of the Cuboid.
+	 * 
+	 * @return
+	 */
 	public List<Block> walls() {
 		List<Block> res = new ArrayList<Block>(8);
 		for (int x = x1; x <= x2; ++x) {
@@ -119,35 +135,52 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return res;
 	}
 
+	/**
+	 * Expand the Cuboid in the given direction by the given amount.  Negative amounts will
+	 * shrink the Cuboid in the given direction.  Shrinking a cuboid's face past the opposite face
+	 * is not an error and will return a valid Cuboid.
+	 * 
+	 * @param dir
+	 * @param amount
+	 * @return
+	 */
 	public Cuboid expand(Direction dir, int amount) {		
 		switch (dir) {
 		case North:
 			return new Cuboid(world, x1 - amount, y1, z1, x2, y2, z2);
-			//			lowerNE.setX(lowerNE.getBlockX() - amount);
 		case South:
 			return new Cuboid(world, x1, y1, z1, x2 + amount, y2, z2);
-			//			upperSW.setX(upperSW.getBlockX() + amount);
 		case East:
 			return new Cuboid(world, x1, y1, z1 - amount, x2, y2, z2);
-			//			lowerNE.setZ(lowerNE.getBlockZ() - amount);
 		case West:
 			return new Cuboid(world, x1, y1, z1, x2, y2, z2 + amount);
-			//			upperSW.setZ(upperSW.getBlockZ() + amount);
 		case Down:
 			return new Cuboid(world, x1, y1 - amount, z1, x2, y2, z2);
-			//			lowerNE.setY(lowerNE.getBlockY() - amount);
 		case Up:
 			return new Cuboid(world, x1, y1, z1, x2, y2 + amount, z2);
-			//			upperSW.setY(upperSW.getBlockY() + amount);
 		default:
 			throw new IllegalArgumentException("invalid direction " + dir);
 		}
 	}
 
+	/**
+	 * Shift the Cuboid in the given direction by the given amount.
+	 * 
+	 * @param dir
+	 * @param amount
+	 * @return
+	 */
 	public Cuboid shift(Direction dir, int amount) {
-		return expand(dir, amount).expand(opposite(dir), -amount);
+		return expand(dir, amount).expand(dir.opposite(), -amount);
 	}
 
+	/**
+	 * Outset (grow) the Cuboid in the given direction by the given amount.
+	 * 
+	 * @param dir
+	 * @param amount
+	 * @return
+	 */
 	public Cuboid outset(Direction dir, int amount) {
 		Cuboid c;
 		switch (dir) {
@@ -166,40 +199,46 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return c;
 	}
 
+	/**
+	 * Inset (shrink) the Cuboid in the given direction by the given amount.  Equivalent
+	 * to calling outset() with a negative amount.
+	 * 
+	 * @param dir
+	 * @param amount
+	 * @return
+	 */
 	public Cuboid inset(Direction dir, int amount) {
 		return outset(dir, -amount);
 	}
 
-	public Direction opposite(Direction dir) {
-		switch (dir) {
-		case North:
-			return Direction.South;
-		case South:
-			return Direction.North;
-		case West:
-			return Direction.East;
-		case East:
-			return Direction.West;
-		case Up:
-			return Direction.Down;
-		case Down:
-			return Direction.Up;
-		case Horizontal:
-			return Direction.Vertical;
-		case Vertical:
-			return Direction.Horizontal;
-		}
-		return Direction.Unknown;
-	}
-
+	/**
+	 * Return true if the point at (x,y,z) is contained within the Cuboid.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
 	public boolean contains(int x, int y, int z) {
 		return x >= x1 && x <= x2 && y >= y1 && y <= y2 && z >= z1 && z <= z2;
 	}
 
+	/**
+	 * Check if the given Block is contained within the Cuboid.
+	 * 
+	 * @param b
+	 * @return
+	 */
 	public boolean contains(Block b) {
 		return contains(b.getLocation());
 	}
 
+	/**
+	 * Check if the given Location is contained within the Cuboid.
+	 * 
+	 * @param l
+	 * @return
+	 */
 	public boolean contains(Location l) {
 		if (l.getWorld() != world) {
 			return false;
@@ -207,10 +246,21 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
 	}
 
+	/**
+	 * Get the volume of the Cuboid.
+	 * 
+	 * @return
+	 */
 	public int volume() {
 		return getSizeX() * getSizeY() * getSizeZ();
 	}
 
+	/**
+	 * Get the average light level of all empty (air) blocks in the Cuboid.  Returns 0 
+	 * if there are no empty blocks.
+	 * 
+	 * @return
+	 */
 	public byte averageLightLevel() {
 		long total = 0;
 		int n = 0;
@@ -224,9 +274,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
-	 * delete blocks in bounds, but don't allow items to drop (paintings are not
-	 * blocks, and are not included...) also does not scan the faces of the
-	 * region for drops when the region is cleared
+	 * Delete blocks in bounds, but don't allow items to drop (paintings are not
+	 * blocks, and are not included).  Does not scan blocks attached to the
+	 * outside faces of the Cuboid for drops when the region is cleared.
 	 *
 	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
 	 * 			lighting recalculation
@@ -262,6 +312,12 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 	}
 
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID.
+	 * 
+	 * @param blockID
+	 * @param fast
+	 */
 	public void set(int blockID, boolean fast) {
 		//		long start = System.nanoTime();
 
@@ -282,6 +338,13 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		//		System.out.println("Cuboid set " + blockID + ": " + (System.nanoTime() - start) + "ns");
 	}
 
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data byte.
+	 * 
+	 * @param blockID
+	 * @param data
+	 * @param fast
+	 */
 	public void set(int blockID, Byte data, boolean fast) {
 		//		long start = System.nanoTime();
 
@@ -314,12 +377,119 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		//		System.out.println("Cuboid set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
+	/**
+	 * Set all the blocks within the Cuboid to the given MaterialWithData
+	 * 
+	 * @param mat
+	 * @param fast
+	 */
 	public void set(MaterialWithData mat, boolean fast) {
 		set(mat.getMaterial(), mat.getData(), fast);
 	}
 
-	public void setWalls(int blockID) {
-		setWalls(blockID, null);
+	/**
+	 * Contract the Cuboid, returning a Cuboid with any air around the edges removed, just
+	 * large enough to include all non-air blocks.
+	 */
+	public Cuboid contract() {
+		return this.
+				contract(Direction.Down).
+				contract(Direction.South).
+				contract(Direction.East).
+				contract(Direction.Up).
+				contract(Direction.North).
+				contract(Direction.West);
+	}
+	
+	/**
+	 * Contract the Cuboid in the given direction, returning a new Cuboid which has no exterior empty space.
+	 * E.g. a direction of Down will push the top face downwards as much as possible.
+	 * 
+	 * @param dir
+	 * @return
+	 */
+	public Cuboid contract(Direction dir) {
+		Cuboid face = getFace(dir.opposite());
+		switch (dir) {
+		case Down:
+			while (face.containsOnly(0) && face.getLowerY() > this.getLowerY()) {
+				face = face.shift(Direction.Down, 1);
+			}
+			return new Cuboid(world, x1, y1, z1, x2, face.getUpperY(), z2);
+		case Up:
+			while (face.containsOnly(0) && face.getUpperY() < this.getUpperY()) {
+				face = face.shift(Direction.Up, 1);
+			}
+			return new Cuboid(world, x1, face.getLowerY(), z1, x2, y2, z2);
+		case North:
+			while (face.containsOnly(0) && face.getLowerX() > this.getLowerX()) {
+				face = face.shift(Direction.North, 1);
+			}
+			return new Cuboid(world, x1, y1, z1, face.getUpperX(), y2, z2);
+		case South:
+			while (face.containsOnly(0) && face.getUpperX() < this.getUpperX()) {
+				face = face.shift(Direction.South, 1);
+			}
+			return new Cuboid(world, face.getLowerX(), y1, z1, x2, y2, z2);
+		case East:
+			while (face.containsOnly(0) && face.getLowerZ() > this.getLowerZ()) {
+				face = face.shift(Direction.East, 1);
+			}
+			return new Cuboid(world, x1, y1, z1, x2, y2, face.getUpperZ());
+		case West:
+			while (face.containsOnly(0) && face.getUpperZ() < this.getUpperZ()) {
+				face = face.shift(Direction.West, 1);
+			}
+			return new Cuboid(world, x1, y1, face.getLowerZ(), x2, y2, z2);
+		default:
+			throw new IllegalArgumentException("Invalid direction " + dir);
+		}
+	}
+	
+	public Cuboid getFace(Direction dir	) {
+		switch (dir) {
+		case Down:
+			return new Cuboid(world, x1, y1, z1, x2, y1, z2);
+		case Up:
+			return new Cuboid(world, x1, y2, z1, x2, y2, z2);
+		case North:
+			return new Cuboid(world, x1, y1, z1, x1, y2, z2);
+		case South:
+			return new Cuboid(world, x2, y1, z1, x2, y2, z2);
+		case East:
+			return new Cuboid(world, x1, y1, z1, x2, y2, z1);
+		case West:
+			return new Cuboid(world, x1, y1, z2, x2, y2, z2);
+		default:
+			throw new IllegalArgumentException("Invalid direction " + dir);
+		}
+	}
+
+	/**
+	 * Check if the Cuboid contains only blocks of the given type
+	 * 
+	 * @param blockId
+	 * @return
+	 */
+	public boolean containsOnly(int blockId) {
+		for (Block b : this) {
+			if (b.getTypeId() != blockId) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Get a block relative to the lower NE point of the Cuboid.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public Block getRelativeBlock(int x, int y, int z) {
+		return world.getBlockAt(x1 + x, y1 + y, z1 + z);
 	}
 
 	/**
@@ -329,13 +499,12 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public List<Chunk> getChunks() {
 		List<Chunk> res = new ArrayList<Chunk>();
-
-		World w = getLowerNE().getWorld();
+	
 		int x1 = getLowerX() & ~0xf; int x2 = getUpperX() & ~0xf;
 		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
 		for (int x = x1; x <= x2; x += 16) {
 			for (int z = z1; z <= z2; z += 16) {
-				res.add(w.getChunkAt(x, z));
+				res.add(world.getChunkAt(x, z));
 			}
 		}
 		return res;
@@ -352,7 +521,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
-	 * Any players within the threshold distance (DIST_SQUARED) of the cuboid may need
+	 * Any players within the threshold distance of the cuboid may need
 	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
 	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
 	 * chunk queue.
@@ -360,9 +529,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	@SuppressWarnings("unchecked")
 	public void sendClientChanges() {
 		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
-		//		System.out.println("view dist = " + threshold);
 		threshold = threshold * threshold;
-
+	
 		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
 		for (Chunk c : getChunks()) {
 			pairs.add(new ChunkCoordIntPair(c.getX() >> 4, c.getZ() >> 4));
@@ -372,60 +540,11 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		for (Player player : world.getPlayers()) {
 			int px = player.getLocation().getBlockX();
 			int pz = player.getLocation().getBlockZ();
-			//			System.out.println("px = " + px + ", pz = " + pz + "   cx = " + centerX + ", cz = " + centerZ + "   threshold = " + threshold);
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
 				EntityPlayer ep = ((CraftPlayer) player).getHandle();
 				ep.chunkCoordIntPairQueue.addAll(pairs);
-				//				for (ChunkCoordIntPair p : pairs) {
-				//					System.out.println("send " + player.getName() + ": chunk change: " + p.x + "," + p.z);
-				//				}
 			}
 		}
-
-		//		for (Chunk c : getChunks()) {
-		//			lowerNE.getWorld().refreshChunk(c.getX() >> 4, c.getZ() >> 4);
-		//		}
-	}
-
-	public void setWalls(int blockID, Byte data) {
-		if (data != null) {
-			for (int x = x1; x <= x2; ++x) {
-				for (int y = y1; y <= y2; ++y) {
-					world.getBlockAt(x, y, z1).setTypeIdAndData(blockID, data, true);
-					world.getBlockAt(x, y, z2).setTypeIdAndData(blockID, data, true);
-				}
-			}
-			for (int z = z1; z <= z2; ++z) {
-				for (int y = y1; y <= y2; ++y) {
-					world.getBlockAt(x1, y, z).setTypeIdAndData(blockID, data, true);
-					world.getBlockAt(x2, y, z).setTypeIdAndData(blockID, data, true);
-				}
-			}
-		} else {
-			for (int x = x1; x <= x2; ++x) {
-				for (int y = y1; y <= y2; ++y) {
-					world.getBlockAt(x, y, z1).setTypeId(blockID, true);
-					world.getBlockAt(x, y, z2).setTypeId(blockID, true);
-				}
-			}
-			for (int z = z1; z <= z2; ++z) {
-				for (int y = y1; y <= y2; ++y) {
-					world.getBlockAt(x1, y, z).setTypeId(blockID, true);
-					world.getBlockAt(x2, y, z).setTypeId(blockID, true);
-				}
-			}
-		}
-	}
-
-	/**
-	 * get a block relative to the lower NE point of this cuboid
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @return
-	 */
-	public Block getRelativeBlock(int x, int y, int z) {
-		return world.getBlockAt(x1 + x, y1 + y, z1 + z);
 	}
 
 	@Override

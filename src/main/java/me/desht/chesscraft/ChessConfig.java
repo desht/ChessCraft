@@ -253,18 +253,23 @@ public class ChessConfig {
 	 * 
 	 * @param dir
 	 * @param filename
+	 * @param saving
 	 * @return
 	 * @throws ChessException
 	 */
-	public static File getResourceFile(File dir, String filename) throws ChessException {
+	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
 		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
-		if (!f.canRead()) {
+		if (!f.canRead() && !saving) {
 			f = new File(dir, filename.toLowerCase() + ".yml");
 			if (!f.canRead()) {
 				throw new ChessException("resource file '" + filename + "' is not readable");
 			}
 		}
 		return f;
+	}
+	
+	public static File getResourceFile(File dir, String filename) throws ChessException {
+		return getResourceFile(dir, filename, false);
 	}
 	
 	/**

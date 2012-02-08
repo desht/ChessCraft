@@ -17,6 +17,12 @@ public enum Direction {
 				return Vertical;
 			case Vertical:
 				return Horizontal;
+			case Up:
+				return Down;
+			case Down:
+				return Up;
+			case Both:
+				return Both;
 			default:
 				return Unknown;
 		}

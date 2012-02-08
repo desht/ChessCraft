@@ -1,5 +1,9 @@
 package me.desht.chesscraft.chess.pieces;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import chesspresso.Chess;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -32,11 +36,11 @@ public class ChessStone {
 	public int getWidth() {
 		return Math.max(rotatedStones[0].getSizeX(), rotatedStones[0].getSizeZ());
 	}
-	
+
 	public int getHeight() {
 		return rotatedStones[0].getSizeY();
 	}
-	
+
 	/**
 	 * Get the rotated piece template for the given direction, instantiating it if necessary.
 	 * 
@@ -53,63 +57,44 @@ public class ChessStone {
 	}
 
 	/**
-	 * Paint this stone into the given Cuboid region, which represents one
-	 * square on the chessboard.  The stone will be centred in
-	 * the region (even if it's larger, which it shouldn't be).
+	 * Paint this stone into the given Cuboid region, which represents the space above
+	 * one square on the chessboard.  The stone will be centred in the region X & Z axes
+	 * and painted at the lowest altitude.
 	 *
-	 * @param square the Cuboid area to fill
+	 * @param region the Cuboid area to fill
 	 * @param direction the board's orientation (the direction that white faces)
 	 */
-	public synchronized void paintInto(Cuboid square, BoardOrientation direction) {
+	public void paintInto(Cuboid region, BoardOrientation direction) {
 		PieceTemplate piece = getPieceTemplate(direction);
+
+		assert region.getSizeX() >= piece.getSizeX();
+		assert region.getSizeZ() >= piece.getSizeZ();
+
+		int xOff = (region.getSizeX() - piece.getSizeX()) / 2;
+		int zOff = (region.getSizeZ() - piece.getSizeZ()) / 2;
+
+		region.clear(true);
+
+		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
 		
-		int ibx = square.getLowerX();
-		int ibz = square.getLowerZ();
-		int iby = square.getLowerY();
-		
-		// centre the piece on the square
-		if (piece.getSizeX() < square.getSizeX()) {
-			ibx += (square.getSizeX() - piece.getSizeX()) / 2; // truncate to lower number
-		} else if (piece.getSizeX() > square.getSizeX()) {
-			// technically shouldn't reach here
-			ibx -= (piece.getSizeX() - square.getSizeX()) / 2;
-		}
-		if (piece.getSizeZ() < square.getSizeZ()) {
-			ibz += (square.getSizeZ() - piece.getSizeZ()) / 2; // truncate to lower number
-		} else if (piece.getSizeZ() > square.getSizeZ()) {
-			// technically shouldn't reach here
-			ibz -= (piece.getSizeZ() - square.getSizeZ()) / 2;
-		}
-		
-		//System.out.println("painting piece.. " + ibx + ", " + ibz + ", " + iby + ", [" + square.getSizeX() + ", " + square.getSizeZ() + "]");
-		boolean secondPassNeeded = false;
-		
-		// first scan for solid blocks
-		for (Block b : square) {
-			Location l = b.getLocation();
-			MaterialWithData mat = piece.getMaterial(l.getBlockX() - ibx, l.getBlockY() - iby, l.getBlockZ() - ibz);
-			if (mat != null) {
-				if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-					// can't safely place first, so will need to scan a second time
-					secondPassNeeded = true;
-				} else {
-					mat.applyToBlockFast(b);
-				}
-			}
-		}
-		if (secondPassNeeded) {
-			// place any blocks that we couldn't place in the first pass
-			for (Block b : square) {
-				Location l = b.getLocation();
-				MaterialWithData mat = piece.getMaterial(l.getBlockX() - ibx, l.getBlockY() - iby, l.getBlockZ() - ibz);;
-				if (mat != null) {
+		for (int x = 0; x < piece.getSizeX(); x++) {
+			for (int y = 0; y < piece.getSizeY(); y++) {
+				for (int z = 0; z < piece.getSizeZ(); z++) {
+					MaterialWithData mat = piece.getMaterial(x, y, z);
+					Block b = region.getRelativeBlock(x + xOff, y, z + zOff);
 					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-						mat.applyToBlockFast(b);
+						deferred.put(b, mat);
+					} else {
+						mat.applyToBlockFast(region.getRelativeBlock(x + xOff, y, z + zOff));
 					}
-				}
-			}
+				}	
+			}	
 		}
 		
-		square.initLighting();
+		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
+			e.getValue().applyToBlockFast(e.getKey());
+		}
+
+		region.initLighting();
 	}
 }

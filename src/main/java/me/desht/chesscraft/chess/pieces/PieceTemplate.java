@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -16,7 +17,7 @@ public class PieceTemplate {
 	protected MaterialWithData[][][] pieceArray;
 	protected final int sizeX, sizeY, sizeZ;
 	List<List<String>> pieceData = null;
-	Map<Character, String> pieceMaterials = null;
+	Map<Character, String> materialMap = null;
 
 	public PieceTemplate(List<List<String>> data, ConfigurationSection matMap) throws ChessException {
 		sizeY = data.size();
@@ -33,6 +34,7 @@ public class PieceTemplate {
 
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
+		// scan bottom to top
 		for (int y = 0; y < sizeY; ++y) {
 			List<String> yRow = data.get(y);
 			for (int x = sizeX - 1; x >= 0; --x) {
@@ -93,25 +95,32 @@ public class PieceTemplate {
 		return pieceArray[0][0].length;
 	}
 
+	/**
+	 * Use an externally-supplied material map.  This would be needed where multiple piece templates
+	 * (i.e. an entire set) are being created and a common char->material map needs to be used for all of them.
+	 * 
+	 * @param materialMap
+	 */
 	void useMaterialMap(Map<Character, String> materialMap) {
-		pieceMaterials = materialMap;
+		this.materialMap = materialMap;
 	}
 
 	public MaterialWithData getMaterial(int x, int y, int z) {
-		return x >= 0 && y >= 0 && z >= 0
-				&& pieceArray.length > x
-				&& pieceArray[x].length > y
-				&& pieceArray[x][y].length > z
-				? pieceArray[x][y][z] : null;
+//		return x >= 0 && y >= 0 && z >= 0
+//				&& pieceArray.length > x
+//				&& pieceArray[x].length > y
+//				&& pieceArray[x][y].length > z
+//				? pieceArray[x][y][z] : null;
+		return pieceArray[x][y][z];
 	}
 
 	public void setMaterial(int x, int y, int z, MaterialWithData mwd) {
-		if (x >= 0 && y >= 0 && z >= 0
-				&& pieceArray.length < x
-				&& pieceArray[x].length < y
-				&& pieceArray[x][y].length < z) {
+//		if (x >= 0 && y >= 0 && z >= 0
+//				&& pieceArray.length > x
+//				&& pieceArray[x].length > y
+//				&& pieceArray[x][y].length > z) {
 			pieceArray[x][y][z] = mwd;
-		}
+//		}
 	}
 
 	public final void rotate(int rotation) {
@@ -174,38 +183,59 @@ public class PieceTemplate {
 	}
 
 	public Map<Character, String> getMaterialMap() {
-		if (pieceMaterials == null) {
+		if (materialMap == null) {
 			scan();
 		}
-		return pieceMaterials;
+		return materialMap;
 	}
 
 	/**
 	 * (Re)generate the piece data array and material map.  This could be used to generate a new piece style
 	 * definition from an existing piece.
 	 */
-	private void scan() {
+	void scan() {
 		pieceData = new ArrayList<List<String>>(sizeY);
-		pieceMaterials = new HashMap<Character, String>();
 
-		Map<MaterialWithData, Character> matToStr = new HashMap<MaterialWithData, Character>();
-		int i = 65; // ASCII 'A'
+		// materialMap maps a character to a material name
+		// matToStr is a reverse lookup for materialMap
+		Map<String, Character> reverseMap = new HashMap<String, Character>();
+		if (materialMap == null) {
+			materialMap = new HashMap<Character, String>();
+		}
+
+		char nextChar = 0;
+		for (Entry<Character, String> e : materialMap.entrySet()) {
+			reverseMap.put(e.getValue(), e.getKey());
+			if (e.getKey() > nextChar) {
+				nextChar = e.getKey();
+			}
+		}
+		nextChar = getNextChar(nextChar);
 
 		for (int y = 0; y < sizeY; ++y) {
 			pieceData.add(new ArrayList<String>(sizeX));
 			for (int x = 0; x < sizeX; ++x) {
 				StringBuilder sb = new StringBuilder();
-				for (int z = 0; z < sizeZ; ++z) {
+				for (int z = sizeZ - 1; z >= 0; z--) {
 					MaterialWithData m = getMaterial(x, y, z);
-					if (!matToStr.containsKey(m)) {
-						Character c = (char) i++;
-						matToStr.put(m, c);
-						pieceMaterials.put(c, m.toString());
+					if (!reverseMap.containsKey(m.toString())) {
+						System.out.println("add mapping " + m.toString() + " <-> " + nextChar);
+						materialMap.put(nextChar, m.toString());
+						reverseMap.put(m.toString(), nextChar);
+						nextChar = getNextChar(nextChar);
 					}
-					sb.append(matToStr.get(m));
+					sb.append(reverseMap.get(m.toString()));
 				}
 				pieceData.get(y).add(sb.toString());
 			}
 		}
+	}
+	
+	char getNextChar(char c) {
+		if (c == 0) {
+			return 65;
+		}
+		c++;
+		return c;
 	}
 }

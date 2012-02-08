@@ -12,7 +12,7 @@ public class MaterialWithData implements Cloneable {
 	byte data;
 	String[] text;	// sign text
 
-	public MaterialWithData(int mat, Byte d) {
+	public MaterialWithData(int mat, byte d) {
 		material = mat;
 		data = d;
 	}
