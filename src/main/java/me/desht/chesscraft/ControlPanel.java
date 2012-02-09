@@ -80,8 +80,7 @@ public class ControlPanel {
 				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
 				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
 
-		signMat = new MaterialWithData(68, getSignDir(signDir));
-
+		signMat = MaterialWithData.get("wall_sign:" + getSignDir(signDir));
 		halfMoveClockSign = getSignLocation(2, 0);
 		plyCountSign = getSignLocation(5, 0);
 		whiteClockSign = getSignLocation(2, 1);

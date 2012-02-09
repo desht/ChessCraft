@@ -630,7 +630,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			summonPlayers();
 		}
 		
-		int wandId = new MaterialWithData(ChessConfig.getConfig().getString("wand_item")).getMaterial();
+		int wandId = MaterialWithData.get(ChessConfig.getConfig().getString("wand_item")).getMaterial();
 		String wand = Material.getMaterial(wandId).toString();
 		alert(playerWhite, Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
 		alert(playerBlack, Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$

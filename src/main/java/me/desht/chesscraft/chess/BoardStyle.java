@@ -129,7 +129,7 @@ public class BoardStyle {
 
 	public void setEnclosureMaterial(MaterialWithData enclosureMat) {
 		if (enclosureMat == null) {
-			this.enclosureMat = new MaterialWithData(0);
+			this.enclosureMat = MaterialWithData.get("air");
 		} else {
 			this.enclosureMat = enclosureMat;
 		}
@@ -256,17 +256,17 @@ public class BoardStyle {
 			style.lightLevel = c.getInt("light_level");
 		}
 
-		style.blackSquareMat = new MaterialWithData(c.getString("black_square"));
-		style.whiteSquareMat = new MaterialWithData(c.getString("white_square"));
-		style.frameMat = new MaterialWithData(c.getString("frame"));
-		style.enclosureMat = new MaterialWithData(c.getString("enclosure"));
+		style.blackSquareMat = MaterialWithData.get(c.getString("black_square"));
+		style.whiteSquareMat = MaterialWithData.get(c.getString("white_square"));
+		style.frameMat = MaterialWithData.get(c.getString("frame"));
+		style.enclosureMat = MaterialWithData.get(c.getString("enclosure"));
 
 		/************** optional parameters  **************/		
-		style.controlPanelMat = new MaterialWithData(c.getString("panel", style.frameMat.toString()));
-		style.strutsMat = new MaterialWithData(c.getString("struts", style.enclosureMat.toString()));
-		style.highlightMat = new MaterialWithData(c.getString("highlight", "glowstone"));
-		style.highlightWhiteSquareMat = new MaterialWithData(c.getString("highlight_white_square", style.highlightMat.toString()));
-		style.highlightBlackSquareMat = new MaterialWithData(c.getString("highlight_black_square", style.highlightMat.toString()));
+		style.controlPanelMat = MaterialWithData.get(c.getString("panel", style.frameMat.toString()));
+		style.strutsMat = MaterialWithData.get(c.getString("struts", style.enclosureMat.toString()));
+		style.highlightMat = MaterialWithData.get(c.getString("highlight", "glowstone"));
+		style.highlightWhiteSquareMat = MaterialWithData.get(c.getString("highlight_white_square", style.highlightMat.toString()));
+		style.highlightBlackSquareMat = MaterialWithData.get(c.getString("highlight_black_square", style.highlightMat.toString()));
 		style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
 
 		return style;
