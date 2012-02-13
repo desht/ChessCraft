@@ -481,6 +481,27 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
+	 * Get the Cuboid big enough to hold this Cuboid and the other one.
+	 * 
+	 * @param other
+	 * @return
+	 */
+	public Cuboid getBoundingCuboid(Cuboid other) {
+		if (other == null) {
+			return this;
+		}
+		
+		int xMin = Math.min(getLowerX(), other.getLowerX());
+		int yMin = Math.min(getLowerY(), other.getLowerY());
+		int zMin = Math.min(getLowerZ(), other.getLowerZ());
+		int xMax = Math.max(getUpperX(), other.getUpperX());
+		int yMax = Math.max(getUpperY(), other.getUpperY());
+		int zMax = Math.max(getUpperZ(), other.getUpperZ());
+		
+		return new Cuboid(world, xMin, yMin, zMin, xMax, yMax, zMax);
+	}
+	
+	/**
 	 * Get a block relative to the lower NE point of the Cuboid.
 	 * 
 	 * @param x

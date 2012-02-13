@@ -245,8 +245,13 @@ public class ChessPersistence {
 		} while (backup.exists());
 		return backup;
 	}
-
-	protected static String makeSafeFileName(String name) {
+	
+	public static void requireSection(Configuration c, String key) throws ChessException {
+		if (!c.contains(key))
+			throw new ChessException("piece style file is missing required section '" + key + "'");
+	}
+	
+	public static String makeSafeFileName(String name) {
 		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";").replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".").replace("+", "=").replace("[", "(").replace("]", ")");
 	}
 }

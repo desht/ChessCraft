@@ -9,7 +9,7 @@ public enum BoardOrientation {
 	/**
 	 * the increments if moving in this direction
 	 */
-	int x, z;
+	private final int x, z;
 
 	BoardOrientation(int xPositive, int zPositive) {
 		x = xPositive;

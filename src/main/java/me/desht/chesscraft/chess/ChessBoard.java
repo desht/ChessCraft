@@ -6,10 +6,17 @@
  */
 package me.desht.chesscraft.chess;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import chesspresso.Chess;
 import chesspresso.position.Position;
 
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.enums.BoardLightingMethod;
@@ -68,11 +75,11 @@ public class ChessBoard {
 	// protected Position chessGameCallback = null;
 	// </editor-fold>
 
-	public ChessBoard(String boardStyleStr, String pieceStyleStr) throws ChessException {
-		// this.boardStyleStr = boardStyleStr;
-		// this.pieceStyleStr = pieceStyleStr;
+	public ChessBoard(Location origin, BoardOrientation direction, String boardStyleStr, String pieceStyleStr) throws ChessException {
 		setBoardStyle(boardStyleStr);
 		setPieceStyle(pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleName);
+		setA1Center(origin, direction);
+		validateIntersections();
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="Accessors">
@@ -80,6 +87,29 @@ public class ChessBoard {
 		return a1Center == null ? null : a1Center.clone();
 	}
 
+	/**
+	 * Ensure this board doesn't intersect any other boards
+	 * 
+	 * @throws ChessException if an intersection would occur
+	 */
+	private void validateIntersections() throws ChessException {
+		Cuboid bounds = getFullBoard();
+
+		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
+			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
+		}
+		for (BoardView bv : BoardView.listBoardViews()) {
+			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
+				continue;
+			}
+			for (Block b : bounds.corners()) {
+				if (bv.getOuterBounds().contains(b)) {
+					throw new ChessException(Messages.getString("BoardView.boardWouldIntersect", bv.getName())); //$NON-NLS-1$
+				}
+			}
+		}
+	}
+	
 	/**
 	 * @return the outer-most corner of the A1 square
 	 */
@@ -206,7 +236,7 @@ public class ChessBoard {
 	}
 
 	// TODO: rotation & locations untested
-	void setA1Center(Location a1, BoardOrientation rotation) {
+	private void setA1Center(Location a1, BoardOrientation rotation) {
 		this.rotation = rotation;
 		if (a1 == null) {
 			// clear existing location / region data
@@ -386,21 +416,23 @@ public class ChessBoard {
 	}
 
 	/**
-	 * Draw the chess piece represented by stone into the given row and column.
+	 * Draw the chess piece represented by stone into the given row and column.  The actual blocks
+	 * drawn depend on the board's current chess set.
 	 * 
 	 * @param row
 	 * @param col
 	 * @param stone
 	 */
-	void paintChessPiece(int row, int col, int stone) {
+	public void paintChessPiece(int row, int col, int stone) {
 		if (board == null) {
 			return;
 		}
+
 		Cuboid p = getPieceRegion(row, col);
 		if (stone != Chess.NO_STONE) {
-			ChessStone cStone = chessPieceSet.getPiece(stone);
+			ChessStone cStone = chessPieceSet.getStone(stone, getRotation());
 			if (cStone != null) {
-				cStone.paintInto(p, rotation);
+				paintChessPiece(row, col, cStone);
 			} else {
 				ChessCraftLogger.severe("unknown piece: " + stone);
 			}
@@ -409,6 +441,39 @@ public class ChessBoard {
 		}
 
 		p.sendClientChanges();
+	}
+	
+	public void paintChessPiece(int row, int col, ChessStone stone) {
+		Cuboid region = getPieceRegion(row, col);
+		assert region.getSizeX() >= stone.getSizeX();
+		assert region.getSizeZ() >= stone.getSizeZ();
+
+		int xOff = (region.getSizeX() - stone.getSizeX()) / 2;
+		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
+
+		region.clear(true);
+
+		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
+
+		for (int x = 0; x < stone.getSizeX(); x++) {
+			for (int y = 0; y < stone.getSizeY(); y++) {
+				for (int z = 0; z < stone.getSizeZ(); z++) {
+					MaterialWithData mat = stone.getMaterial(x, y, z);
+					Block b = region.getRelativeBlock(x + xOff, y, z + zOff);
+					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
+						deferred.put(b, mat);
+					} else {
+						mat.applyToBlockFast(region.getRelativeBlock(x + xOff, y, z + zOff));
+					}
+				}	
+			}	
+		}
+
+		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
+			e.getValue().applyToBlockFast(e.getKey());
+		}
+
+		region.initLighting();
 	}
 
 	/**

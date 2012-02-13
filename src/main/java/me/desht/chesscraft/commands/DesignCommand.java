@@ -47,7 +47,8 @@ public class DesignCommand extends AbstractCommand {
 				return true;
 			} else {
 				// toggle into design mode
-				bv.getChessBoard().setDesigner(new PieceDesigner(bv, bv.getPieceStyleName()));
+				designer = new PieceDesigner(bv, bv.getPieceStyleName());
+				bv.getChessBoard().setDesigner(designer);
 				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessConfig.getConfig().getBoolean("designer.auto_load")) {
 					designer.load();
@@ -59,6 +60,7 @@ public class DesignCommand extends AbstractCommand {
 			if (bv.isDesigning()) {
 				bv.getChessBoard().setDesigner(null);
 				ChessUtils.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
+				bv.paintAll();
 			}
 		} else if (args[0].startsWith("c")) {	// clear
 			designer.clear();

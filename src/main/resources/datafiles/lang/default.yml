@@ -172,12 +172,12 @@ Designer:
   inDesignMode: "Board &6{0}&- is now in design mode."
   outOfDesignMode: "Board &6{0}&- is now out of design mode."
   styleSaved:
-  - "Piece style &6{0}&- saved."
+  - "Custom piece style &6{0}&- saved."
   - "Use &f/chess board set piecestyle {0}&- while standing on a suitable board to use it."
   styleLoaded:
   - "Piece style &6{0}&- loaded.  You can make changes now."
   - "Use &f/chess design save [<new-style-name>] to save it."
-  mustBeInDesignMode: "You must be in design mode first."
+  mustBeInDesignMode: "You must be in design mode first.  Use &f/chess design&-."
   gameRunning: "You cannot design on a board with a game in progress."
   notOnBoard: "You are not standing on a chess board."
   cleared: "The current piece design has been cleared."

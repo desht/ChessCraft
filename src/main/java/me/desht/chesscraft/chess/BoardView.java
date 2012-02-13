@@ -50,33 +50,24 @@ import org.bukkit.entity.Player;
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	
-	private String name;
+	private final String name;
+	private final ControlPanel controlPanel;
+	private final ChessBoard chessBoard;
 	private ChessGame game = null;			// null indicates board not currently used by any game
-	private ControlPanel controlPanel;
-	private ChessBoard chessBoard = null;
 	private byte lastLightingLevel = -1;	// for lighting updates
 
-	public BoardView(String bName, String bStyle) throws ChessException {
-		this(bName, null, bStyle, null);
+	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
+		this(bName, origin, null, bStyle, pStyle);
 	}
 
-	public BoardView(String bName, String bStyle, String pStyle) throws ChessException {
-		this(bName, null, bStyle, pStyle);
-	}
-
-	public BoardView(String bName, Location where, String bStyle, String pStyle) throws ChessException {
-		this(bName, where, null, bStyle, pStyle);
-	}
-
-	public BoardView(String bName, Location where,
+	public BoardView(String bName, Location origin,
 			BoardOrientation dir, String bStyle, String pStyle) throws ChessException {
 		this.name = bName;
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(bStyle, pStyle);
-
-		setA1Center(where, dir);
+		chessBoard = new ChessBoard(origin, dir, bStyle, pStyle);
+		controlPanel = new ControlPanel(this);
 
 	}
 	
@@ -93,9 +84,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(bStyle, pStyle);
+		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
+		controlPanel = new ControlPanel(this);
 		
-		setA1Center(where, dir);
 		String designerName = conf.getString("designer");
 		if (designerName != null && !designerName.isEmpty()) {
 			setDesigner(new PieceDesigner(this, designerName));
@@ -131,40 +122,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return new BoardView(conf);
 	}
 	
-	
-	private final void setA1Center(Location loc, BoardOrientation d) throws ChessException {
-		// only allow the board center to be set once (?)
-		if (loc != null && chessBoard.getA1Center() == null) {
-			chessBoard.setA1Center(loc, d == null ? BoardOrientation.NORTH : d);
-			validateIntersections();
-			controlPanel = new ControlPanel(this);
-		}
-	}
-
-	/**
-	 * Ensure this board doesn't intersect any other boards
-	 * 
-	 * @throws ChessException
-	 *             if an intersection would occur
-	 */
-	private void validateIntersections() throws ChessException {
-		Cuboid bounds = chessBoard.getFullBoard();
-
-		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
-			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
-		}
-		for (BoardView bv : BoardView.listBoardViews()) {
-			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
-				continue;
-			}
-			for (Block b : bounds.corners()) {
-				if (bv.getOuterBounds().contains(b)) {
-					throw new ChessException(Messages.getString("BoardView.boardWouldIntersect", bv.getName())); //$NON-NLS-1$
-				}
-			}
-		}
-	}
-
 	public void save() {
 		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
@@ -352,6 +309,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	@Override
 	public void squareChanged(int sqi, int stone) {
 		paintStoneAt(sqi, stone);
+		System.out.println("square changed: " + sqi + "=" + stone);
 	}
 
 	@Override
@@ -742,6 +700,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 	
 	public static void validateStyle(String boardStyle, String pieceStyle) throws ChessException {
-		new ChessBoard(boardStyle, pieceStyle);
+		// TODO fix this
+		//new ChessBoard(boardStyle, pieceStyle);
 	}
 }

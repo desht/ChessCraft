@@ -91,7 +91,10 @@ public class MaterialWithData implements Cloneable {
 	}
 	
 	public static MaterialWithData get(int id, byte data, String[] metadata) {
-		return get(String.format("%d:%d=%s", id, data, Joiner.on(";").join(metadata)));
+		String key = metadata == null ? 
+				String.format("%d:%d", id, data) :
+					String.format("%d:%d=%s", id, data, Joiner.on(";").join(metadata));
+		return get(key);
 	}
 	
 	public static MaterialWithData get(int id, byte data) {

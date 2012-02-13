@@ -1,30 +1,83 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import chesspresso.Chess;
-import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardOrientation;
-import me.desht.chesscraft.regions.Cuboid;
-import org.bukkit.block.Block;
 
 public class ChessStone {
+	private final int stone;
+	private final int sizeX, sizeY, sizeZ;
+	private final MaterialWithData[][][] pieceArray;
 
-	int stone;
-	PieceTemplate rotatedStones[] = new PieceTemplate[4];
-
-	public ChessStone(int stone, PieceTemplate t) {
+	/**
+	 * Instantiate a new chess stone
+	 * 
+	 * @param chessPieceTemplate
+	 * @param matMap
+	 * @param direction
+	 */
+	public ChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardOrientation direction) {
 		this.stone = stone;
+		sizeX = tmpl.getWidth();
+		sizeY = tmpl.getSizeY();
+		sizeZ = tmpl.getWidth();
 
-		// we only instantiate the north-facing piece for now
-		// saves storing in memory a load of templates we might never need
-		rotatedStones = new PieceTemplate[4];
-		rotatedStones[0] = new PieceTemplate(t);
+		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+
+		int rotation = direction.ordinal() * 90;
 		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
-			rotatedStones[0].rotate(180);
+			rotation = (rotation + 180) % 360;
+		}
+
+		switch (rotation) {
+		case 0:
+			for (int x = 0; x < sizeX; ++x) {
+				for (int y = 0; y < sizeY; ++y) {
+					for (int z = 0; z < sizeZ; ++z) {
+						pieceArray[x][y][z] = matMap.get(tmpl.get(x, y, z));
+					}
+				}
+			}
+			break;
+		case 90:
+			for (int x = 0; x < sizeX; ++x) {
+				for (int y = 0; y < sizeY; ++y) {
+					for (int z = 0; z < sizeZ; ++z) {
+						pieceArray[sizeZ - z - 1][y][x] = matMap.get(tmpl.get(x, y, z));
+					}
+				}
+			}
+			break;
+		case 180:
+			for (int x = 0; x < sizeX; ++x) {
+				for (int y = 0; y < sizeY; ++y) {
+					for (int z = 0; z < sizeZ; ++z) {
+						pieceArray[sizeX - x - 1][y][sizeZ - z - 1] = matMap.get(tmpl.get(x, y, z));
+					}
+				}
+			}
+			break;
+		case 270:
+			for (int x = 0; x < sizeX; ++x) {
+				for (int y = 0; y < sizeY; ++y) {
+					for (int z = 0; z < sizeZ; ++z) {
+						pieceArray[z][y][sizeX - x - 1] = matMap.get(tmpl.get(x, y, z));
+					}
+				}
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
+		}
+
+		for (int x = 0; x < sizeX; ++x) {
+			for (int y = 0; y < sizeY; ++y) {
+				for (int z = 0; z < sizeZ; ++z) {
+					if (pieceArray[x][y][z] != null) {
+						pieceArray[x][y][z] = pieceArray[x][y][z].rotate(rotation);
+					}
+				}
+			}
 		}
 	}
 
@@ -32,68 +85,23 @@ public class ChessStone {
 		return stone;
 	}
 
+	public int getSizeX() {
+		return sizeX;
+	}
+
+	public int getSizeY() {
+		return sizeY;
+	}
+
+	public int getSizeZ() {
+		return sizeZ;
+	}
+
+	public MaterialWithData getMaterial(int x, int y, int z) {
+		return pieceArray[x][y][z];
+	}
+
 	public int getWidth() {
-		return Math.max(rotatedStones[0].getSizeX(), rotatedStones[0].getSizeZ());
-	}
-
-	public int getHeight() {
-		return rotatedStones[0].getSizeY();
-	}
-
-	/**
-	 * Get the rotated piece template for the given direction, instantiating it if necessary.
-	 * 
-	 * @param direction		the board's orientation (the direction that white faces)
-	 * @return		the rotated piece
-	 */
-	public PieceTemplate getPieceTemplate(BoardOrientation direction) {
-		int n = direction.ordinal();
-		if (rotatedStones[n] == null) {
-			rotatedStones[n] = new PieceTemplate(rotatedStones[0]);
-			rotatedStones[n].rotate(n * 90);
-		}
-		return rotatedStones[n];
-	}
-
-	/**
-	 * Paint this stone into the given Cuboid region, which represents the space above
-	 * one square on the chessboard.  The stone will be centred in the region X & Z axes
-	 * and painted at the lowest altitude.
-	 *
-	 * @param region the Cuboid area to fill
-	 * @param direction the board's orientation (the direction that white faces)
-	 */
-	public void paintInto(Cuboid region, BoardOrientation direction) {
-		PieceTemplate piece = getPieceTemplate(direction);
-
-		assert region.getSizeX() >= piece.getSizeX();
-		assert region.getSizeZ() >= piece.getSizeZ();
-
-		int xOff = (region.getSizeX() - piece.getSizeX()) / 2;
-		int zOff = (region.getSizeZ() - piece.getSizeZ()) / 2;
-
-		region.clear(true);
-
-		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
-		
-		for (int x = 0; x < piece.getSizeX(); x++) {
-			for (int y = 0; y < piece.getSizeY(); y++) {
-				for (int z = 0; z < piece.getSizeZ(); z++) {
-					MaterialWithData mat = piece.getMaterial(x, y, z);
-					Block b = region.getRelativeBlock(x + xOff, y, z + zOff);
-					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
-						deferred.put(b, mat);
-					} else {
-						mat.applyToBlockFast(region.getRelativeBlock(x + xOff, y, z + zOff));
-					}
-				}	
-			}	
-		}
-		
-		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
-			e.getValue().applyToBlockFast(e.getKey());
-		}
-
-		region.initLighting();
+		return Math.max(getSizeX(), getSizeZ());
 	}
 }
