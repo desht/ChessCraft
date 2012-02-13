@@ -29,7 +29,7 @@ public class PieceTemplate {
 			if (k.length() != 1) {
 				throw new ChessException("invalid key loading PieceTemplate: " + k);
 			}
-			mats.put(k.charAt(0), new MaterialWithData(matMap.getString(k)));
+			mats.put(k.charAt(0), MaterialWithData.get(matMap.getString(k)));
 		}
 
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
@@ -126,8 +126,6 @@ public class PieceTemplate {
 	public final void rotate(int rotation) {
 		MaterialWithData[][][] newArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
-		//TODO: allow pieces with data (signs, torches, ladders) to rotate, too
-
 		switch (rotation % 360) {
 			case 0:
 				return;
@@ -166,7 +164,7 @@ public class PieceTemplate {
 			for (int y = 0; y < sizeY; ++y) {
 				for (int z = 0; z < sizeZ; ++z) {
 					if (newArray[x][y][z] != null) {
-						newArray[x][y][z].rotate(rotation);
+						newArray[x][y][z] = newArray[x][y][z].rotate(rotation);
 					}
 				}
 			}

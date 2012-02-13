@@ -40,23 +40,23 @@ public class BoardStyleSetCommand extends AbstractCommand {
 			
 			try {
 				if (partialMatch(attr, "white")) {
-					style.setWhiteSquareMaterial(new MaterialWithData(val));
+					style.setWhiteSquareMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "black")) {
-					style.setBlackSquareMaterial(new MaterialWithData(val));
+					style.setBlackSquareMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "frame")) {
-					style.setFrameMaterial(new MaterialWithData(val));
+					style.setFrameMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "panel")) {
-					style.setControlPanelMaterial(new MaterialWithData(val));
+					style.setControlPanelMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "enclosure")) {
-					style.setEnclosureMaterial(new MaterialWithData(val));
+					style.setEnclosureMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "struts")) {
-					style.setStrutsMaterial(new MaterialWithData(val));
+					style.setStrutsMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "highlight_default")) {
-					style.setHighlightMaterial(new MaterialWithData(val));
+					style.setHighlightMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "highlight_white")) {
-					style.setHighlightWhiteSquareMaterial(new MaterialWithData(val));
+					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "highlight_black")) {
-					style.setHighlightBlackSquareMaterial(new MaterialWithData(val));
+					style.setHighlightBlackSquareMaterial(MaterialWithData.get(val));
 				} else if (partialMatch(attr, "highlight_style")) {
 					style.setHighlightStyle(HighlightStyle.getStyle(val));
 				} else if (partialMatch(attr, "light_level")) {

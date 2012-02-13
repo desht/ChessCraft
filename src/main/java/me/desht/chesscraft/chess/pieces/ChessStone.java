@@ -9,7 +9,6 @@ import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.regions.Cuboid;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 public class ChessStone {

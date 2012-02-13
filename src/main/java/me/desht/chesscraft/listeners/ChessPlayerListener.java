@@ -101,7 +101,7 @@ public class ChessPlayerListener implements Listener {
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
 				String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
-				int wandId = (new MaterialWithData(wand)).getMaterial();
+				int wandId = (MaterialWithData.get(wand)).getMaterial();
 				if (player.getItemInHand().getTypeId() == wandId) {
 					HashSet<Byte> transparent = new HashSet<Byte>();
 					transparent.add((byte) 0); // air

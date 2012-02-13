@@ -1,51 +1,57 @@
 package me.desht.chesscraft.blocks;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
+import com.google.common.base.Joiner;
+
 public class MaterialWithData implements Cloneable {
 
-	int material;
-	byte data;
-	String[] text;	// sign text
+	private final static Map<String,MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
 
-	public MaterialWithData(int mat, byte d) {
+	final int material;
+	final byte data;
+	final String[] metadata;	// e.g. sign text
+
+	private MaterialWithData(int mat, byte d) {
 		material = mat;
 		data = d;
+		metadata = null;
 	}
 
-	public MaterialWithData(int mat) {
-		material = mat;
-		data = 0;
+	private MaterialWithData(int mat) {
+		this(mat, (byte)0);
 	}
 
-	public MaterialWithData(MaterialWithData m) {
-		if (m != null) {
-			material = m.material;
-			data = m.data;
-		}
+	private MaterialWithData(MaterialWithData m) {
+		material = m.material;
+		data = m.data;
+		metadata = m.metadata;
 	}
 
-	public MaterialWithData(String string) {
+	private MaterialWithData(String string) {
 		String[] matAndText = string.split("=");
 		String[] matAndData = matAndText[0].split(":");
-		
-		data = 0;
-		text = matAndText.length > 1 ? makeText(matAndText[1]) : null;
-		
+
+		metadata = matAndText.length > 1 ? makeText(matAndText[1]) : null;
+
 		if (matAndData[0].matches("^[0-9]+$")) {
 			material = Integer.parseInt(matAndData[0]);
 		} else {
-			Material m = Material.valueOf(matAndData[0].toUpperCase());
+			Material m = Material.matchMaterial(matAndData[0].toUpperCase());
 			if (m == null) {
 				throw new IllegalArgumentException("unknown material " + matAndData[0]);
 			}
 			material = m.getId();
 		}
 		if (matAndData.length < 2) {
+			data = 0;
 			return;
 		}
 
@@ -58,8 +64,42 @@ public class MaterialWithData implements Cloneable {
 			}
 			data = d.getData();
 		} else {
+			data = 0;
 			throw new IllegalArgumentException("invalid data specification " + matAndData[1]);
 		}
+	}
+
+	public Byte getData() {
+		return data;
+	}
+
+	public int getMaterial() {
+		return material;
+	}
+
+	public String[] getText() {
+		return metadata;
+	}
+
+	public static MaterialWithData get(String spec) {
+		spec = spec.toLowerCase();
+		if (!materialCache.containsKey(spec)) {
+			MaterialWithData mat = new MaterialWithData(spec);
+			materialCache.put(spec, mat);
+		}
+		return materialCache.get(spec);
+	}
+	
+	public static MaterialWithData get(int id, byte data, String[] metadata) {
+		return get(String.format("%d:%d=%s", id, data, Joiner.on(";").join(metadata)));
+	}
+	
+	public static MaterialWithData get(int id, byte data) {
+		return get(String.format("%d:%d", id, data));
+	}
+
+	public static MaterialWithData get(int id) {
+		return get(String.format("%d:%d", id, 0));
 	}
 
 	private String[] makeText(String input) {
@@ -71,37 +111,18 @@ public class MaterialWithData implements Cloneable {
 		return t;
 	}
 
-	public Byte getData() {
-		return data;
-	}
-
-	public int getMaterial() {
-		return material;
-	}
-	
-	public String[] getText() {
-		return text;
-	}
-
 	public void applyToBlock(Block b) {
-		if (b != null) {
-//			if (data != null) {
-//				b.setTypeIdAndData(material, data, false);
-//			} else {
-//				b.setTypeId(material);
-//			}
-			b.setTypeIdAndData(material, data, false);
-			if (text != null && (material == 63 || material == 68)) {
-				// updating a wall sign or floor sign, with text
-				Sign sign = (Sign) b.getState().getData();
-				for (int i = 0; i < 4; i++) {
-					sign.setLine(i, text[i]);
-				}
-				sign.update();
+		b.setTypeIdAndData(material, data, false);
+		if (metadata != null && (material == 63 || material == 68)) {
+			// updating a wall sign or floor sign, with text
+			Sign sign = (Sign) b.getState().getData();
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, metadata[i]);
 			}
+			sign.update();
 		}
 	}
-	
+
 	/**
 	 * Use direct NMS calls to apply this block.  The caller is responsible for ensuring that
 	 * lighting is re-initialised afterwards.
@@ -109,31 +130,19 @@ public class MaterialWithData implements Cloneable {
 	 * @param b
 	 */
 	public void applyToBlockFast(Block b) {
-		if (b != null) {
-//			if (data != null) {
-//				BlockUtils.setBlockFast(b, material, data);
-//			} else {
-//				BlockUtils.setBlockFast(b, material);
-//			}
-			BlockUtils.setBlockFast(b, material, data);
-			if (text != null && (material == 63 || material == 68)) {
-				// updating a wall sign or floor sign, with text
-				Sign sign = (Sign) b.getState().getData();
-				for (int i = 0; i < 4; i++) {
-					sign.setLine(i, text[i]);
-				}
-				sign.update();
+		BlockUtils.setBlockFast(b, material, data);
+		if (metadata != null && (material == 63 || material == 68)) {
+			// updating a wall sign or floor sign, with text
+			Sign sign = (Sign) b.getState().getData();
+			for (int i = 0; i < 4; i++) {
+				sign.setLine(i, metadata[i]);
 			}
+			sign.update();
 		}
 	}
 
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
-//			if (data != null) {
-//				c.set(material, data, true);
-//			} else {
-//				c.set(material, true);
-//			}
 			c.set(material, data, true);
 		}
 	}
@@ -141,11 +150,8 @@ public class MaterialWithData implements Cloneable {
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder(Material.getMaterial(material).toString());
-		if (material == 35) // wool
-		{
+		if (material == 35) { // wool
 			s.append(":").append(DyeColor.getByData(data).toString());
-//		} else if (data != null) {
-//			s.append(":").append(data.toString());
 		} else {
 			s.append(":").append(Byte.toString(data));
 		}
@@ -156,7 +162,7 @@ public class MaterialWithData implements Cloneable {
 	public MaterialWithData clone(){
 		return new MaterialWithData(this);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -180,10 +186,6 @@ public class MaterialWithData implements Cloneable {
 		MaterialWithData other = (MaterialWithData) obj;
 		if (material != other.material) {
 			return false;
-//		} else if (data == null && other.data == null) {
-//			return true;
-//		} else if (!data.equals(other.data)) {
-//			return false;
 		} else if (data != other.data) {
 			return false;
 		} else {
@@ -191,20 +193,19 @@ public class MaterialWithData implements Cloneable {
 		}
 	}
 
-	public void rotate(int rotation) {
-//		if (data == null) {
-//			return;
-//		}
+	public MaterialWithData rotate(int rotation) {
+		byte newData = data;
 		switch(rotation){
-			case 270:
-				data = (byte) BlockData.rotate90Reverse(material, data);
-				break;
-			case 180:
-				data = (byte) BlockData.rotate90(material, data);
-				// 180 does twice, so don't break
-			case 90:
-				data = (byte) BlockData.rotate90(material, data);
+		case 270:
+			newData = (byte) BlockData.rotate90Reverse(material, data);
+			break;
+		case 180:
+			newData = (byte) BlockData.rotate90(material, data);
+			// 180 does twice, so don't break
+		case 90:
+			newData = (byte) BlockData.rotate90(material, data);
 		}
-		
+		return MaterialWithData.get(material, newData, metadata);
 	}
+
 }

@@ -68,7 +68,7 @@ public class PieceDesigner {
 				for (int y = 0; y < pieces[p].getSizeY(); y++) {
 					for (int z = 0; z < pieces[p].getSizeZ(); z++) {
 						Block b = c.getRelativeBlock(x, y, z);
-						MaterialWithData mat = new MaterialWithData(b.getTypeId(), b.getData());
+						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
 //						System.out.println("setmat " + x +","+y+","+z+" = " + mat);
 						pieces[p].setMaterial(x, y, z, mat);
 					}	
@@ -209,9 +209,9 @@ public class PieceDesigner {
 				if (b2.getTypeId() == 0) {
 					continue;
 				}
-				MaterialWithData mat = new MaterialWithData(b.getTypeId(), b.getData());
+				MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
 				if (reverseMap.containsKey(mat.toString())) {
-					MaterialWithData mat2 = new MaterialWithData(b2.getTypeId(), b2.getData());
+					MaterialWithData mat2 = MaterialWithData.get(b2.getTypeId(), b2.getData());
 					System.out.println("insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					materialMapBlack.put(reverseMap.get(mat.toString()), mat2.toString());
 				}

@@ -415,7 +415,7 @@ public class ChessBoard {
 	 * Board is in designer mode - paint some markers on unused squares
 	 */
 	private void paintDesignIndicators() {
-		MaterialWithData marker = new MaterialWithData("wool:red"); // configurable?
+		MaterialWithData marker = MaterialWithData.get("wool:red"); // configurable?
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				if (row < 2 && col < 5) {
@@ -463,7 +463,7 @@ public class ChessBoard {
 				return;
 			}
 			isLighted = light;
-			MaterialWithData mat = new MaterialWithData(89);
+			MaterialWithData mat = MaterialWithData.get("glowstone");
 
 			// light the NE edges of all of the squares
 			Location ne = board.getLowerNE();
