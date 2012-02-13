@@ -172,6 +172,7 @@ public class ChessConfig {
 		extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/large.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/small.yml", boardStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/board_styles/huge.yml", boardStyleDir); //$NON-NLS-1$
 
 		extractResource("/datafiles/piece_styles/standard.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$

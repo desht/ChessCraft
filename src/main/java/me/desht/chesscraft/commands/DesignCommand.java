@@ -1,5 +1,6 @@
 package me.desht.chesscraft.commands;
 
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -16,7 +17,10 @@ public class DesignCommand extends AbstractCommand {
 		setPermissionNode("chesscraft.designer");
 		setUsage(new String[] {
 				"/chess design",
-				"/chess design save <style-name>"
+				"/chess design clear",
+				"/chess design exit",
+				"/chess design save [<style-name>]",
+				"/chess design load [<style-name>]",
 		});
 	}
 
@@ -26,32 +30,47 @@ public class DesignCommand extends AbstractCommand {
 		
 		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
 		if (bv == null) {
-			throw new ChessException("You are not standing on a chess board.");
+			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
 		if (bv.getGame() != null) {
-			throw new ChessException("You cannot design on a board with a game in progress.");
+			throw new ChessException(Messages.getString("Designer.gameRunning"));
+		}
+
+		PieceDesigner designer = bv.getChessBoard().getDesigner();
+		if (designer == null && args.length > 0) {
+			throw new ChessException(Messages.getString("Designer.mustBeInDesignMode"));
 		}
 		
 		if (args.length == 0) {
-			// toggle in and out of design mode
+			if (bv.isDesigning()) {
+				showUsage(player);
+				return true;
+			} else {
+				// toggle into design mode
+				bv.getChessBoard().setDesigner(new PieceDesigner(bv, bv.getPieceStyleName()));
+				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
+				if (ChessConfig.getConfig().getBoolean("designer.auto_load")) {
+					designer.load();
+					ChessUtils.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
+				}
+			}
+			bv.paintAll();
+		} else if (args[0].startsWith("e")) {	// exit
 			if (bv.isDesigning()) {
 				bv.getChessBoard().setDesigner(null);
 				ChessUtils.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
-			} else {
-				bv.getChessBoard().setDesigner(new PieceDesigner(bv, bv.getPieceStyleName()));
-				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
 			}
-			bv.paintAll();
-		} else if (args[0].equalsIgnoreCase("save")) {
-			PieceDesigner designer = bv.getChessBoard().getDesigner();
+		} else if (args[0].startsWith("c")) {	// clear
+			designer.clear();
+			ChessUtils.statusMessage(player, Messages.getString("Designer.cleared", designer.getSetName()));
+		} else if (args[0].startsWith("s")) {	// save
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}
 			designer.scan();
 			designer.save();
 			ChessUtils.statusMessage(player, Messages.getString("Designer.styleSaved", designer.getSetName()));
-		} else if (args[0].equalsIgnoreCase("load")) {
-			PieceDesigner designer = bv.getChessBoard().getDesigner();
+		} else if (args[0].startsWith("l")) {	// load
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}

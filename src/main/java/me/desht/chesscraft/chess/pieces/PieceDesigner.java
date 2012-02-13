@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -82,6 +83,11 @@ public class PieceDesigner {
 		initBlackMaterialMap();
 	}
 	
+	/**
+	 * Load the current design's set data onto the board.
+	 * 
+	 * @throws ChessException if the set doesn't exist or doesn't fit the board
+	 */
 	public void load() throws ChessException {
 		ChessSet newChessSet = ChessSet.getChessSet(setName);
 		BoardStyle boardStyle = view.getChessBoard().getBoardStyle();
@@ -96,17 +102,55 @@ public class PieceDesigner {
 			int stone = Chess.pieceToStone(p, Chess.WHITE);
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			System.out.println("paint into " + c);
-			ChessStone cs = newChessSet.getPiece(stone);
-			System.out.println("stone " + cs.stone + " " + cs.getWidth() + " x " + cs.getHeight());
+			ChessStone csWhite = newChessSet.getPiece(stone);
+			System.out.println("stone " + csWhite.stone + " " + csWhite.getWidth() + " x " + csWhite.getHeight());
 			newChessSet.getPiece(stone).paintInto(c, view.getDirection());
 			updated.add(c);
+		
+			// now scan the set and work out which materials differ between white and black
+			int stoneBlack = Chess.pieceToStone(p, Chess.BLACK);
+			ChessStone csBlack = newChessSet.getPiece(stoneBlack);
+			Map<Character,String> whiteMap = csWhite.getPieceTemplate(view.getDirection()).getMaterialMap();
+			Map<Character,String> blackMap = csBlack.getPieceTemplate(view.getDirection()).getMaterialMap();
+			Map<String,String> whiteToBlack = new HashMap<String, String>();
+			for (Entry<Character,String> e : whiteMap.entrySet()) {
+				if (!e.getValue().equals(blackMap.get(e.getKey()))) {
+					// materials differ
+					whiteToBlack.put(e.getValue(), blackMap.get(e.getKey()));
+				}
+			}
+			
+			addMapBlocks(whiteToBlack);
 		}
+		
 		
 		for (Cuboid c : updated) {
 			c.sendClientChanges();
 		}
 	}
 
+	private void addMapBlocks(Map<String, String> whiteToBlack) {
+		
+		Iterator<String> iter = whiteToBlack.keySet().iterator();
+		
+		for (int col = 1; col < 5; col++) {
+			Cuboid c = view.getChessBoard().getSquare(1, col).shift(Direction.Up, 1);
+			c.clear(true);
+			int n = 0;
+			for (Block b : c) {
+				if (!iter.hasNext()) 
+					break;
+				if (n++ % 2 == 1)
+					continue;	// skip alternate squares
+			}
+		}
+	}
+
+	/**
+	 * Save the current design.
+	 * 
+	 * @throws ChessException if the file can't be written
+	 */
 	public void save() throws ChessException {
 		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setName, true);
 		
@@ -125,6 +169,22 @@ public class PieceDesigner {
 			conf.save(f);
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
+		}
+	}
+
+	/**
+	 * Clear all pieces in the design squares
+	 */
+	public void clear() {
+		Set<Cuboid> updated = new HashSet<Cuboid>();
+		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
+			int sqi = getSqi(p);
+			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
+			c.clear(true);
+			updated.add(c);
+		}
+		for (Cuboid c : updated) {
+			c.sendClientChanges();
 		}
 	}
 
