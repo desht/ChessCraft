@@ -1,0 +1,251 @@
+BoardView:
+  boardExists: Ein Brett mit diesem Namen existiert bereits.
+  boardTooHigh: Die Bretthoehe ist zu hoch - das Dach waere ueber der Hoehengrenze der Welt.
+  boardWouldIntersect: Das Brett wuerde sich mit dem existierenden Brett {0} ueberschneiden.
+  noFreeBoards: Es gibt keine freien Spielbretter um ein Spiel zu erstellen.
+  noSuchBoard: Es gibt kein Brett {0}.
+ChessAI:
+  AIbusy: Die AI ist grade beschaeftigt
+  AIdisabled: AI Spiele sind ausgestellt
+  AIloadError: AI Fehler beim Laden
+  AInotFound: AI nicht gefunden
+  AIunexpectedException: 'Unerwartete Ausnahme in AI: {0}'
+  computer: Computer
+  human: Mensch
+  noAvailableAIs:
+  - Es sind zur Zeit keine AIs verfuegbar um zu spielen.
+  - (alle {0,number,integer} sind zur Zeit im Spiel).
+  noFreeAI: Es wurde keine freie AI gefunden.
+ChessCommandExecutor:
+  activeGameChanged: Dein aktives Spiel ist nun &6{0}&-.
+  activeGameIs: Dein aktives Spiel ist &6{0}&-.
+  AIdefsReloaded: AI Definitionen wurden neu geladen.
+  AIList: '&6{0}&-: &f{1}:{2,number,integer}'
+  AIpayout: payout={0,number,integer}%
+  algebraicNotation: '&5 (standard algebraic notation)'
+  allBoardsRedrawn: Alle Bretter wurden neu entworfen.
+  boardCantBeDeleted: Kann das folgende Brett nicht loeschen &6{0}&- - es wird von folgendem Spiel benutzt &6{1}&-.
+  boardCreationPrompt:
+  - 'Linksklicke einen Block: erstelle ein Brett &6{0}&-. Rechtsklick: abbrechen.'
+  - Dieser Block wird die Mitte des Quadrates A1 sein.
+  boardDeleted: Brett geloescht &6{0}&-.
+  boardDetail:
+    board: '&eBrett {0}:'
+    boardStyle: 'Brett Stil: &f{0}'
+    enclosure: 'Abdeckung: &f{0}'
+    frameWidth: 'Einfassungsbreite: &f{0,number,integer} ({1})'
+    game: 'Spiel: &f{0}'
+    height: 'Hoehe: &f{0,number,integer}'
+    isLit: 'Beleuchtung: &f{0}'
+    boardExtents: 'Brett Ausmasse: &f{0} - {1}'
+    pieceStyle: 'Figurenstil: &f{0}'
+    squareSize: 'Feldgroesse: &f{0,number,integer} ({1}/{2})'
+    struts: 'Einfassungsgestaenge: &f{0}'
+    boardOrientation: 'Brettorientierung: &f{0}'
+  boardList: '&6{0}&-: loc=&f{1}&- Stil=&6{2}&- Spiel=&6{3}&-'
+  boardRedrawn: Brett &6{0}&- wurde neu entworfen.
+  boardStyleChanged: Brett &6{0}&- Stil wurde geaendert.  Benutze &f/chess board save <neuer-name>&- um die Aenderungen zu speichern.
+  boardStyleSaved: Brett &6{0}&- Stil gespeichert als &6{1}&-.
+  boardStyleBadParam: Ungueltiger Stil Parameter Wert &6{0}&-.
+  cantAffordStake: Du kannst dir den Einsatz nicht leisten!
+  canTeleport: Du kannst dich zu deinem Spiel porten mit &f/chess tp {0}
+  chessSaved: Schachbretter und Spiele wurden gespeichert.
+  configKeySet: '{0} ist nun gesetzt zu: {1}'
+  configReloaded: Konfiguration (config.yml) wurde neu geladen
+  drawOfferedOther: '&6{0}&- bietet ein Unentschieden an.'
+  drawOfferedYou: Du bietest &6{0}&- ein Unentschieden an.
+  gameCreated:
+  - Spiel &6{0}&- wurde erstellt auf &6{1}&-.
+  - 'Nun schreibe (oder benutze die Befehlstafel-Schalter):'
+  - '&5*&- &f/chess invite <playername>&- um jemanden einzuladen'
+  - '&5*&- &f/chess invite&- um eine offene Einladung zu erstellen'
+  - '&5*&- oder nur &f/chess start&- um gegen einen zufaelligen AI-Gegner zu spielen'
+  gameDeleted: Spiel &6{0}&- wurde geloescht.
+  gameDeletedAlert: Spiel entfernt von &6{0}&-!
+  gameDetail:
+    blackToPlay: Schwarz ist am Zug
+    clock: 'Uhr: Weiss: {0}, Schwarz: {1}'
+    invitation: '&- wurde eingeladen.  Warte auf Antowort.'
+    moveHistory: '&eZug Historie:'
+    name: '&eSpiel {0} [{1}]:'
+    openInvitation: Das Spiel hat eine offene Einladung
+    players: '&6{0}&- (Weiss) vs. &6{1}&- (Schwarz) auf Brett &6{2}&-.'
+    stake: 'Einsatz: {0}'
+    whiteToPlay: Weiss ist am Zug
+    halfMoves: '{0,number,integer} halbe-Zuege gemacht'
+    timeControlType: 'Zeitkontrolle: &6{0}'
+  goingToSpawn: Kann keinen sicheren Platz finden - gehe zum Spawn Punkt.
+  invalidFromSquare: Ungueltig von Quadrat in {0}
+  invalidMoveString: Ungueltiger zug string {0}
+  invalidNumeric: 'Ungueltiger Zahlenwert: {0}'
+  invalidToSquare: Ungueltig zu Quadrat in {0}
+  invited: ' eingeladen: &6{0}&-'
+  joinedGame:
+  - Du bist dem Schach Spiel beigetreten &6{0}&-.
+  - Du wirst als &f{1}&- spielen.
+  needToWait: Du musst {0,number,integer} Sekunden warten.
+  noActiveGame: Du hast kein aktives Spiel. Benutze &f/chess game <name>&- um eins zu erstellen.
+  noBoards: Es gibt zur Zeit keine Bretter.
+  noCurrentGames: Es gibt zur Zeit keine Spiele.
+  noGame: (none)
+  noNegativeStakes: Negative Einsaetze sind nicht erlaubt!
+  noPendingInvitation: Du hast zur Zeit keine laufenden Einlaudungen.
+  notFromConsole: Dieser Befehl kann nicht von der Konsole ausgefuehrt werden.
+  notOnChessboard: Nicht auf einem Schachbrett!
+  otherPlayerMustBeOffline: Du kannst dies nur tun wenn der andere Spieler offline ist.
+  persistedReloaded: Andauernde Brett und Spiel Daten wurden neu geladen.
+  PGNarchiveWritten: Schrieb PGN Archiv zu {0}
+  positionUpdatedFEN:
+  - Spielposition fuer &6{0}&- wurde aktualisiert. {1} ist am Zug.
+  - '&4Bemerkung: &- Zughistorie ungueltig, dieses Spiel kann nicht mehr gespeichert werden.'
+  promotionPieceSet: Befoerderungsteil fuer Spiel &6{0}&- wurde gesetzt zu &6{1}&-.
+  scoreRecord: '&e{0,number,integer}) &6{1}&-: &f{2}&-'
+  sideSwapOfferedOther: '&6{0}&- hat angeboten die Seiten zu tauschen.'
+  sideSwapOfferedYou: Du hast angeboten die Seiten mit &6{0}&- zu tauschen.
+  stakeChanged: Einsatz fuer dieses Spiel ist nun {0}.
+  teleportDestObstructed: Teleport Ziel gesperrt!
+  timeControlSet: Zeitkontrolle fuer dieses Spiel gesetzt zu {0} ({1})
+  typeYesOrNo: Schreibe &f/chess yes&- um zu akzeptieren, oder &f/chess no&- um abzulehnen.
+ChessConfig:
+  invalidBoolean: 'Ungueltiger boolean Wert: {0} (benutze true/yes oder false/no)'
+  invalidInteger: 'Ungueltiger integer Wert: {0}'
+  invalidFloat: 'Ungueltiger floating-point Wert: {0}'
+  invalidDuration: 'Ungueltige Dauer: {0}'
+  noSuchKey:
+  - 'Kein solcher Konfigurationsschluessel: {0}'
+  - Benutze &f/chess getcfg&- um alle moeglichen Schluessel aufzulisten
+ChessEntityListener:
+  goingToSpawn: Kann keinen sicheren Platz finden um dich zu versetzen - gehe zum Spawn.
+ChessPlayerListener:
+  boardCreationCancelled: Erstellung des Bretts abgebrochen.
+  currentGames: 'Deine aktuellen Schachspiele: {0}'
+  moveCancelled: Zug abgebrochen.
+  notYourTurn: Du bist nicht am Zug!
+  pieceSelected:
+  - Waehlte deinen &f{0}&- auf &f{1}&-.
+  - '&5-&- Linksklicke ein Quadrat oder eine andere Figur um deinen &f{0} zu bewegen'
+  - '&5-&- Linksklicke &f{0}&- wiederholt um abzubrechen.'
+  playerBack: '{0} ist zurueck im Spiel!'
+  playerQuit: '{0} ausgeschieden.  Wenn sie nicht innerhalb von {1,number,integer} Sekunden zurueckkommen,
+    kannst du &f/chess win&- schreiben um zu gewinnen.'
+  squareMessage: Quadrat &6[{0}]&-, Brett &6{1}
+  youPlayed: Du spieltest &f{0}&-.
+ChessUtils:
+  bishop: Laeufer
+  king: Koenig
+  knight: Springer
+  pawn: Bauer
+  queen: Koenigin
+  rook: Turm
+ControlPanel:
+  acceptDrawBtn: Akzeptierst du ein unentschieden?
+  acceptSwapBtn: Akzeptierst du einen Seitenwechsel?
+  blackPawnPromotionBtn: Schwarz Bauer;Aufwertung;;&4
+  boardInfoBtn: ;Brett;Info
+  chessInviteReminder: Schreib &f/chess invite <Spielername>&- um jemanden einzuladen
+  createGameBtn: ;Erstelle;Spiel
+  gameInfoBtn: ;Spiel;Info
+  halfmoveClock: Halbzug Uhr
+  inviteAnyoneBtn: ;Einlade;alle
+  invitePlayerBtn: ;Einlade;Spieler
+  noBtn: ;;Nein
+  offerDrawBtn: ;Biete;Unentschieden
+  playNumber: Spiel Nummer
+  resignBtn: ;Aufgeben
+  stakeBtn: Einsatz;;
+  startGameBtn: ;Starte;Spiel
+  teleportOutBtn: ;Teleport;Raus
+  timeElapsed: vergangen
+  timeRemaining: verbleibend
+  whitePawnPromotionBtn: Weiss Bauer;Aufwerung;;&4
+  yesBtn: ;;Ja
+Designer:
+  inDesignMode: "Brett &6{0}&- ist nun im Entwurfsmodus."
+  outOfDesignMode: "Brett &6{0}&- ist nicht mehr im Entwurfsmodus."
+  styleSaved:
+  - "Persoenlicher Figurenstil &6{0}&- gespeichert."
+  - "Benutze &f/chess board set piecestyle {0}&- waehrend du auf einem passenden Brett stehst um es zu benutzen."
+  styleLoaded:
+  - "Figurenstil &6{0}&- geladen. Du kannst nun Aenderungen vornehmen."
+  - "Benutze &f/chess design save [<neuer Stil-Name>] um es zu speichern."
+  mustBeInDesignMode: "Du musst zuerst im Entwurfsmodus sein. Benutze &f/chess design&-."
+  gameRunning: "Du kannst kein Brett veraendern auf dem gerade gespielt wird."
+  notOnBoard: "Du stehst nicht auf einem Schachbrett."
+  cleared: "Der aktuelle Figurenstil wurde geloescht."
+ExpectBoardCreation:
+  boardCreated: Brett &6{0}&- wurde erstellt auf {1}.
+ExpectYesNoOffer:
+  drawOfferAccepted: Dein Angebot eines unentschiedens wurde von &6{0}&- angenommen.
+  drawOfferDeclined: Dein Angebot eines unentschiedens wurde von &6{0}&- abgelehnt.
+  swapOfferAccepted: Dein Angebot die Seiten zu tauschen wurde von &6{0}&- angenommen.
+  swapOfferDeclined: Dein Angebot die Seiten zu tauschen wurde von &6{0}&- abgelehnt.
+  youDeclinedDrawOffer: Du hast das Unentschieden abgelehnt.
+  youDeclinedSwapOffer: Du hast den Seitenwechsel abgelehnt.
+Game:
+  boardAlreadyHasGame: Auf dem Brett ist schon ein Spiel.
+  sitePGN: ' in Minecraftia'
+  AIisBusy: Diese AI spielt zur Zeit ein Spiel.
+  alertPrefix: '&6:: &-Spiel &6{0}&-: '
+  archiveExists: Archiv Datei {0} existiert - werde sie nicht ueberschreiben.
+  autoDeleteFinished: Spiel beendet und automatisch entfernt.
+  autoDeleteNotStarted: Spiel automatisch entfernt (startete nicht innerhalb {0}).
+  autoDeleteRunning: Spiel automatisch entfernt (kein Zug gemacht innerhalb {0}).
+  black: Schwarz
+  cantAffordToStart: '{0} kann es sich nicht leisten zu spielen! (brauche {1})'
+  cantAffordToJoin: Du kannst dir den Einsatz fuer dieses Spiel nicht leisten (brauche {0})!
+  cantWriteArchive: 'Kann kein PGN Archiv schreiben {0}: {1}'
+  check: ' &5+++Schach+++'
+  checkmated: '&6{0}&- hat &6{1}&- in einem Schachspiel Matt gesetzt!'
+  drawAgreed: '&6{0}&- spielte unentschieden mit &6{1}&- (unentschieden akzeptiert) in einem Schachspiel!'
+  fiftyMoveRule: '&6{0}&- spielte unentschieden mit &6{1}&- (50-Zug Regel) in einem Schachspiel!'
+  forfeited: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
+  gameHasStake: Dieses Spiel hat einen Einsatz von &f{0}&-.
+  gameIsFull: Das Spiel hat bereits zwei Spieler.
+  getStakeBack: Du bekommst den Einsatz von {0} schwarz.
+  invalidPromoPiece: 'Ungueltige Aufwertugns-Figur: {0}.'
+  inviteSent: Eine Einladung wurde an &6{0}&- gesendet.
+  inviteWithdrawn: Deine Einladung wurde zurueckgezogen.
+  joinPrompt: Schreib &f/chess join&- um dem Spiel beizutreten.
+  joinPromptGlobal: Schreib &f/chess join {0}&- um dem Spiel beizutreten.
+  lostStake: Du hast deinen Einsatz von {0} verloren.
+  newTimeControlPhase: 'Neue Zeitkontroll Phase gestartet: &6{0}&-.'
+  noActiveGame: Kein aktives Spiel - starte eins mit &f/chess game <name>&-.
+  noSuchGame: Kein solches Spiel &6{0}&-.
+  notInGame: Du bist nicht in einem Spiel!
+  notInvited: Du hast keine Einladung fuer dieses Spiel.
+  notStarted: Das Spiel wurde noch nicht gestartet.
+  notYourTurn: Du bist nicht am Zug.
+  nowPlayingBlack: Seitenwechsel! Du spielst nun schwarz.
+  nowPlayingWhite: Seitenwechsel! Du spielst nun weiss.
+  openInviteCreated: '&6{0}&e hat eine offene Einladung fuer ein Schachspiel erstellt.'
+  paidStake: Du hast einen Einsatz von {0} bezahlt.
+  playerJoined: '&6{0}&- ist deinem Spiel beigetreten.'
+  playerNotOnline: Spieler {0} ist nicht online.
+  playerPlayedMove: '&6{0}&- spielte [{1}]'
+  resigned: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
+  shouldBeState: Spiel sollte im Status {0} sein.
+  stakeCantBeChanged: Der Einsatz kann nicht veraendert werden sobald beide Spieler beigetreten sind.
+  stalemated: '&6{0}&- spielte unentschieden mit &6{1}&- (Patt) in einem Schachspiel!'
+  started:
+  - Spiel gestartet! Du spielst &f{0}&-.
+  - Um eine Figur zu bewegen, schaue sie an waehrend du {1} haeltst, und mache einen linksklick.
+  startPrompt: Starte das Spiel indem du &f/game start&- schreibst.
+  timeControlWarning: Du hast noch {0,number,integer} Sekunden Zeit um einen Zug zu machen!
+  white: Weiss
+  youAreInvited: Du wurdest von &6{0}&- zu diesem Spiel eingeladen.
+  yourMove: Du bist am Zug &f({0})&-.
+  youWon: Du hast gewonnen {0}!
+MessageBuffer:
+  header: '| {0,number,integer}-{1,number,integer} von {2,number,integer} Linien(page
+    {3,number,integer}/{4,number,integer}) |'
+  footer: '| Benutze /chess page [#|n|p] um andere Seiten zu sehen |'
+SMSIntegration:
+  boardInfo: '&1Brett Info'
+  createGame: '&1Starte Spiel'
+  gotoGame: '&1Gehe zu Spiel'
+  gameInfo: '&1Spiel Info'
+  deleteGame: '&4*Loesche Spiel'
+TerrainBackup:
+  cantDeleteTerrain: Konnte {0} nicht loeschen
+  cantRestoreTerrain: 'Terrain backup konnte nicht wiederhergestellt werden: {0}'
+  cantWriteTerrain: 'Terrain backup konnte nicht geschrieben werden: {0}'
