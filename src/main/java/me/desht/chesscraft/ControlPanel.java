@@ -53,18 +53,18 @@ public class ControlPanel {
 	private static final String CREATE_GAME = "create.game";
 
 	public static final int PANEL_WIDTH = 8;
-	
-	private BoardView view;
-	private BoardOrientation boardDir = null, signDir = null;
-	private MaterialWithData signMat;
-	private Cuboid panelBlocks;
-	private Cuboid toMoveIndicator;
-	private Location halfMoveClockSign;
-	private Location whiteClockSign;
-	private Location blackClockSign;
-	private Location plyCountSign;
-	private Map<String, SignButton> buttons;
-	private Map<Location, SignButton> buttonLocs;
+
+	private final BoardView view;
+	private final BoardOrientation boardDir, signDir;
+	private final MaterialWithData signMat;
+	private final Cuboid panelBlocks;
+	private final Cuboid toMoveIndicator;
+	private final Location halfMoveClockSign;
+	private final Location whiteClockSign;
+	private final Location blackClockSign;
+	private final Location plyCountSign;
+	private final Map<String, SignButton> buttons;
+	private final Map<Location, SignButton> buttonLocs;
 
 	public ControlPanel(BoardView view) {
 		this.view = view;

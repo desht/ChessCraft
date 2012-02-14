@@ -4,7 +4,7 @@ import java.util.Map;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.util.ChessUtils;
@@ -26,14 +26,14 @@ public class BoardCreationCommand extends AbstractCommand {
 		String name = args[0];
 		Map<String, String> options = parseCommandOptions(args, 1);
 
-		String style = options.get("style"); //$NON-NLS-1$
-		String pieceStyle = options.get("pstyle"); //$NON-NLS-1$
+		String boardStyleName = options.get("style"); //$NON-NLS-1$
+		String pieceStyleName = options.get("pstyle"); //$NON-NLS-1$
 		
 		// this will throw an exception if the styles are in any way invalid or incompatible
-		BoardView.validateStyle(style, pieceStyle);
+		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.expecter.expectingResponse(player, new ExpectBoardCreation(name, style, pieceStyle));
+		ChessCraft.expecter.expectingResponse(player, new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
 		
 		return true;
 	}

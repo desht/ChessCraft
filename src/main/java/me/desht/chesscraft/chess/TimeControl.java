@@ -12,14 +12,14 @@ import com.google.common.base.Joiner;
 public class TimeControl implements ConfigurationSerializable {
 	public enum ControlType { NONE, ROLLOVER, MOVE_IN, GAME_IN };
 
-	private String spec;
-	private ControlType controlType;
-	private long totalTime;			// milliseconds
+	private final String spec;
+	private final ControlType controlType;
+	private final long totalTime;			// milliseconds
 	private long remainingTime;		// milliseconds
 	private long elapsed;				// milliseconds
 	private int rolloverPhase;
 	private int rolloverMovesMade;
-	private List<RolloverPhase> rollovers = new ArrayList<TimeControl.RolloverPhase>();
+	private final List<RolloverPhase> rollovers = new ArrayList<TimeControl.RolloverPhase>();
 	private long lastChecked = System.currentTimeMillis();
 	private boolean active = false;
 	private boolean newPhase;
@@ -31,6 +31,7 @@ public class TimeControl implements ConfigurationSerializable {
 	public TimeControl(String specStr) {
 		spec = specStr.toUpperCase();
 		if (spec.isEmpty() || spec.startsWith("N")) {
+			totalTime = 0L;
 			controlType = ControlType.NONE;
 		} else if (spec.startsWith("G/")) {
 			// game in - minutes
@@ -43,6 +44,7 @@ public class TimeControl implements ConfigurationSerializable {
 			remainingTime = totalTime = t * 1000;
 			controlType = ControlType.MOVE_IN;
 		} else if (!spec.isEmpty() && Character.isDigit(spec.charAt(0))) {
+			totalTime = 0L;
 			for (String s0 : spec.split(";")) {
 				rollovers.add(new RolloverPhase(s0));
 			}

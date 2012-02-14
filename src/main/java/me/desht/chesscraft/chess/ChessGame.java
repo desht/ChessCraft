@@ -61,9 +61,11 @@ import me.desht.chesscraft.enums.GameState;
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
 	private static final Map<String, ChessGame> currentGame = new HashMap<String, ChessGame>();
-	private String name;
-	private chesspresso.game.Game cpGame;
-	private BoardView view;
+	
+	private final String name;
+	private final BoardView view;
+	private final chesspresso.game.Game cpGame;
+	
 	private String playerWhite, playerBlack;
 	private int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
 	private String invited;
@@ -115,7 +117,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			stake = 0.0;
 		}
 
-		setupChesspressoGame();
+		cpGame = setupChesspressoGame();
 
 		view.setGame(this);
 	}
@@ -183,7 +185,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		aiFromSqi = map.getInt("aiFromSqi", 0);
 		aiToSqi = map.getInt("aiToSqi", 0);
 
-		setupChesspressoGame();
+		cpGame = setupChesspressoGame();
 
 		replayMoves();
 
@@ -279,20 +281,22 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	private void setupChesspressoGame() {
-		cpGame = new chesspresso.game.Game();
+	private chesspresso.game.Game setupChesspressoGame() {
+		chesspresso.game.Game cpg = new chesspresso.game.Game();
 
 		// seven tag roster
-		cpGame.setTag(PGN.TAG_EVENT, getName());
-		cpGame.setTag(PGN.TAG_SITE, getView().getName() + Messages.getString("Game.sitePGN")); //$NON-NLS-1$
-		cpGame.setTag(PGN.TAG_DATE, dateToPGNDate(started));
-		cpGame.setTag(PGN.TAG_ROUND, "?"); //$NON-NLS-1$
-		cpGame.setTag(PGN.TAG_WHITE, getPlayerWhite());
-		cpGame.setTag(PGN.TAG_BLACK, getPlayerBlack());
-		cpGame.setTag(PGN.TAG_RESULT, getPGNResult());
+		cpg.setTag(PGN.TAG_EVENT, getName());
+		cpg.setTag(PGN.TAG_SITE, getView().getName() + Messages.getString("Game.sitePGN")); //$NON-NLS-1$
+		cpg.setTag(PGN.TAG_DATE, dateToPGNDate(started));
+		cpg.setTag(PGN.TAG_ROUND, "?"); //$NON-NLS-1$
+		cpg.setTag(PGN.TAG_WHITE, getPlayerWhite());
+		cpg.setTag(PGN.TAG_BLACK, getPlayerBlack());
+		cpg.setTag(PGN.TAG_RESULT, getPGNResult());
 
 		// extra tags
-		cpGame.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
+		cpg.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
+		
+		return cpg;
 	}
 
 	public void save() {

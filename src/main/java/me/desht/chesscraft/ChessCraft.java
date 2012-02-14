@@ -121,8 +121,6 @@ public class ChessCraft extends JavaPlugin {
 		setupSMS();
 		setupWorldEdit();
 
-		ChessAI.initThreading(this);
-
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);
 		pm.registerEvents(playerListener, this);

@@ -35,19 +35,28 @@ import org.bukkit.craftbukkit.CraftWorld;
 public class ChessBoard {
 	private static BoardLightingMethod lightingMethod = BoardLightingMethod.CRAFTBUKKIT;
 
-	public static final String DEFAULT_PIECE_STYLE = "Standard";
-	public static final String DEFAULT_BOARD_STYLE = "Standard";
+	public static final String DEFAULT_PIECE_STYLE = "standard";
+	public static final String DEFAULT_BOARD_STYLE = "standard";
 
+	// the center of the A1 square (lower-left on the board)
+	private final Location a1Center;
+	// the lower-left-most part (outer corner) of the a1 square (depends on rotation)
+	private final Location a1Corner;
+	// the upper-right-most part (outer corner) of the h8 square (depends on rotation)
+	private final Location h8Corner;
 	// region that defines the board itself - just the squares
-	private Cuboid board;
+	private final Cuboid board;
 	// area above the board squares
-	private Cuboid areaBoard;
+	private final Cuboid areaBoard;
 	// region outset by the frame
-	private Cuboid frameBoard;
+	private final Cuboid frameBoard;
 	// area <i>above</i> the board
-	private Cuboid aboveFullBoard;
+	private final Cuboid aboveFullBoard;
 	// the full board region (board, frame, and area above)
-	private Cuboid fullBoard;
+	private final Cuboid fullBoard;
+	// this is the direction white faces
+	private final BoardOrientation rotation;
+	
 	// if highlight_last_move, what squares (indices) are highlighted
 	private int fromSquare = -1, toSquare = -1;
 	// if the last lighting update is active
@@ -56,46 +65,73 @@ public class ChessBoard {
 	private BoardStyle boardStyle = null;
 	// the set of chess pieces that go with this board
 	private ChessSet chessPieceSet = null;
-	// this is the direction white faces
-	private BoardOrientation rotation = BoardOrientation.NORTH;
-	// the center of the A1 square (lower-left on the board)
-	private Location a1Center = null;
-	// the lower-left-most part (outer corner) of the a1 square (depends on
-	// rotation)
-	private Location a1Corner = null;
-	// the upper-right-most part (outer corner) of the h8 square (depends on
-	// rotation)
-	private Location h8Corner = null;
 	// are we in designer mode?
 	private PieceDesigner designer = null;
 
-	// /**
-	// * if a chess board has been drawn, this is a save for paintAll()
-	// */
-	// protected Position chessGameCallback = null;
-	// </editor-fold>
-
-	public ChessBoard(Location origin, BoardOrientation direction, String boardStyleStr, String pieceStyleStr) throws ChessException {
+	/**
+	 * Board constructor.
+	 * 
+	 * @param origin
+	 * @param rotation
+	 * @param boardStyleStr
+	 * @param pieceStyleStr
+	 * @throws ChessException
+	 */
+	public ChessBoard(Location origin, BoardOrientation rotation, String boardStyleStr, String pieceStyleStr) throws ChessException {
 		setBoardStyle(boardStyleStr);
 		setPieceStyle(pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleName);
-		setA1Center(origin, direction);
-		validateIntersections();
+		this.rotation = rotation;
+		a1Center = origin;
+		a1Corner = initA1Corner(origin, rotation);
+		h8Corner = initH8Corner(a1Corner);
+		board = new Cuboid(a1Corner, h8Corner);
+		areaBoard = board.expand(Direction.Up, boardStyle.height);
+		frameBoard = board.outset(Direction.Horizontal, boardStyle.frameWidth);
+		aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height - 1);
+		fullBoard = frameBoard.expand(Direction.Up, boardStyle.height + 1);
+		validateBoardPosition();
 	}
 
-	// <editor-fold defaultstate="collapsed" desc="Accessors">
-	public Location getA1Center() {
-		return a1Center == null ? null : a1Center.clone();
+	private Location initA1Corner(Location origin, BoardOrientation rotation) {
+		Location a1 = new Location(origin.getWorld(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
+		int offset = boardStyle.squareSize / 2;
+		switch (rotation) {
+		case NORTH:
+			a1.add(offset, 0, offset); break;
+		case EAST:
+			a1.add(-offset, 0, offset); break;
+		case SOUTH:
+			a1.add(-offset, 0, -offset); break;
+		case WEST:
+			a1.add(offset, 0, -offset); break;
+		}
+		return a1;
+	}
+
+	private Location initH8Corner(Location a1) {
+		Location h8 = new Location(a1.getWorld(), a1.getBlockX(), a1.getBlockY(), a1.getBlockZ());
+		switch (rotation) {
+		case NORTH:
+			h8.add(-boardStyle.squareSize * 8 + 1, 0, -boardStyle.squareSize * 8 + 1); break;
+		case EAST:
+			h8.add(boardStyle.squareSize * 8 + 1, 0, -boardStyle.squareSize * 8 + 1); break;
+		case SOUTH:
+			h8.add(boardStyle.squareSize * 8 + 1, 0, boardStyle.squareSize * 8 + 1); break;
+		case WEST:
+			h8.add(-boardStyle.squareSize * 8 + 1, 0, boardStyle.squareSize * 8 + 1); break;
+		}
+		return h8;
 	}
 
 	/**
-	 * Ensure this board doesn't intersect any other boards
+	 * Ensure this board isn't built too high and doesn't intersect any other boards
 	 * 
 	 * @throws ChessException if an intersection would occur
 	 */
-	private void validateIntersections() throws ChessException {
+	private void validateBoardPosition() throws ChessException {
 		Cuboid bounds = getFullBoard();
 
-		if (bounds.getUpperSW().getBlock().getLocation().getY() >= 127) {
+		if (bounds.getUpperSW().getBlock().getLocation().getY() > bounds.getUpperSW().getWorld().getMaxHeight()) {
 			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
 		}
 		for (BoardView bv : BoardView.listBoardViews()) {
@@ -109,7 +145,11 @@ public class ChessBoard {
 			}
 		}
 	}
-	
+
+	public Location getA1Center() {
+		return a1Center == null ? null : a1Center.clone();
+	}
+
 	/**
 	 * @return the outer-most corner of the A1 square
 	 */
@@ -184,7 +224,7 @@ public class ChessBoard {
 	public boolean isDesiging() {
 		return designer != null;
 	}
-	
+
 	public PieceDesigner getDesigner() {
 		return designer;
 	}
@@ -199,10 +239,7 @@ public class ChessBoard {
 		}
 
 		ChessSet newChessSet = ChessSet.getChessSet(pieceStyle);
-		// ensure the new chess set actually fits this board
-		if (newChessSet.getMaxWidth() > boardStyle.squareSize || newChessSet.getMaxHeight() > boardStyle.height) {
-			throw new ChessException("Set '" + newChessSet.getName() + "' is too large for this board!");
-		}
+		boardStyle.verifyCompatibility(newChessSet);
 
 		chessPieceSet = newChessSet;
 	}
@@ -218,6 +255,7 @@ public class ChessBoard {
 		}
 
 		boardStyle = newStyle;
+		chessPieceSet = ChessSet.getChessSet(boardStyle.getPieceStyleName());
 	}
 
 	/**
@@ -232,52 +270,6 @@ public class ChessBoard {
 		}
 		if (chessPieceSet != null) {
 			setPieceStyle(chessPieceSet.getName());
-		}
-	}
-
-	// TODO: rotation & locations untested
-	private void setA1Center(Location a1, BoardOrientation rotation) {
-		this.rotation = rotation;
-		if (a1 == null) {
-			// clear existing location / region data
-			a1Center = null;
-			a1Corner = null;
-			board = null;
-			areaBoard = null;
-			frameBoard = null;
-			aboveFullBoard = null;
-			fullBoard = null;
-		} else {
-			a1Center = a1.clone();
-			int xOff = boardStyle.squareSize / 2, zOff = xOff;
-			org.bukkit.World w = a1.getWorld();
-			int x = a1.getBlockX(), y = a1.getBlockY(), z = a1.getBlockZ();
-			if (rotation == BoardOrientation.NORTH) {
-				// N = +, +
-				a1Corner = new Location(w, x + xOff, y, z + zOff);
-				h8Corner = new Location(w, a1Corner.getBlockX() - boardStyle.squareSize * 8 + 1,
-						y, a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
-			} else if (rotation == BoardOrientation.EAST) {
-				// E = -, +
-				a1Corner = new Location(w, x - xOff, y, z + zOff);
-				h8Corner = new Location(w, a1Corner.getBlockX() + boardStyle.squareSize * 8 - 1,
-						y, a1Corner.getBlockZ() - boardStyle.squareSize * 8 + 1);
-			} else if (rotation == BoardOrientation.SOUTH) {
-				// S = -, -
-				a1Corner = new Location(w, x - xOff, y, z - zOff);
-				h8Corner = new Location(w, a1Corner.getBlockX() + boardStyle.squareSize * 8 - 1,
-						y, a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
-			} else { // if (rotation == BoardOrientation.WEST) {
-				// W = +, -
-				a1Corner = new Location(w, x + xOff, y, z - zOff);
-				h8Corner = new Location(w, a1Corner.getBlockX() - boardStyle.squareSize * 8 + 1,
-						y, a1Corner.getBlockZ() + boardStyle.squareSize * 8 - 1);
-			}
-			board = new Cuboid(a1Corner, h8Corner);
-			areaBoard = board.expand(Direction.Up, boardStyle.height);
-			frameBoard = board.outset(Direction.Horizontal, boardStyle.frameWidth);
-			aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height - 1);
-			fullBoard = frameBoard.expand(Direction.Up, boardStyle.height + 1);
 		}
 	}
 
@@ -442,7 +434,7 @@ public class ChessBoard {
 
 		p.sendClientChanges();
 	}
-	
+
 	public void paintChessPiece(int row, int col, ChessStone stone) {
 		Cuboid region = getPieceRegion(row, col);
 		assert region.getSizeX() >= stone.getSizeX();
@@ -558,7 +550,7 @@ public class ChessBoard {
 			for (int r = 0, x = ix; r < 8; ++r, x += dx) {
 				for (int c = 0, z = iz; c < 8; ++c, z += dz) {
 					(isLighted ? mat : ((c + (r % 2)) % 2 == 0 ? boardStyle.blackSquareMat : boardStyle.whiteSquareMat))
-							.applyToBlock(ne.getWorld().getBlockAt(x, y, z));
+					.applyToBlock(ne.getWorld().getBlockAt(x, y, z));
 				}
 			}
 			// now for the frame

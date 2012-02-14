@@ -53,6 +53,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
+	
 	private ChessGame game = null;			// null indicates board not currently used by any game
 	private byte lastLightingLevel = -1;	// for lighting updates
 
@@ -698,9 +699,5 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
 	}
-	
-	public static void validateStyle(String boardStyle, String pieceStyle) throws ChessException {
-		// TODO fix this
-		//new ChessBoard(boardStyle, pieceStyle);
-	}
+
 }

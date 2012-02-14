@@ -28,10 +28,10 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.Rand;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * @author jacob
@@ -45,18 +45,18 @@ public class ChessAI {
 	 * colors, if wanted
 	 */
 	public final static String AI_PREFIX = ChatColor.WHITE.toString();
-	static ChessCraft plugin = null;
-	static BukkitScheduler scheduler = null;
-	static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
-	static HashMap<String, AI_Def> availableAI = new HashMap<String, AI_Def>();
-	fr.free.jchecs.core.Game _game = null;
-	String name = null;
-	ChessGame callback = null;
-	boolean userToMove = true, isWhite = false;
-	int aiTask = -1;
-	AI_Def aiSettings = null;
 
-	public ChessAI() throws ChessException {
+	private final static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
+	private final static HashMap<String, AI_Def> availableAI = new HashMap<String, AI_Def>();
+	
+	private fr.free.jchecs.core.Game jChecsGame = null;
+	private final String name;
+	private ChessGame chessCraftGame = null;
+	private boolean userToMove = true, isWhite = false;
+	private int aiTask = -1;
+	private final AI_Def aiSettings;
+
+	private ChessAI() throws ChessException {
 		aiSettings = getAI(null);
 		if (aiSettings == null) {
 			throw new ChessException(Messages.getString("ChessAI.noFreeAI")); //$NON-NLS-1$
@@ -64,7 +64,7 @@ public class ChessAI {
 		name = getAIPrefix() + aiSettings.name;
 	}
 
-	public ChessAI(String aiName) throws ChessException {
+	private ChessAI(String aiName) throws ChessException {
 		aiSettings = getAI(aiName);
 		if (aiSettings == null) {
 			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
@@ -74,7 +74,7 @@ public class ChessAI {
 		name = getAIPrefix() + aiSettings.name;
 	}
 
-	public ChessAI(AI_Def ai) throws ChessException {
+	private ChessAI(AI_Def ai) throws ChessException {
 		if (ai == null) {
 			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
 		} else if (runningAI.containsKey(ai.name.toLowerCase())) {
@@ -93,29 +93,22 @@ public class ChessAI {
 	}
 
 	public static String getAIPrefix() {
-		return plugin.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$ //$NON-NLS-2$
+		return ChessConfig.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void init(boolean aiWhite) {
-		if (_game != null) {
+		if (jChecsGame != null) {
 			return; // only init once
 		}
-		_game = new fr.free.jchecs.core.Game();
+		jChecsGame = new fr.free.jchecs.core.Game();
 		// _game.getPlayer(aiWhite)
-		Player joueur = _game.getPlayer(!aiWhite);
+		Player joueur = jChecsGame.getPlayer(!aiWhite);
 		joueur.setName(Messages.getString("ChessAI.human")); //$NON-NLS-1$
 		joueur.setEngine(null);
-		joueur = _game.getPlayer(aiWhite);
+		joueur = jChecsGame.getPlayer(aiWhite);
 		joueur.setName(Messages.getString("ChessAI.computer")); //$NON-NLS-1$
 		joueur.setEngine(aiSettings.newInstance());
 		isWhite = aiWhite;
-	}
-
-	public static void initThreading(ChessCraft plugin) {
-		if (plugin != null) {
-			ChessAI.plugin = plugin;
-			scheduler = plugin.getServer().getScheduler();
-		}
 	}
 
 	public static void initAI_Names() {
@@ -168,7 +161,7 @@ public class ChessAI {
 	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew) throws ChessException {
 		// uses exceptions method to stop too many AI
 		if (!forceNew) {
-			int max = plugin.getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
+			int max = ChessConfig.getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
 			if (max == 0) {
 				throw new ChessException(Messages.getString("ChessAI.AIdisabled")); //$NON-NLS-1$
 			} else if (runningAI.size() >= max) {
@@ -177,7 +170,7 @@ public class ChessAI {
 		}
 
 		ChessAI ai = new ChessAI(aiName);
-		ai.callback = callback;
+		ai.chessCraftGame = callback;
 		runningAI.put(ai.aiSettings.name.toLowerCase(), ai);
 
 		return ai;
@@ -213,13 +206,13 @@ public class ChessAI {
 
 	public void removeAI() {
 		if (aiTask != -1) {
-			scheduler.cancelTask(aiTask);
+			Bukkit.getScheduler().cancelTask(aiTask);
 		}
-		if (_game != null) {
-			_game.getPlayer(isWhite).setEngine(null);
-			_game = null;
+		if (jChecsGame != null) {
+			jChecsGame.getPlayer(isWhite).setEngine(null);
+			jChecsGame = null;
 		}
-		callback = null;
+		chessCraftGame = null;
 		runningAI.remove(aiSettings.name.toLowerCase());
 	}
 
@@ -230,12 +223,12 @@ public class ChessAI {
 	public void setUserMove(boolean move) {
 		if (move != userToMove) {
 			if (!(userToMove = move)) {
-				int wait = plugin.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
-				aiTask = scheduler.scheduleAsyncDelayedTask(plugin, new Runnable() {
+				int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
+				aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
 
 					public void run() {
-						final MoveGenerator plateau = _game.getBoard();
-						final Engine ia = _game.getPlayer(isWhite).getEngine();
+						final MoveGenerator plateau = jChecsGame.getBoard();
+						final Engine ia = jChecsGame.getPlayer(isWhite).getEngine();
 						if (ia != null) {
 							Move m = ia.getMoveFor(plateau);
 							aiMove(m);
@@ -249,7 +242,7 @@ public class ChessAI {
 
 	public void loadmove(int fromIndex, int toIndex) {
 		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
-		_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
+		jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
 		userToMove = !userToMove;
 	}
 
@@ -278,7 +271,7 @@ public class ChessAI {
 			// chesspresso.Chess.sqiToCol(toIndex));
 
 			// assume move is legal
-			_game.moveFromCurrent(new Move(_game.getBoard().getPieceAt(from), from, to));
+			jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
 
 		} catch (Exception e) {
 			ChessCraftLogger.severe("Error in ChessAI", e);
@@ -287,21 +280,22 @@ public class ChessAI {
 	}
 
 	public void aiMove(Move m) {
-		if (userToMove || _game == null) {
+		if (userToMove || jChecsGame == null) {
 			return;
 		}
 		// System.out.println("ai move: " + m);
 
 		try {
-			// moving directly isn't thread-safe
-//			callback.doMove(getName(), m.getTo().getIndex(), m.getFrom().getIndex());
-			callback.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
-			if (_game != null) { // if game not been deleted
-				_game.moveFromCurrent(m);
+			// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
+			// which is very bad.  So we just tell the game that the AI has moved, and it can check on the next tick.
+			chessCraftGame.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
+			if (jChecsGame != null) { // if game not been deleted
+				jChecsGame.moveFromCurrent(m);
 			}
 		} catch (Exception ex) {
+			// TODO: need to offer the player a draw here, really
 			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex); //$NON-NLS-1$
-			callback.alert(Messages.getString("ChessAI.AIunexpectedException", ex.getMessage())); //$NON-NLS-1$
+			chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", ex.getMessage())); //$NON-NLS-1$
 		}
 
 		userToMove = true;

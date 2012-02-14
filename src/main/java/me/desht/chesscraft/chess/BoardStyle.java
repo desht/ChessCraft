@@ -14,6 +14,7 @@ import java.io.IOException;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 
@@ -41,6 +42,10 @@ public class BoardStyle {
 
 	public String getName() {
 		return styleName;
+	}
+	
+	public String getPieceStyleName() {
+		return pieceStyleName;
 	}
 
 	public int getFrameWidth() {
@@ -176,6 +181,13 @@ public class BoardStyle {
 				: (squareSize > MAX_SQUARESIZE ? MAX_SQUARESIZE : squareSize);
 	}
 
+	public void verifyCompatibility(ChessSet pieceStyle) throws ChessException {
+		// ensure the new chess set actually fits this board
+		if (pieceStyle.getMaxWidth() > squareSize || pieceStyle.getMaxHeight() > height) {
+			throw new ChessException("Set '" + pieceStyle.getName() + "' is too large for this board!");
+		}
+	}
+	
 	public void saveStyle(String newStyleName) throws ChessException {
 		File f = new File(ChessConfig.getBoardStyleDirectory(), "custom" + File.separator + newStyleName.toLowerCase() + ".yml");
 		
@@ -270,5 +282,11 @@ public class BoardStyle {
 		style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
 
 		return style;
+	}
+	
+	public static void verifyCompatibility(String boardStyleName, String pieceStyleName) throws ChessException {
+		BoardStyle b = BoardStyle.loadNewStyle(boardStyleName);
+		ChessSet cs = ChessSet.getChessSet(pieceStyleName);
+		b.verifyCompatibility(cs);
 	}
 }

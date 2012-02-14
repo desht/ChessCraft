@@ -8,14 +8,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
 public class SignButton {
-
-	private Location location;
-	private boolean enabled;
-	private String text;
-	private MaterialWithData mat;
-	private String name;
 	private final static ChatColor enabledCol = ChatColor.DARK_BLUE;
 	private final static ChatColor disabledCol = ChatColor.DARK_GRAY;
+
+	private final Location location;
+	private final MaterialWithData mat;
+	private final String name;
+	private boolean enabled;
+	private String text;
 
 	public SignButton(String name, Location loc, String text, MaterialWithData mat, boolean enabled) {
 		this.name = name;
