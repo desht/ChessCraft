@@ -18,6 +18,8 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.google.common.base.Joiner;
+
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessPersistence;
@@ -31,6 +33,32 @@ public class ChessSet implements Iterable<ChessStone> {
 	// map of all known chess sets keyed by set name
 	private static final Map<String, ChessSet> allChessSets = new HashMap<String, ChessSet>();
 
+	// note when the set was loaded so we can reload if the set file is updated
+	private static final Map<String,Long> setLoadTime = new HashMap<String, Long>();
+
+	private static final String[] CHESS_SET_HEADER_LINES = new String[] {
+			"ChessCraft piece style definition file",
+			"See http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles",
+			"",
+			"'name' is the name for this set, and should match the filename",
+			"",
+			"'materials.white' & 'materials.black' are lists of materials used in this set",
+			" Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)",
+			" or material plus data (e.g. 35:0, wool:white)",
+			" If you use plain integers, they must be quoted, or the set will not load!",
+			" If you use material names, they must match the org.bukkit.Material definitions",
+			" - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html",
+			"",
+			"'pieces.<X>' defines the template for a chess piece, where <X> is one of P,R,N,B,Q,K",
+			" Each piece definition is a list of list of strings such that:",
+			" - definition[0] is the lowest layer on the Y-axis",
+			" - definition[0][0] is the northmost row on the lowest layer",
+			" - each string runs from west to east and consists of materials defined above",
+	};
+	private static final String CHESS_SET_HEADER;
+	static {
+		CHESS_SET_HEADER = Joiner.on("\n").join(CHESS_SET_HEADER_LINES);		
+	}
 	// map a character to a material
 	private MaterialMap materialMapWhite, materialMapBlack;
 	
@@ -204,6 +232,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName), true);
 		
 		YamlConfiguration conf = new YamlConfiguration();
+		conf.options().header(CHESS_SET_HEADER);
 		try {
 			conf.set("name", name);
 			for (char c : materialMapWhite.getMap().keySet()) {
@@ -223,7 +252,13 @@ public class ChessSet implements Iterable<ChessStone> {
 	
 	//--------------------------static methods---------------------------------
 	
-	public static boolean loaded(String setName) {
+	/**
+	 * Check if the given set is loaded.
+	 * 
+	 * @param setName
+	 * @return
+	 */
+	public static boolean isLoaded(String setName) {
 		return allChessSets.containsKey(setName);
 	}
 	
@@ -235,26 +270,30 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * @throws ChessException
 	 */
 	public static ChessSet getChessSet(String setName) throws ChessException {
-		if (!loaded(setName)) {
-			allChessSets.put(setName, loadChessSet(setName));
+		setName = setName.toLowerCase();
+		if (!isLoaded(setName) || needsReload(setName)) {
+			loadChessSet(setName);
 		}
 		return allChessSets.get(setName);
 	}
 
-	public static String[] getChessSetNames() {
-		return allChessSets.keySet().toArray(new String[0]);
+	private static boolean needsReload(String setName) throws ChessException {
+		if (!setLoadTime.containsKey(setName)) {
+			return true;
+		}
+		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setName);
+		return f.lastModified() > setLoadTime.get(setName);
 	}
 
-	public static ChessSet[] getAllChessSets() {
-		return allChessSets.values().toArray(new ChessSet[0]);
-	}
-	
-	private static ChessSet loadChessSet(String setFileName) throws ChessException {
-		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setFileName);
+	private static ChessSet loadChessSet(String setName) throws ChessException {
+		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);
-		ChessCraftLogger.log("loaded set " + set.getName() + " OK.");
+		ChessCraftLogger.log("loaded chess set '" + set.getName() + "'.");
+		
+		allChessSets.put(setName, set);
+		setLoadTime.put(setName, System.currentTimeMillis());
 		
 		return set;
 	}

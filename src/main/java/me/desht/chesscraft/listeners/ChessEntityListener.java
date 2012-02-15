@@ -114,7 +114,6 @@ public class ChessEntityListener implements Listener {
 			return;
 		}
 
-		System.out.println("player entity damage: cause = " + event.getCause());
 		if (event.getCause() == DamageCause.SUFFOCATION) {
 			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
 			if (bv != null) {

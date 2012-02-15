@@ -9,15 +9,15 @@ public class ChessPieceTemplate {
 	
 	public ChessPieceTemplate(List<List<String>> data) {
 		sizeY = data.size();
-		sizeZ = data.get(0).size();
-		sizeX = data.get(0).get(0).length();
+		sizeX = data.get(0).size();
+		sizeZ = data.get(0).get(0).length();
 		pieceData = new char[sizeX][sizeY][sizeZ];
 
 		// scan bottom to top
 		for (int y = 0; y < sizeY; ++y) {
-			List<String> yRow = data.get(y);
+			List<String> layer = data.get(y);
 			for (int x = sizeX - 1; x >= 0; --x) {
-				String xRow = yRow.get(x);
+				String xRow = layer.get(x);
 				for (int z = sizeZ - 1; z >= 0; --z) {
 					char k = xRow.charAt(z);
 					pieceData[x][y][z] = k;

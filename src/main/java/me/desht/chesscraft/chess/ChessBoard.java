@@ -19,21 +19,16 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
-import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
-import net.minecraft.server.EnumSkyBlock;
-import net.minecraft.server.World;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
 
 public class ChessBoard {
-	private static BoardLightingMethod lightingMethod = BoardLightingMethod.CRAFTBUKKIT;
 
 	public static final String DEFAULT_PIECE_STYLE = "standard";
 	public static final String DEFAULT_BOARD_STYLE = "standard";
@@ -59,8 +54,6 @@ public class ChessBoard {
 	
 	// if highlight_last_move, what squares (indices) are highlighted
 	private int fromSquare = -1, toSquare = -1;
-	// if the last lighting update is active
-	private boolean isLighted = false;
 	// settings related to how the board is drawn
 	private BoardStyle boardStyle = null;
 	// the set of chess pieces that go with this board
@@ -73,28 +66,28 @@ public class ChessBoard {
 	 * 
 	 * @param origin
 	 * @param rotation
-	 * @param boardStyleStr
-	 * @param pieceStyleStr
+	 * @param boardStyleName
+	 * @param pieceStyleName
 	 * @throws ChessException
 	 */
-	public ChessBoard(Location origin, BoardOrientation rotation, String boardStyleStr, String pieceStyleStr) throws ChessException {
-		setBoardStyle(boardStyleStr);
-		setPieceStyle(pieceStyleStr != null ? pieceStyleStr : boardStyle.pieceStyleName);
+	public ChessBoard(Location origin, BoardOrientation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
+		setBoardStyle(boardStyleName);
+		setPieceStyle(pieceStyleName != null ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
 		a1Center = origin;
 		a1Corner = initA1Corner(origin, rotation);
 		h8Corner = initH8Corner(a1Corner);
 		board = new Cuboid(a1Corner, h8Corner);
-		areaBoard = board.expand(Direction.Up, boardStyle.height);
-		frameBoard = board.outset(Direction.Horizontal, boardStyle.frameWidth);
-		aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height - 1);
-		fullBoard = frameBoard.expand(Direction.Up, boardStyle.height + 1);
+		areaBoard = board.expand(Direction.Up, boardStyle.getHeight());
+		frameBoard = board.outset(Direction.Horizontal, boardStyle.getFrameWidth());
+		aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight() - 1);
+		fullBoard = frameBoard.expand(Direction.Up, boardStyle.getHeight() + 1);
 		validateBoardPosition();
 	}
 
 	private Location initA1Corner(Location origin, BoardOrientation rotation) {
 		Location a1 = new Location(origin.getWorld(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
-		int offset = boardStyle.squareSize / 2;
+		int offset = boardStyle.getSquareSize() / 2;
 		switch (rotation) {
 		case NORTH:
 			a1.add(offset, 0, offset); break;
@@ -110,15 +103,16 @@ public class ChessBoard {
 
 	private Location initH8Corner(Location a1) {
 		Location h8 = new Location(a1.getWorld(), a1.getBlockX(), a1.getBlockY(), a1.getBlockZ());
+		int size = boardStyle.getSquareSize();
 		switch (rotation) {
 		case NORTH:
-			h8.add(-boardStyle.squareSize * 8 + 1, 0, -boardStyle.squareSize * 8 + 1); break;
+			h8.add(-size * 8 + 1, 0, -size * 8 + 1); break;
 		case EAST:
-			h8.add(boardStyle.squareSize * 8 + 1, 0, -boardStyle.squareSize * 8 + 1); break;
+			h8.add(size * 8 + 1, 0, -size * 8 + 1); break;
 		case SOUTH:
-			h8.add(boardStyle.squareSize * 8 + 1, 0, boardStyle.squareSize * 8 + 1); break;
+			h8.add(size * 8 + 1, 0, size * 8 + 1); break;
 		case WEST:
-			h8.add(-boardStyle.squareSize * 8 + 1, 0, boardStyle.squareSize * 8 + 1); break;
+			h8.add(-size * 8 + 1, 0, size * 8 + 1); break;
 		}
 		return h8;
 	}
@@ -247,10 +241,12 @@ public class ChessBoard {
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
 		BoardStyle newStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
 
-		// we don't allow any changes to the board's dimensions, only changes to
-		// the appearance of the board
-		if (boardStyle != null
-				&& (boardStyle.frameWidth != newStyle.frameWidth || boardStyle.squareSize != newStyle.squareSize || boardStyle.height != newStyle.height)) {
+		// We don't allow any changes to the board's dimensions, only changes to
+		// the appearance of the board.
+		if (boardStyle != null &&
+				(boardStyle.getFrameWidth() != newStyle.getFrameWidth() ||
+				boardStyle.getSquareSize() != newStyle.getSquareSize() ||
+				boardStyle.getHeight() != newStyle.getHeight())) {
 			throw new ChessException("New board style dimensions do not match the current board dimensions");
 		}
 
@@ -272,15 +268,7 @@ public class ChessBoard {
 			setPieceStyle(chessPieceSet.getName());
 		}
 	}
-
-	static BoardLightingMethod getLightingMethod() {
-		return lightingMethod;
-	}
-
-	static void setLightingMethod(BoardLightingMethod lightingMethod) {
-		ChessBoard.lightingMethod = lightingMethod;
-	}
-
+	
 	/**
 	 * Paint everything! (board, frame, enclosure, control panel, lighting)
 	 */
@@ -297,49 +285,49 @@ public class ChessBoard {
 			}
 			if (fromSquare >= 0 || toSquare >= 0) {
 				highlightSquares(fromSquare, toSquare);
-			} else {
-				forceLightUpdate();
 			}
-			fullBoard.initLighting();
+			fullBoard.forceLightLevel(boardStyle.getLightLevel());
 			fullBoard.sendClientChanges();
 		}
 	}
 
 	private void paintEnclosure() {
-		aboveFullBoard.getFace(Direction.North).set(boardStyle.enclosureMat, true);
-		aboveFullBoard.getFace(Direction.East).set(boardStyle.enclosureMat, true);
-		aboveFullBoard.getFace(Direction.South).set(boardStyle.enclosureMat, true);
-		aboveFullBoard.getFace(Direction.West).set(boardStyle.enclosureMat, true);
-		aboveFullBoard.getFace(Direction.Up).set(boardStyle.enclosureMat, true);
+		aboveFullBoard.getFace(Direction.North).set(boardStyle.getEnclosureMaterial(), true);
+		aboveFullBoard.getFace(Direction.East).set(boardStyle.getEnclosureMaterial(), true);
+		aboveFullBoard.getFace(Direction.South).set(boardStyle.getEnclosureMaterial(), true);
+		aboveFullBoard.getFace(Direction.West).set(boardStyle.getEnclosureMaterial(), true);
+		aboveFullBoard.getFace(Direction.Up).set(boardStyle.getEnclosureMaterial(), true);
 
-		if (!boardStyle.enclosureMat.equals(boardStyle.strutsMat)) {
+		if (!boardStyle.getEnclosureMaterial().equals(boardStyle.getStrutsMaterial())) {
 			paintStruts();
 		}
 	}
 
 	private void paintStruts() {
 		// vertical struts at the frame corners
-		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(Direction.Up, 1).expand(Direction.Up, boardStyle.height);
-		c.set(boardStyle.strutsMat, true);
+		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight());
+		c.set(boardStyle.getStrutsMaterial(), true);
 		c = c.shift(Direction.South, frameBoard.getSizeX() - 1);
-		c.set(boardStyle.strutsMat, true);
+		c.set(boardStyle.getStrutsMaterial(), true);
 		c = c.shift(Direction.West, frameBoard.getSizeZ() - 1);
-		c.set(boardStyle.strutsMat, true);
+		c.set(boardStyle.getStrutsMaterial(), true);
 		c = c.shift(Direction.North, frameBoard.getSizeZ() - 1);
-		c.set(boardStyle.strutsMat, true);
+		c.set(boardStyle.getStrutsMaterial(), true);
 
 		// horizontal struts along roof edge
-		Cuboid roof = frameBoard.shift(Direction.Up, boardStyle.height + 1);
+		Cuboid roof = frameBoard.shift(Direction.Up, boardStyle.getHeight() + 1);
 		for (Block b : roof.walls()) {
-			boardStyle.strutsMat.applyToBlockFast(b);
+			boardStyle.getStrutsMaterial().applyToBlockFast(b);
 		}
 	}
 
-	private void paintFrame() {	
-		frameBoard.getFace(Direction.North).expand(Direction.South, boardStyle.frameWidth - 1).set(boardStyle.frameMat, true);
-		frameBoard.getFace(Direction.South).expand(Direction.North, boardStyle.frameWidth - 1).set(boardStyle.frameMat, true);
-		frameBoard.getFace(Direction.East).expand(Direction.West, boardStyle.frameWidth - 1).set(boardStyle.frameMat, true);
-		frameBoard.getFace(Direction.West).expand(Direction.East, boardStyle.frameWidth - 1).set(boardStyle.frameMat, true);
+	private void paintFrame() {
+		int fw = boardStyle.getFrameWidth();
+		MaterialWithData fm = boardStyle.getFrameMaterial();
+		frameBoard.getFace(Direction.North).expand(Direction.South, fw - 1).set(fm, true);
+		frameBoard.getFace(Direction.South).expand(Direction.North, fw - 1).set(fm, true);
+		frameBoard.getFace(Direction.East).expand(Direction.West, fw - 1).set(fm, true);
+		frameBoard.getFace(Direction.West).expand(Direction.East, fw - 1).set(fm, true);
 	}
 
 	private void paintBoard() {
@@ -355,7 +343,7 @@ public class ChessBoard {
 	private void paintBoardSquare(int row, int col) {
 		Cuboid square = getSquare(row, col);
 		boolean black = (col + (row % 2)) % 2 == 0;
-		square.set(black ? boardStyle.blackSquareMat : boardStyle.whiteSquareMat, true);
+		square.set(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial(), true);
 	}
 
 	private void highlightBoardSquare(int sqi, boolean highlight) {
@@ -420,30 +408,27 @@ public class ChessBoard {
 			return;
 		}
 
-		Cuboid p = getPieceRegion(row, col);
+		Cuboid region = getPieceRegion(row, col);
+		region.clear(true);
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = chessPieceSet.getStone(stone, getRotation());
 			if (cStone != null) {
-				paintChessPiece(row, col, cStone);
+				paintChessPiece(region, cStone);
 			} else {
 				ChessCraftLogger.severe("unknown piece: " + stone);
 			}
-		} else {
-			p.clear(true);
 		}
 
-		p.sendClientChanges();
+		region.expand(Direction.Down, 1).forceLightLevel(boardStyle.getLightLevel());		
+		region.sendClientChanges();
 	}
 
-	public void paintChessPiece(int row, int col, ChessStone stone) {
-		Cuboid region = getPieceRegion(row, col);
+	private void paintChessPiece(Cuboid region, ChessStone stone) {
 		assert region.getSizeX() >= stone.getSizeX();
 		assert region.getSizeZ() >= stone.getSizeZ();
 
 		int xOff = (region.getSizeX() - stone.getSizeX()) / 2;
 		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
-
-		region.clear(true);
 
 		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
 
@@ -451,6 +436,10 @@ public class ChessBoard {
 			for (int y = 0; y < stone.getSizeY(); y++) {
 				for (int z = 0; z < stone.getSizeZ(); z++) {
 					MaterialWithData mat = stone.getMaterial(x, y, z);
+					if (mat.getMaterial() == 0) {
+						// the region was pre-cleared, skip placing air a second time
+						continue;
+					}
 					Block b = region.getRelativeBlock(x + xOff, y, z + zOff);
 					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
 						deferred.put(b, mat);
@@ -464,8 +453,6 @@ public class ChessBoard {
 		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
 			e.getValue().applyToBlockFast(e.getKey());
 		}
-
-		region.initLighting();
 	}
 
 	/**
@@ -484,145 +471,21 @@ public class ChessBoard {
 		}
 	}
 
-	void lightBoard(boolean light) {
-		lightBoard(light, false);
-	}
-
-	/**
-	 * Apply lighting to the board, overriding the boardStyle's preference
-	 * 
-	 * @param light
-	 *            if the board is lit up
-	 * @param force
-	 *            force lighting to be redone even it doesn't seem to have
-	 *            changed
-	 */
-	void lightBoard(boolean light, boolean force) {
-		if (board == null) {
-			return;
-		}
-
-		if (lightingMethod == BoardLightingMethod.CRAFTBUKKIT) {
-			// Since calling craftbukkit methods directly is prone to failure,
-			// we'll catch
-			// any possible exceptions/errors and fall back to the slower but
-			// safer method
-			// of placing glowstone on the chessboard
-			if (isLighted == light && force == false) {
-				return;
-			}
-			lightArea(frameBoard);
-			isLighted = true;
-		}
-
-		if (lightingMethod == BoardLightingMethod.GLOWSTONE) {
-			if (isLighted == light && force == false) {
-				return;
-			}
-			isLighted = light;
-			MaterialWithData mat = MaterialWithData.get("glowstone");
-
-			// light the NE edges of all of the squares
-			Location ne = board.getLowerNE();
-			int ix = 0, iz = 0, dx = boardStyle.squareSize, dz = dx, y = ne.getBlockY();
-			switch (rotation) {
-			case NORTH:
-				dx = -dx;
-				dz = -dz;
-				ix = board.getUpperX();
-				iz = board.getUpperZ();
-				break;
-			case EAST:
-				dz = -dz;
-				ix = board.getLowerX();
-				iz = board.getUpperZ();
-				break;
-			case SOUTH:
-				ix = board.getLowerX();
-				iz = board.getLowerZ();
-				break;
-			case WEST:
-				dx = -dx;
-				ix = board.getUpperX();
-				iz = board.getLowerZ();
-			}
-			// the board lights
-			for (int r = 0, x = ix; r < 8; ++r, x += dx) {
-				for (int c = 0, z = iz; c < 8; ++c, z += dz) {
-					(isLighted ? mat : ((c + (r % 2)) % 2 == 0 ? boardStyle.blackSquareMat : boardStyle.whiteSquareMat))
-					.applyToBlock(ne.getWorld().getBlockAt(x, y, z));
-				}
-			}
-			// now for the frame
-			if (!isLighted) {
-				mat = boardStyle.frameMat;
-			}
-			Cuboid frameLight = board.outset(Direction.Horizontal, boardStyle.frameWidth / 2);
-			int i = boardStyle.frameWidth / 2;
-			for (Block b : frameLight.walls()) {
-				if (i++ % boardStyle.squareSize == 0) {
-					mat.applyToBlock(b);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Use NMS methods to fake the lighting over the given Cuboid area.
-	 * 
-	 * @param area
-	 */
-	private void lightArea(Cuboid area) {
-		try {
-			// long start = System.nanoTime();
-			World w = ((CraftWorld) area.getWorld()).getHandle();
-			for (Block b : area) {
-				int x = b.getLocation().getBlockX();
-				int y = b.getLocation().getBlockY() + 1;
-				int z = b.getLocation().getBlockZ();
-				while (b.getWorld().getBlockAt(x, y, z).getTypeId() > 0 && y < 128) {
-					y++;
-				}
-				w.a(EnumSkyBlock.BLOCK, x, y, z, boardStyle.lightLevel);
-			}
-			// ChessCraftLogger.info("relit area in " + (System.nanoTime() -
-			// start) + " ns");
-		} catch (Throwable t) {
-			ChessCraftLogger.warning("CraftBukkit-style lighting failed, falling back to glowstone: " + t.getMessage());
-			lightingMethod = BoardLightingMethod.GLOWSTONE;
-		}
-	}
-
-	/**
-	 * Force a lighting update - if lighting is on for the board, force all
-	 * lights to be redrawn. This would be done after any operation that
-	 * overwrote squares on the board (e.g. full repaint, square highlight
-	 * repaint...)
-	 */
-	private void forceLightUpdate() {
-		if (isLighted) {
-			// force a lighting update
-			lightBoard(true, true);
-		}
-	}
-
 	/**
 	 * Highlight two squares on the chessboard, erasing previous highlight, if
 	 * any. Use the highlight square colors per-square color, if set, or just
 	 * the global highlight block otherwise.
 	 * 
-	 * @param from
-	 *            square index of the first square
-	 * @param to
-	 *            square index of the second square
+	 * @param from	square index of the first square
+	 * @param to	square index of the second square
 	 */
 	void highlightSquares(int from, int to) {
-		if (board == null || boardStyle.highlightStyle == HighlightStyle.NONE) {
+		if (board == null || boardStyle.getHighlightStyle() == HighlightStyle.NONE) {
 			return;
 		}
 		// erase the old highlight, if any
 		if (fromSquare >= 0 || toSquare >= 0) {
-			if (boardStyle.highlightStyle == HighlightStyle.LINE) {
+			if (boardStyle.getHighlightStyle() == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, false);
 			} else {
 				paintBoardSquare(fromSquare);
@@ -632,11 +495,9 @@ public class ChessBoard {
 		fromSquare = from;
 		toSquare = to;
 
-		forceLightUpdate();
-
 		// draw the new highlight
 		if (from >= 0 || to >= 0) {
-			if (boardStyle.highlightStyle == HighlightStyle.LINE) {
+			if (boardStyle.getHighlightStyle() == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, true);
 			} else {
 				highlightBoardSquare(fromSquare, true);
@@ -648,12 +509,9 @@ public class ChessBoard {
 	/**
 	 * Use Bresenham's algorithm to draw line between two squares on the board
 	 * 
-	 * @param from
-	 *            Square index of the first square
-	 * @param to
-	 *            Square index of the second square
-	 * @param isHighlighting
-	 *            True if drawing a highlight, false if erasing it
+	 * @param from	Square index of the first square
+	 * @param to	Square index of the second square
+	 * @param isHighlighting	True if drawing a highlight, false if erasing it
 	 */
 	private void drawHighlightLine(int from, int to, boolean isHighlighting) {
 		if (board == null || from < 0 || to < 0 || from >= 64 || to >= 64) {
@@ -674,7 +532,7 @@ public class ChessBoard {
 		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
 			int sqi = getSquareAt(loc1);
 			MaterialWithData m = isHighlighting ? boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) : (Chess
-					.isWhiteSquare(sqi) ? boardStyle.whiteSquareMat : boardStyle.blackSquareMat);
+					.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
 			m.applyToBlock(loc1.getBlock());
 			int e2 = 2 * err;
 			if (e2 > -dz) {
@@ -744,42 +602,40 @@ public class ChessBoard {
 			return null;
 		}
 
-		Cuboid sq = getSquare(row, col).expand(Direction.Up, boardStyle.height - 1).shift(Direction.Up, 1);
+		Cuboid sq = getSquare(row, col).expand(Direction.Up, boardStyle.getHeight() - 1).shift(Direction.Up, 1);
 		return sq;
 	}
 
 	/**
-	 * Get the Chesspresso index of the square clicked
+	 * Get the Chesspresso index of the given location
 	 * 
-	 * @param loc
-	 *            location that was clicked
+	 * @param loc	desired location
 	 * @return the square index, or Chess.NO_SQUARE if not on the board
 	 */
 	int getSquareAt(Location loc) {
-		if (board == null || !areaBoard.contains(loc)) {
+		if (areaBoard == null || !areaBoard.contains(loc)) {
 			return Chess.NO_SQUARE;
 		}
 		int row = 0, col = 0;
 		switch (rotation) {
 		case NORTH:
-			row = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
-			col = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
+			row = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.getSquareSize());
+			col = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.getSquareSize());
 			break;
 		case EAST:
-			row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.squareSize);
-			col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
+			row = 7 - ((loc.getBlockZ() - areaBoard.getLowerZ()) / boardStyle.getSquareSize());
+			col = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.getSquareSize());
 			break;
 		case SOUTH:
-			row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.squareSize);
-			col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
+			row = -((areaBoard.getLowerX() - loc.getBlockX()) / boardStyle.getSquareSize());
+			col = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.getSquareSize());
 			break;
 		case WEST:
-			row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.squareSize);
-			col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.squareSize);
+			row = -((areaBoard.getLowerZ() - loc.getBlockZ()) / boardStyle.getSquareSize());
+			col = 7 - ((loc.getBlockX() - areaBoard.getLowerX()) / boardStyle.getSquareSize());
 			break;
 		}
-		// System.out.println(rotation + ": " + row + " " + col);
-		return row * 8 + col;
+		return Chess.coorToSqi(col, row);
 	}
 } // end class ChessBoard
 

@@ -778,10 +778,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				aiPlayer.userMove(fromSquare, toSquare);
 			}
 		} else {
-			String checkNotify = getPosition().isCheck() ? Messages.getString("Game.check") : ""; //$NON-NLS-1$ //$NON-NLS-2$
-			alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN()) //$NON-NLS-1$
-			      + checkNotify);
-			alert(nextPlayer, Messages.getString("Game.yourMove", getColour(getPosition().getToPlay()))); //$NON-NLS-1$
+			alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+			if (getPosition().isCheck()) {
+				if (ChessConfig.getConfig().getBoolean("effects.check_alert")) {
+					getView().playCheckAlert(nextPlayer);
+				}
+				alert(nextPlayer, Messages.getString("Game.check"));
+			}
 		}
 	}
 

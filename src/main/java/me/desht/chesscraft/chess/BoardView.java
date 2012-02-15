@@ -29,17 +29,19 @@ import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
+import me.desht.chesscraft.util.NoteAlert;
 import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
-import me.desht.chesscraft.enums.BoardLightingMethod;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.enums.Direction;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Note;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -55,7 +57,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final ChessBoard chessBoard;
 	
 	private ChessGame game = null;			// null indicates board not currently used by any game
-	private byte lastLightingLevel = -1;	// for lighting updates
 
 	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
 		this(bName, origin, null, bStyle, pStyle);
@@ -157,6 +158,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return game;
 	}
 
+	public void setGame(ChessGame game) {
+			this.game = game;
+			if (game != null) {
+				game.getPosition().addPositionListener(this);
+				game.getPosition().addPositionChangeListener(this);
+//				for (int row = 0; row < Chess.NUM_OF_ROWS; row++) {
+//					for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
+//						chessBoard.paintChessPiece(row, col, game.getPosition().getStone(Chess.coorToSqi(col, row)));
+//					}
+//				}
+			} else {
+				chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
+				chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
+			}
+			chessBoard.getFullBoard().sendClientChanges();
+	//		paintAll();
+	//		chessBoard.highlightSquares(-1, -1);
+			controlPanel.repaintSignButtons();
+		}
+
 	public Location getA1Square() {
 		return chessBoard.getA1Corner();
 	}
@@ -234,39 +255,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard.paintChessPiece(row, col, stone);
 	}
 
-	public void doLighting() {
-		doLighting(false);
-	}
-
-	public void doLighting(boolean force) {
-		if (getBounds() == null) {
-			return;
-		}
-
-		if (ChessBoard.getLightingMethod() == BoardLightingMethod.GLOWSTONE) {
-			byte level = getBounds().shift(Direction.Up, 2).
-					inset(Direction.Horizontal, getFrameWidth() + getSquareSize() * 3).
-					expand(Direction.Up, getHeight() / 2).
-					averageLightLevel();
-
-			if (!force && isBright(level) == isBright(lastLightingLevel) && lastLightingLevel >= 0) {
-				return;
-			}
-			lastLightingLevel = level;
-			chessBoard.lightBoard(!isBright(level));
-		} else if (ChessBoard.getLightingMethod() == BoardLightingMethod.CRAFTBUKKIT) {
-			chessBoard.lightBoard(true);
-		}
-	}
-
-	private boolean isBright(byte level) {
-		if (level < 12) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
 	/**
 	 * Get the bounds of the board itself
 	 * 
@@ -289,7 +277,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	
 	@Override
 	public void castlesChanged(int castles) {
-		// TODO Auto-generated method stub
+		// Ignored
 	}
 
 	@Override
@@ -304,13 +292,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	@Override
 	public void sqiEPChanged(int sqiEP) {
-		// TODO Auto-generated method stub
+		// Ignored
 	}
 
 	@Override
 	public void squareChanged(int sqi, int stone) {
 		paintStoneAt(sqi, stone);
-		System.out.println("square changed: " + sqi + "=" + stone);
 	}
 
 	@Override
@@ -332,31 +319,48 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	
 	@Override
 	public void notifyPositionChanged(ImmutablePosition position) {
-		// TODO Auto-generated method stub
+		// Ignored
 	}
 
 	@Override
 	public void notifyMoveDone(ImmutablePosition position, short move) {
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
+	
+		if (Move.isCapturing(move) && ChessConfig.getConfig().getBoolean("effects.capture_explosion")) {
+			Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
+			chessBoard.getA1Center().getWorld().createExplosion(loc, 0.0f);
+		}
 		
-		highlightSquares(fromSqi, toSqi);
+//		paintStoneAt(toSqi, position.getStone(toSqi));
+//		paintStoneAt(fromSqi, Chess.NO_STONE);
+		pieceRidingCheck(fromSqi, toSqi);
+		
+		chessBoard.highlightSquares(fromSqi, toSqi);
 	}
 
 	@Override
 	public void notifyMoveUndone(ImmutablePosition position) {
-		// TODO Auto-generated method stub
-		
+		// Ignored
 	}
 
-	public void setGame(ChessGame game) {
-		this.game = game;
-		if (game != null) {
-			game.getPosition().addPositionListener(this);
-			game.getPosition().addPositionChangeListener(this);
+	// -------------------------------------------------------------------------------
+	
+	/**
+	 * Check for players standing on the piece that is being moved, and move them with the piece.
+	 */
+	private void pieceRidingCheck(int fromSqi, int toSqi) {
+		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
+		for (Player p : chessBoard.getA1Corner().getWorld().getPlayers()) {
+			Location loc = p.getLocation();
+			if (cFrom.contains(loc) && loc.getY() > cFrom.getLowerY()) {
+				Cuboid cTo = chessBoard.getPieceRegion(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi));
+				int xOff = cTo.getLowerX() - cFrom.getLowerX();
+				int zOff = cTo.getLowerZ() - cFrom.getLowerZ();
+				loc.add(xOff, 0, zOff);
+				p.teleport(loc);
+			}
 		}
-		paintAll();
-		chessBoard.highlightSquares(-1, -1);
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
@@ -485,12 +489,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 	}
 
-	void highlightSquares(int fromSquare, int toSquare) {
-		chessBoard.highlightSquares(fromSquare, toSquare);
-	}
-
 	public void reloadStyle() throws ChessException {
 		chessBoard.reloadStyles();
+	}
+
+	public void playCheckAlert(String playerName) {
+		List<Note> notes = new ArrayList<Note>();
+		notes.add(new Note(24));
+		notes.add(new Note(16));
+		audibleAlert(playerName, notes);
+	}
+	
+	public void audibleAlert(String playerName, List<Note> notes) {
+		Player player = Bukkit.getPlayer(playerName);
+		if (player != null) {
+			// the fake note block will be directly below the player, under the chessboard
+			Location loc = player.getLocation().clone();
+			loc.setY(chessBoard.getA1Center().getY() - 1);
+			NoteAlert a = new NoteAlert(player, loc, 10L, notes);
+			a.start();
+		}
 	}
 
 	public void showBoardDetail(Player player) {

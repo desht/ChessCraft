@@ -18,16 +18,22 @@ public class ChessStone {
 	 */
 	public ChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardOrientation direction) {
 		this.stone = stone;
-		sizeX = tmpl.getWidth();
-		sizeY = tmpl.getSizeY();
-		sizeZ = tmpl.getWidth();
-
-		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
 		int rotation = direction.ordinal() * 90;
 		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
 			rotation = (rotation + 180) % 360;
 		}
+
+		sizeY = tmpl.getSizeY();
+		if (rotation == 90 || rotation == 270) {
+			// allows for pieces with a non-square footprint
+			sizeZ = tmpl.getSizeX();
+			sizeX = tmpl.getSizeZ();
+		} else {
+			sizeX = tmpl.getSizeX();
+			sizeZ = tmpl.getSizeZ();
+		}
+		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
 		switch (rotation) {
 		case 0:

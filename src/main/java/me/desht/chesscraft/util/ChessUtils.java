@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
@@ -45,9 +44,9 @@ public class ChessUtils {
 
 			@Override
 			public void run() {
-				for (BoardView bv : BoardView.listBoardViews()) {
-					bv.doLighting();
-				}
+//				for (BoardView bv : BoardView.listBoardViews()) {
+//					bv.doLighting();
+//				}
 				for (ChessGame game : ChessGame.listGames()) {
 					game.clockTick();
 					game.checkForAutoDelete();

@@ -28,6 +28,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 //import com.sk89q.util.StringUtil;
+import me.desht.chesscraft.util.StringUtil;
+
 //import com.sk89q.worldedit.PlayerDirection;
 
 /**
@@ -217,30 +219,30 @@ public enum BlockType {
         return ids.get(id);
     }
 
-//    /**
-//     * Return type from name. May return null.
-//     *
-//     * @param name
-//     * @return
-//     */
-//    public static BlockType lookup(String name) {
-//        return lookup(name, true);
-//    }
-//
-//    /**
-//     * Return type from name. May return null.
-//     *
-//     * @param name
-//     * @param fuzzy
-//     * @return
-//     */
-//    public static BlockType lookup(String name, boolean fuzzy) {
-//        try {
-//            return fromID(Integer.parseInt(name));
-//        } catch (NumberFormatException e) {
-//            return StringUtil.lookup(lookup, name, fuzzy);
-//        }
-//    }
+    /**
+     * Return type from name. May return null.
+     *
+     * @param name
+     * @return
+     */
+    public static BlockType lookup(String name) {
+        return lookup(name, true);
+    }
+
+    /**
+     * Return type from name. May return null.
+     *
+     * @param name
+     * @param fuzzy
+     * @return
+     */
+    public static BlockType lookup(String name, boolean fuzzy) {
+        try {
+            return fromID(Integer.parseInt(name));
+        } catch (NumberFormatException e) {
+            return StringUtil.lookup(lookup, name, fuzzy);
+        }
+    }
 
     /**
      * Get block numeric ID.

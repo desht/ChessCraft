@@ -21,6 +21,7 @@ import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
+import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.regions.Cuboid;
@@ -89,7 +90,8 @@ public class ControlPanel {
 
 	public void repaint() {
 		panelBlocks.set(view.getControlPanelMaterial(), true);
-		panelBlocks.initLighting();
+//		panelBlocks.initLighting();
+		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
 		ChessGame game = view.getGame();
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
@@ -274,7 +276,8 @@ public class ControlPanel {
 			view.showBoardDetail(player);
 		} else if (name.equals(INVITE_PLAYER)) { //$NON-NLS-1$
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
-				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInviteReminder")); //$NON-NLS-1$
+				ChessCraft.expecter.expectingResponse(player, new ExpectInvitePlayer());
+				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInvitePrompt")); //$NON-NLS-1$
 			}
 		} else if (name.equals(INVITE_ANYONE)) { //$NON-NLS-1$
 			if (game != null) {

@@ -49,6 +49,8 @@ public class MaterialWithData implements Cloneable {
 				throw new IllegalArgumentException("unknown material " + matAndData[0]);
 			}
 			material = m.getId();
+//			BlockType b = BlockType.lookup(matAndData[0], true);
+//			material = b.getID();
 		}
 		if (matAndData.length < 2) {
 			data = 0;
@@ -208,8 +210,9 @@ public class MaterialWithData implements Cloneable {
 			break;
 		case 90:
 			newData = (byte) BlockData.rotate90(material, data);
+			break;
 		}
 		return MaterialWithData.get(material, newData, metadata);
-	}
+	}	
 
 }

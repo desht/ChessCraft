@@ -213,7 +213,7 @@ public class ChessPersistence {
 	}
 	
 	public void unpersist(ChessPersistable object) {
-		File f = new File(object.getSaveDirectory(), object.getName() + ".yml");
+		File f = new File(object.getSaveDirectory(), makeSafeFileName(object.getName()) + ".yml");
 		if (!f.delete()) {
 			ChessCraftLogger.log(Level.WARNING, "Can't delete save file " + f);
 		}

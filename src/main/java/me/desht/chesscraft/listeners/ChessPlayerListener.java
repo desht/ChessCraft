@@ -17,12 +17,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -34,6 +36,7 @@ import chesspresso.move.IllegalMoveException;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
@@ -43,13 +46,24 @@ public class ChessPlayerListener implements Listener {
 	
 	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
 
+	private static final long MIN_ANIMATION_WAIT = 200; //milliseconds
+	
+	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
-
+		
 		Player player = event.getPlayer();
+
+		if (ChessCraft.expecter.isExpecting(player, ExpectInvitePlayer.class)) {
+			ChessCraft.expecter.cancelAction(player, ExpectInvitePlayer.class);
+			ChessUtils.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
+			event.setCancelled(true);
+			return;
+		}
 
 		try {
 			Block b = event.getClickedBlock();
@@ -96,6 +110,13 @@ public class ChessPlayerListener implements Listener {
 	public void onPlayerAnimation(PlayerAnimationEvent event) {
 		Player player = event.getPlayer();
 
+		// We seem to get multiple events very close together, leading to unwanted double actions sometimes.
+		// So ignore events that happen too soon after the last one for a player.
+		if (System.currentTimeMillis() - lastAnimationEvent(player) < MIN_ANIMATION_WAIT) {
+			return;
+		}
+		lastAnimation.put(player.getName(), System.currentTimeMillis());
+		
 		Block targetBlock = null;
 
 		try {
@@ -189,6 +210,21 @@ public class ChessPlayerListener implements Listener {
 		}
 	}
 	
+	@EventHandler(priority=EventPriority.HIGH)
+	public void onPlayerChat(PlayerChatEvent event) {
+		Player player = event.getPlayer();
+		if (ChessCraft.expecter.isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
+			try {
+				ExpectInvitePlayer ip = (ExpectInvitePlayer) ChessCraft.expecter.getAction(player, ExpectInvitePlayer.class);
+				ip.setInviteeName(event.getMessage());
+				event.setCancelled(true);
+				ChessCraft.expecter.handleAction(player, ip.getClass());
+			} catch (ChessException e) {
+				ChessUtils.errorMessage(player, e.getMessage());
+			}
+		}
+	}
+	
 	private void cancelMove(Location loc) {
 		BoardView bv = BoardView.onChessBoard(loc);
 		if (bv == null) {
@@ -258,6 +294,13 @@ public class ChessPlayerListener implements Listener {
 		list.add(name);
 		list.add(style);
 		expecting.put(p.getName(), list);
+	}
+
+	private long lastAnimationEvent(Player player) {
+		if (!lastAnimation.containsKey(player.getName())) {
+			lastAnimation.put(player.getName(), 0L);
+		}
+		return lastAnimation.get(player.getName());
 	}
 
 

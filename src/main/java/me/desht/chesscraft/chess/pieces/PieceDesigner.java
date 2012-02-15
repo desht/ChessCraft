@@ -52,7 +52,7 @@ public class PieceDesigner {
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
 			// get the bounding box for the materials in this square
 			Cuboid c = getPieceBox(p);
-			System.out.println("piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
+//			System.out.println("piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
 			templates[p] = new ChessPieceTemplate(c.getSizeX(), c.getSizeY(), c.getSizeZ());
 
 			// scan the cuboid and use the contents to populate the new template
@@ -99,7 +99,7 @@ public class PieceDesigner {
 				MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
 				if (reverseMap.containsKey(mat.toString())) {
 					MaterialWithData mat2 = MaterialWithData.get(b2.getTypeId(), b2.getData());
-					System.out.println("insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
+//					System.out.println("insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					blackMap.put(reverseMap.get(mat.toString()), mat2);
 				}
 			}
@@ -128,13 +128,13 @@ public class PieceDesigner {
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			bounding = c.getBoundingCuboid(bounding);
 			ChessStone whiteStone = chessSet.getStone(p, Chess.WHITE, view.getDirection());
-			System.out.println("stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
-			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone);
+//			System.out.println("stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
+			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
 		}
 
 		addMapBlocks(chessSet.getWhiteToBlack());
 
-		bounding.initLighting();
+		bounding.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 		bounding.sendClientChanges();
 	}
 
@@ -176,12 +176,17 @@ public class PieceDesigner {
 		Cuboid bounding = null;
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 5; col++) {
-				Cuboid c = view.getChessBoard().getPieceRegion(row, col);
-				c.clear(true);
-				bounding = c.getBoundingCuboid(bounding);
+				view.getChessBoard().paintChessPiece(row, col, Chess.NO_STONE);
+//				Cuboid c = view.getChessBoard().getPieceRegion(row, col);
+//				c.clear(true);
+//				bounding = c.getBoundingCuboid(bounding);
 			}
 		}
-		bounding.initLighting();
+//		bounding.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
+		
+		// force an update for all squares in the box A1-E2
+		bounding = view.getChessBoard().getPieceRegion(0, 0);
+		bounding = bounding.getBoundingCuboid(view.getChessBoard().getPieceRegion(1, 4));
 		bounding.sendClientChanges();
 
 		chessSet = null;

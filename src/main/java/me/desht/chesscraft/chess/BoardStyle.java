@@ -26,15 +26,15 @@ public class BoardStyle {
 	public static final int MIN_HEIGHT = 3, MIN_FRAMEWIDTH = 2, MIN_SQUARESIZE = 1;
 	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 20, MAX_SQUARESIZE = 20;
 	
-	int frameWidth, squareSize, height;
-	MaterialWithData blackSquareMat, whiteSquareMat;
-	MaterialWithData enclosureMat, frameMat, controlPanelMat;
-	MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
-	MaterialWithData strutsMat;
-	HighlightStyle highlightStyle;
-	int lightLevel;
-	String styleName;
-	String pieceStyleName;
+	private int frameWidth, squareSize, height;
+	private MaterialWithData blackSquareMat, whiteSquareMat;
+	private MaterialWithData enclosureMat, frameMat, controlPanelMat;
+	private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
+	private MaterialWithData strutsMat;
+	private HighlightStyle highlightStyle;
+	private int lightLevel;
+	private String styleName;
+	private String pieceStyleName;
 
 	// protected - have to use BoardStyle.loadNewStyle to get a new one..
 	protected BoardStyle() {
@@ -189,11 +189,9 @@ public class BoardStyle {
 	}
 	
 	public void saveStyle(String newStyleName) throws ChessException {
-		File f = new File(ChessConfig.getBoardStyleDirectory(), "custom" + File.separator + newStyleName.toLowerCase() + ".yml");
-		
-		// TODO: disallow overwriting a built-in style name?
-		
-		// It would be nice to use the configuration API to save this, but I want comments
+		File f = ChessConfig.getResourceFile(ChessConfig.getBoardStyleDirectory(), newStyleName, true);
+
+		// It would be nice to use the configuration API to save this, but I want comments!
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(f));
 			out.write("# Chess board style definition\n\n");

@@ -15,6 +15,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.inventory.Inventory;
 import me.desht.chesscraft.blocks.BlockType;
@@ -22,6 +23,7 @@ import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import net.minecraft.server.ChunkCoordIntPair;
 import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.EnumSkyBlock;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
@@ -82,9 +84,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return
 	 */
 	public Location getCenter() {
-		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()),
-		                    getLowerY() + (getUpperY() - getLowerY()),
-		                    getLowerZ() + (getUpperZ() - getLowerZ()));
+		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()) / 2,
+		                    getLowerY() + (getUpperY() - getLowerY()) / 2,
+		                    getLowerZ() + (getUpperZ() - getLowerZ()) / 2);
 	}
 
 	/**
@@ -539,6 +541,20 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			((CraftChunk)c).getHandle().initLighting();
 			//			System.out.println("chunk " + c + ": relighted"); 
 		}
+	}
+	
+	public void forceLightLevel(int level) {
+//		long start = System.nanoTime();
+		net.minecraft.server.World w = ((CraftWorld) getWorld()).getHandle();
+		for (int x = getLowerX(); x < getUpperX(); x++) {
+			for (int z = getLowerZ(); z < getUpperZ(); z++) {
+				for (int y = getLowerY(); y < getUpperY(); y++) {
+					w.a(EnumSkyBlock.BLOCK, x, y, z, level);			
+				}
+			}
+		}
+		sendClientChanges();
+//		ChessCraftLogger.info("relit " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
 
 	/**
