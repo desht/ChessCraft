@@ -1,7 +1,7 @@
 // $Id$
 /*
- * CraftBook
- * Copyright (C) 2010 sk89q <http://www.sk89q.com>
+ * WorldEdit
+ * Copyright (C) 2010 sk89q <http://www.sk89q.com> and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
 //package com.sk89q.worldedit.blocks;
 package me.desht.chesscraft.blocks;
 
@@ -24,7 +25,7 @@ package me.desht.chesscraft.blocks;
  * 
  * @author sk89q
  */
-public final class BlockID {    
+public final class BlockID {
     public static final int AIR = 0;
     public static final int STONE = 1;
     public static final int GRASS = 2;
@@ -123,4 +124,30 @@ public final class BlockID {
     public static final int REDSTONE_REPEATER_ON = 94;
     public static final int LOCKED_CHEST = 95;
     public static final int TRAP_DOOR = 96;
+    public static final int SILVERFISH_BLOCK = 97;
+    public static final int STONE_BRICK = 98;
+    public static final int BROWN_MUSHROOM_CAP = 99;
+    public static final int RED_MUSHROOM_CAP = 100;
+    public static final int IRON_BARS = 101;
+    public static final int GLASS_PANE = 102;
+    public static final int MELON_BLOCK = 103;
+    public static final int PUMPKIN_STEM = 104;
+    public static final int MELON_STEM = 105;
+    public static final int VINE = 106;
+    public static final int FENCE_GATE = 107;
+    public static final int BRICK_STAIRS = 108;
+    public static final int STONE_BRICK_STAIRS = 109;
+    public static final int MYCELIUM = 110;
+    public static final int LILY_PAD = 111;
+    public static final int NETHER_BRICK = 112;
+    public static final int NETHER_BRICK_FENCE = 113;
+    public static final int NETHER_BRICK_STAIRS = 114;
+    public static final int NETHER_WART = 115;
+    public static final int ENCHANTMENT_TABLE = 116;
+    public static final int BREWING_STAND = 117;
+    public static final int CAULDRON = 118;
+    public static final int END_PORTAL = 119;
+    public static final int END_PORTAL_FRAME = 120;
+    public static final int END_STONE = 121;
+    public static final int DRAGON_EGG = 122;
 }

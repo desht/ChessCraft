@@ -204,7 +204,8 @@ public class MaterialWithData implements Cloneable {
 			break;
 		case 180:
 			newData = (byte) BlockData.rotate90(material, data);
-			// 180 does twice, so don't break
+			newData = (byte) BlockData.rotate90(material, newData);
+			break;
 		case 90:
 			newData = (byte) BlockData.rotate90(material, data);
 		}
