@@ -146,8 +146,8 @@ public class ControlPanel {
 		createSignButton(1, 0, WHITE_NO, offerw + Messages.getString("ControlPanel.noBtn"), signMat, !offerw.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 		Player pb = game == null ? null : Bukkit.getServer().getPlayer(game.getPlayerBlack());
 		String offerb = getOfferText(pb);
-		createSignButton(6, 0, BLACK_YES, offerb + ";;Yes", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(7, 0, BLACK_NO, offerb + ";;No", signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(6, 0, BLACK_YES, offerb + Messages.getString("ControlPanel.yesBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(7, 0, BLACK_NO, offerb + Messages.getString("ControlPanel.noBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
