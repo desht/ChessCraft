@@ -51,11 +51,11 @@ import org.bukkit.entity.Player;
 
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
-	
+
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
-	
+
 	private ChessGame game = null;			// null indicates board not currently used by any game
 
 	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
@@ -72,23 +72,23 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		controlPanel = new ControlPanel(this);
 
 	}
-	
+
 	public BoardView(ConfigurationSection conf) throws ChessException {
 		@SuppressWarnings("unchecked")
 		List<Object> origin = conf.getList("origin"); //$NON-NLS-1$
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
 		BoardOrientation dir = BoardOrientation.get(conf.getString("direction")); //$NON-NLS-1$
-		
+
 		Location where = ChessPersistence.thawLocation(origin);
-		
+
 		this.name = conf.getString("name"); //$NON-NLS-1$
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
-		
+
 		String designerName = conf.getString("designer");
 		if (designerName != null && !designerName.isEmpty()) {
 			setDesigner(new PieceDesigner(this, designerName));
@@ -114,16 +114,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public static BoardView deserialize(Map<String, Object> map) throws ChessException {
 		Configuration conf = new MemoryConfiguration();
-		
+
 		for (Entry<String, Object> e : map.entrySet()) {
 			if (!conf.contains(e.getKey())) {
 				conf.set(e.getKey(), e.getValue());
 			}
 		}
-		
+
 		return new BoardView(conf);
 	}
-	
+
 	public void save() {
 		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
@@ -141,7 +141,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public ChessBoard getChessBoard() {
 		return chessBoard;
 	}
-	
+
 	public File getSaveDirectory() {
 		return ChessConfig.getBoardPersistDirectory();
 	}
@@ -159,29 +159,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void setGame(ChessGame game) {
-			this.game = game;
-			if (game != null) {
-				game.getPosition().addPositionListener(this);
-				game.getPosition().addPositionChangeListener(this);
-//				for (int row = 0; row < Chess.NUM_OF_ROWS; row++) {
-//					for (int col = 0; col < Chess.NUM_OF_COLS; col++) {
-//						chessBoard.paintChessPiece(row, col, game.getPosition().getStone(Chess.coorToSqi(col, row)));
-//					}
-//				}
-			} else {
-				chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
-				chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
+		this.game = game;
+		if (game != null) {
+			game.getPosition().addPositionListener(this);
+			game.getPosition().addPositionChangeListener(this);
+			Move lastMove = game.getPosition().getLastMove();
+			if (lastMove != null) {
+				chessBoard.highlightSquares(lastMove.getFromSqi(), lastMove.getToSqi());
 			}
-			chessBoard.getFullBoard().sendClientChanges();
-	//		paintAll();
-	//		chessBoard.highlightSquares(-1, -1);
-			controlPanel.repaintSignButtons();
+		} else {
+			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
+			chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
 		}
+		chessBoard.getFullBoard().sendClientChanges();
+		controlPanel.repaintSignButtons();
+	}
 
 	public Location getA1Square() {
 		return chessBoard.getA1Corner();
 	}
-	
+
 	public ControlPanel getControlPanel() {
 		return controlPanel;
 	}
@@ -274,7 +271,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	//--------------------- Chesspresso PositionListener impl. --------------------------------
-	
+
 	@Override
 	public void castlesChanged(int castles) {
 		// Ignored
@@ -316,7 +313,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	//-----------------Chesspresso PositionChangeListener impl. ----------------------
-	
+
 	@Override
 	public void notifyPositionChanged(ImmutablePosition position) {
 		// Ignored
@@ -326,16 +323,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public void notifyMoveDone(ImmutablePosition position, short move) {
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
-	
+
 		if (Move.isCapturing(move) && ChessConfig.getConfig().getBoolean("effects.capture_explosion")) {
 			Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
 			chessBoard.getA1Center().getWorld().createExplosion(loc, 0.0f);
 		}
-		
-//		paintStoneAt(toSqi, position.getStone(toSqi));
-//		paintStoneAt(fromSqi, Chess.NO_STONE);
+
+		//		paintStoneAt(toSqi, position.getStone(toSqi));
+		//		paintStoneAt(fromSqi, Chess.NO_STONE);
 		pieceRidingCheck(fromSqi, toSqi);
-		
+
 		chessBoard.highlightSquares(fromSqi, toSqi);
 	}
 
@@ -345,7 +342,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	// -------------------------------------------------------------------------------
-	
+
 	/**
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
@@ -424,7 +421,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public boolean canDesignHere(Player player, Location location) {
 		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer"))
 			return false;
-		
+
 		int sqi = chessBoard.getSquareAt(location);
 		return Chess.sqiToCol(sqi) < 5 && Chess.sqiToCol(sqi) >= 0 && Chess.sqiToRow(sqi) < 2 && Chess.sqiToRow(sqi) >= 0;
 	}
@@ -441,7 +438,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		deleteCommon(true, p);
 		ChessCraft.getInstance().getPersistenceHandler().unpersist(this);
 	}
-	
+
 	private void deleteCommon(boolean deleteBlocks, Player p) {
 		if (deleteBlocks) {
 			restoreTerrain(p);
@@ -451,12 +448,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	private void restoreTerrain(Player player) {
 		boolean restored = false;
-		
+
 		if (ChessCraft.getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
 			restored = TerrainBackup.reload(player, this);
 		}
-		
+
 		if (!restored) {
 			// we couldn't restore the original terrain - just set the board to air
 			chessBoard.clearAll();
@@ -499,7 +496,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		notes.add(new Note(16));
 		audibleAlert(playerName, notes);
 	}
-	
+
 	public void audibleAlert(String playerName, List<Note> notes) {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
@@ -515,20 +512,20 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
 		Cuboid bounds = getOuterBounds();
 		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
-	
+
 		MessagePager pager = MessagePager.getPager(player).clear();
 		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
-		                                                      ChessUtils.formatLoc(bounds.getLowerNE()),
-		                                                      ChessUtils.formatLoc(bounds.getUpperSW())));
+		                                      ChessUtils.formatLoc(bounds.getLowerNE()),
+		                                      ChessUtils.formatLoc(bounds.getUpperSW())));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
-		                                                      getWhiteSquareMaterial(), getBlackSquareMaterial()));
+		                                      getWhiteSquareMaterial(), getBlackSquareMaterial()));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
-		                                                      getFrameMaterial()));
+		                                      getFrameMaterial()));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
@@ -537,12 +534,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (chessBoard.getDesigner() != null) {
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
-		
+
 		pager.showPage();
 	}
 
 	/*----------------------static methods--------------------------------------*/
-	
+
 	public static String makeBoardName() {
 		String res;
 		int n = 1;
@@ -552,7 +549,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		return res;
 	}
-	
+
 	public static void addBoardView(String name, BoardView view) {
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardCreated(view);
@@ -673,7 +670,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		return null;
 	}
-	
+
 	/**
 	 * match if loc is above a board square but below the roof
 	 * 
@@ -708,7 +705,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public static void teleportOut(Player player) throws ChessException {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
-		
+
 		BoardView bv = partOfChessBoard(player.getLocation());
 		Location prev = ChessCraft.getInstance().getLastPos(player);
 		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
