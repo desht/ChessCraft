@@ -38,7 +38,7 @@ ChessCommandExecutor:
     frameWidth: "Frame width: &f{0,number,integer} ({1})"
     game: "Game: &f{0}"
     height: "Height: &f{0,number,integer}"
-    lightLevel: "Light level: &f{0}"
+    lightLevel: "Light level: &f{0,number,integer}"
     boardExtents: "Board Extents: &f{0} - {1}"
     pieceStyle: "Piece Style: &f{0}"
     squareSize: "Square size: &f{0,number,integer} ({1}/{2})"

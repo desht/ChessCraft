@@ -42,6 +42,7 @@ ChessCommandExecutor:
     squareSize: 'Feldgroesse: &f{0,number,integer} ({1}/{2})'
     struts: 'Einfassungsgestaenge: &f{0}'
     boardOrientation: 'Brettorientierung: &f{0}'
+    lightLevel: 'Lichtstaerke: &f{0,number,integer}'
   boardList: '&6{0}&-: loc=&f{1}&- Stil=&6{2}&- Spiel=&6{3}&-'
   boardRedrawn: Brett &6{0}&- wurde neu entworfen.
   boardStyleChanged: Brett &6{0}&- Stil wurde geaendert.  Benutze &f/chess board save <neuer-name>&- um die Aenderungen zu speichern.
@@ -52,6 +53,7 @@ ChessCommandExecutor:
   chessSaved: Schachbretter und Spiele wurden gespeichert.
   configKeySet: '{0} ist nun gesetzt zu: {1}'
   configReloaded: Konfiguration (config.yml) wurde neu geladen
+  designMode:  'Brett ist im Entwurfsmodus (set &6{0}&-)'
   drawOfferedOther: '&6{0}&- bietet ein Unentschieden an.'
   drawOfferedYou: Du bietest &6{0}&- ein Unentschieden an.
   gameCreated:
