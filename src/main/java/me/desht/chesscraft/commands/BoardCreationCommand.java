@@ -24,6 +24,11 @@ public class BoardCreationCommand extends AbstractCommand {
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 
 		String name = args[0];
+		if (name.startsWith("-")) {
+			showUsage(player);
+			return true;
+		}
+		
 		Map<String, String> options = parseCommandOptions(args, 1);
 
 		String boardStyleName = options.get("style"); //$NON-NLS-1$

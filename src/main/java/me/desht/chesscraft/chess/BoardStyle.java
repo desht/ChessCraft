@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
@@ -22,7 +23,8 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BoardStyle {
-
+	public static final String DEFAULT_BOARD_STYLE = "standard";
+	
 	public static final int MIN_HEIGHT = 3, MIN_FRAMEWIDTH = 2, MIN_SQUARESIZE = 1;
 	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 20, MAX_SQUARESIZE = 20;
 	
@@ -235,8 +237,11 @@ public class BoardStyle {
 			throw new ChessException(e.getMessage());
 		}
 	}
-
-	public static BoardStyle loadNewStyle(String boardStyle) throws ChessException {
+	
+	public static BoardStyle loadStyle(String boardStyle) throws ChessException {
+		if (boardStyle == null) {
+			boardStyle = DEFAULT_BOARD_STYLE;
+		}
 		File f = ChessConfig.getResourceFile(ChessConfig.getBoardStyleDirectory(), boardStyle);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
@@ -244,9 +249,7 @@ public class BoardStyle {
 		for (String k : new String[] {
 				"square_size", "frame_width", "height",
 				"black_square", "white_square", "frame", "enclosure"}) {
-			if (!c.contains(k)) {
-				throw new ChessException("board style is missing required field '" + k + "'");
-			}
+			ChessPersistence.requireSection(c, k);
 		}
 		if (!c.contains("lit") && !c.contains("light_level")) {
 			throw new ChessException("board style must have at least one of 'lit' or 'light_level'");
@@ -282,9 +285,16 @@ public class BoardStyle {
 		return style;
 	}
 	
+	/**
+	 * Ensure the given piece style will fit on the given board style.
+	 * 
+	 * @param boardStyleName	name of the board style
+	 * @param pieceStyleName	name of the piece style (null means to use board's default piece style)
+	 * @throws ChessException	if the piece style will not fit
+	 */
 	public static void verifyCompatibility(String boardStyleName, String pieceStyleName) throws ChessException {
-		BoardStyle b = BoardStyle.loadNewStyle(boardStyleName);
-		ChessSet cs = ChessSet.getChessSet(pieceStyleName);
+		BoardStyle b = BoardStyle.loadStyle(boardStyleName);
+		ChessSet cs = ChessSet.getChessSet(pieceStyleName == null ? b.getPieceStyleName() : pieceStyleName);
 		b.verifyCompatibility(cs);
 	}
 }

@@ -543,6 +543,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/*----------------------static methods--------------------------------------*/
 	
+	public static String makeBoardName() {
+		String res;
+		int n = 1;
+		do {
+			res = "board-" + n++; //$NON-NLS-1$
+		} while (BoardView.boardViewExists(res));
+
+		return res;
+	}
+	
 	public static void addBoardView(String name, BoardView view) {
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.boardCreated(view);
@@ -637,7 +647,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 */
 	public static BoardView getFreeBoard() throws ChessException {
 		for (BoardView bv : listBoardViews()) {
-			if (bv.getGame() == null) {
+			if (bv.getGame() == null && !bv.isDesigning()) {
 				return bv;
 			}
 		}
