@@ -30,9 +30,6 @@ import org.bukkit.block.Block;
 
 public class ChessBoard {
 
-	public static final String DEFAULT_PIECE_STYLE = "standard";
-	public static final String DEFAULT_BOARD_STYLE = "standard";
-
 	// the center of the A1 square (lower-left on the board)
 	private final Location a1Center;
 	// the lower-left-most part (outer corner) of the a1 square (depends on rotation)
@@ -108,11 +105,11 @@ public class ChessBoard {
 		case NORTH:
 			h8.add(-size * 8 + 1, 0, -size * 8 + 1); break;
 		case EAST:
-			h8.add(size * 8 + 1, 0, -size * 8 + 1); break;
+			h8.add(size * 8 - 1, 0, -size * 8 + 1); break;
 		case SOUTH:
-			h8.add(size * 8 + 1, 0, size * 8 + 1); break;
+			h8.add(size * 8 - 1, 0, size * 8 - 1); break;
 		case WEST:
-			h8.add(-size * 8 + 1, 0, size * 8 + 1); break;
+			h8.add(-size * 8 + 1, 0, size * 8 - 1); break;
 		}
 		return h8;
 	}
@@ -239,7 +236,7 @@ public class ChessBoard {
 	}
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
-		BoardStyle newStyle = BoardStyle.loadNewStyle(boardStyleName == null ? DEFAULT_BOARD_STYLE : boardStyleName);
+		BoardStyle newStyle = BoardStyle.loadStyle(boardStyleName);
 
 		// We don't allow any changes to the board's dimensions, only changes to
 		// the appearance of the board.
