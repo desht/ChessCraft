@@ -17,8 +17,8 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -57,7 +57,7 @@ public class TerrainBackup {
 		editSession = localSession.createEditSession(localPlayer);
 
 		try {
-			saveFile = we.getSafeSaveFile(localPlayer, ChessConfig.getSchematicsDirectory(), view.getName(),
+			saveFile = we.getSafeSaveFile(localPlayer, DirectoryStructure.getSchematicsDirectory(), view.getName(),
 					"schematic", new String[] { "schematic" }); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (FilenameException ex) {
 			ChessCraftLogger.log(Level.WARNING, ex.getMessage());

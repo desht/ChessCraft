@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.desht.chesscraft.log.ChessCraftLogger;
+
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import com.google.common.base.Joiner;
@@ -183,8 +185,8 @@ public class TimeControl implements ConfigurationSerializable {
 			break;
 		case ROLLOVER:
 			rolloverMovesMade++;
-//			System.out.println("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
-//			System.out.println("need " + rollovers.get(rolloverPhase).getMoves());
+			ChessCraftLogger.fine("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
+			ChessCraftLogger.fine("need " + rollovers.get(rolloverPhase).getMoves());
 			if (rolloverMovesMade == rollovers.get(rolloverPhase).getMoves()) {
 				rolloverMovesMade = 0;
 				rolloverPhase = (rolloverPhase + 1) % rollovers.size();

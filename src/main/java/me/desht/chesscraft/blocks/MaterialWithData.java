@@ -3,6 +3,7 @@ package me.desht.chesscraft.blocks;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -39,35 +40,29 @@ public class MaterialWithData implements Cloneable {
 		String[] matAndText = string.split("=");
 		String[] matAndData = matAndText[0].split(":");
 
+		ChessCraftLogger.finest("MaterialWithData constructor: " + string);
 		metadata = matAndText.length > 1 ? makeText(matAndText[1]) : null;
 
 		if (matAndData[0].matches("^[0-9]+$")) {
 			material = Integer.parseInt(matAndData[0]);
 		} else {
-			Material m = Material.matchMaterial(matAndData[0].toUpperCase());
-			if (m == null) {
-				throw new IllegalArgumentException("unknown material " + matAndData[0]);
-			}
-			material = m.getId();
-//			BlockType b = BlockType.lookup(matAndData[0], true);
-//			material = b.getID();
+			BlockType b = BlockType.lookup(matAndData[0], true);
+			material = b.getID();
 		}
 		if (matAndData.length < 2) {
 			data = 0;
-			return;
-		}
-
-		if (matAndData[1].matches("^[0-9]+$")) {
-			data = Byte.parseByte(matAndData[1]);
-		} else if (material == 35) { // wool
-			DyeColor d = DyeColor.valueOf(matAndData[1].toUpperCase());
-			if (d == null) {
-				throw new IllegalArgumentException("unknown dye colour " + matAndData[0]);
-			}
-			data = d.getData();
 		} else {
-			data = 0;
-			throw new IllegalArgumentException("invalid data specification " + matAndData[1]);
+			if (matAndData[1].matches("^[0-9]+$")) {
+				data = Byte.parseByte(matAndData[1]);
+			} else if (material == BlockType.CLOTH.getID()) {
+				ClothColor cc = ClothColor.lookup(matAndData[1]);
+				if (cc == null) {
+					throw new IllegalArgumentException("unknown dye colour " + matAndData[0]);
+				}
+				data = (byte) cc.getID();
+			} else {
+				throw new IllegalArgumentException("invalid data specification " + matAndData[1]);
+			}
 		}
 	}
 

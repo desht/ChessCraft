@@ -58,6 +58,7 @@ public class ChessPlayerListener implements Listener {
 		
 		Player player = event.getPlayer();
 
+		// a left or right-click cancels any pending player invite response
 		if (ChessCraft.expecter.isExpecting(player, ExpectInvitePlayer.class)) {
 			ChessCraft.expecter.cancelAction(player, ExpectInvitePlayer.class);
 			ChessUtils.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
@@ -84,8 +85,7 @@ public class ChessPlayerListener implements Listener {
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.expecter.getAction(player,
-							ExpectBoardCreation.class);
+					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.expecter.getAction(player,	ExpectBoardCreation.class);
 					a.setLocation(b.getLocation());
 					ChessCraft.expecter.handleAction(player, ExpectBoardCreation.class);
 					event.setCancelled(true);

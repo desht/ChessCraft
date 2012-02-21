@@ -21,7 +21,7 @@ public class SetcfgCommand extends AbstractCommand {
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		String key = args[0];
 		String val = args[1];
-		ChessConfig.setConfigItem(player, key, val);
+		ChessConfig.setPluginConfiguration(key, val);
 
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfig().get(key))); //$NON-NLS-1$
 

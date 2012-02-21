@@ -101,8 +101,10 @@ public class ChessCraft extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		PluginDescriptionFile description = this.getDescription();
+		ChessCraftLogger.init();
+		ChessConfig.init();
+		DirectoryStructure.setup();
 		util = new ChessUtils();
-		ChessConfig.init(this);
 
 		playerListener = new ChessPlayerListener();
 		blockListener = new ChessBlockListener();
@@ -133,7 +135,7 @@ public class ChessCraft extends JavaPlugin {
 			SMSIntegration.createMenus();
 		}
 
-		ChessCraftLogger.log("Version " + description.getVersion() + " is enabled!");
+		ChessCraftLogger.info("Version " + description.getVersion() + " is enabled!");
 	}
 
 	@Override
@@ -158,7 +160,7 @@ public class ChessCraft extends JavaPlugin {
 		smsPlugin = null;
 		worldEditPlugin = null;
 		
-		ChessCraftLogger.log("disabled!");
+		ChessCraftLogger.info("disabled!");
 	}
 
 	@Override

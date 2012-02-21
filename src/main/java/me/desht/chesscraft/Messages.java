@@ -20,7 +20,7 @@ public class Messages {
 
 	public static void init() throws IOException {
 		if (fallbackMessages == null) {
-			File langDir = ChessConfig.getLanguagesDirectory();
+			File langDir = DirectoryStructure.getLanguagesDirectory();
 			File def = new File(langDir, "default.yml");
 			fallbackMessages = checkUpToDate(locateMessageFile(def));
 		}
@@ -28,16 +28,16 @@ public class Messages {
 	}
 
 	public static void loadMessages() throws IOException {
-		File langDir = ChessConfig.getLanguagesDirectory();
+		File langDir = DirectoryStructure.getLanguagesDirectory();
 		String locale = ChessConfig.getConfig().getString("locale", "default").toLowerCase();
 		File wanted = new File(langDir, locale + ".yml");
 
-		if (wanted.isFile() && wanted.lastModified() > ChessConfig.getJarFile().lastModified()) {
+		if (wanted.isFile() && wanted.lastModified() > DirectoryStructure.getJarFile().lastModified()) {
 			// file exists on disk and is newer than the JAR
 			messages = checkUpToDate(wanted);
 		} else if (!wanted.isFile()) {
 			// file does not exist on disk, attempt to extract from the JAR
-			ChessConfig.extractResource("/datafiles/lang/" + wanted.getName(), langDir, true);
+			DirectoryStructure.extractResource("/datafiles/lang/" + wanted.getName(), langDir, true);
 			if (wanted.isFile()) {
 				messages = YamlConfiguration.loadConfiguration(wanted);
 			} else {
@@ -66,11 +66,11 @@ public class Messages {
 	 * @throws IOException 
 	 */
 	private static Configuration checkUpToDate(File f) throws IOException {
-		File langDir = ChessConfig.getLanguagesDirectory();
+		File langDir = DirectoryStructure.getLanguagesDirectory();
 
 		// extract the shipped file to a temporary file
 		File tmpFile = File.createTempFile("msg", ".tmp", langDir);
-		ChessConfig.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
+		DirectoryStructure.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
 
 		// load the temporary file into a temp configuration object
 		Configuration tmpCfg = YamlConfiguration.loadConfiguration(tmpFile);

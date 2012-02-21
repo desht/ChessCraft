@@ -21,14 +21,14 @@ public class GetcfgCommand extends AbstractCommand {
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		if (args.length < 1) {
 			MessagePager pager = MessagePager.getPager(player).clear();
-			for (String line : ChessConfig.getConfigList()) {
+			for (String line : ChessConfig.getPluginConfiguration()) {
 				pager.add(line);
 			}
 			pager.showPage();
 		} else {
 			String res = plugin.getConfig().getString(args[0]);
 			if (res != null) {
-				ChessUtils.statusMessage(player, args[0] + " = '" + res + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+				ChessUtils.statusMessage(player, "&f" + args[0] + " = '&e" + res + "&-'"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[0])); //$NON-NLS-1$
 			}

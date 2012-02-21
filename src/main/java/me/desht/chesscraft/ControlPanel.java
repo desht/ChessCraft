@@ -90,7 +90,6 @@ public class ControlPanel {
 
 	public void repaint() {
 		panelBlocks.set(view.getControlPanelMaterial(), true);
-//		panelBlocks.initLighting();
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
 		ChessGame game = view.getGame();
@@ -177,9 +176,9 @@ public class ControlPanel {
 	}
 
 	private Location getSignLocation(int x, int y) {
-		int realX = signDir.getX(),
-				realY = panelBlocks.getLowerNE().getBlockY() + y,
-				realZ = signDir.getZ();
+		int realX = signDir.getX();
+		int realY = panelBlocks.getLowerNE().getBlockY() + y;
+		int realZ = signDir.getZ();
 
 		switch(signDir){
 		case NORTH:
@@ -199,7 +198,7 @@ public class ControlPanel {
 			realZ += panelBlocks.getLowerZ();
 			break;
 		}
-		return new Location(view.getA1Square().getWorld(), realX, realY, realZ);
+		return new Location(panelBlocks.getWorld(), realX, realY, realZ);
 	}
 
 	private void createSignButton(int x, int y, String name, String text, MaterialWithData m, boolean enabled) {
@@ -346,9 +345,7 @@ public class ControlPanel {
 	}
 
 	public void updateToMoveIndicator(MaterialWithData mat) {
-		for (Block b : toMoveIndicator) {
-			mat.applyToBlock(b);
-		}
+		toMoveIndicator.set(mat, false);
 	}
 
 	public void updatePlyCount(int playNumber) {
@@ -358,7 +355,6 @@ public class ControlPanel {
 			s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber)); //$NON-NLS-1$
 			s.update();
 		}
-
 	}
 
 	public void updateHalfMoveClock(int halfMoveClock) {
@@ -412,11 +408,8 @@ public class ControlPanel {
 		}
 	}
 
-	protected static Cuboid getBoardControlPanel(BoardView view) {
-
+	private static Cuboid getBoardControlPanel(BoardView view) {
 		BoardOrientation dir = view.getDirection();
-
-		//Cuboid bounds = view.getBounds();
 		Location a1 = view.getA1Square();
 
 		int x = a1.getBlockX(), y = a1.getBlockY() + 1, z = a1.getBlockZ();
@@ -446,10 +439,9 @@ public class ControlPanel {
 
 		Cuboid panel = new Cuboid(new Location(a1.getWorld(), x, y, z));
 		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
-
 	}
 
-	protected static byte getSignDir(BoardOrientation signDir){
+	private static byte getSignDir(BoardOrientation signDir) {
 		switch(signDir){
 		case NORTH:
 			return 4;

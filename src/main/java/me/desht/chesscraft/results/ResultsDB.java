@@ -11,7 +11,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ResultsDB {
@@ -23,7 +23,7 @@ public class ResultsDB {
 	ResultsDB() {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			File dbFile = new File(ChessConfig.getResultsDir(), "results.db");
+			File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 			setupTables();
 		} catch (ClassNotFoundException e) {

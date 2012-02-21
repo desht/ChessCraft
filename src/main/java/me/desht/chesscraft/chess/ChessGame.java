@@ -33,6 +33,7 @@ import chesspresso.position.Position;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 
@@ -233,7 +234,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	@Override
 	public File getSaveDirectory() {
-		return ChessConfig.getGamesPersistDirectory();
+		return DirectoryStructure.getGamesPersistDirectory();
 	}
 
 	/**
@@ -295,7 +296,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		// extra tags
 		cpg.setTag(PGN.TAG_FEN, Position.createInitialPosition().getFEN());
-		
 		return cpg;
 	}
 
@@ -769,10 +769,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return;
 
 		// the game continues...
-		String nextPlayer = getPlayerToMove();
+		getView().playMovedAlert(playerName);
+		String nextPlayer = getPlayerToMove();		
 		if (isAIPlayer(nextPlayer)) {
 			if (nextPlayer.equals(playerBlack) && isAIPlayer(playerWhite)) {
-				// ai vs ai
+				// AI vs. AI
 				aiPlayer2.userMove(fromSquare, toSquare);
 			} else {
 				aiPlayer.userMove(fromSquare, toSquare);
@@ -780,10 +781,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 			if (getPosition().isCheck()) {
-				if (ChessConfig.getConfig().getBoolean("effects.check_alert")) {
-					getView().playCheckAlert(nextPlayer);
-				}
+				getView().playCheckAlert(nextPlayer);
 				alert(nextPlayer, Messages.getString("Game.check"));
+			} else {
+				getView().playMovedAlert(nextPlayer);
 			}
 		}
 	}
@@ -1118,7 +1119,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		File f;
 		do {
 			//			f = new File(plugin.getDataFolder(), archiveDir + File.separator + baseName + "_" + n + ".pgn"); //$NON-NLS-1$ //$NON-NLS-2$
-			f = new File(ChessConfig.getPGNDirectory(), baseName + "_" + n + ".pgn"); //$NON-NLS-1$
+			f = new File(DirectoryStructure.getPGNDirectory(), baseName + "_" + n + ".pgn"); //$NON-NLS-1$
 			++n;
 		} while (f.exists());
 

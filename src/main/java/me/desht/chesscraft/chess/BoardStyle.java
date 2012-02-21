@@ -11,8 +11,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessPersistence;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
@@ -191,7 +191,7 @@ public class BoardStyle {
 	}
 	
 	public void saveStyle(String newStyleName) throws ChessException {
-		File f = ChessConfig.getResourceFile(ChessConfig.getBoardStyleDirectory(), newStyleName, true);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), newStyleName, true);
 
 		// It would be nice to use the configuration API to save this, but I want comments!
 		try {
@@ -242,7 +242,7 @@ public class BoardStyle {
 		if (boardStyle == null) {
 			boardStyle = DEFAULT_BOARD_STYLE;
 		}
-		File f = ChessConfig.getResourceFile(ChessConfig.getBoardStyleDirectory(), boardStyle);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), boardStyle);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 

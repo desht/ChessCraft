@@ -21,6 +21,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -114,7 +115,7 @@ public class ChessAI {
 	public static void initAI_Names() {
 		availableAI.clear();
 		try {
-			File aiFile = new File(ChessConfig.getPluginDirectory(), "AI_settings.yml"); //$NON-NLS-1$
+			File aiFile = new File(DirectoryStructure.getPluginDirectory(), "AI_settings.yml"); //$NON-NLS-1$
 			if (!aiFile.exists()) {
 				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found"); //$NON-NLS-1$
 				return;

@@ -274,7 +274,7 @@ public class StringUtil {
     }
 
     public static <T extends Enum<?>> T lookup(Map<String, T> lookup, String name, boolean fuzzy) {
-        String testName = name.replace("[ _]", "").toLowerCase();
+        String testName = name.replaceAll("[ _]", "").toLowerCase();
 
         T type = lookup.get(testName);
         if (type != null) {

@@ -11,54 +11,31 @@ import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Level;
 import me.desht.chesscraft.log.ChessCraftLogger;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.Duration;
 
 import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Player;
 
 /**
  * @author jacob
  */
 public class ChessConfig {
 
-	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
-	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir, 
-	dataDir, gamePersistDir, boardPersistDir, languagesDir, resultsDir;
-	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
-	private static final String boardStyleFoldername = "board_styles"; //$NON-NLS-1$
-	private static final String pieceStyleFoldername = "piece_styles"; //$NON-NLS-1$
-	private static final String schematicsFoldername = "schematics"; //$NON-NLS-1$
-	private static final String languageFoldername = "lang"; //$NON-NLS-1$
-	private static final String datasaveFoldername = "data"; //$NON-NLS-1$
-	private static final String gamesFoldername = "games"; //$NON-NLS-1$
-	private static final String boardsFoldername = "boards"; //$NON-NLS-1$
-	private static final String resultsFoldername = "results"; //$NON-NLS-1$
-	private static File persistFile;
-	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
-	private static ChessCraft plugin = null;
-
-	public static void init(ChessCraft chessplugin) {
-		plugin = chessplugin;
-		if (plugin != null) {
-			pluginDir = plugin.getDataFolder();
-		}
+	private static ChessCraft plugin;
+	
+	public static void init() {
+		ChessConfig.plugin = ChessCraft.getInstance();
 		
-		setupDirectoryStructure();
 		configFileInitialise();
-		extractResources();
 		
+		ChessCraftLogger.setLogLevel(getConfig().getString("log_level"));
+
 		try {
 			Messages.init();
 		} catch (IOException e) {
@@ -67,212 +44,11 @@ public class ChessConfig {
 
 		ChessAI.initAI_Names();
 	}
-
-	public static File getJarFile() {
-		return new File("plugins", "ChessCraft.jar");
-	}
 	
 	public static Configuration getConfig() {
 		return plugin.getConfig();
 	}
 
-	public static File getPluginDirectory() {
-		return pluginDir;
-	}
-
-	public static File getPGNDirectory() {
-		return pgnDir;
-	}
-
-	public static File getBoardStyleDirectory() {
-		return boardStyleDir;
-	}
-
-	public static File getPieceStyleDirectory() {
-		return pieceStyleDir;
-	}
-
-	public static File getSchematicsDirectory() {
-		return schematicsDir;
-	}
-
-	public static File getGamesPersistDirectory() {
-		return gamePersistDir;
-	}
-
-	public static File getBoardPersistDirectory() {
-		return boardPersistDir;
-	}
-
-	public static File getLanguagesDirectory() {
-		return languagesDir;
-	}
-
-	public static File getPersistFile() {
-		return persistFile;
-	}
-	
-	public static File getResultsDir() {
-		return resultsDir;
-	}
-
-	private static void setupDirectoryStructure() {
-		// directories
-		pgnDir = new File(pluginDir, pgnFoldername);
-		boardStyleDir = new File(pluginDir, boardStyleFoldername);
-		pieceStyleDir = new File(pluginDir, pieceStyleFoldername);
-		dataDir = new File(pluginDir, datasaveFoldername);
-		gamePersistDir = new File(dataDir, gamesFoldername);
-		boardPersistDir = new File(dataDir, boardsFoldername);
-		schematicsDir = new File(boardPersistDir, schematicsFoldername);
-		languagesDir = new File(pluginDir, languageFoldername);
-		resultsDir = new File(dataDir, resultsFoldername);
-
-		// files
-		persistFile = new File(dataDir, persistFilename);
-
-		// [plugins]/ChessCraft
-		createDir(pluginDir);
-		// [plugins]/ChessCraft/pgn
-		createDir(pgnDir);
-		// [plugins]/ChessCraft/lang
-		createDir(languagesDir);
-		// [plugins]/ChessCraft/board_styles
-		createDir(boardStyleDir);
-		createDir(new File(boardStyleDir, "custom"));
-		// [plugins]/ChessCraft/piece_styles
-		createDir(pieceStyleDir);
-		createDir(new File(pieceStyleDir, "custom"));
-		// [plugins]/ChessCraft/data
-		createDir(dataDir);
-		// [plugins]/ChessCraft/data/games
-		createDir(gamePersistDir);
-		// [plugins]/ChessCraft/data/boards
-		createDir(boardPersistDir);
-		// [plugins]/ChessCraft/data/results
-		createDir(resultsDir);
-
-		// saved board schematics may need to be moved into their new location
-		File oldSchematicsDir = new File(pluginDir, "schematics"); //$NON-NLS-1$
-		if (oldSchematicsDir.isDirectory()) {
-			if (!oldSchematicsDir.renameTo(schematicsDir)) {
-				ChessCraftLogger.log(Level.WARNING, "Can't move " + oldSchematicsDir + " to " + schematicsDir); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		} else {
-			// [plugins]/ChessCraft/data/boards/schematics
-			createDir(schematicsDir);
-		}
-	}
-	
-	private static void extractResources() {
-		extractResource("/AI_settings.yml", pluginDir); //$NON-NLS-1$
-
-		extractResource("/datafiles/board_styles/standard.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/open.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/large.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/small.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/huge.yml", boardStyleDir); //$NON-NLS-1$
-
-		extractResource("/datafiles/piece_styles/standard.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/small.yml", pieceStyleDir); //$NON-NLS-1$
-
-		// message resources no longer extracted here - this is now done by Messages.loadMessages()
-	}
-
-	private static void createDir(File dir) {
-		if (dir.isDirectory()) {
-			return;
-		}
-		if (!dir.mkdir()) {
-			ChessCraftLogger.log(Level.WARNING, "Can't make directory " + dir.getName()); //$NON-NLS-1$
-		}
-	}
-
-	private static void extractResource(String from, File toDir) {
-		extractResource(from, toDir, false);
-	}
-
-	static void extractResource(String from, File to, boolean force) {
-		File of = to;
-		if (to.isDirectory()) {
-			String fname = new File(from).getName();
-			of = new File(to, fname);
-		} else if (!of.isFile()) {
-			return;
-		}
-		
-		// if the file exists and is newer than the JAR, then we'll leave it alone
-		if (of.exists() && of.lastModified() > getJarFile().lastModified() && !force) {
-			return;
-		}
-
-		OutputStream out = null;
-		try {
-			// Got to jump through hoops to ensure we can still pull messages from a JAR
-			// file after it's been reloaded...
-			URL res = ChessCraft.class.getResource(from);
-			if (res == null) {
-				ChessCraftLogger.log(Level.WARNING, "can't find " + from + " in plugin JAR file"); //$NON-NLS-1$
-				return;
-			}
-			URLConnection resConn = res.openConnection();
-			resConn.setUseCaches(false);
-			InputStream in = resConn.getInputStream();
-
-			if (in == null) {
-				ChessCraftLogger.log(Level.WARNING, "can't get input stream from " + res); //$NON-NLS-1$
-			} else {
-				out = new FileOutputStream(of);
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = in.read(buf)) > 0) {
-					out.write(buf, 0, len);
-				}
-				in.close();
-				out.close();
-			}
-		} catch (Exception ex) {
-			ChessCraftLogger.log(Level.SEVERE, null, ex);
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (Exception ex) { //IOException
-				// ChessCraft.log(Level.SEVERE, null, ex);
-			}
-		}
-	}
-
-	/**
-	 * Find a YAML resource file in the given directory.  Look first in the custom/ subdirectory
-	 * and then in the directory itself.
-	 * 
-	 * @param dir
-	 * @param filename
-	 * @param saving
-	 * @return
-	 * @throws ChessException
-	 */
-	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
-		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
-		if (!f.canRead() && !saving) {
-			f = new File(dir, filename.toLowerCase() + ".yml");
-			if (!f.canRead()) {
-				throw new ChessException("resource file '" + filename + "' is not readable");
-			}
-		}
-		return f;
-	}
-	
-	public static File getResourceFile(File dir, String filename) throws ChessException {
-		return getResourceFile(dir, filename, false);
-	}
-	
 	/**
 	 * Load the existing config file (config.yml) and see if there are any items
 	 * in configDefaults which are not in the file. If so, update the config
@@ -280,26 +56,21 @@ public class ChessConfig {
 	 * re-write the file.
 	 */
 	private static void configFileInitialise() {
-		Boolean saveNeeded = false;
-
 		plugin.getConfig().options().copyDefaults(true);
 		Configuration config = plugin.getConfig();
-
-		for (String k : config.getDefaults().getKeys(true)) {
-			if (!config.contains(k)) {
-				saveNeeded = true;
-			}
-		}
 		
 		String currentVersion = plugin.getDescription().getVersion();
 		if (currentVersion != null && !config.getString("version").equals(currentVersion)) {
 			versionChanged(config.getString("version"), currentVersion);
-			setConfigItem(null, "version", currentVersion);
-			saveNeeded = true;
+			try {
+				setConfigItem(config, "version", currentVersion);
+			} catch (ChessException e) {
+				// shouldn't ever get here...
+				ChessCraftLogger.severe("Can't update version in configuration file", e);
+			}
 		}
-		if (saveNeeded) {
-			plugin.saveConfig();
-		}
+		
+		plugin.saveConfig();
 	}
 
 	/**
@@ -313,8 +84,8 @@ public class ChessConfig {
 		int rel2 = getRelease(currentVersion);
 		if (rel1 < 5000 && rel2 >= 5000) {
 			// remove old upper-cased style files
-			new File(pieceStyleDir, "Standard.yml").delete();
-			new File(boardStyleDir, "Standard.yml").delete();
+			new File(DirectoryStructure.getPieceStyleDirectory(), "Standard.yml").delete();
+			new File(DirectoryStructure.getBoardStyleDirectory(), "Standard.yml").delete();
 		}
 	}
 
@@ -349,6 +120,18 @@ public class ChessConfig {
 		}
 	}
 
+	public static List<String> getPluginConfiguration() {
+		ArrayList<String> res = new ArrayList<String>();
+		Configuration config = getConfig();
+		for (String k : config.getDefaults().getKeys(true)) {
+			if (config.isConfigurationSection(k))
+				continue;
+			res.add("&f" + k + "&- = '&e" + config.get(k) + "&-'");
+		}
+		Collections.sort(res);
+		return res;
+	}
+	
 	/**
 	 * @return a sorted list of all config keys
 	 */
@@ -363,50 +146,8 @@ public class ChessConfig {
 		return res;
 	}
 
-	public static void setConfigItem(Player player, String key, String val) {
-		Configuration config = plugin.getConfig();
-		Configuration configDefaults = config.getDefaults();
-		
-		if (!configDefaults.contains(key)) {
-			ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", key)); //$NON-NLS-1$
-			ChessUtils.errorMessage(player, "Use '/chess getcfg' to list all valid keys"); //$NON-NLS-1$
-			return;
-		}
-		if (configDefaults.get(key) instanceof Boolean) {
-			Boolean bVal = false;
-			if (val.equals("false") || val.equals("no")) { //$NON-NLS-1$ //$NON-NLS-2$
-				bVal = false;
-			} else if (val.equals("true") || val.equals("yes")) { //$NON-NLS-1$ //$NON-NLS-2$
-				bVal = true;
-			} else {
-				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidBoolean", val)); //$NON-NLS-1$ 
-				return;
-			}
-			config.set(key, bVal);
-		} else if (configDefaults.get(key) instanceof Integer) {
-			try {
-				int nVal = Integer.parseInt(val);
-				config.set(key, nVal);
-			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidInteger", val)); //$NON-NLS-1$
-			}
-		} else if (configDefaults.get(key) instanceof Double) {
-			try {
-				double nVal = Double.parseDouble(val);
-				config.set(key, nVal);
-			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidFloat", val)); //$NON-NLS-1$
-			}
-		} else if (configDefaults.get(key) instanceof Duration) {
-			try {
-				Duration d = new Duration(val);
-				config.set(key, d.toString());
-			} catch (IllegalArgumentException e) {
-				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.invalidDuration", val)); //$NON-NLS-1$
-			}
-		} else {
-			config.set(key, val);
-		}
+	public static void setPluginConfiguration(String key, String val) throws ChessException {
+		setConfigItem(getConfig(), key, val);
 
 		// special hooks
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
@@ -421,9 +162,102 @@ public class ChessConfig {
 			} catch (IOException e) {
 				ChessCraftLogger.severe("Can't load messages file", e);
 			}
+		} else if (key.equalsIgnoreCase("log_level")) {
+			ChessCraftLogger.setLogLevel(val);
 		}
 
-		plugin.saveConfig();
+		ChessCraft.getInstance().saveConfig();
+	}
+	
+	public static <T> void setPluginConfiguration(String key, List<T> list) throws ChessException {
+		setConfigItem(getConfig(), key, list);
+
+		ChessCraft.getInstance().saveConfig();
+	}
+	
+	/**
+	 * Sets a configuration item in the given config object.  The key and value are both strings; the value
+	 * will be converted into an object of the correct type, if possible (where the type is discovered from
+	 * the config's default object).  The type's class must provide a constructor which takes a single string
+	 * or an exception will be thrown.
+	 * 
+	 * @param config	The configuration object
+	 * @param key		The configuration key
+	 * @param val		The value
+	 * @throws SMSException	if the key is unknown or a bad numeric value is passed
+	 */
+	public static void setConfigItem(Configuration config, String key, String val) throws ChessException {
+		Configuration defaults = config.getDefaults();
+		if (!defaults.contains(key)) {
+			throw new ChessException(Messages.getString("ChessConfig.noSuchKey", key));
+		}
+		if (defaults.get(key) instanceof List<?>) {
+			List<String>list = new ArrayList<String>(1);
+			list.add(val);
+			handleListValue(config, key, list);
+		} else if (defaults.get(key) instanceof String) {
+			// should be marginally quicker than going through the following method...
+			config.set(key, val);
+		} else {
+			// the class we're converting to needs to have a constructor taking a single String argument
+			Class<?> c = null;
+			try {
+				c = defaults.get(key).getClass();
+				Constructor<?> ctor = c.getDeclaredConstructor(String.class);
+				config.set(key, ctor.newInstance(val));
+			} catch (NoSuchMethodException e) {
+				throw new ChessException("Don't know how to convert '" + val + "' into a " + c.getName());
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				if (e.getCause() instanceof NumberFormatException) {
+					throw new ChessException("Invalid numeric value: " + val);
+				} else {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public static <T> void setConfigItem(Configuration config, String key, List<T> list) throws ChessException {
+		if (config.getDefaults().get(key) == null) {
+			throw new ChessException(Messages.getString("ChessConfig.noSuchKey", key));
+		}
+		if (!(config.getDefaults().get(key) instanceof List<?>)) {
+			throw new ChessException("Key '" + key + "' does not accept a list of values");
+		}
+		handleListValue(config, key, list);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
+		HashSet<T> current;
+
+		if (list.get(0).equals("-")) {
+			// remove specifed item from list
+			list.remove(0);
+			current = new HashSet<T>(config.getList(key));
+			current.removeAll(list);
+		} else if (list.get(0).equals("=")) {
+			// replace list
+			list.remove(0);
+			current = new HashSet<T>(list);
+		} else if (list.get(0).equals("+")) {
+			// append to list
+			list.remove(0);
+			current = new HashSet<T>(config.getList(key));
+			current.addAll(list);
+		} else {
+			// append to list
+			current = new HashSet<T>(config.getList(key));
+			current.addAll(list);
+		}
+
+		config.set(key, new ArrayList<T>(current));
 	}
 } // end class ChessConfig
 

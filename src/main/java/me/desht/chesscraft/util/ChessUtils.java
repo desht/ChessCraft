@@ -40,19 +40,18 @@ public class ChessUtils {
 		if (tickTaskId != -1) {
 			s.cancelTask(tickTaskId);
 		}
+		long interval = plugin.getConfig().getInt("tick_interval", 1) * 20L;
 		tickTaskId = s.scheduleSyncRepeatingTask(plugin, new Runnable() {
-
 			@Override
 			public void run() {
-//				for (BoardView bv : BoardView.listBoardViews()) {
-//					bv.doLighting();
-//				}
 				for (ChessGame game : ChessGame.listGames()) {
 					game.clockTick();
 					game.checkForAutoDelete();
 				}
 			}
-		}, 20L * initialDelay, 20L * plugin.getConfiguration().getInt("tick_interval", 1)); //$NON-NLS-1$
+		}, 20L * initialDelay, interval); //$NON-NLS-1$
+		
+		ChessCraftLogger.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
 	}
 
 	public static void errorMessage(Player player, String string) {

@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess.pieces;
 import chesspresso.Chess;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ChessStone {
 	private final int stone;
@@ -24,66 +25,62 @@ public class ChessStone {
 			rotation = (rotation + 180) % 360;
 		}
 
-		sizeY = tmpl.getSizeY();
+		int tmplX = tmpl.getSizeX();
+		int tmplY = tmpl.getSizeY();
+		int tmplZ = tmpl.getSizeZ();
+		
+		ChessCraftLogger.finest("ChessStone: stone = " + stone + " rotation = " + rotation);
+		sizeY = tmplY;
 		if (rotation == 90 || rotation == 270) {
 			// allows for pieces with a non-square footprint
-			sizeZ = tmpl.getSizeX();
-			sizeX = tmpl.getSizeZ();
+			sizeZ = tmplX;
+			sizeX = tmplZ;
 		} else {
-			sizeX = tmpl.getSizeX();
-			sizeZ = tmpl.getSizeZ();
+			sizeX = tmplX;
+			sizeZ = tmplZ;
 		}
+		ChessCraftLogger.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + sizeX + "," + sizeY + "," + sizeZ);
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
 		switch (rotation) {
 		case 0:
-			for (int x = 0; x < sizeX; ++x) {
-				for (int y = 0; y < sizeY; ++y) {
-					for (int z = 0; z < sizeZ; ++z) {
+			for (int x = 0; x < tmplX; ++x) {
+				for (int y = 0; y < tmplY; ++y) {
+					for (int z = 0; z < tmplZ; ++z) {
 						pieceArray[x][y][z] = matMap.get(tmpl.get(x, y, z));
 					}
 				}
 			}
 			break;
 		case 90:
-			for (int x = 0; x < sizeX; ++x) {
-				for (int y = 0; y < sizeY; ++y) {
-					for (int z = 0; z < sizeZ; ++z) {
-						pieceArray[sizeZ - z - 1][y][x] = matMap.get(tmpl.get(x, y, z));
+			for (int x = 0; x < tmplX; ++x) {
+				for (int y = 0; y < tmplY; ++y) {
+					for (int z = 0; z < tmplZ; ++z) {
+						pieceArray[sizeX - z - 1][y][x] = matMap.get(tmpl.get(x, y, z)).rotate(90);
 					}
 				}
 			}
 			break;
 		case 180:
-			for (int x = 0; x < sizeX; ++x) {
-				for (int y = 0; y < sizeY; ++y) {
-					for (int z = 0; z < sizeZ; ++z) {
-						pieceArray[sizeX - x - 1][y][sizeZ - z - 1] = matMap.get(tmpl.get(x, y, z));
+			for (int x = 0; x < tmplX; ++x) {
+				for (int y = 0; y < tmplY; ++y) {
+					for (int z = 0; z < tmplZ; ++z) {
+						pieceArray[sizeX - x - 1][y][sizeZ - z - 1] = matMap.get(tmpl.get(x, y, z)).rotate(180);
 					}
 				}
 			}
 			break;
 		case 270:
-			for (int x = 0; x < sizeX; ++x) {
-				for (int y = 0; y < sizeY; ++y) {
-					for (int z = 0; z < sizeZ; ++z) {
-						pieceArray[z][y][sizeX - x - 1] = matMap.get(tmpl.get(x, y, z));
+			for (int x = 0; x < tmplX; ++x) {
+				for (int y = 0; y < tmplY; ++y) {
+					for (int z = 0; z < tmplZ; ++z) {
+						pieceArray[z][y][sizeZ - x - 1] = matMap.get(tmpl.get(x, y, z)).rotate(270);
 					}
 				}
 			}
 			break;
 		default:
 			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
-		}
-
-		for (int x = 0; x < sizeX; ++x) {
-			for (int y = 0; y < sizeY; ++y) {
-				for (int z = 0; z < sizeZ; ++z) {
-					if (pieceArray[x][y][z] != null) {
-						pieceArray[x][y][z] = pieceArray[x][y][z].rotate(rotation);
-					}
-				}
-			}
 		}
 	}
 

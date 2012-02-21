@@ -81,7 +81,7 @@ public class ChessPersistence {
 			conf.set("current_games." + e.getKey(), e.getValue());
 		}
 		try {
-			conf.save(ChessConfig.getPersistFile());
+			conf.save(DirectoryStructure.getPersistFile());
 		} catch (IOException e1) {
 			ChessCraftLogger.severe("Can't save persist.yml", e1);
 		}
@@ -99,7 +99,7 @@ public class ChessPersistence {
 
 		// load other misc data which isn't tied to any board or game
 		try {
-			YamlConfiguration conf = YamlConfiguration.loadConfiguration(ChessConfig.getPersistFile());
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(DirectoryStructure.getPersistFile());
 			ConfigurationSection current = conf.getConfigurationSection("current_games");
 			if (current != null) {
 				for (String player : current.getKeys(false)) {
@@ -112,18 +112,18 @@ public class ChessPersistence {
 				}
 			}
 		} catch (Exception e) {
-			ChessCraftLogger.log(Level.SEVERE, "Unexpected Error while loading " + ChessConfig.getPersistFile().getName());
-			moveBackup(ChessConfig.getPersistFile());
+			ChessCraftLogger.log(Level.SEVERE, "Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());
+			moveBackup(DirectoryStructure.getPersistFile());
 		}
 	}
 
 	private int loadBoards() {
 		int nLoaded = 0;
-		for (File f : ChessConfig.getBoardPersistDirectory().listFiles(ymlFilter)) {
+		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(ymlFilter)) {
 			if (loadBoard(f)) {
 				++nLoaded;
 			} else {
-				moveBackup(new File(ChessConfig.getBoardPersistDirectory(), f.getName()));
+				moveBackup(new File(DirectoryStructure.getBoardPersistDirectory(), f.getName()));
 			}
 		}
 		return nLoaded;
@@ -164,11 +164,11 @@ public class ChessPersistence {
 	private int loadGames() {
 		// TODO: validation - in particular ensure boards aren't used by multiple games
 		int nLoaded = 0;
-		for (File f : ChessConfig.getGamesPersistDirectory().listFiles(ymlFilter)) {
+		for (File f : DirectoryStructure.getGamesPersistDirectory().listFiles(ymlFilter)) {
 			if (loadGame(f)) {
 				++nLoaded;
 			} else {
-				moveBackup(new File(ChessConfig.getGamesPersistDirectory(), f.getName()));
+				moveBackup(new File(DirectoryStructure.getGamesPersistDirectory(), f.getName()));
 			}
 		}
 		return nLoaded;
@@ -248,7 +248,7 @@ public class ChessPersistence {
 	
 	public static void requireSection(Configuration c, String key) throws ChessException {
 		if (!c.contains(key))
-			throw new ChessException("piece style file is missing required section '" + key + "'");
+			throw new ChessException("missing required section '" + key + "'");
 	}
 	
 	public static String makeSafeFileName(String name) {

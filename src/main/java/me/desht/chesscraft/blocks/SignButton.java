@@ -8,8 +8,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
 public class SignButton {
-	private final static ChatColor enabledCol = ChatColor.DARK_BLUE;
-	private final static ChatColor disabledCol = ChatColor.DARK_GRAY;
+	private final static ChatColor enabledColour = ChatColor.DARK_BLUE;
+	private final static ChatColor disabledColour = ChatColor.DARK_GRAY;
 
 	private final Location location;
 	private final MaterialWithData mat;
@@ -49,14 +49,6 @@ public class SignButton {
 		this.text = text;
 	}
 
-	public static ChatColor getEnabledcol() {
-		return enabledCol;
-	}
-
-	public static ChatColor getDisabledcol() {
-		return disabledCol;
-	}
-
 	public void repaint() {
 		Block block = location.getBlock();
 		mat.applyToBlock(block);
@@ -67,7 +59,7 @@ public class SignButton {
 				if (lines[i].equals("=")) {
 					continue;
 				}
-				String col = enabled ? enabledCol.toString() : disabledCol.toString();
+				String col = enabled ? enabledColour.toString() : disabledColour.toString();
 				if (lines[i].matches("^&[0-9a-f]")) {
 					col = "";
 				}

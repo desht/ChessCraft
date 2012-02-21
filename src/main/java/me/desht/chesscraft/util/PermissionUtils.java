@@ -1,6 +1,7 @@
 package me.desht.chesscraft.util;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.log.ChessCraftLogger;
 
 import org.bukkit.entity.Player;
 
@@ -14,15 +15,20 @@ public class PermissionUtils {
 	 * @return	true if the player has the permission node, false otherwise
 	 */
 	public static boolean isAllowedTo(Player player, String node) {
+		boolean allowed = false;
+		
 		if (player == null || node == null) {
-			return true;
+			allowed = true;
 		} else {
 			if (ChessCraft.permission != null && !ChessCraft.permission.hasSuperPermsCompat()) {
-				return ChessCraft.permission.has(player, node);
+				allowed = ChessCraft.permission.has(player, node);
 			} else {
-				return player.hasPermission(node);
+				allowed = player.hasPermission(node);
 			}
 		}
+		String name = player == null ? "CONSOLE" : player.getName();
+		ChessCraftLogger.fine("Permission check: player = " + name + ", node = " + node + ", allowed = " + allowed);
+		return allowed;
 	}
 
 	/**
@@ -34,7 +40,7 @@ public class PermissionUtils {
 	 */
 	public static void requirePerms(Player player, String node) throws ChessException {
 		if (!isAllowedTo(player, node)) {
-			throw new ChessException("You are not allowed to do that (need node " + node + ").");
+			throw new ChessException("You are not allowed to do that.");
 		}
 	}
 }

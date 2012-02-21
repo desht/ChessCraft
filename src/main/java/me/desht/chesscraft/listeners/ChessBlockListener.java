@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
@@ -95,4 +96,18 @@ public class ChessBlockListener implements Listener {
 		}
 	}
 
+	/**
+	 * Snow doesn't usually form on chessboards due to the high light level.  But if the light level
+	 * is dimmed, we might see boards getting covered.
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onBlockForm(BlockFormEvent event) {
+		if (event.isCancelled())
+			return;
+		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
 }

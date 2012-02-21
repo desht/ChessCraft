@@ -9,7 +9,6 @@ public class NoCommand extends AbstractCommand {
 
 	public NoCommand() {
 		super("chess n", 0, 0);
-		setPermissionNode("chesscraft.commands.no");
 		setUsage("/chess no");
 	}
 

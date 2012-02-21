@@ -21,6 +21,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ControlPanel;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 import me.desht.chesscraft.blocks.TerrainBackup;
@@ -79,7 +80,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
 		BoardOrientation dir = BoardOrientation.get(conf.getString("direction")); //$NON-NLS-1$
-
 		Location where = ChessPersistence.thawLocation(origin);
 
 		this.name = conf.getString("name"); //$NON-NLS-1$
@@ -143,7 +143,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public File getSaveDirectory() {
-		return ChessConfig.getBoardPersistDirectory();
+		return DirectoryStructure.getBoardPersistDirectory();
 	}
 
 	public String getBoardStyleName() {
@@ -329,8 +329,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getA1Center().getWorld().createExplosion(loc, 0.0f);
 		}
 
-		//		paintStoneAt(toSqi, position.getStone(toSqi));
-		//		paintStoneAt(fromSqi, Chess.NO_STONE);
 		pieceRidingCheck(fromSqi, toSqi);
 
 		chessBoard.highlightSquares(fromSqi, toSqi);
@@ -490,20 +488,31 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard.reloadStyles();
 	}
 
-	public void playCheckAlert(String playerName) {
-		List<Note> notes = new ArrayList<Note>();
-		notes.add(new Note(24));
-		notes.add(new Note(16));
-		audibleAlert(playerName, notes);
+	public void playMovedAlert(String playerName) {
+		if (ChessConfig.getConfig().getBoolean("effects.move_alert")) {
+			List<Note> notes = new ArrayList<Note>();
+			notes.add(new Note(16));
+			audibleAlert(playerName, notes, 5L);
+		}
 	}
 
-	public void audibleAlert(String playerName, List<Note> notes) {
+	public void playCheckAlert(String playerName) {
+		if (ChessConfig.getConfig().getBoolean("effects.check_alert")) {
+			List<Note> notes = new ArrayList<Note>();
+			notes.add(new Note(24));
+			notes.add(new Note(16));
+			notes.add(new Note(24));
+			notes.add(new Note(16));
+			audibleAlert(playerName, notes, 5L);
+		}
+	}
+
+	public void audibleAlert(String playerName, List<Note> notes, long delay) {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
-			// the fake note block will be directly below the player, under the chessboard
-			Location loc = player.getLocation().clone();
-			loc.setY(chessBoard.getA1Center().getY() - 1);
-			NoteAlert a = new NoteAlert(player, loc, 10L, notes);
+			// put a fake note block a couple of blocks below the player
+			Location loc = player.getLocation().clone().add(0, -2, 0);
+			NoteAlert a = new NoteAlert(player, loc, delay, notes);
 			a.start();
 		}
 	}

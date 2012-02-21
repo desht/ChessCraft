@@ -21,8 +21,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.google.common.base.Joiner;
 
 import chesspresso.Chess;
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessPersistence;
+import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardOrientation;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -55,27 +55,23 @@ public class ChessSet implements Iterable<ChessStone> {
 			" - definition[0][0] is the northmost row on the lowest layer",
 			" - each string runs from west to east and consists of materials defined above",
 	};
-	private static final String CHESS_SET_HEADER;
-	static {
-		CHESS_SET_HEADER = Joiner.on("\n").join(CHESS_SET_HEADER_LINES);		
-	}
+
 	// map a character to a material
-	private MaterialMap materialMapWhite, materialMapBlack;
-	
+	private final MaterialMap materialMapWhite, materialMapBlack;
 	// map a Chesspresso piece number to a PieceTemplate object
 	private final ChessPieceTemplate[] templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
-	
 	// cache of instantiated chess stones
 	private final Map<String, ChessStone> stoneCache = new HashMap<String, ChessStone>();
-	
 	private final String name;
-	private int maxWidth = 0;
-	private int maxHeight = 0;
+	private final int maxWidth;
+	private final int maxHeight;
 
 	/**
 	 * Private constructor.  Initialise a chess set from saved data.
 	 * 
 	 * @param c		The Configuration object loaded from file.
+	 * 
+	 * @throws ChessException if there is any problem loading the set.
 	 */
 	private ChessSet(Configuration c) throws ChessException {
 		ChessPersistence.requireSection(c, "name");
@@ -86,19 +82,20 @@ public class ChessSet implements Iterable<ChessStone> {
 		name = c.getString("name");
 		
 		ConfigurationSection pieceConf = c.getConfigurationSection("pieces");
+		int maxH = 0, maxW = 0;
 		for (String p : pieceConf.getKeys(false)) {
 			@SuppressWarnings("unchecked")
 			List<List<String>> pieceData = pieceConf.getList(p);
 			int piece = Chess.charToPiece(p.charAt(0));
+			if (piece == Chess.NO_PIECE) {
+				throw new ChessException("invalid piece letter: " + p);
+			}
 			ChessPieceTemplate tmpl = new ChessPieceTemplate(pieceData);
-			if (tmpl.getWidth() > maxWidth) {
-				maxWidth = tmpl.getWidth();
-			}
-			if (tmpl.getSizeY() > maxHeight) {
-				maxHeight = tmpl.getSizeY();
-			}
+			maxW = Math.max(maxW, tmpl.getWidth());
+			maxH = Math.max(maxH, tmpl.getSizeY());
 			templates[piece] = tmpl;
 		}
+		maxWidth = maxW; maxHeight = maxH;
 		
 		try {
 			materialMapWhite = initMaterialMap(c, "white");
@@ -118,7 +115,8 @@ public class ChessSet implements Iterable<ChessStone> {
 	}
 
 	/**
-	 * Package protected constructor. Intialise a chess set from template and material map information.  
+	 * Package protected constructor. Initialise a chess set from template and material map information.
+	 * This constructor would be used to create a new set from piece designer information.
 	 * 
 	 * @param name
 	 * @param templates
@@ -129,9 +127,13 @@ public class ChessSet implements Iterable<ChessStone> {
 		this.name = name;
 		this.materialMapWhite = materialMapWhite;
 		this.materialMapBlack = materialMapBlack;
+		int maxW = 0, maxH = 0;
 		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
 			this.templates[piece] = templates[piece];
+			maxW = Math.max(maxW, templates[piece].getWidth());
+			maxH = Math.max(maxH, templates[piece].getSizeY());
 		}
+		maxWidth = maxW; maxHeight = maxH;
 	}
 
 	public Iterator<ChessStone> iterator() {
@@ -144,7 +146,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * 
 	 * @return
 	 */
-	public Map<String, String> getWhiteToBlack() {
+	Map<String, String> getWhiteToBlack() {
 		Map<String,String> res = new HashMap<String, String>();
 		
 		for (Entry<Character,MaterialWithData> e : materialMapWhite.getMap().entrySet()) {
@@ -159,26 +161,8 @@ public class ChessSet implements Iterable<ChessStone> {
 	}
 	
 	/**
-	 * Retrieve a fully instantied chess stone.  It will use material appropriate for the player's 
-	 * colour, and will be rotated in the right direction given the player and board orienation.
-	 * 
-	 * @param piece		Chesspresso piece number (Chess.PAWN, Chess.KNIGHT etc.)
-	 * @param colour	Chesspresso colour (Chess.WHITE or Chess.BLACK)
-	 * @param direction		Board orientation
-	 * @return
-	 */
-	public ChessStone getStone(int piece, int colour, BoardOrientation direction) {
-		String key = String.format("%d:%d:%s", piece, colour, direction);
-		if (!stoneCache.containsKey(key)) {
-			MaterialMap matMap = colour == Chess.WHITE ? materialMapWhite : materialMapBlack;
-			int stone = Chess.pieceToStone(piece, colour);
-			stoneCache.put(key, new ChessStone(stone, templates[piece], matMap, direction));
-		}
-		return stoneCache.get(key);
-	}
-	
-	/**
-	 * Retrieve a fully instantied chess stone.
+	 * Retrieve a fully instantiated chess stone, of the appropriate material for the stone's
+	 * colour, and facing the right direction.
 	 * 
 	 * @param stone		Chesspresso stone number (Chess.WHITE_PAWN etc.)
 	 * @param direction		Board orientation
@@ -229,10 +213,10 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * @throws ChessException
 	 */
 	public void save(String newName) throws ChessException {
-		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName), true);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName), true);
 		
 		YamlConfiguration conf = new YamlConfiguration();
-		conf.options().header(CHESS_SET_HEADER);
+		conf.options().header(Joiner.on("\n").join(CHESS_SET_HEADER_LINES));
 		try {
 			conf.set("name", name);
 			for (char c : materialMapWhite.getMap().keySet()) {
@@ -281,12 +265,12 @@ public class ChessSet implements Iterable<ChessStone> {
 		if (!setLoadTime.containsKey(setName)) {
 			return true;
 		}
-		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setName);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), setName);
 		return f.lastModified() > setLoadTime.get(setName);
 	}
 
 	private static ChessSet loadChessSet(String setName) throws ChessException {
-		File f = ChessConfig.getResourceFile(ChessConfig.getPieceStyleDirectory(), setName);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), setName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);
@@ -297,7 +281,6 @@ public class ChessSet implements Iterable<ChessStone> {
 		
 		return set;
 	}
-
 	
 	//-------------------------------- iterator class
 	
