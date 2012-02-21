@@ -5,13 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.util.WorldEditUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-// imports for clear()
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
@@ -39,6 +39,13 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		wep = p;
 	}
 
+	/**
+	 * Construct a Cuboid given two Location objects which represent any two corners
+	 * of the Cuboid.
+	 * 
+	 * @param l1 one of the corners
+	 * @param l2 the other corner
+	 */
 	public Cuboid(Location l1, Location l2) {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
@@ -52,14 +59,35 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		z2 = Math.max(l1.getBlockZ(), l2.getBlockZ());
 	}
 
+	/**
+	 * Construct a one-block Cuboid at the given Location of the Cuboid.
+	 * 
+	 * @param l1 location of the Cuboid
+	 */
 	public Cuboid(Location l1) {
 		this(l1, l1);
 	}
 
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other the Cuboid to copy
+	 */
 	public Cuboid(Cuboid other) {
 		this(other.world, other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
 	}
 
+	/**
+	 * Construct a Cuboid in the given World and xyz co-ordinates
+	 * 
+	 * @param world the Cuboid's world
+	 * @param x1 X co-ordinate of corner 1
+	 * @param y1 Y co-ordinate of corner 1
+	 * @param z1 Z co-ordinate of corner 1
+	 * @param x2 X co-ordinate of corner 2
+	 * @param y2 Y co-ordinate of corner 2
+	 * @param z2 Z co-ordinate of corner 2
+	 */
 	public Cuboid(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
 		this.world = world;
 		this.x1 = x1;
@@ -70,18 +98,30 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		this.z2 = z2;
 	}
 
+	/**
+	 * Get the Location of the lower northeast corner of the Cuboid (minimum XYZ
+	 * co-ordinates).
+	 * 
+	 * @return Location of the lower northeast corner
+	 */
 	public Location getLowerNE() {
 		return new Location(world, x1, y1, z1);
 	}
 
+	/**
+	 * Get the Location of the upper southwest corner of the Cuboid (maximum XYZ
+	 * co-ordinates).
+	 * 
+	 * @return Location of the upper southwest corner
+	 */
 	public Location getUpperSW() {
 		return new Location(world, x2, y2, z2);
 	}
 
 	/**
-	 * Get the Location at the centre of the Cuboid
+	 * Get the the centre of the Cuboid
 	 * 
-	 * @return
+	 * @return Location at the centre of the Cuboid
 	 */
 	public Location getCenter() {
 		return new Location(getWorld(), getLowerX() + (getUpperX() - getLowerX()) / 2,
@@ -91,15 +131,53 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	/**
 	 * Get the Cuboid's world.
-	 * @return
+	 *
+	 * @return the World object representing this Cuboid's world
 	 */
 	public World getWorld() {
 		return world;
 	}
 
+	public int getSizeX() {
+		return (x2 - x1) + 1;
+	}
+
+	public int getSizeY() {
+		return (y2 - y1) + 1;
+	}
+
+	public int getSizeZ() {
+		return (z2 - z1) + 1;
+	}
+
+	public int getLowerX() {
+		return x1;
+	}
+
+	public int getLowerY() {
+		return y1;
+	}
+
+	public int getLowerZ() {
+		return z1;
+	}
+
+	public int getUpperX() {
+		return x2;
+	}
+
+	public int getUpperY() {
+		return y2;
+	}
+
+	public int getUpperZ() {
+		return z2;
+	}
+
 	/**
-	 * Return a list of Blocks at the eight corners of the Cuboid.
-	 * @return
+	 * Get the Blocks at the eight corners of the Cuboid.
+	 *
+	 * @return list of Block objects representing the Cuboid corners
 	 */
 	public List<Block> corners() {
 		List<Block> res = new ArrayList<Block>(8);
@@ -113,28 +191,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		res.add(world.getBlockAt(x2, y2, z2));
 		return res;
 
-	}
-
-	/**
-	 * Return a list of blocks representing the four vertical walls of the Cuboid.
-	 * 
-	 * @return
-	 */
-	public List<Block> walls() {
-		List<Block> res = new ArrayList<Block>(8);
-		for (int x = x1; x <= x2; ++x) {
-			for (int y = y1; y <= y2; ++y) {
-				res.add(world.getBlockAt(x, y, z1));
-				res.add(world.getBlockAt(x, y, z2));
-			}
-		}
-		for (int z = z1; z <= z2; ++z) {
-			for (int y = y1; y <= y2; ++y) {
-				res.add(world.getBlockAt(x1, y, z));
-				res.add(world.getBlockAt(x2, y, z));
-			}
-		}
-		return res;
 	}
 
 	/**
@@ -276,9 +332,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	/**
-	 * Delete blocks in bounds, but don't allow items to drop (paintings are not
-	 * blocks, and are not included).  Does not scan blocks attached to the
-	 * outside faces of the Cuboid for drops when the region is cleared.
+	 * Delete blocks, but don't allow items to drop (paintings are not
+	 * blocks, and are not included).  Does not check for blocks attached to the
+	 * outside faces of the Cuboid.
 	 *
 	 * @param fast	Use low-level NMS calls to clear the Cuboid to avoid excessive
 	 * 			lighting recalculation
@@ -321,7 +377,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param fast
 	 */
 	public void set(int blockID, boolean fast) {
-		//		long start = System.nanoTime();
+		long start = System.nanoTime();
 
 		if (blockID == 0) {
 			clear(fast);
@@ -337,7 +393,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 
-		//		System.out.println("Cuboid set " + blockID + ": " + (System.nanoTime() - start) + "ns");
+		ChessCraftLogger.finer("Cuboid: " + this + ": set " + blockID + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	/**
@@ -348,7 +404,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param fast
 	 */
 	public void set(int blockID, Byte data, boolean fast) {
-		//		long start = System.nanoTime();
+		long start = System.nanoTime();
 
 		if (blockID == 0) {
 			clear(fast);
@@ -375,8 +431,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				}
 			}
 		}
+		
+		ChessCraftLogger.finer("Cuboid: " + this + ": set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 
-		//		System.out.println("Cuboid set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	/**
@@ -448,6 +505,13 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 	}
 	
+	/**
+	 * Get the Cuboid representing the face of this Cuboid.  The resulting Cuboid will be
+	 * one block thick in the axis perpendicular to the requested face.
+	 * 
+	 * @param dir	which face of the Cuboid to get 
+	 * @return	the Cuboid representing this Cuboid's requested face
+	 */
 	public Cuboid getFace(Direction dir	) {
 		switch (dir) {
 		case Down:
@@ -470,8 +534,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Check if the Cuboid contains only blocks of the given type
 	 * 
-	 * @param blockId
-	 * @return
+	 * @param blockId	the block ID to check for
+	 * @return			true if this Cuboid contains only blocks of the given type
 	 */
 	public boolean containsOnly(int blockId) {
 		for (Block b : this) {
@@ -539,12 +603,17 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public void initLighting() {	
 		for (Chunk c : getChunks()) {
 			((CraftChunk)c).getHandle().initLighting();
-			//			System.out.println("chunk " + c + ": relighted"); 
+			ChessCraftLogger.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
 		}
 	}
 	
+	/**
+	 * Set the light level of all blocks within this Cuboid.
+	 * 
+	 * @param level	the required light level
+	 */
 	public void forceLightLevel(int level) {
-//		long start = System.nanoTime();
+		long start = System.nanoTime();
 		net.minecraft.server.World w = ((CraftWorld) getWorld()).getHandle();
 		for (int x = getLowerX(); x < getUpperX(); x++) {
 			for (int z = getLowerZ(); z < getUpperZ(); z++) {
@@ -554,7 +623,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 		sendClientChanges();
-//		ChessCraftLogger.info("relit " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
+		ChessCraftLogger.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
 
 	/**
@@ -599,51 +668,25 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		return new String("Cuboid: " + world.getName() + "," + x1 + "," + y1 + "," + z1 + "=>" + x2 + "," + y2 + "," + z2);
 	}
 
-	public int getSizeX() {
-		return (x2 - x1) + 1;
-	}
-
-	public int getSizeY() {
-		return (y2 - y1) + 1;
-	}
-
-	public int getSizeZ() {
-		return (z2 - z1) + 1;
-	}
-
-	public int getLowerX() {
-		return x1;
-	}
-
-	public int getLowerY() {
-		return y1;
-	}
-
-	public int getLowerZ() {
-		return z1;
-	}
-
-	public int getUpperX() {
-		return x2;
-	}
-
-	public int getUpperY() {
-		return y2;
-	}
-
-	public int getUpperZ() {
-		return z2;
-	}
-
-	public void weSelect(String playerName) {
+	/**
+	 * Set the current WorldEdit selection for the player to this Cuboid
+	 * 
+	 * @param playerName	name of the player
+	 */
+	public void worldEditSetSelection(String playerName) {
 		Player p = Bukkit.getPlayer(playerName);
 		if (p == null || p.getWorld() != world) {
 			return;
 		}
-		weSelect(p);
+		worldEditSetSelection(p);
 	}
 
-	public void weSelect(Player p) {
+	/**
+	 * Set the current WorldEdit selection for the player to this Cuboid
+	 * 
+	 * @param playerName	the Player object
+	 */
+	public void worldEditSetSelection(Player p) {
 		if (p != null && wep != null) {
 			WorldEditUtils.weSelect(this, p);
 		}

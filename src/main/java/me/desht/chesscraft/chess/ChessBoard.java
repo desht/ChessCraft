@@ -301,30 +301,34 @@ public class ChessBoard {
 	}
 
 	private void paintStruts() {
+		MaterialWithData s = boardStyle.getStrutsMaterial();
+		
 		// vertical struts at the frame corners
 		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight());
-		c.set(boardStyle.getStrutsMaterial(), true);
+		c.set(s, true);
 		c = c.shift(Direction.South, frameBoard.getSizeX() - 1);
-		c.set(boardStyle.getStrutsMaterial(), true);
+		c.set(s, true);
 		c = c.shift(Direction.West, frameBoard.getSizeZ() - 1);
-		c.set(boardStyle.getStrutsMaterial(), true);
+		c.set(s, true);
 		c = c.shift(Direction.North, frameBoard.getSizeZ() - 1);
-		c.set(boardStyle.getStrutsMaterial(), true);
+		c.set(s, true);
 
 		// horizontal struts along roof edge
 		Cuboid roof = frameBoard.shift(Direction.Up, boardStyle.getHeight() + 1);
-		for (Block b : roof.walls()) {
-			boardStyle.getStrutsMaterial().applyToBlockFast(b);
-		}
+		roof.getFace(Direction.East).set(s, true);
+		roof.getFace(Direction.North).set(s, true);
+		roof.getFace(Direction.West).set(s, true);
+		roof.getFace(Direction.South).set(s, true);
+		
 	}
 
 	private void paintFrame() {
 		int fw = boardStyle.getFrameWidth();
 		MaterialWithData fm = boardStyle.getFrameMaterial();
-		frameBoard.getFace(Direction.North).expand(Direction.South, fw - 1).set(fm, true);
+		frameBoard.getFace(Direction.West).expand(Direction.East, fw - 1).set(fm, true);
 		frameBoard.getFace(Direction.South).expand(Direction.North, fw - 1).set(fm, true);
 		frameBoard.getFace(Direction.East).expand(Direction.West, fw - 1).set(fm, true);
-		frameBoard.getFace(Direction.West).expand(Direction.East, fw - 1).set(fm, true);
+		frameBoard.getFace(Direction.North).expand(Direction.South, fw - 1).set(fm, true);
 	}
 
 	private void paintBoard() {
@@ -355,9 +359,10 @@ public class ChessBoard {
 			MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
 			switch (boardStyle.getHighlightStyle()) {
 			case EDGES:
-				for (Block b : sq.walls()) {
-					squareHighlightColor.applyToBlock(b);
-				}
+				sq.getFace(Direction.East).set(squareHighlightColor, false);
+				sq.getFace(Direction.North).set(squareHighlightColor, false);
+				sq.getFace(Direction.West).set(squareHighlightColor, false);
+				sq.getFace(Direction.South).set(squareHighlightColor, false);
 				break;
 			case CORNERS:
 				for (Block b : sq.corners()) {

@@ -460,28 +460,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Find a safe location to teleport a player out of this board
+	 * Find a safe location to teleport a player out of this board.  Go to the edge
+	 * of the board closest to the player's current location.
 	 * 
 	 * @return	The location
 	 */
-	private Location findSafeLocationOutside() {
-		final int MAX_DIST = 100;
-
-		// search north from the board's northeast corner
+	private Location findSafeLocationOutside(Player player) {
 		Location dest0 = chessBoard.getFullBoard().getLowerNE();
-		Block b;
-		int dist = 0;
-		do {
-			dest0.add(-1.0, 0.0, 0.0);
-			dist++;
-			b = dest0.getWorld().getHighestBlockAt(dest0);
-		} while (b.getLocation().getBlockY() >= 126 && dist < MAX_DIST);
-
-		if (dist >= MAX_DIST) {
-			return b.getWorld().getSpawnLocation();
-		} else {
-			return b.getLocation();
-		}
+		return dest0.getWorld().getHighestBlockAt(dest0).getLocation();
 	}
 
 	public void reloadStyle() throws ChessException {
