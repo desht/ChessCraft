@@ -85,24 +85,20 @@ public enum BoardOrientation {
 	public float getYaw() {
 		switch (this) {
 			case NORTH:
-//				return (float) 22.5;
 				return 90;
 			case EAST:
-//				return (float) (45 + 22.5);
 				return 180;
 			case SOUTH:
-//				return (float) (135 + 22.5);
 				return 270;
 			case WEST:
-//				return (float) (225 + 22.5);
 				return 0;
 		}
 		return 0;
 	}
 
-	public static BoardOrientation get(String name){
-		for(BoardOrientation o : values()){
-			if(o.name().equalsIgnoreCase(name)){
+	public static BoardOrientation get(String name) {
+		for (BoardOrientation o : values()) {
+			if (o.name().equalsIgnoreCase(name)) {
 				return o;
 			}
 		}

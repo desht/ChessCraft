@@ -57,11 +57,11 @@ public class MaterialWithData implements Cloneable {
 			} else if (material == BlockType.CLOTH.getID()) {
 				ClothColor cc = ClothColor.lookup(matAndData[1]);
 				if (cc == null) {
-					throw new IllegalArgumentException("unknown dye colour " + matAndData[0]);
+					throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
 				}
 				data = (byte) cc.getID();
 			} else {
-				throw new IllegalArgumentException("invalid data specification " + matAndData[1]);
+				throw new IllegalArgumentException("invalid data specification: " + matAndData[1]);
 			}
 		}
 	}

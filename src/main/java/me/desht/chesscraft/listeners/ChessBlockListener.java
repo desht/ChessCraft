@@ -14,11 +14,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 public class ChessBlockListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
@@ -29,11 +26,8 @@ public class ChessBlockListener implements Listener {
 		event.setCancelled(true);
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
@@ -44,11 +38,8 @@ public class ChessBlockListener implements Listener {
 		event.setCancelled(true);
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
@@ -59,24 +50,18 @@ public class ChessBlockListener implements Listener {
 		event.setCancelled(true);
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
-
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (event.isCancelled())
-			return;
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
@@ -87,7 +72,7 @@ public class ChessBlockListener implements Listener {
 	 * 
 	 * @param event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockFromTo(BlockFromToEvent event) {		
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
@@ -102,10 +87,8 @@ public class ChessBlockListener implements Listener {
 	 * 
 	 * @param event
 	 */
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockForm(BlockFormEvent event) {
-		if (event.isCancelled())
-			return;
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}

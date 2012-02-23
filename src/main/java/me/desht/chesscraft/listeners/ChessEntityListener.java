@@ -23,11 +23,8 @@ import org.bukkit.event.entity.EntityTargetEvent;
 
 public class ChessEntityListener implements Listener {
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
@@ -41,9 +38,9 @@ public class ChessEntityListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onEntityTarget(EntityTargetEvent event) {
-		if (event.isCancelled() || !(event.getTarget() instanceof Player)
+		if (!(event.getTarget() instanceof Player)
 				|| !ChessConfig.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
@@ -58,11 +55,8 @@ public class ChessEntityListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
 		if (!ChessConfig.getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
 			return;
 		}
@@ -77,12 +71,8 @@ public class ChessEntityListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onEntityDamage(EntityDamageEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
-		
 		if (event instanceof EntityDamageByEntityEvent) {
 			EntityDamageByEntityEvent dbeEvent = (EntityDamageByEntityEvent) event;
 			if (dbeEvent.getDamager() == null) {

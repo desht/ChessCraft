@@ -280,8 +280,11 @@ public class BoardStyle {
 		style.highlightMat = MaterialWithData.get(c.getString("highlight", "glowstone"));
 		style.highlightWhiteSquareMat = MaterialWithData.get(c.getString("highlight_white_square", style.highlightMat.toString()));
 		style.highlightBlackSquareMat = MaterialWithData.get(c.getString("highlight_black_square", style.highlightMat.toString()));
-		style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
-
+		try {
+			style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
+		} catch (IllegalArgumentException e) {
+			throw new ChessException(e.getMessage());
+		}
 		return style;
 	}
 	

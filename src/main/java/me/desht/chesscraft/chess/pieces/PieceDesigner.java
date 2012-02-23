@@ -40,12 +40,17 @@ public class PieceDesigner {
 
 	/**
 	 * Scan the board and initialise a chess set based on the contents of squares A1-E1 & A2-E2.
+	 * 
+	 * @throws ChessException if there is any kind of problem initialising the set
 	 */
-	public void scan() {
+	public void scan() throws ChessException {
 		MaterialMap whiteMap = new MaterialMap();
 
 		ChessPieceTemplate[] templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
 
+		int rotation = rotationNeeded();
+		ChessCraftLogger.fine("Designer: need to rotate templates by " + rotation + " degrees");
+		
 		// reverse mapping of character to material name
 		Map<String,Character> reverseMap = new HashMap<String, Character>();
 		char nextChar = 'A';
@@ -53,21 +58,23 @@ public class PieceDesigner {
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
 			// get the bounding box for the materials in this square
 			Cuboid c = getPieceBox(p);
-			ChessCraftLogger.finer("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
-			templates[p] = new ChessPieceTemplate(c.getSizeX(), c.getSizeY(), c.getSizeZ());
+			ChessCraftLogger.fine("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
 
+			templates[p] = createTemplate(c, rotation);
+			
 			// scan the cuboid and use the contents to populate the new template
 			for (int x = 0; x < templates[p].getSizeX(); x++) {
 				for (int y = 0; y < templates[p].getSizeY(); y++) {
 					for (int z = 0; z < templates[p].getSizeZ(); z++) {
-						Block b = c.getRelativeBlock(x, y, z);
-						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
+						Point rotatedPoint = rotate(x, z, templates[p].getSizeX(), templates[p].getSizeZ(), 360 - rotation);
+						Block b = c.getRelativeBlock(rotatedPoint.x, y, rotatedPoint.z);
+						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData()).rotate(rotation);
 						String materialName = mat.toString();
 						if (!reverseMap.containsKey(materialName)) {
 							// not seen this material yet
 							reverseMap.put(materialName, nextChar);
 							whiteMap.put(nextChar, mat);
-							nextChar++;
+							nextChar = getNextChar(nextChar);
 						}
 						templates[p].put(x, y, z, reverseMap.get(materialName));
 					}	
@@ -78,6 +85,43 @@ public class PieceDesigner {
 		MaterialMap blackMap = initBlackMaterialMap(whiteMap);
 
 		chessSet = new ChessSet(setName, templates, whiteMap, blackMap);
+	}
+
+	private char getNextChar(char c) throws ChessException {
+		if (c == 'Z') {
+			return 'a';
+		} else if (c == 'z') {
+			return '0';
+		} else if (c == '9') {
+			throw new ChessException("material limit exceeded (maximum 62 different materials)");
+		} else {
+			return c++;
+		}
+	}
+	
+	private ChessPieceTemplate createTemplate(Cuboid c, int rotation) {
+		if (rotation == 0 || rotation == 180) {
+			return new ChessPieceTemplate(c.getSizeX(), c.getSizeY(), c.getSizeZ());
+		} else if (rotation == 90 || rotation == 270) {
+			return new ChessPieceTemplate(c.getSizeZ(), c.getSizeY(), c.getSizeX());
+		} else {
+			return null;
+		}
+	}
+	
+	private Point rotate(int x, int z, int sizeX, int sizeZ, int rotation) {
+		switch (rotation % 360) {
+		case 0:
+			return new Point(x, z);
+		case 90:
+			return new Point(z, sizeZ - x - 1);
+		case 180:
+			return new Point(sizeX - x - 1, sizeZ - z - 1);
+		case 270:
+			return new Point(sizeX - z - 1, x);
+		default:
+			return null;
+		}
 	}
 
 	private MaterialMap initBlackMaterialMap(MaterialMap whiteMap) {
@@ -100,7 +144,7 @@ public class PieceDesigner {
 				MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
 				if (reverseMap.containsKey(mat.toString())) {
 					MaterialWithData mat2 = MaterialWithData.get(b2.getTypeId(), b2.getData());
-					ChessCraftLogger.finer("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
+					ChessCraftLogger.fine("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					blackMap.put(reverseMap.get(mat.toString()), mat2);
 				}
 			}
@@ -129,7 +173,7 @@ public class PieceDesigner {
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			bounding = c.getBoundingCuboid(bounding);
 			ChessStone whiteStone = chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getDirection());
-			ChessCraftLogger.finer("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
+			ChessCraftLogger.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
 			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
 		}
 
@@ -214,5 +258,22 @@ public class PieceDesigner {
 		// c is now the smallest Cuboid which fully contains the piece (with no external air)
 
 		return c;
+	}
+	
+	private int rotationNeeded() {
+		switch (view.getDirection()) {
+		case NORTH: return 0;
+		case EAST: return 270;
+		case SOUTH: return 180;
+		case WEST: return 90;
+		default: return 0;
+		}
+	}
+	
+	private class Point {
+		public int x, z;
+		public Point(int x, int z) {
+			this.x = x; this.z = z;
+		}
 	}
 }

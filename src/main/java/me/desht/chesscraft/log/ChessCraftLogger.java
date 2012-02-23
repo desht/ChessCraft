@@ -32,7 +32,7 @@ public class ChessCraftLogger {
 	
 	public static void setLogLevel(String val) {
 		try {
-			Level newLevel = Level.parse(val);
+			Level newLevel = Level.parse(val.toUpperCase());
 			setLogLevel(newLevel);
 		} catch (IllegalArgumentException e) {
 			ChessCraftLogger.warning("Bad log level: " + val);

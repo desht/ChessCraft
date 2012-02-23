@@ -82,6 +82,7 @@ public class ChessStone {
 		default:
 			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
 		}
+		ChessCraftLogger.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
 	}
 
 	public int getStone() {

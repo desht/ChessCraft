@@ -101,7 +101,7 @@ public class ChessSet implements Iterable<ChessStone> {
 			materialMapWhite = initMaterialMap(c, "white");
 			materialMapBlack = initMaterialMap(c, "black");
 		} catch (IllegalArgumentException e) {
-			throw new ChessException(e.getMessage());
+			throw new ChessException("Can't load piece style '" + name + "': " + e.getMessage());
 		}
 	}
 	
@@ -153,6 +153,7 @@ public class ChessSet implements Iterable<ChessStone> {
 			String w = e.getValue().toString();
 			String b = materialMapBlack.get(e.getKey()).toString();
 			if (!w.equals(b)) {
+				ChessCraftLogger.finer("ChessSet: " + name + ": add white->black material map: " + w + "->" + b);
 				res.put(w, b);
 			}
 		}
@@ -274,7 +275,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);
-		ChessCraftLogger.log("loaded chess set '" + set.getName() + "'.");
+		ChessCraftLogger.fine("loaded chess set '" + set.getName() + "'.");
 		
 		allChessSets.put(setName, set);
 		setLoadTime.put(setName, System.currentTimeMillis());

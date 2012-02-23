@@ -43,7 +43,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Note;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -465,7 +464,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * 
 	 * @return	The location
 	 */
-	private Location findSafeLocationOutside(Player player) {
+	private Location findSafeLocationOutside() {
 		Location dest0 = chessBoard.getFullBoard().getLowerNE();
 		return dest0.getWorld().getHighestBlockAt(dest0).getLocation();
 	}

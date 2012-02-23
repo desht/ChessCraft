@@ -50,12 +50,8 @@ public class ChessPlayerListener implements Listener {
 	
 	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled()) {
-			return;
-		}
-		
 		Player player = event.getPlayer();
 
 		// a left or right-click cancels any pending player invite response
@@ -106,7 +102,7 @@ public class ChessPlayerListener implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerAnimation(PlayerAnimationEvent event) {
 		Player player = event.getPlayer();
 
@@ -187,7 +183,7 @@ public class ChessPlayerListener implements Listener {
 		MessagePager.deletePager(event.getPlayer());
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
 		if (BoardView.partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
 			event.setCancelled(true);
@@ -196,21 +192,21 @@ public class ChessPlayerListener implements Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		if (BoardView.partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event) {
 		if (BoardView.partOfChessBoard(event.getFrom()) != null) {
 			event.setCancelled(true);
 		}
 	}
 	
-	@EventHandler(priority=EventPriority.HIGH)
+	@EventHandler(ignoreCancelled = true, priority=EventPriority.HIGH)
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
 		if (ChessCraft.expecter.isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
