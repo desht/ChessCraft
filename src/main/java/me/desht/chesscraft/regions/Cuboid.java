@@ -649,10 +649,10 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
 				EntityPlayer ep = ((CraftPlayer) player).getHandle();
 				queueChunks(ep, pairs);
-				System.out.print("chunkCoordIntPair: " );
-				for (Object o : ep.chunkCoordIntPairQueue) {
-					System.out.print(((ChunkCoordIntPair)o).x + "," + ((ChunkCoordIntPair)o).z + " ");
-				}
+//				System.out.print("chunkCoordIntPair: " );
+//				for (Object o : ep.chunkCoordIntPairQueue) {
+//					System.out.print(((ChunkCoordIntPair)o).x + "," + ((ChunkCoordIntPair)o).z + " ");
+//				}
 			}
 		}
 	}
