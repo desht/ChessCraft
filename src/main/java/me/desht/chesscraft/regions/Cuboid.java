@@ -1,8 +1,10 @@
 package me.desht.chesscraft.regions;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -622,7 +624,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				}
 			}
 		}
-		sendClientChanges();
 		ChessCraftLogger.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
 
@@ -632,7 +633,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * up on the client.  Add the chunk coordinates of affected chunks to those players'
 	 * chunk queue.
 	 */
-	@SuppressWarnings("unchecked")
 	public void sendClientChanges() {
 		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
 		threshold = threshold * threshold;
@@ -648,7 +648,24 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			int pz = player.getLocation().getBlockZ();
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
 				EntityPlayer ep = ((CraftPlayer) player).getHandle();
-				ep.chunkCoordIntPairQueue.addAll(pairs);
+				queueChunks(ep, pairs);
+				System.out.print("chunkCoordIntPair: " );
+				for (Object o : ep.chunkCoordIntPairQueue) {
+					System.out.print(((ChunkCoordIntPair)o).x + "," + ((ChunkCoordIntPair)o).z + " ");
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")	
+	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
+		Set<ChunkCoordIntPair> queued = new HashSet<ChunkCoordIntPair>();
+		for (Object o : ep.chunkCoordIntPairQueue) {
+			queued.add((ChunkCoordIntPair) o);
+		}
+		for (ChunkCoordIntPair pair : pairs) {
+			if (!queued.contains(pair)) {
+				ep.chunkCoordIntPairQueue.add(pair);
 			}
 		}
 	}
