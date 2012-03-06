@@ -74,12 +74,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public BoardView(ConfigurationSection conf) throws ChessException {
-		@SuppressWarnings("unchecked")
-		List<Object> origin = conf.getList("origin"); //$NON-NLS-1$
+		List<?> origin = conf.getList("origin"); //$NON-NLS-1$
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
 		BoardOrientation dir = BoardOrientation.get(conf.getString("direction")); //$NON-NLS-1$
-		Location where = ChessPersistence.thawLocation(origin);
+		@SuppressWarnings("unchecked")
+		Location where = ChessPersistence.thawLocation((List<Object>) origin);
 
 		this.name = conf.getString("name"); //$NON-NLS-1$
 		if (BoardView.boardViewExists(name)) {

@@ -85,7 +85,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		int maxH = 0, maxW = 0;
 		for (String p : pieceConf.getKeys(false)) {
 			@SuppressWarnings("unchecked")
-			List<List<String>> pieceData = pieceConf.getList(p);
+			List<List<String>> pieceData = (List<List<String>>) pieceConf.getList(p);
 			int piece = Chess.charToPiece(p.charAt(0));
 			if (piece == Chess.NO_PIECE) {
 				throw new ChessException("invalid piece letter: " + p);

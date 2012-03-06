@@ -102,8 +102,8 @@ public class ChessCraft extends JavaPlugin {
 		instance = this;
 		PluginDescriptionFile description = this.getDescription();
 		ChessCraftLogger.init();
-		ChessConfig.init();
 		DirectoryStructure.setup();
+		ChessConfig.init();
 		util = new ChessUtils();
 
 		playerListener = new ChessPlayerListener();
@@ -118,11 +118,11 @@ public class ChessCraft extends JavaPlugin {
 		//		Results.getResultsHandler().addTestData();
 
 		PluginManager pm = getServer().getPluginManager();
-
+		
 		setupVault(pm);
-		setupSMS();
-		setupWorldEdit();
-
+		setupSMS(pm);
+		setupWorldEdit(pm);
+		
 		pm.registerEvents(blockListener, this);
 		pm.registerEvents(entityListener, this);
 		pm.registerEvents(playerListener, this);
@@ -192,9 +192,9 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
-	private void setupSMS() {
+	private void setupSMS(PluginManager pm) {
 		try {
-			Plugin p = this.getServer().getPluginManager().getPlugin("ScrollingMenuSign");
+			Plugin p = pm.getPlugin("ScrollingMenuSign");
 			if (p != null && p instanceof ScrollingMenuSign) {
 				smsPlugin = (ScrollingMenuSign) p;
 				SMSIntegration.setup(smsPlugin);
@@ -208,8 +208,8 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
-	private void setupWorldEdit() {
-		Plugin p = this.getServer().getPluginManager().getPlugin("WorldEdit");
+	private void setupWorldEdit(PluginManager pm) {
+		Plugin p = pm.getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Cuboid.setWorldEdit(worldEditPlugin);

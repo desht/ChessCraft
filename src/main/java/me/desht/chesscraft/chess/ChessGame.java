@@ -1354,7 +1354,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			}
 			pager.add(sb.toString());
 		}
-	
+
 		pager.showPage();
 	}
 

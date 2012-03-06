@@ -345,10 +345,11 @@ public class ChessBoard {
 		Cuboid square = getSquare(row, col);
 		boolean black = (col + (row % 2)) % 2 == 0;
 		square.set(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial(), true);
+		square.sendClientChanges();
 	}
 
 	private void highlightBoardSquare(int sqi, boolean highlight) {
-		highlightBoardSquare(sqi / 8, sqi % 8, highlight);
+		highlightBoardSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), highlight);
 	}
 
 	private void highlightBoardSquare(int row, int col, boolean highlight) {
@@ -519,9 +520,9 @@ public class ChessBoard {
 		if (board == null || from < 0 || to < 0 || from >= 64 || to >= 64) {
 			return;
 		}
+		
 		Cuboid s1 = getSquare(Chess.sqiToRow(from), Chess.sqiToCol(from));
 		Cuboid s2 = getSquare(Chess.sqiToRow(to), Chess.sqiToCol(to));
-		// TODO: need to differentiate rotation here, too...
 		Location loc1 = s1.getRelativeBlock(s1.getSizeX() / 2, 0, s1.getSizeZ() / 2).getLocation();
 		Location loc2 = s2.getRelativeBlock(s2.getSizeX() / 2, 0, s2.getSizeZ() / 2).getLocation();
 
@@ -533,8 +534,9 @@ public class ChessBoard {
 
 		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
 			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ? boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) : (Chess
-					.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
+			MaterialWithData m = isHighlighting ? 
+					boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) :
+					(Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
 			m.applyToBlock(loc1.getBlock());
 			int e2 = 2 * err;
 			if (e2 > -dz) {

@@ -237,10 +237,11 @@ public class ChessConfig {
 	private static <T> void handleListValue(Configuration config, String key, List<T> list) {
 		HashSet<T> current;
 
+		List<T> cList = (List<T>) config.getList(key);
 		if (list.get(0).equals("-")) {
 			// remove specifed item from list
 			list.remove(0);
-			current = new HashSet<T>(config.getList(key));
+			current = new HashSet<T>(cList);
 			current.removeAll(list);
 		} else if (list.get(0).equals("=")) {
 			// replace list
@@ -249,11 +250,11 @@ public class ChessConfig {
 		} else if (list.get(0).equals("+")) {
 			// append to list
 			list.remove(0);
-			current = new HashSet<T>(config.getList(key));
+			current = new HashSet<T>(cList);
 			current.addAll(list);
 		} else {
 			// append to list
-			current = new HashSet<T>(config.getList(key));
+			current = new HashSet<T>(cList);
 			current.addAll(list);
 		}
 

@@ -19,7 +19,8 @@ import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftChunk;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.BlockUtils;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -353,10 +354,9 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			} else if (BlockType.isContainerBlock(b.getTypeId())) {
 				// also check if this is a container, and empty it if necessary
 				BlockState state = b.getState();
-				if (state instanceof org.bukkit.block.ContainerBlock) {
-					org.bukkit.block.ContainerBlock chest = (org.bukkit.block.ContainerBlock) state;
-					Inventory inven = chest.getInventory();
-					inven.clear();
+				if (state instanceof InventoryHolder) {
+					InventoryHolder ih = (InventoryHolder) state;
+					ih.getInventory().clear();
 				}
 			}
 		}
@@ -612,7 +612,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Set the light level of all blocks within this Cuboid.
 	 * 
-	 * @param level	the required light level
+	 * @param level			the required light level
+	 * @param allBlocks		if true, set the level for all blocks, not just air blocks
 	 */
 	public void forceLightLevel(int level) {
 		long start = System.nanoTime();
@@ -620,13 +621,13 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		for (int x = getLowerX(); x < getUpperX(); x++) {
 			for (int z = getLowerZ(); z < getUpperZ(); z++) {
 				for (int y = getLowerY(); y < getUpperY(); y++) {
-					w.a(EnumSkyBlock.BLOCK, x, y, z, level);			
+					w.a(EnumSkyBlock.BLOCK, x, y, z, level);
 				}
 			}
 		}
 		ChessCraftLogger.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
-
+	
 	/**
 	 * Any players within the threshold distance of the cuboid may need
 	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
