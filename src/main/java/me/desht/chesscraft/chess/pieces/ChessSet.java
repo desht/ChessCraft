@@ -24,7 +24,7 @@ import chesspresso.Chess;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
@@ -169,7 +169,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * @param direction		Board orientation
 	 * @return
 	 */
-	public ChessStone getStone(int stone, BoardOrientation direction) {
+	public ChessStone getStone(int stone, BoardRotation direction) {
 		int piece = Chess.stoneToPiece(stone);
 		int colour = Chess.stoneToColor(stone);
 		String key = String.format("%d:%d:%s", piece, colour, direction);

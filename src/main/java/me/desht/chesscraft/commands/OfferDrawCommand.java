@@ -19,7 +19,7 @@ public class OfferDrawCommand extends AbstractCommand {
 		notFromConsole(player);
 		
 		ChessGame game = ChessGame.getCurrentGame(player, true);
-		game.offerDraw(player);
+		game.offerDraw(player.getName());
 		
 		return true;
 	}

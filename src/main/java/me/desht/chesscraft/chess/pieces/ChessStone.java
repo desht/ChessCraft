@@ -2,7 +2,7 @@ package me.desht.chesscraft.chess.pieces;
 
 import chesspresso.Chess;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ChessStone {
@@ -17,7 +17,7 @@ public class ChessStone {
 	 * @param matMap
 	 * @param direction
 	 */
-	public ChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardOrientation direction) {
+	public ChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
 		this.stone = stone;
 
 		int rotation = direction.ordinal() * 90;

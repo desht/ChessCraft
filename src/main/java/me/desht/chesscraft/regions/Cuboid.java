@@ -93,12 +93,12 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public Cuboid(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
 		this.world = world;
-		this.x1 = x1;
-		this.x2 = x2;
-		this.y1 = y1;
-		this.y2 = y2;
-		this.z1 = z1;
-		this.z2 = z2;
+		this.x1 = Math.min(x1, x2);
+		this.x2 = Math.max(x1, x2);
+		this.y1 = Math.min(y1, y2);
+		this.y2 = Math.max(y1, y2);
+		this.z1 = Math.min(z1, z2);
+		this.z2 = Math.max(z1, z2);
 	}
 
 	/**
@@ -613,7 +613,6 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * Set the light level of all blocks within this Cuboid.
 	 * 
 	 * @param level			the required light level
-	 * @param allBlocks		if true, set the level for all blocks, not just air blocks
 	 */
 	public void forceLightLevel(int level) {
 		long start = System.nanoTime();

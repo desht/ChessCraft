@@ -172,7 +172,7 @@ public class PieceDesigner {
 			int sqi = getSqi(p);
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			bounding = c.getBoundingCuboid(bounding);
-			ChessStone whiteStone = chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getDirection());
+			ChessStone whiteStone = chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getRotation());
 			ChessCraftLogger.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
 			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
 		}
@@ -261,7 +261,7 @@ public class PieceDesigner {
 	}
 	
 	private int rotationNeeded() {
-		switch (view.getDirection()) {
+		switch (view.getRotation()) {
 		case NORTH: return 0;
 		case EAST: return 270;
 		case SOUTH: return 180;

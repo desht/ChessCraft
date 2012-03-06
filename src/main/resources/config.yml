@@ -42,6 +42,8 @@ designer:
 effects:
     capture_explosion: true
     check_alert: true
+    move_alert: true
+    piece_riding: true
 log_level: INFO
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

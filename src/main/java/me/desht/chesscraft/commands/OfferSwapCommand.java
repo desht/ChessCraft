@@ -19,7 +19,7 @@ public class OfferSwapCommand extends AbstractCommand {
 		notFromConsole(player);
 		
 		ChessGame game = ChessGame.getCurrentGame(player, true);
-		game.offerSwap(player);
+		game.offerSwap(player.getName());
 		
 		return true;
 	}

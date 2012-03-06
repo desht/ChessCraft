@@ -1,6 +1,6 @@
 package me.desht.chesscraft.enums;
 
-public enum BoardOrientation {
+public enum BoardRotation {
 
 	NORTH(-1, 0), // north = -x
 	EAST(0, -1), // east = -z
@@ -11,7 +11,7 @@ public enum BoardOrientation {
 	 */
 	private final int x, z;
 
-	BoardOrientation(int xPositive, int zPositive) {
+	BoardRotation(int xPositive, int zPositive) {
 		x = xPositive;
 		z = zPositive;
 	}
@@ -28,11 +28,11 @@ public enum BoardOrientation {
 	 * this is to the <i>right</i> of the direction
 	 * @return the direction if it is turned right
 	 */
-	public BoardOrientation getRight() {
-		if (this.ordinal() >= BoardOrientation.values().length - 1) {
-			return BoardOrientation.values()[0];
+	public BoardRotation getRight() {
+		if (this.ordinal() >= BoardRotation.values().length - 1) {
+			return BoardRotation.values()[0];
 		} else {
-			return BoardOrientation.values()[this.ordinal() + 1];
+			return BoardRotation.values()[this.ordinal() + 1];
 		}
 	}
 
@@ -40,11 +40,11 @@ public enum BoardOrientation {
 	 * this is to the <i>left</i> of the direction
 	 * @return the direction if it is turned left
 	 */
-	public BoardOrientation getLeft() {
+	public BoardRotation getLeft() {
 		if (this.ordinal() == 0) {
-			return BoardOrientation.values()[BoardOrientation.values().length - 1];
+			return BoardRotation.values()[BoardRotation.values().length - 1];
 		} else {
-			return BoardOrientation.values()[this.ordinal() - 1];
+			return BoardRotation.values()[this.ordinal() - 1];
 		}
 	}
 
@@ -62,7 +62,7 @@ public enum BoardOrientation {
 		return null; // should not get here..
 	}
 
-	public static BoardOrientation getPlayerDirection(org.bukkit.entity.Player p) {
+	public static BoardRotation getPlayerDirection(org.bukkit.entity.Player p) {
 		if (p != null) {
 			// get the direction the player is facing
 			double rot = (p.getLocation().getYaw() - 90) % 360;
@@ -70,13 +70,13 @@ public enum BoardOrientation {
 				rot += 360;
 			}
 			if ((0 <= rot && rot < 45) || (315 <= rot && rot < 360.0)) {
-				return BoardOrientation.NORTH;
+				return BoardRotation.NORTH;
 			} else if (45 <= rot && rot < 135) {
-				return BoardOrientation.EAST;
+				return BoardRotation.EAST;
 			} else if (135 <= rot && rot < 225) {
-				return BoardOrientation.SOUTH;
+				return BoardRotation.SOUTH;
 			} else if (225 <= rot && rot < 315) {
-				return BoardOrientation.WEST;
+				return BoardRotation.WEST;
 			}
 		}
 		return null;
@@ -96,8 +96,8 @@ public enum BoardOrientation {
 		return 0;
 	}
 
-	public static BoardOrientation get(String name) {
-		for (BoardOrientation o : values()) {
+	public static BoardRotation get(String name) {
+		for (BoardRotation o : values()) {
 			if (o.name().equalsIgnoreCase(name)) {
 				return o;
 			}

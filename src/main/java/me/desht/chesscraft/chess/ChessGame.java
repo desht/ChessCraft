@@ -254,13 +254,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		// repeat for the AI engine (doesn't support loading from FEN)
 		if (aiPlayer != null) {
 			for (short move : history) {
-				aiPlayer.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+				aiPlayer.loadMove(Move.getFromSqi(move), Move.getToSqi(move));
 			}
 			aiPlayer.loadDone(); // tell ai to start on next move
 		}
 		if (aiPlayer2 != null) {
 			for (short move : history) {
-				aiPlayer2.loadmove(Move.getFromSqi(move), Move.getToSqi(move));
+				aiPlayer2.loadMove(Move.getFromSqi(move), Move.getToSqi(move));
 			}
 			aiPlayer2.loadDone(); // tell ai to start on next move
 		}
@@ -774,9 +774,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (isAIPlayer(nextPlayer)) {
 			if (nextPlayer.equals(playerBlack) && isAIPlayer(playerWhite)) {
 				// AI vs. AI
-				aiPlayer2.userMove(fromSquare, toSquare);
+				aiPlayer2.userHasMoved(fromSquare, toSquare);
 			} else {
-				aiPlayer.userMove(fromSquare, toSquare);
+				aiPlayer.userHasMoved(fromSquare, toSquare);
 			}
 		} else {
 			alert(nextPlayer, Messages.getString("Game.playerPlayedMove", getColour(prevToMove), getPosition().getLastMove().getLAN())); //$NON-NLS-1$
@@ -1275,41 +1275,51 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Have the given player offer a draw.
 	 * 
-	 * @param player
+	 * @param playerName 	Name of the player making the offer
+	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
 	 */
-	public void offerDraw(Player player) throws ChessException {
-		ensurePlayerInGame(player.getName());
-		ensurePlayerToMove(player.getName());
+	public void offerDraw(String playerName) throws ChessException {
+		Player player = Bukkit.getPlayer(playerName);
+		// a null player is OK as long as the player name is in the game,
+		// in which case it's probably an AI player
+		ensurePlayerInGame(playerName);
+		ensurePlayerToMove(playerName);
 		ensureGameState(GameState.RUNNING);
 	
-		String other = getOtherPlayer(player.getName());
-		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, player.getName(), other), other);
+		String otherPlayer = getOtherPlayer(playerName);
+		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, playerName, otherPlayer), otherPlayer);
 	
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", other)); //$NON-NLS-1$
-		alert(other, Messages.getString("ChessCommandExecutor.drawOfferedOther", player.getName())); //$NON-NLS-1$
-		alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+		if (player != null) {
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayer)); //$NON-NLS-1$
+		}
+		alert(otherPlayer, Messages.getString("ChessCommandExecutor.drawOfferedOther", playerName)); //$NON-NLS-1$
+		alert(otherPlayer, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		getView().getControlPanel().repaintSignButtons();
 	}
 
 	/**
 	 * Have the given player offer to swap sides.
 	 * 
-	 * @param player
+	 * @param playerName	Name of the player making the offer
+	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
 	 */
-	public void offerSwap(Player player) throws ChessException {
-		ensurePlayerInGame(player.getName());
+	public void offerSwap(String playerName) throws ChessException {
+		Player player = Bukkit.getPlayer(playerName);
+		ensurePlayerInGame(playerName);
 	
-		String other = getOtherPlayer(player.getName());
-		if (other.isEmpty()) {
+		String otherName = getOtherPlayer(playerName);
+		if (otherName.isEmpty()) {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, player.getName(), other), other);
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", other)); //$NON-NLS-1$ 
-			alert(other, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", player.getName())); //$NON-NLS-1$ 
-			alert(other, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, playerName, otherName), otherName);
+			if (player != null) {
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherName)); //$NON-NLS-1$
+			} 
+			alert(otherName, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", playerName)); //$NON-NLS-1$ 
+			alert(otherName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		}
 		getView().getControlPanel().repaintSignButtons();
 	}

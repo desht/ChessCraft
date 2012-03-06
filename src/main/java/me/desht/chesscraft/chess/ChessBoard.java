@@ -19,7 +19,7 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
-import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -47,8 +47,8 @@ public class ChessBoard {
 	// the full board region (board, frame, and area above)
 	private final Cuboid fullBoard;
 	// this is the direction white faces
-	private final BoardOrientation rotation;
-	
+	private final BoardRotation rotation;
+
 	// if highlight_last_move, what squares (indices) are highlighted
 	private int fromSquare = -1, toSquare = -1;
 	// settings related to how the board is drawn
@@ -67,7 +67,7 @@ public class ChessBoard {
 	 * @param pieceStyleName
 	 * @throws ChessException
 	 */
-	public ChessBoard(Location origin, BoardOrientation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
+	public ChessBoard(Location origin, BoardRotation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
 		setBoardStyle(boardStyleName);
 		setPieceStyle(pieceStyleName != null ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
@@ -82,7 +82,7 @@ public class ChessBoard {
 		validateBoardPosition();
 	}
 
-	private Location initA1Corner(Location origin, BoardOrientation rotation) {
+	private Location initA1Corner(Location origin, BoardRotation rotation) {
 		Location a1 = new Location(origin.getWorld(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 		int offset = boardStyle.getSquareSize() / 2;
 		switch (rotation) {
@@ -138,21 +138,21 @@ public class ChessBoard {
 	}
 
 	public Location getA1Center() {
-		return a1Center == null ? null : a1Center.clone();
+		return a1Center.clone();
 	}
 
 	/**
 	 * @return the outer-most corner of the A1 square
 	 */
 	public Location getA1Corner() {
-		return a1Corner == null ? null : a1Corner.clone();
+		return a1Corner.clone();
 	}
 
 	/**
 	 * @return the outer-most corner of the H8 square
 	 */
 	public Location getH8Corner() {
-		return h8Corner == null ? null : h8Corner.clone();
+		return h8Corner.clone();
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class ChessBoard {
 	 * @return the direction of the board (from the white to black sides of the
 	 *         board)
 	 */
-	public BoardOrientation getRotation() {
+	public BoardRotation getRotation() {
 		return rotation;
 	}
 
@@ -265,27 +265,25 @@ public class ChessBoard {
 			setPieceStyle(chessPieceSet.getName());
 		}
 	}
-	
+
 	/**
 	 * Paint everything! (board, frame, enclosure, control panel, lighting)
 	 */
 	void paintAll() {
-		if (board != null) {
-			if (designer == null) {
-				fullBoard.clear(true);
-			}
-			paintEnclosure();
-			paintFrame();
-			paintBoard();
-			if (designer != null) {
-				paintDesignIndicators();
-			}
-			if (fromSquare >= 0 || toSquare >= 0) {
-				highlightSquares(fromSquare, toSquare);
-			}
-			fullBoard.forceLightLevel(boardStyle.getLightLevel());
-			fullBoard.sendClientChanges();
+		if (designer == null) {
+			fullBoard.clear(true);
 		}
+		paintEnclosure();
+		paintFrame();
+		paintBoard();
+		if (designer != null) {
+			paintDesignIndicators();
+		}
+		if (fromSquare >= 0 || toSquare >= 0) {
+			highlightSquares(fromSquare, toSquare);
+		}
+		fullBoard.forceLightLevel(boardStyle.getLightLevel());
+		fullBoard.sendClientChanges();
 	}
 
 	private void paintEnclosure() {
@@ -293,7 +291,8 @@ public class ChessBoard {
 		aboveFullBoard.getFace(Direction.East).set(boardStyle.getEnclosureMaterial(), true);
 		aboveFullBoard.getFace(Direction.South).set(boardStyle.getEnclosureMaterial(), true);
 		aboveFullBoard.getFace(Direction.West).set(boardStyle.getEnclosureMaterial(), true);
-		aboveFullBoard.getFace(Direction.Up).set(boardStyle.getEnclosureMaterial(), true);
+
+		fullBoard.getFace(Direction.Up).set(boardStyle.getEnclosureMaterial(), true);
 
 		if (!boardStyle.getEnclosureMaterial().equals(boardStyle.getStrutsMaterial())) {
 			paintStruts();
@@ -302,7 +301,7 @@ public class ChessBoard {
 
 	private void paintStruts() {
 		MaterialWithData s = boardStyle.getStrutsMaterial();
-		
+
 		// vertical struts at the frame corners
 		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight());
 		c.set(s, true);
@@ -319,7 +318,7 @@ public class ChessBoard {
 		roof.getFace(Direction.North).set(s, true);
 		roof.getFace(Direction.West).set(s, true);
 		roof.getFace(Direction.South).set(s, true);
-		
+
 	}
 
 	private void paintFrame() {
@@ -388,9 +387,6 @@ public class ChessBoard {
 	 * @param chessGame
 	 */
 	void paintChessPieces(Position chessGame) {
-		if (board == null) {
-			return;
-		}
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				paintChessPiece(row, col, chessGame.getStone(row * 8 + col));
@@ -407,10 +403,6 @@ public class ChessBoard {
 	 * @param stone
 	 */
 	public void paintChessPiece(int row, int col, int stone) {
-		if (board == null) {
-			return;
-		}
-
 		Cuboid region = getPieceRegion(row, col);
 		region.clear(true);
 		if (stone != Chess.NO_STONE) {
@@ -483,7 +475,7 @@ public class ChessBoard {
 	 * @param to	square index of the second square
 	 */
 	void highlightSquares(int from, int to) {
-		if (board == null || boardStyle.getHighlightStyle() == HighlightStyle.NONE) {
+		if (boardStyle.getHighlightStyle() == HighlightStyle.NONE) {
 			return;
 		}
 		// erase the old highlight, if any
@@ -517,10 +509,10 @@ public class ChessBoard {
 	 * @param isHighlighting	True if drawing a highlight, false if erasing it
 	 */
 	private void drawHighlightLine(int from, int to, boolean isHighlighting) {
-		if (board == null || from < 0 || to < 0 || from >= 64 || to >= 64) {
+		if (from < 0 || to < 0 || from >= 64 || to >= 64) {
 			return;
 		}
-		
+
 		Cuboid s1 = getSquare(Chess.sqiToRow(from), Chess.sqiToCol(from));
 		Cuboid s2 = getSquare(Chess.sqiToRow(to), Chess.sqiToCol(to));
 		Location loc1 = s1.getRelativeBlock(s1.getSizeX() / 2, 0, s1.getSizeZ() / 2).getLocation();
@@ -536,17 +528,17 @@ public class ChessBoard {
 			int sqi = getSquareAt(loc1);
 			MaterialWithData m = isHighlighting ? 
 					boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) :
-					(Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
-			m.applyToBlock(loc1.getBlock());
-			int e2 = 2 * err;
-			if (e2 > -dz) {
-				err -= dz;
-				loc1.add(sx, 0, 0);
-			}
-			if (e2 < dx) {
-				err += dx;
-				loc1.add(0, 0, sz);
-			}
+						(Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
+					m.applyToBlock(loc1.getBlock());
+					int e2 = 2 * err;
+					if (e2 > -dz) {
+						err -= dz;
+						loc1.add(sx, 0, 0);
+					}
+					if (e2 < dx) {
+						err += dx;
+						loc1.add(0, 0, sz);
+					}
 		}
 	}
 
@@ -554,9 +546,7 @@ public class ChessBoard {
 	 * Clear full area associated with this board
 	 */
 	void clearAll() {
-		if (fullBoard != null) {
-			fullBoard.clear(true);
-		}
+		fullBoard.clear(true);
 	}
 
 	/**
@@ -567,7 +557,8 @@ public class ChessBoard {
 	 * @return a Cuboid representing the square
 	 */
 	public Cuboid getSquare(int row, int col) {
-		if (board == null || !(row >= 0 && col >= 0 && row < 8 && col < 8)) {
+		if (row < 0 || col < 0 || row > 7 || col > 7) {
+			ChessCraftLogger.warning("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");
 			return null;
 		}
 		Cuboid sq = null;
@@ -602,10 +593,6 @@ public class ChessBoard {
 	 * @return a Cuboid representing the drawing space
 	 */
 	public Cuboid getPieceRegion(int row, int col) {
-		if (board == null) {
-			return null;
-		}
-
 		Cuboid sq = getSquare(row, col).expand(Direction.Up, boardStyle.getHeight() - 1).shift(Direction.Up, 1);
 		return sq;
 	}
@@ -617,7 +604,7 @@ public class ChessBoard {
 	 * @return the square index, or Chess.NO_SQUARE if not on the board
 	 */
 	int getSquareAt(Location loc) {
-		if (areaBoard == null || !areaBoard.contains(loc)) {
+		if (!areaBoard.contains(loc)) {
 			return Chess.NO_SQUARE;
 		}
 		int row = 0, col = 0;

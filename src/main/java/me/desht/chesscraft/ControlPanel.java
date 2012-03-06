@@ -28,7 +28,7 @@ import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.blocks.SignButton;
-import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class ControlPanel {
@@ -56,7 +56,7 @@ public class ControlPanel {
 	public static final int PANEL_WIDTH = 8;
 
 	private final BoardView view;
-	private final BoardOrientation boardDir, signDir;
+	private final BoardRotation boardDir, signDir;
 	private final MaterialWithData signMat;
 	private final Cuboid panelBlocks;
 	private final Cuboid toMoveIndicator;
@@ -69,7 +69,7 @@ public class ControlPanel {
 
 	public ControlPanel(BoardView view) {
 		this.view = view;
-		boardDir = view.getDirection();
+		boardDir = view.getRotation();
 		signDir = boardDir.getRight();
 
 		buttons = new HashMap<String, SignButton>();
@@ -265,7 +265,7 @@ public class ControlPanel {
 			}
 		} else if (name.equals(OFFER_DRAW)) { //$NON-NLS-1$
 			if (game != null) {
-				game.offerDraw(player);
+				game.offerDraw(player.getName());
 			}
 		} else if (name.equals(GAME_INFO)) { //$NON-NLS-1$
 			if (game != null) {
@@ -409,7 +409,7 @@ public class ControlPanel {
 	}
 
 	private static Cuboid getBoardControlPanel(BoardView view) {
-		BoardOrientation dir = view.getDirection();
+		BoardRotation dir = view.getRotation();
 		Location a1 = view.getA1Square();
 
 		int x = a1.getBlockX(), y = a1.getBlockY() + 1, z = a1.getBlockZ();
@@ -441,7 +441,7 @@ public class ControlPanel {
 		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
 	}
 
-	private static byte getSignDir(BoardOrientation signDir) {
+	private static byte getSignDir(BoardRotation signDir) {
 		switch(signDir){
 		case NORTH:
 			return 4;

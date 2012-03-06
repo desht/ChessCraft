@@ -49,13 +49,15 @@ public class ChessAI {
 
 	private final static HashMap<String, ChessAI> runningAI = new HashMap<String, ChessAI>();
 	private final static HashMap<String, AI_Def> availableAI = new HashMap<String, AI_Def>();
-	
-	private fr.free.jchecs.core.Game jChecsGame = null;
+
 	private final String name;
-	private ChessGame chessCraftGame = null;
-	private boolean userToMove = true, isWhite = false;
-	private int aiTask = -1;
 	private final AI_Def aiSettings;
+
+	private fr.free.jchecs.core.Game jChecsGame = null;
+	private ChessGame chessCraftGame = null;
+	private boolean userToMove = true;
+	private boolean isWhiteAI = false;
+	private int aiTask = -1;
 
 	private ChessAI() throws ChessException {
 		aiSettings = getAI(null);
@@ -109,7 +111,7 @@ public class ChessAI {
 		joueur = jChecsGame.getPlayer(aiWhite);
 		joueur.setName(Messages.getString("ChessAI.computer")); //$NON-NLS-1$
 		joueur.setEngine(aiSettings.newInstance());
-		isWhite = aiWhite;
+		isWhiteAI = aiWhite;
 	}
 
 	public static void initAI_Names() {
@@ -133,11 +135,10 @@ public class ChessAI {
 				if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
 					for (String name : d.getString("funName", a).split(",")) { //$NON-NLS-1$ //$NON-NLS-2$
 						if ((name = name.trim()).length() > 0) {
-							availableAI.put(
-									name.toLowerCase(),
-									new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
-									d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
-									.getString("comment"))); //$NON-NLS-1$
+							availableAI.put(name.toLowerCase(),
+							                new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
+							                           d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
+							                           .getString("comment"))); //$NON-NLS-1$
 						}
 					}
 				}
@@ -194,6 +195,9 @@ public class ChessAI {
 		return listAIs(true);
 	}
 
+	/**
+	 * Clear down all running AI's.  This should be called when the plugin is disabled.
+	 */
 	public static void clearAI() {
 		String[] ais = runningAI.keySet().toArray(new String[0]);
 		for (String aiName : ais) {
@@ -210,38 +214,38 @@ public class ChessAI {
 			Bukkit.getScheduler().cancelTask(aiTask);
 		}
 		if (jChecsGame != null) {
-			jChecsGame.getPlayer(isWhite).setEngine(null);
+			jChecsGame.getPlayer(isWhiteAI).setEngine(null);
 			jChecsGame = null;
 		}
 		chessCraftGame = null;
 		runningAI.remove(aiSettings.name.toLowerCase());
 	}
 
-	public void loadBoard(chesspresso.game.Game game, boolean usersTurn) {
-		setUserMove(usersTurn);
-	}
-
 	public void setUserMove(boolean move) {
-		if (move != userToMove) {
-			if (!(userToMove = move)) {
-				int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
-				aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
+		if (move == userToMove) {
+			return;
+		}
 
-					public void run() {
-						final MoveGenerator plateau = jChecsGame.getBoard();
-						final Engine ia = jChecsGame.getPlayer(isWhite).getEngine();
-						if (ia != null) {
-							Move m = ia.getMoveFor(plateau);
-							aiMove(m);
-							aiTask = -1;
-						}
+		userToMove = move;
+		if (!userToMove) {
+			// Get a move from the AI
+			int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
+			aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
+
+				public void run() {
+					final MoveGenerator plateau = jChecsGame.getBoard();
+					final Engine engine = jChecsGame.getPlayer(isWhiteAI).getEngine();
+					if (engine != null) {
+						Move m = engine.getMoveFor(plateau);
+						aiMove(m);
+						aiTask = -1;
 					}
-				}, wait * 20);
-			}
+				}
+			}, wait * 20L);
 		}
 	}
 
-	public void loadmove(int fromIndex, int toIndex) {
+	public void loadMove(int fromIndex, int toIndex) {
 		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
 		jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
 		userToMove = !userToMove;
@@ -255,23 +259,19 @@ public class ChessAI {
 		}
 	}
 
-	public void userMove(int fromIndex, int toIndex) {
+	public void userHasMoved(int fromIndex, int toIndex) {
 		if (!userToMove) {
 			return;
 		}
 		try {
+			ChessCraftLogger.fine("ChessAI: userMove: moved from " + fromIndex + " to " + toIndex);
 
-			// System.out.println("user move: " + fromIndex + " to " + toIndex);
-
-			Square from = Square.valueOf(fromIndex),
-					to = Square.valueOf(toIndex);
-			// or?
-			// Square from = Square.valueOf(chesspresso.Chess.sqiToRow(fromIndex),
-			// chesspresso.Chess.sqiToCol(fromIndex)),
-			// to = Square.valueOf(chesspresso.Chess.sqiToRow(toIndex),
-			// chesspresso.Chess.sqiToCol(toIndex));
-
-			// assume move is legal
+			// conveniently, Chespresso & jChecs use the same row/column/sqi conventions
+			Square from = Square.valueOf(fromIndex);
+			Square to = Square.valueOf(toIndex);
+			
+			// we're assuming that the move is legal
+			// (it should be, it's already been validated by Chesspresso)
 			jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
 
 		} catch (Exception e) {
@@ -280,26 +280,32 @@ public class ChessAI {
 		setUserMove(false);
 	}
 
-	public void aiMove(Move m) {
+	private void aiMove(Move m) {
 		if (userToMove || jChecsGame == null) {
 			return;
 		}
-		// System.out.println("ai move: " + m);
+		
+		ChessCraftLogger.fine("ChessAI: aiMove: AI moved " + m);
 
 		try {
 			// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
-			// which is very bad.  So we just tell the game that the AI has moved, and it can check on the next tick.
+			// which is Very Bad.  So we just tell the game that the AI has moved, and it can check on the next tick.
 			chessCraftGame.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
 			if (jChecsGame != null) { // if game not been deleted
 				jChecsGame.moveFromCurrent(m);
 			}
 		} catch (Exception ex) {
-			// TODO: need to offer the player a draw here, really
+			// Something's gone horribly wrong and we can't continue.  Offer a draw to the other player.
 			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex); //$NON-NLS-1$
 			chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", ex.getMessage())); //$NON-NLS-1$
+			try {
+				chessCraftGame.offerDraw(getName());
+			} catch (ChessException e) {
+				ChessCraftLogger.log(Level.SEVERE, "Caught ChessException while trying to offer draw", e);
+			}
 		}
 
-		userToMove = true;
+		setUserMove(true);
 	}
 
 	public static boolean isFree(AI_Def ai) {

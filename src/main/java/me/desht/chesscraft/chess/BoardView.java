@@ -36,7 +36,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
-import me.desht.chesscraft.enums.BoardOrientation;
+import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
 
 import org.bukkit.Bukkit;
@@ -63,7 +63,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public BoardView(String bName, Location origin,
-			BoardOrientation dir, String bStyle, String pStyle) throws ChessException {
+			BoardRotation dir, String bStyle, String pStyle) throws ChessException {
 		this.name = bName;
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
@@ -77,7 +77,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		List<?> origin = conf.getList("origin"); //$NON-NLS-1$
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
-		BoardOrientation dir = BoardOrientation.get(conf.getString("direction")); //$NON-NLS-1$
+		BoardRotation dir = BoardRotation.get(conf.getString("direction")); //$NON-NLS-1$
 		@SuppressWarnings("unchecked")
 		Location where = ChessPersistence.thawLocation((List<Object>) origin);
 
@@ -222,7 +222,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return chessBoard.getBoardStyle().getStrutsMaterial();
 	}
 
-	public BoardOrientation getDirection() {
+	public BoardRotation getRotation() {
 		return chessBoard.getRotation();
 	}
 
@@ -236,15 +236,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void paintAll() {
 		chessBoard.paintAll();
+		controlPanel.repaint();
 		if (game != null) {
 			chessBoard.paintChessPieces(game.getPosition());
 		}
-		if (controlPanel != null) {
-			controlPanel.repaint();
-		}
 	}
 
-	private void paintStoneAt(int sqi, int stone) {
+	private void paintChessPiece(int sqi, int stone) {
 		int col = Chess.sqiToCol(sqi);
 		int row = Chess.sqiToRow(sqi);
 
@@ -252,7 +250,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Get the bounds of the board itself
+	 * Get the bounds of the chess board itself.
 	 * 
 	 * @return the bounds of the chess board
 	 */
@@ -261,7 +259,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Get the region that encloses the outer extremities of this board
+	 * Get the region that encloses the outer extremities of this board, which 
+	 * includes the frame and enclosure.
 	 * 
 	 * @return	The outermost bounding box - outer edge of the frame
 	 */
@@ -293,7 +292,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	@Override
 	public void squareChanged(int sqi, int stone) {
-		paintStoneAt(sqi, stone);
+		paintChessPiece(sqi, stone);
 	}
 
 	@Override
@@ -344,6 +343,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
 	private void pieceRidingCheck(int fromSqi, int toSqi) {
+		if (!ChessConfig.getConfig().getBoolean("effects.piece_riding")) {
+			return;
+		}
 		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
 		for (Player p : chessBoard.getA1Corner().getWorld().getPlayers()) {
 			Location loc = p.getLocation();
@@ -358,19 +360,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
-		Cuboid bounds = getBounds();
-		if (bounds == null) {
-			return false;
-		}
-		bounds = bounds.shift(Direction.Up, minHeight).expand(Direction.Up, maxHeight - minHeight);
+		Cuboid bounds = getBounds().shift(Direction.Up, minHeight).expand(Direction.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
 	}
 
 	/**
-	 * check if this is a part of the board floor
+	 * Check if the location is a part of the board itself.
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc	location to check
 	 * @return true if the location is part of the board itself
 	 */
 	public boolean isOnBoard(Location loc) {
@@ -378,10 +375,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * check if this is a space within the board bounds, and above the board
+	 * Check if the location is above the board but below the enclosure roof.
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc	location to check
 	 * @return true if the location is above the board <br>
 	 *         AND within the board's height range
 	 */
@@ -397,14 +393,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * @return true if the location is *anywhere* within the board <br>
 	 *         including frame & enclosure
 	 */
-	public boolean isPartOfBoard(Location loc) {
-		return isPartOfBoard(loc, 0);
-	}
 	public boolean isPartOfBoard(Location loc, int fudge) {
 		Cuboid o = chessBoard.getFullBoard().outset(Direction.Both, fudge);
 		return o != null && o.contains(loc);
 	}
-
+	
+	public boolean isPartOfBoard(Location loc) {
+		return isPartOfBoard(loc, 0);
+	}
+	
 	public boolean isControlPanel(Location loc) {
 		return controlPanel.getPanelBlocks().contains(loc);
 	}
@@ -465,8 +462,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * @return	The location
 	 */
 	private Location findSafeLocationOutside() {
-		Location dest0 = chessBoard.getFullBoard().getLowerNE();
-		return dest0.getWorld().getHighestBlockAt(dest0).getLocation();
+		Location dest = chessBoard.getFullBoard().getLowerNE();
+		return dest.getWorld().getHighestBlockAt(dest).getLocation();
 	}
 
 	public void reloadStyle() throws ChessException {
@@ -513,7 +510,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		                                      ChessUtils.formatLoc(bounds.getLowerNE()),
 		                                      ChessUtils.formatLoc(bounds.getUpperSW())));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getDirection().toString())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().toString())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
@@ -632,7 +629,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * get a board that does not have a game running
+	 * Get a board that does not have a game running.
+	 * 
 	 * @return the first free board found
 	 * @throws ChessException if no free board was found
 	 */
@@ -646,10 +644,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * match if loc is any part of the board including the frame & enclosure
+	 * Check if location is any part of any board including the frame & enclosure.
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc	location to check
+	 * @param fudge	fudge factor - check a larger area around the board
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView partOfChessBoard(Location loc) {
@@ -666,10 +664,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * match if loc is above a board square but below the roof
+	 * Check if location is above a board square but below the roof
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc  location to check
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView aboveChessBoard(Location loc) {
@@ -682,10 +679,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * match if loc is part of a board square
+	 * Check if location is part of a board square
 	 * 
-	 * @param loc
-	 *            location to check
+	 * @param loc	location to check
 	 * @return the boardview that matches, or null if none
 	 */
 	public static BoardView onChessBoard(Location loc) {
@@ -697,6 +693,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return null;
 	}
 
+	/**
+	 * Teleport the player in a sensible manner, depending on where they are now.
+	 * 
+	 * @param player
+	 * @throws ChessException
+	 */
 	public static void teleportOut(Player player) throws ChessException {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 
@@ -718,5 +720,4 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
 	}
-
 }
