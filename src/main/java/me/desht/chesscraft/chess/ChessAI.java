@@ -8,6 +8,7 @@ package me.desht.chesscraft.chess;
 
 import fr.free.jchecs.ai.Engine;
 import fr.free.jchecs.ai.EngineFactory;
+import fr.free.jchecs.core.Game;
 import fr.free.jchecs.core.Move;
 import fr.free.jchecs.core.MoveGenerator;
 import fr.free.jchecs.core.Player;
@@ -52,41 +53,52 @@ public class ChessAI {
 
 	private final String name;
 	private final AI_Def aiSettings;
+	private final ChessGame chessCraftGame;
+	private final Game jChecsGame;
+	private final boolean isWhiteAI;
 
-	private fr.free.jchecs.core.Game jChecsGame = null;
-	private ChessGame chessCraftGame = null;
 	private boolean userToMove = true;
-	private boolean isWhiteAI = false;
 	private int aiTask = -1;
+	private boolean hasFailed = false;
+	private Move pendingMove = null;
 
-	private ChessAI() throws ChessException {
-		aiSettings = getAI(null);
-		if (aiSettings == null) {
-			throw new ChessException(Messages.getString("ChessAI.noFreeAI")); //$NON-NLS-1$
-		}
-		name = getAIPrefix() + aiSettings.name;
-	}
-
-	private ChessAI(String aiName) throws ChessException {
-		aiSettings = getAI(aiName);
+	private ChessAI(String aiName, ChessGame chessCraftGame, boolean isWhiteAI) throws ChessException {
+		aiSettings = getAIDefinition(aiName);
 		if (aiSettings == null) {
 			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
 		} else if (runningAI.containsKey(aiSettings.name.toLowerCase())) {
 			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
 		}
-		name = getAIPrefix() + aiSettings.name;
+		this.name = getAIPrefix() + aiSettings.name;
+		this.chessCraftGame = chessCraftGame;
+		this.isWhiteAI = isWhiteAI;
+		this.jChecsGame = initGame();
 	}
 
-	private ChessAI(AI_Def ai) throws ChessException {
-		if (ai == null) {
-			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
-		} else if (runningAI.containsKey(ai.name.toLowerCase())) {
-			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
-		}
-		aiSettings = ai;
-		name = getAIPrefix() + aiSettings.name;
+	/**
+	 * Initialise the jChecs Game object.
+	 * 
+	 * @return
+	 */
+	private Game initGame() {
+		Game jChecsGame = new fr.free.jchecs.core.Game();
+		// _game.getPlayer(aiWhite)
+		Player joueur = jChecsGame.getPlayer(!isWhiteAI);
+		joueur.setName(Messages.getString("ChessAI.human")); //$NON-NLS-1$
+		joueur.setEngine(null);
+		joueur = jChecsGame.getPlayer(isWhiteAI);
+		joueur.setName(Messages.getString("ChessAI.computer")); //$NON-NLS-1$
+		joueur.setEngine(aiSettings.newInstance());
+
+		return jChecsGame;
 	}
 
+	/**
+	 * Get the AI's "public" name.  This is name displayed to players, and also stored in the ChessCraft
+	 * ChessGame object.
+	 * 
+	 * @return
+	 */
 	public String getName() {
 		return AI_PREFIX + name;
 	}
@@ -95,26 +107,145 @@ public class ChessAI {
 		return aiSettings;
 	}
 
-	public static String getAIPrefix() {
-		return ChessConfig.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$ //$NON-NLS-2$
+	public Move getPendingMove() {
+		return pendingMove;
 	}
 
-	public void init(boolean aiWhite) {
-		if (jChecsGame != null) {
-			return; // only init once
+	public void clearPendingMove() {
+		this.pendingMove = null;
+	}
+
+	public boolean hasFailed() {
+		return hasFailed;
+	}
+
+	public void setFailed(boolean failed) {
+		hasFailed = failed;
+	}
+
+	/**
+	 * Remove an AI object from the list of running AI's.  This should clean it up (as
+	 * long as nowhere else has taken a reference to it).
+	 */
+	public void delete() {
+		if (aiTask != -1) {
+			Bukkit.getScheduler().cancelTask(aiTask);
 		}
-		jChecsGame = new fr.free.jchecs.core.Game();
-		// _game.getPlayer(aiWhite)
-		Player joueur = jChecsGame.getPlayer(!aiWhite);
-		joueur.setName(Messages.getString("ChessAI.human")); //$NON-NLS-1$
-		joueur.setEngine(null);
-		joueur = jChecsGame.getPlayer(aiWhite);
-		joueur.setName(Messages.getString("ChessAI.computer")); //$NON-NLS-1$
-		joueur.setEngine(aiSettings.newInstance());
-		isWhiteAI = aiWhite;
+		jChecsGame.getPlayer(isWhiteAI).setEngine(null);
+		runningAI.remove(aiSettings.name.toLowerCase());
 	}
 
-	public static void initAI_Names() {
+	/**
+	 * Set whether this AI or the "user" (other player) is to move next.
+	 * 
+	 * @param move	true if the other player is to move, false if we (this AI) is to move
+	 */
+	public void setUserToMove(boolean move) {
+		if (move == userToMove) {
+			return;
+		}
+		userToMove = move;
+		if (!userToMove) {
+			setAIThinking();
+		}
+	}
+
+	/**
+	 * Start the AI thinking about its next move.
+	 */
+	private void setAIThinking() {
+		int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
+		aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
+			public void run() {
+				try {
+					final MoveGenerator plateau = jChecsGame.getBoard();
+					final Engine engine = jChecsGame.getPlayer(isWhiteAI).getEngine();
+					final Move m = engine.getMoveFor(plateau);
+					aiHasMoved(m);
+					aiTask = -1;
+				} catch (Exception e) {
+					aiHasFailed(e);
+				}
+			}
+		}, wait * 20L);
+	}
+
+	/**
+	 * Replay a list of moves into the jchecsGame object.  Called when a game is restored
+	 * from persisted data.
+	 * 
+	 * @param moves
+	 */
+	public void replayMoves(List<Short> moves) {
+		userToMove = !isWhiteAI;
+		for (short move : moves) {
+			Square from = Square.valueOf(chesspresso.move.Move.getFromSqi(move));
+			Square to = Square.valueOf(chesspresso.move.Move.getToSqi(move));
+			jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
+			userToMove = !userToMove;
+		}
+		ChessCraftLogger.finer("ChessAI: replayMoves: loaded " + moves.size() + " moves into " + getName() + ": AI to move = " + !userToMove);
+		if (!userToMove) {
+			setAIThinking();
+		}
+	}
+
+	void userHasMoved(int fromIndex, int toIndex) {
+		if (!userToMove) {
+			return;
+		}
+		try {
+			// conveniently, Chesspresso & jChecs use the same row/column/sqi conventions
+			Square from = Square.valueOf(fromIndex);
+			Square to = Square.valueOf(toIndex);
+
+			// we're assuming the move is legal (it should be - it's already been validated by Chesspresso)
+			Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
+			ChessCraftLogger.fine("ChessAI: userHasMoved: " + m);
+			jChecsGame.moveFromCurrent(m);
+		} catch (Exception e) {
+			aiHasFailed(e);
+		}
+
+		setUserToMove(false);
+	}
+
+	private void aiHasMoved(Move m) {
+		if (userToMove) {
+			return;
+		}
+
+		setUserToMove(true);
+		ChessCraftLogger.fine("ChessAI: aiHasMoved: " + m);
+
+		// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
+		// which is Very Bad.  So we just note the move made now, and let the ChessGame object check for it on
+		// the next clock tick.
+		jChecsGame.moveFromCurrent(m);
+		pendingMove = m;
+	}
+
+	/**
+	 * Something has gone horribly wrong.  Need to abandon this game.
+	 * 
+	 * @param e
+	 */
+	private void aiHasFailed(Exception e) {
+		ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", e);
+		chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+		hasFailed = true;
+	}
+
+	/*------------------------------------- static methods --------------------------------*/
+
+	public static String getAIPrefix() {
+		return ChessConfig.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Load the AI_settings.yml file and initialise the list of available AI's from it.
+	 */
+	public static void initAINames() {
 		availableAI.clear();
 		try {
 			File aiFile = new File(DirectoryStructure.getPluginDirectory(), "AI_settings.yml"); //$NON-NLS-1$
@@ -135,10 +266,11 @@ public class ChessAI {
 				if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
 					for (String name : d.getString("funName", a).split(",")) { //$NON-NLS-1$ //$NON-NLS-2$
 						if ((name = name.trim()).length() > 0) {
-							availableAI.put(name.toLowerCase(),
-							                new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
-							                           d.getInt("depth", 0), d.getDouble("payout_multiplier", 1.0), d //$NON-NLS-1$ //$NON-NLS-2$
-							                           .getString("comment"))); //$NON-NLS-1$
+							AI_Def def = new AI_Def(name, ChessEngine.getEngine(d.getString("engine")), //$NON-NLS-1$
+							                        d.getInt("depth", 0), //$NON-NLS-1$
+							                        d.getDouble("payout_multiplier", 1.0), //$NON-NLS-1$ 
+							                        d.getString("comment"));
+							availableAI.put(name.toLowerCase(), def);
 						}
 					}
 				}
@@ -148,20 +280,18 @@ public class ChessAI {
 		}
 	}
 
-	public static ChessAI getNewAI(ChessGame callback) throws ChessException {
-		return getNewAI(callback, null, false);
-	}
-
-	public static ChessAI getNewAI(ChessGame callback, boolean forceNew) throws ChessException {
-		return getNewAI(callback, null, forceNew);
-	}
-
-	public static ChessAI getNewAI(ChessGame callback, String aiName) throws ChessException {
-		return getNewAI(callback, aiName, false);
-	}
-
-	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew) throws ChessException {
-		// uses exceptions method to stop too many AI
+	/**
+	 * Get a new AI player.
+	 * 
+	 * @param callback		the ChessCraft ChessGame object
+	 * @param aiName		name of the desired AI (may be null to choose a random free AI)
+	 * @param forceNew		get a new AI even if the configured max number of AI's is reached
+	 * @param isWhiteAI		true if the AI will play white, false if playing black
+	 * @return				the AI object
+	 * @throws ChessException
+	 */
+	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew, boolean isWhiteAI) throws ChessException {
+		// uses exceptions method to stop too many AI's being created
 		if (!forceNew) {
 			int max = ChessConfig.getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
 			if (max == 0) {
@@ -171,13 +301,18 @@ public class ChessAI {
 			}
 		}
 
-		ChessAI ai = new ChessAI(aiName);
-		ai.chessCraftGame = callback;
+		ChessAI ai = new ChessAI(aiName, callback, isWhiteAI);
 		runningAI.put(ai.aiSettings.name.toLowerCase(), ai);
 
 		return ai;
 	}
 
+	/**
+	 * Get a list of all known AI definitions.
+	 * 
+	 * @param isSorted	if true, sort the list by AI name
+	 * @return
+	 */
 	public static List<AI_Def> listAIs(boolean isSorted) {
 		if (isSorted) {
 			SortedSet<String> sorted = new TreeSet<String>(availableAI.keySet());
@@ -198,127 +333,34 @@ public class ChessAI {
 	/**
 	 * Clear down all running AI's.  This should be called when the plugin is disabled.
 	 */
-	public static void clearAI() {
+	public static void clearAIs() {
 		String[] ais = runningAI.keySet().toArray(new String[0]);
 		for (String aiName : ais) {
 			ChessAI ai = runningAI.get(aiName);
 			if (ai != null) {
-				ai.removeAI();
+				ai.delete();
 			}
 		}
 		runningAI.clear();
 	}
 
-	public void removeAI() {
-		if (aiTask != -1) {
-			Bukkit.getScheduler().cancelTask(aiTask);
-		}
-		if (jChecsGame != null) {
-			jChecsGame.getPlayer(isWhiteAI).setEngine(null);
-			jChecsGame = null;
-		}
-		chessCraftGame = null;
-		runningAI.remove(aiSettings.name.toLowerCase());
-	}
-
-	public void setUserMove(boolean move) {
-		if (move == userToMove) {
-			return;
-		}
-
-		userToMove = move;
-		if (!userToMove) {
-			// Get a move from the AI
-			int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
-			aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
-
-				public void run() {
-					final MoveGenerator plateau = jChecsGame.getBoard();
-					final Engine engine = jChecsGame.getPlayer(isWhiteAI).getEngine();
-					if (engine != null) {
-						Move m = engine.getMoveFor(plateau);
-						aiMove(m);
-						aiTask = -1;
-					}
-				}
-			}, wait * 20L);
-		}
-	}
-
-	public void loadMove(int fromIndex, int toIndex) {
-		Square from = Square.valueOf(fromIndex), to = Square.valueOf(toIndex);
-		jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
-		userToMove = !userToMove;
-	}
-
-	public void loadDone() {
-		if (!userToMove) {
-			// trick the other method into starting the ai thread
-			userToMove = true;
-			setUserMove(false);
-		}
-	}
-
-	public void userHasMoved(int fromIndex, int toIndex) {
-		if (!userToMove) {
-			return;
-		}
-		try {
-			ChessCraftLogger.fine("ChessAI: userMove: moved from " + fromIndex + " to " + toIndex);
-
-			// conveniently, Chespresso & jChecs use the same row/column/sqi conventions
-			Square from = Square.valueOf(fromIndex);
-			Square to = Square.valueOf(toIndex);
-			
-			// we're assuming that the move is legal
-			// (it should be, it's already been validated by Chesspresso)
-			jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
-
-		} catch (Exception e) {
-			ChessCraftLogger.severe("Error in ChessAI", e);
-		}
-		setUserMove(false);
-	}
-
-	private void aiMove(Move m) {
-		if (userToMove || jChecsGame == null) {
-			return;
-		}
-		
-		ChessCraftLogger.fine("ChessAI: aiMove: AI moved " + m);
-
-		try {
-			// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
-			// which is Very Bad.  So we just tell the game that the AI has moved, and it can check on the next tick.
-			chessCraftGame.aiHasMoved(m.getFrom().getIndex(), m.getTo().getIndex());
-			if (jChecsGame != null) { // if game not been deleted
-				jChecsGame.moveFromCurrent(m);
-			}
-		} catch (Exception ex) {
-			// Something's gone horribly wrong and we can't continue.  Offer a draw to the other player.
-			ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", ex); //$NON-NLS-1$
-			chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", ex.getMessage())); //$NON-NLS-1$
-			try {
-				chessCraftGame.offerDraw(getName());
-			} catch (ChessException e) {
-				ChessCraftLogger.log(Level.SEVERE, "Caught ChessException while trying to offer draw", e);
-			}
-		}
-
-		setUserMove(true);
-	}
-
+	/**
+	 * Check if the given AI is free for a game.
+	 * 
+	 * @param ai
+	 * @return
+	 */
 	public static boolean isFree(AI_Def ai) {
 		return ai != null && !runningAI.containsKey(ai.name.toLowerCase());
 	}
 
 	public static AI_Def getFreeAI(String aiName) {
-		AI_Def ai = getAI(aiName);
+		AI_Def ai = getAIDefinition(aiName);
 		return ai != null && !runningAI.containsKey(ai.name.toLowerCase()) ? ai : null;
 	}
 
 	/**
-	 * Get the AI definition for the given name
+	 * Get the AI definition for the given AI name
 	 * 
 	 * @param aiName
 	 *            Name of the AI, either with or without the AI prefix string <br>
@@ -326,7 +368,7 @@ public class ChessAI {
 	 *            free)
 	 * @return The AI definition, or null if not found
 	 */
-	public static AI_Def getAI(String aiName) {
+	public static AI_Def getAIDefinition(String aiName) {
 		if (aiName == null) {
 			// return a random free AI
 			ArrayList<Integer> free = new ArrayList<Integer>();

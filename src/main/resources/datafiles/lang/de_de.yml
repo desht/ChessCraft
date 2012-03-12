@@ -1,11 +1,11 @@
 BoardView:
   boardExists: Ein Brett mit diesem Namen existiert bereits.
-  boardTooHigh: Die Bretthöhe ist zu hoch - das Dach wäre über der Höhengrenze der Welt.
-  boardWouldIntersect: Das Brett würde sich mit dem existierenden Brett {0} überschneiden.
+  boardTooHigh: Die BretthÃ¶he ist zu hoch - das Dach wÃ¤re Ã¼ber der HÃ¶hengrenze der Welt.
+  boardWouldIntersect: Das Brett wÃ¼rde sich mit dem existierenden Brett {0} Ã¼berschneiden.
   noFreeBoards: Es gibt keine freien Spielbretter um ein Spiel zu erstellen.
   noSuchBoard: Es gibt kein Brett {0}.
 ChessAI:
-  AIbusy: Die AI ist grade beschäftigt
+  AIbusy: Die AI ist grade beschÃ¤ftigt
   AIdisabled: AI Spiele sind ausgestellt
   AIloadError: AI Fehler beim Laden
   AInotFound: AI nicht gefunden
@@ -24,28 +24,28 @@ ChessCommandExecutor:
   AIpayout: payout={0,number,integer}%
   algebraicNotation: '&5 (standard algebraic notation)'
   allBoardsRedrawn: Alle Bretter wurden neu entworfen.
-  boardCantBeDeleted: 'Kann das folgende Brett nicht löschen: &6{0}&- - es wird von
+  boardCantBeDeleted: 'Kann das folgende Brett nicht lÃ¶schen: &6{0}&- - es wird von
     folgendem Spiel benutzt: &6{1}&-.'
   boardCreationPrompt:
   - 'Linksklicke einen Block: erstelle ein Brett &6{0}&-. Rechtsklick: abbrechen.'
   - Dieser Block wird die Mitte des Quadrates A1 sein.
-  boardDeleted: Brett gelöscht &6{0}&-.
+  boardDeleted: Brett gelÃ¶scht &6{0}&-.
   boardDetail:
     board: '&eBrett {0}:'
     boardStyle: 'Brett Stil: &f{0}'
     enclosure: 'Abdeckung: &f{0}'
     frameWidth: 'Einfassungsbreite: &f{0,number,integer} ({1})'
     game: 'Spiel: &f{0}'
-    height: 'Höhe: &f{0,number,integer}'
+    height: 'HÃ¶he: &f{0,number,integer}'
     isLit: 'Beleuchtung: &f{0}'
     boardExtents: 'Brett Ausmasse: &f{0} - {1}'
     pieceStyle: 'Figurenstil: &f{0}'
-    squareSize: 'Feldgrösse: &f{0,number,integer} ({1}/{2})'
-    struts: 'Einfassungsgestänge: &f{0}'
+    squareSize: 'FeldgrÃ¶sse: &f{0,number,integer} ({1}/{2})'
+    struts: 'EinfassungsgestÃ¤nge: &f{0}'
     boardOrientation: 'Brettorientierung: &f{0}'
   boardList: '&6{0}&-: loc=&f{1}&- Stil=&6{2}&- Spiel=&6{3}&-'
   boardRedrawn: Brett &6{0}&- wurde neu entworfen.
-  boardStyleChanged: Brett &6{0}&- Stil wurde geändert.  Benutze &f/chess board save <neuer-name>&- um die Änderungen zu speichern.
+  boardStyleChanged: Brett &6{0}&- Stil wurde geÃ¤ndert.  Benutze &f/chess board save <neuer-name>&- um die Ã„nderungen zu speichern.
   boardStyleSaved: Brett &6{0}&- Stil gespeichert als &6{1}&-.
   boardStyleBadParam: Ungueltiger Stil Parameter Wert &6{0}&-.
   cantAffordStake: Du kannst dir den Einsatz nicht leisten!
@@ -61,7 +61,7 @@ ChessCommandExecutor:
   - 'Nun schreibe (oder benutze die Befehlstafel-Schalter):'
   - '&5*&- &f/chess invite <playername>&- um jemanden einzuladen'
   - '&5*&- &f/chess invite&- um eine offene Einladung zu erstellen'
-  - '&5*&- oder nur &f/chess start&- um gegen einen zufälligen AI-Gegner zu spielen'
+  - '&5*&- oder nur &f/chess start&- um gegen einen zufÃ¤lligen AI-Gegner zu spielen'
   gameDeleted: Spiel &6{0}&- wurde geloescht.
   gameDeletedAlert: Spiel entfernt von &6{0}&-!
   gameDetail:
@@ -74,7 +74,7 @@ ChessCommandExecutor:
     players: '&6{0}&- (Weiss) vs. &6{1}&- (Schwarz) auf Brett &6{2}&-.'
     stake: 'Einsatz: {0}'
     whiteToPlay: Weiss ist am Zug
-    halfMoves: '{0,number,integer} halbe Züge gemacht'
+    halfMoves: '{0,number,integer} halbe ZÃ¼ge gemacht'
     timeControlType: 'Zeitkontrolle: &6{0}'
   goingToSpawn: Kann keinen sicheren Platz finden - gehe zum Spawn Punkt.
   invalidFromSquare: Ungueltig von Quadrat in {0}
@@ -92,31 +92,31 @@ ChessCommandExecutor:
   noGame: (none)
   noNegativeStakes: Negative Einsaetze sind nicht erlaubt!
   noPendingInvitation: Du hast zur Zeit keine laufenden Einlaudungen.
-  notFromConsole: Dieser Befehl kann nicht von der Konsole ausgeführt werden.
+  notFromConsole: Dieser Befehl kann nicht von der Konsole ausgefÃ¼hrt werden.
   notOnChessboard: Nicht auf einem Schachbrett!
   otherPlayerMustBeOffline: Du kannst dies nur tun wenn der andere Spieler offline ist.
   persistedReloaded: Andauernde Brett und Spiel Daten wurden neu geladen.
   PGNarchiveWritten: Schrieb PGN Archiv zu {0}
   positionUpdatedFEN:
   - Spielposition fuer &6{0}&- wurde aktualisiert. {1} ist am Zug.
-  - '&4Bemerkung: &- Zughistorie ungültig, dieses Spiel kann nicht mehr gespeichert
+  - '&4Bemerkung: &- Zughistorie ungÃ¼ltig, dieses Spiel kann nicht mehr gespeichert
     werden.'
-  promotionPieceSet: Beförderungsteil fuer Spiel &6{0}&- wurde gesetzt zu &6{1}&-.
+  promotionPieceSet: BefÃ¶rderungsteil fuer Spiel &6{0}&- wurde gesetzt zu &6{1}&-.
   scoreRecord: '&e{0,number,integer}) &6{1}&-: &f{2}&-'
   sideSwapOfferedOther: '&6{0}&- hat angeboten die Seiten zu tauschen.'
   sideSwapOfferedYou: Du hast angeboten die Seiten mit &6{0}&- zu tauschen.
   stakeChanged: Einsatz fuer dieses Spiel ist nun {0}.
   teleportDestObstructed: Teleport Ziel gesperrt!
-  timeControlSet: Zeitkontrolle für dieses Spiel gesetzt zu {0} ({1})
+  timeControlSet: Zeitkontrolle fÃ¼r dieses Spiel gesetzt zu {0} ({1})
   typeYesOrNo: Schreibe &f/chess yes&- um zu akzeptieren, oder &f/chess no&- um abzulehnen.
 ChessConfig:
-  invalidBoolean: 'Ungültiger boolean Wert: {0} (benutze true/yes oder false/no)'
-  invalidInteger: 'Ungültiger integer Wert: {0}'
-  invalidFloat: 'Ungültiger floating-point Wert: {0}'
-  invalidDuration: 'Ungültige Dauer: {0}'
+  invalidBoolean: 'UngÃ¼ltiger boolean Wert: {0} (benutze true/yes oder false/no)'
+  invalidInteger: 'UngÃ¼ltiger integer Wert: {0}'
+  invalidFloat: 'UngÃ¼ltiger floating-point Wert: {0}'
+  invalidDuration: 'UngÃ¼ltige Dauer: {0}'
   noSuchKey:
-  - 'Kein solcher Konfigurationsschlüssel: {0}'
-  - Benutze &f/chess getcfg&- um alle möglichen Schlüssel aufzulisten
+  - 'Kein solcher KonfigurationsschlÃ¼ssel: {0}'
+  - Benutze &f/chess getcfg&- um alle mÃ¶glichen SchlÃ¼ssel aufzulisten
 ChessEntityListener:
   goingToSpawn: Kann keinen sicheren Platz finden um dich zu versetzen - gehe zum Spawn.
 ChessPlayerListener:
@@ -125,20 +125,20 @@ ChessPlayerListener:
   moveCancelled: Zug abgebrochen.
   notYourTurn: Du bist nicht am Zug!
   pieceSelected:
-  - Wählte &f{0}&- auf &f{1}&-.
+  - WÃ¤hlte &f{0}&- auf &f{1}&-.
   - '&5-&- Linksklicke ein Quadrat oder eine andere Figur um deinen &f{0} zu bewegen'
   - '&5-&- Linksklicke &f{0}&- wiederholt um abzubrechen.'
   playerBack: '{0} ist zurueck im Spiel!'
   playerQuit: '{0} ausgeschieden.  Wenn sie nicht innerhalb von {1,number,integer}
-    Sekunden zurückkommen, kannst du &f/chess win&- schreiben um zu gewinnen.'
+    Sekunden zurÃ¼ckkommen, kannst du &f/chess win&- schreiben um zu gewinnen.'
   squareMessage: Quadrat &6[{0}]&-, Brett &6{1}
   youPlayed: Du spieltest &f{0}&-.
 ChessUtils:
-  bishop: Läufer
-  king: König
+  bishop: LÃ¤ufer
+  king: KÃ¶nig
   knight: Springer
   pawn: Bauer
-  queen: Königin
+  queen: KÃ¶nigin
   rook: Turm
 ControlPanel:
   acceptDrawBtn: Akzeptierst du ein unentschieden?
@@ -185,7 +185,7 @@ Game:
   sitePGN: ' in Minecraftia'
   AIisBusy: Diese AI spielt zur Zeit ein Spiel.
   alertPrefix: '&6:: &-Spiel &6{0}&-: '
-  archiveExists: Archiv Datei {0} existiert - werde sie nicht überschreiben.
+  archiveExists: Archiv Datei {0} existiert - werde sie nicht Ã¼berschreiben.
   autoDeleteFinished: Spiel beendet und automatisch entfernt.
   autoDeleteNotStarted: Spiel automatisch entfernt (startete nicht innerhalb {0}).
   autoDeleteRunning: Spiel automatisch entfernt (kein Zug gemacht innerhalb {0}).
@@ -203,9 +203,9 @@ Game:
   gameHasStake: Dieses Spiel hat einen Einsatz von &f{0}&-.
   gameIsFull: Das Spiel hat bereits zwei Spieler.
   getStakeBack: Du bekommst den Einsatz von {0} schwarz.
-  invalidPromoPiece: 'Ungültige Aufwertugns-Figur: {0}.'
+  invalidPromoPiece: 'UngÃ¼ltige Aufwertugns-Figur: {0}.'
   inviteSent: Eine Einladung wurde an &6{0}&- gesendet.
-  inviteWithdrawn: Deine Einladung wurde zurückgezogen.
+  inviteWithdrawn: Deine Einladung wurde zurÃ¼ckgezogen.
   joinPrompt: Schreib &f/chess join&- um dem Spiel beizutreten.
   joinPromptGlobal: Schreib &f/chess join {0}&- um dem Spiel beizutreten.
   lostStake: Du hast deinen Einsatz von {0} verloren.
@@ -218,18 +218,18 @@ Game:
   notYourTurn: Du bist nicht am Zug.
   nowPlayingBlack: Seitenwechsel! Du spielst nun schwarz.
   nowPlayingWhite: Seitenwechsel! Du spielst nun weiss.
-  openInviteCreated: '&6{0}&e hat eine offene Einladung für ein Schachspiel erstellt.'
+  openInviteCreated: '&6{0}&e hat eine offene Einladung fÃ¼r ein Schachspiel erstellt.'
   paidStake: Du hast einen Einsatz von {0} bezahlt.
   playerJoined: '&6{0}&- ist deinem Spiel beigetreten.'
   playerNotOnline: Spieler {0} ist nicht online.
   playerPlayedMove: '&6{0}&- spielte [{1}]'
   resigned: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
   shouldBeState: Spiel sollte im Status {0} sein.
-  stakeCantBeChanged: Der Einsatz kann nicht verändert werden sobald beide Spieler beigetreten sind.
+  stakeCantBeChanged: Der Einsatz kann nicht verÃ¤ndert werden sobald beide Spieler beigetreten sind.
   stalemated: '&6{0}&- spielte unentschieden mit &6{1}&- (Patt) in einem Schachspiel!'
   started:
   - Spiel gestartet! Du spielst &f{0}&-.
-  - Um eine Figur zu bewegen, schaue sie an während du {1} hältst, und mache einen linksklick.
+  - Um eine Figur zu bewegen, schaue sie an wÃ¤hrend du {1} hÃ¤ltst, und mache einen linksklick.
   startPrompt: Starte das Spiel indem du &f/game start&- schreibst.
   timeControlWarning: Du hast noch {0,number,integer} Sekunden Zeit um einen Zug zu machen!
   white: Weiss
@@ -245,8 +245,8 @@ SMSIntegration:
   createGame: '&1Starte Spiel'
   gotoGame: '&1Gehe zu Spiel'
   gameInfo: '&1Spiel Info'
-  deleteGame: '&4*Lösche Spiel'
+  deleteGame: '&4*LÃ¶sche Spiel'
 TerrainBackup:
-  cantDeleteTerrain: Konnte {0} nicht löschen
+  cantDeleteTerrain: Konnte {0} nicht lÃ¶schen
   cantRestoreTerrain: 'Terrain backup konnte nicht wiederhergestellt werden: {0}'
   cantWriteTerrain: 'Terrain backup konnte nicht geschrieben werden: {0}'

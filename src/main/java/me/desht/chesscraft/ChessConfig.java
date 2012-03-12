@@ -42,7 +42,7 @@ public class ChessConfig {
 			ChessCraftLogger.severe("Can't load messages file", e);
 		}
 
-		ChessAI.initAI_Names();
+		ChessAI.initAINames();
 	}
 	
 	public static Configuration getConfig() {

@@ -32,6 +32,10 @@ public class ExpectResponse {
 		return p.getName() + ":" + c.getName();
 	}
 	
+	public boolean isExpecting(String playerName, Class<? extends ExpectBase> action) {
+		return exp.containsKey(genKey(playerName, action));
+	}
+	
 	public boolean isExpecting(Player p, Class<? extends ExpectBase> action) {
 		return exp.containsKey(genKey(p, action));
 	}
@@ -42,6 +46,10 @@ public class ExpectResponse {
 		e.doResponse(p);
 	}
 
+	public void cancelAction(String playerName, Class<? extends ExpectBase> action) {
+		exp.remove(genKey(playerName, action));
+	}
+	
 	public void cancelAction(Player p, Class<? extends ExpectBase> action) {
 		exp.remove(genKey(p, action));
 	}

@@ -37,7 +37,7 @@ public class ReloadCommand extends AbstractCommand {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
-			ChessAI.initAI_Names();
+			ChessAI.initAINames();
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {

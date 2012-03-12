@@ -141,6 +141,7 @@ public class DirectoryStructure {
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/small.yml", pieceStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/piece_styles/huge.yml", pieceStyleDir); //$NON-NLS-1$
 
 		// message resources no longer extracted here - this is now done by Messages.loadMessages()
 	}
@@ -164,6 +165,7 @@ public class DirectoryStructure {
 			String fname = new File(from).getName();
 			of = new File(to, fname);
 		} else if (!of.isFile()) {
+			System.out.println("not a file: " + of);
 			return;
 		}
 		
@@ -172,6 +174,8 @@ public class DirectoryStructure {
 			return;
 		}
 
+		ChessCraftLogger.fine("Extracting resource file: " + from + " -> " + of);
+		
 		OutputStream out = null;
 		try {
 			// Got to jump through hoops to ensure we can still pull messages from a JAR
@@ -222,10 +226,10 @@ public class DirectoryStructure {
 	 */
 	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
 		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
-		if (!f.canRead() && !saving) {
+		if (!f.exists() && !saving) {
 			f = new File(dir, filename.toLowerCase() + ".yml");
-			if (!f.canRead()) {
-				throw new ChessException("resource file '" + filename + "' is not readable");
+			if (!f.exists()) {
+				throw new ChessException("resource file '" + f + "' is not readable");
 			}
 		}
 		return f;

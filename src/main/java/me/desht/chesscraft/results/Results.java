@@ -117,6 +117,11 @@ public class Results {
 		if (game.getState() != GameState.FINISHED) {
 			return;
 		}
+		if (rt == GameResult.Abandoned) {
+			// abandoned games don't really have a result - can't count it as a draw
+			// since that would hurt higher-ranked players on the ladder
+			return;
+		}
 	
 		ResultEntry re = new ResultEntry(game, rt);
 		logResult(re);

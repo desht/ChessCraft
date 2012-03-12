@@ -140,7 +140,7 @@ public class ChessCraft extends JavaPlugin {
 
 	@Override
 	public void onDisable() {		
-		ChessAI.clearAI();
+		ChessAI.clearAIs();
 		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
 		}

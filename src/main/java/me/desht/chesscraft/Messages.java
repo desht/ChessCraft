@@ -11,8 +11,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
 
-//import org.bukkit.util.config.Configuration;
-
 public class Messages {
 
 	static Configuration fallbackMessages = null;

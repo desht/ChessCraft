@@ -197,6 +197,7 @@ Game:
   AIisBusy: "That AI is currently busy playing a game."
   alertPrefix: "&6:: &-Game &6{0}&-: "
   archiveExists: "Archive file {0} exists - won''t overwrite."
+  abandoned: "&6{0}&- drew with &6{1}&- (game abandoned) in a game of Chess!"
   autoDeleteFinished: "Finished game auto-deleted."
   autoDeleteNotStarted: "Game auto-deleted (not started within {0})."
   autoDeleteRunning: "Game auto-deleted (no move made within {0})."
