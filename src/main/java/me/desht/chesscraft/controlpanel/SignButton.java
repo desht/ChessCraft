@@ -1,5 +1,6 @@
-package me.desht.chesscraft.blocks;
+package me.desht.chesscraft.controlpanel;
 
+import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.ChatColor;

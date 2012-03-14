@@ -20,7 +20,6 @@ import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
-import me.desht.chesscraft.ControlPanel;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
@@ -36,6 +35,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
+import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
 

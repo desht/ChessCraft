@@ -1,5 +1,8 @@
-package me.desht.chesscraft;
+package me.desht.chesscraft.controlpanel;
 
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
@@ -27,7 +30,6 @@ import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.PermissionUtils;
-import me.desht.chesscraft.blocks.SignButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
