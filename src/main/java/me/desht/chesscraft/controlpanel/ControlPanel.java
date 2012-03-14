@@ -377,9 +377,9 @@ public class ControlPanel {
 		}
 		if (l.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) l.getBlock().getState();
-			setSignLabel(s, ChessGame.getColour(colour));
+			setSignLabel(s, ChessUtils.getColour(colour));
 			if (tc == null) {
-				s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessGame.milliSecondsToHMS(0)));	//$NON-NLS-1$
+				s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessUtils.milliSecondsToHMS(0)));	//$NON-NLS-1$
 				s.setLine(3, "");
 			} else {
 				s.setLine(2, ChessUtils.parseColourSpec("&4" + tc.getClockString())); //$NON-NLS-1$

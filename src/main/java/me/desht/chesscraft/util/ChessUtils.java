@@ -8,8 +8,13 @@ package me.desht.chesscraft.util;
 
 import me.desht.chesscraft.chess.ChessGame;
 import chesspresso.Chess;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +35,8 @@ import org.bukkit.scheduler.BukkitScheduler;
 public class ChessUtils {
 
 	private int tickTaskId = -1;
-	private static String prevColour = ""; //$NON-NLS-1$
+	
+	private static Map<String,String> prevColours = new HashMap<String,String>();
 
 	public void setupRepeatingTask(Plugin plugin, int initialDelay) {
 		if (plugin == null) {
@@ -54,38 +60,64 @@ public class ChessUtils {
 		ChessCraftLogger.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
 	}
 
+	public static String getColour(int c) {
+		switch (c) {
+		case Chess.WHITE:
+			return Messages.getString("Game.white"); //$NON-NLS-1$
+		case Chess.BLACK:
+			return Messages.getString("Game.black"); //$NON-NLS-1$
+		default:
+			return "???"; //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
+	 * month wrong :( )
+	 * 
+	 * @param date
+	 *            date to convert
+	 * @return PGN format of the date
+	 */
+	public static String dateToPGNDate(long when) {
+		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when)); //$NON-NLS-1$
+	}
+
+	public static String milliSecondsToHMS(long l) {
+		l /= 1000;
+	
+		long secs = l % 60;
+		long hrs = l / 3600;
+		long mins = (l - (hrs * 3600)) / 60;
+	
+		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
+	}
+
 	public static void errorMessage(Player player, String string) {
-		prevColour = ChatColor.RED.toString();
 		message(player, string, ChatColor.RED, Level.WARNING);
 	}
 
 	public static void statusMessage(Player player, String string) {
-		prevColour = ChatColor.AQUA.toString();
 		message(player, string, ChatColor.AQUA, Level.INFO);
 	}
 
 	public static void alertMessage(Player player, String string) {
-		if (player == null) {
-			return;
-		}
-		prevColour = ChatColor.YELLOW.toString();
 		message(player, string, ChatColor.YELLOW, Level.INFO);
 	}
 
-	public static void generalMessage(Player player, String string) {
-		prevColour = ChatColor.WHITE.toString();
+	public static void generalMessage(Player player, String string, ChatColor colour) {
 		message(player, string, Level.INFO);
 	}
 
 	public static void broadcastMessage(String string) {
-		prevColour = ChatColor.YELLOW.toString();
-		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec("&4::&-" + string)); //$NON-NLS-1$
+		setPrevColour(null, ChatColor.YELLOW.toString());
+		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec(null, "&6[ChessCraft]&e " + string)); //$NON-NLS-1$
 	}
 
 	private static void message(Player player, String string, Level level) {
 		for (String line : string.split("\\n")) { //$NON-NLS-1$
 			if (player != null) {
-				player.sendMessage(parseColourSpec(line));
+				player.sendMessage(parseColourSpec(player, line));
 			} else {
 				ChessCraftLogger.log(level, line);
 			}
@@ -93,18 +125,34 @@ public class ChessUtils {
 	}
 
 	private static void message(Player player, String string, ChatColor colour, Level level) {
+		setPrevColour(player, colour.toString());
 		for (String line : string.split("\\n")) { //$NON-NLS-1$
 			if (player != null) {
-				player.sendMessage(colour + parseColourSpec(line));
+				player.sendMessage(colour + parseColourSpec(player, line));
 			} else {
 				ChessCraftLogger.log(level, line);
 			}
 		}
 	}
 
+	private static void setPrevColour(Player player, String colour) {
+		String name = player != null ? player.getName() : "*";
+		prevColours.put(name, colour);
+	}
+	
+	private static String getPrevColour(Player player) {
+		String name = player != null ? player.getName() : "*";
+		return prevColours.containsKey(name) ? prevColours.get(name) : "";
+	}
+	
+	private static String parseColourSpec(Player player, String spec) {
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
+		return res.replace("&-", getPrevColour(player)).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+	
 	public static String parseColourSpec(String spec) {
 		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
-		return res.replace("&-", prevColour).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return res.replace("&-", "").replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public static String formatLoc(Location loc) {

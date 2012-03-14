@@ -456,13 +456,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Find a safe location to teleport a player out of this board.  Go to the edge
-	 * of the board closest to the player's current location.
+	 * Find a safe location to teleport a player out of this board.
 	 * 
 	 * @return	The location
 	 */
 	private Location findSafeLocationOutside() {
 		Location dest = chessBoard.getFullBoard().getLowerNE();
+		dest.add(-1, 0, 1);
 		return dest.getWorld().getHighestBlockAt(dest).getLocation();
 	}
 

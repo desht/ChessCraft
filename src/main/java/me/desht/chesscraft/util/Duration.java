@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Duration {
 	long days, hours, minutes, seconds, milliseconds;
-	
+
 	/**
 	 * Create a new Duration object from the given parameters
 	 * 
@@ -21,7 +21,7 @@ public class Duration {
 		minutes = m;
 		seconds = s;
 		milliseconds = ms;
-		
+
 		Duration dur = new Duration(getTotalDuration());
 		days = dur.getDays();
 		hours = dur.getHours();
@@ -29,7 +29,7 @@ public class Duration {
 		seconds = dur.getSeconds();
 		milliseconds = dur.getMilliseconds();
 	}
-	
+
 	/**
 	 * Create a new Duration object
 	 * 
@@ -42,11 +42,11 @@ public class Duration {
 		days  = TimeUnit.MILLISECONDS.toDays(duration);
 		hours = TimeUnit.MILLISECONDS.toHours(duration) - TimeUnit.DAYS.toHours(days);
 		minutes = TimeUnit.MILLISECONDS.toMinutes(duration)
-		- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
+				- TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
 		seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
-		- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
 	}
-	
+
 	/**
 	 * Create a new Duration object
 	 * 
@@ -55,7 +55,7 @@ public class Duration {
 	public Duration(String duration) {
 		String[] fields = duration.toLowerCase().split("\\s+");
 		long total = 0;
-		
+
 		if (fields.length > 1) {
 			if (fields.length % 2 == 1) {
 				throw new IllegalArgumentException("Odd number of parameters in duration specification");
@@ -70,7 +70,7 @@ public class Duration {
 		} else {
 			throw new IllegalArgumentException("Empty duration specification");
 		}
-		
+
 		Duration d = new Duration(total);
 		days = d.getDays();
 		hours = d.getHours();
@@ -78,7 +78,7 @@ public class Duration {
 		seconds = d.getSeconds();
 		milliseconds = d.getMilliseconds();
 	}
-	
+
 	private int getMult(String str) {
 		if (ChessUtils.partialMatch(str, "ms") || ChessUtils.partialMatch(str, "mil")) {
 			return 1;
@@ -110,7 +110,7 @@ public class Duration {
 	public long getSeconds() {
 		return seconds;
 	}
-	
+
 	public long getMilliseconds() {
 		return milliseconds;
 	}
@@ -118,7 +118,7 @@ public class Duration {
 	public long getTotalDuration() {
 		return milliseconds + (seconds + minutes * 60 + hours * 3600 + days * 86400) * 1000;
 	}
-	
+
 	public String shortDescription() {
 		if (days == 0 && milliseconds == 0) {
 			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
@@ -130,7 +130,7 @@ public class Duration {
 			return String.format("%dd%02d:%02d:%02d.%03d", days, hours, minutes, seconds, milliseconds);
 		} 
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		if (days > 0) {

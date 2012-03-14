@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -118,9 +119,9 @@ public class TimeControl implements ConfigurationSerializable {
 	public String getClockString() {
 		switch (getControlType()) {
 		case NONE:
-			return ChessGame.milliSecondsToHMS(getElapsed());
+			return ChessUtils.milliSecondsToHMS(getElapsed());
 		default:
-			return ChessGame.milliSecondsToHMS(getRemainingTime());
+			return ChessUtils.milliSecondsToHMS(getRemainingTime());
 		}
 	}
 

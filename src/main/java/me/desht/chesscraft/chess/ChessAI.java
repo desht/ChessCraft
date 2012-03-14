@@ -238,6 +238,21 @@ public class ChessAI {
 
 	/*------------------------------------- static methods --------------------------------*/
 
+	/**
+	 * Check if the given player is an AI.  Check the static (non-user-definable) prefix for this.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static boolean isAIPlayer(String name) {
+		return name.startsWith(AI_PREFIX);
+	}
+	
+	/**
+	 * Get the user-definable prefix for AI players.
+	 * 
+	 * @return
+	 */
 	public static String getAIPrefix() {
 		return ChessConfig.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$
 	}

@@ -5,6 +5,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Map;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +32,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+
+import com.sk89q.worldedit.blocks.BlockType;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
@@ -237,9 +241,14 @@ public class ChessPlayerListener implements Listener {
 			return;
 		}
 
-		if (game.isPlayerToMove(player.getName())) {
+		int sqi = game.getView().getSquareAt(loc);
+		
+		if (player.isSneaking()) {
+			// shift-clicked a piece - try to teleport the player onto the piece
+			teleportToPiece(player, bv, loc);
+		} else if (game.isPlayerToMove(player.getName())) {
 			if (game.getFromSquare() == Chess.NO_SQUARE) {
-				int sqi = game.getView().getSquareAt(loc);
+				// select the piece for moving (if it belongs to the player)
 				int colour = game.getPosition().getColor(sqi);
 				if (colour == game.getPosition().getToPlay()) {
 					game.setFromSquare(sqi);
@@ -249,11 +258,12 @@ public class ChessPlayerListener implements Listener {
 							Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 				}
 			} else {
-				int sqi = game.getView().getSquareAt(loc);
 				if (sqi == game.getFromSquare()) {
+					// cancel a selected piece
 					game.setFromSquare(Chess.NO_SQUARE);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
+					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
 							game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
@@ -261,6 +271,20 @@ public class ChessPlayerListener implements Listener {
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
 			ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
+		}
+	}
+
+	private void teleportToPiece(Player player, BoardView bv, Location loc) {
+		Block b = loc.getBlock();
+		Block b1 = b.getRelative(BlockFace.UP);
+		boolean isSolid = BlockType.canPassThrough(bv.getEnclosureMaterial().getMaterial());
+		int max = isSolid ? bv.getOuterBounds().getUpperY() - 2 : loc.getWorld().getMaxHeight();
+		while (b.getType() != Material.AIR && b1.getType() != Material.AIR && b1.getLocation().getY() < max) {
+			b = b.getRelative(BlockFace.UP);
+			b1 = b1.getRelative(BlockFace.UP);
+		}
+		if (b1.getY() < max) {
+			player.teleport(b1.getLocation());
 		}
 	}
 

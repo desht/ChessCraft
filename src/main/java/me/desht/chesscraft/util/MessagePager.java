@@ -17,11 +17,17 @@ public class MessagePager {
 	private static final int pageSize = 18;	// 20 lines total, minus 2 for header and footer
 	private static final Map<String, MessagePager> pagers = new HashMap<String, MessagePager>();
 
+	private final String playerName;
+	
 	private int currentPage;
 	private List<String> messages;
-	private String playerName;
 
-	public MessagePager(String playerName) {
+	/**
+	 * Private constructor.  Use getPager() to get the pager for a player.
+	 * 
+	 * @param playerName
+	 */
+	private MessagePager(String playerName) {
 		this.playerName = playerName;
 		this.currentPage = 1;
 		this.messages = new ArrayList<String>();
@@ -51,7 +57,7 @@ public class MessagePager {
 	}
 
 	/**
-	 * Delete the message buffer for the player. Should be called when the
+	 * Delete the message buffer for the player. Should ideally be called when the
 	 * player logs out.
 	 * 
 	 * @param player		The player object
@@ -91,7 +97,7 @@ public class MessagePager {
 	}
 
 	/**
-	 * Clear this message buffer
+	 * Clear this message buffer. Returns the buffer to allow chaining.
 	 */
 	public MessagePager clear() {
 		currentPage = 1;
