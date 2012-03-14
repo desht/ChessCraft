@@ -124,10 +124,7 @@ ChessPlayerListener:
   currentGames: 'Deine aktuellen Schachspiele: {0}'
   moveCancelled: Zug abgebrochen.
   notYourTurn: Du bist nicht am Zug!
-  pieceSelected:
-  - Wählte &f{0}&- auf &f{1}&-.
-  - '&5-&- Linksklicke ein Quadrat oder eine andere Figur um deinen &f{0} zu bewegen'
-  - '&5-&- Linksklicke &f{0}&- wiederholt um abzubrechen.'
+  pieceSelected: '&f{0}&- auf &f{1}&- ausgewählt. Linksklick um zu ziehen.'
   playerBack: '{0} ist zurueck im Spiel!'
   playerQuit: '{0} ausgeschieden.  Wenn sie nicht innerhalb von {1,number,integer}
     Sekunden zurückkommen, kannst du &f/chess win&- schreiben um zu gewinnen.'
@@ -181,6 +178,7 @@ ExpectYesNoOffer:
   youDeclinedDrawOffer: Du hast das Unentschieden abgelehnt.
   youDeclinedSwapOffer: Du hast den Seitenwechsel abgelehnt.
 Game:
+  abandoned: "&6{0}&- spielte unentschieden mit &6{1}&- (Spiel aufgegeben) in einem Schachspiel!"
   boardAlreadyHasGame: Auf dem Brett ist schon ein Spiel.
   sitePGN: ' in Minecraftia'
   AIisBusy: Diese AI spielt zur Zeit ein Spiel.
@@ -222,7 +220,7 @@ Game:
   paidStake: Du hast einen Einsatz von {0} bezahlt.
   playerJoined: '&6{0}&- ist deinem Spiel beigetreten.'
   playerNotOnline: Spieler {0} ist nicht online.
-  playerPlayedMove: '&6{0}&- spielte [{1}]'
+  playerPlayedMove: '&6{0}&- spielte [{1}].  Dein Zug.'
   resigned: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
   shouldBeState: Spiel sollte im Status {0} sein.
   stakeCantBeChanged: Der Einsatz kann nicht verändert werden sobald beide Spieler beigetreten sind.
