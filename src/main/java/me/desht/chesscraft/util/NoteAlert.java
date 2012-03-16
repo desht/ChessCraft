@@ -20,7 +20,6 @@ public class NoteAlert {
 	private final Player player;
 	private final Location loc;
 	private final List<Note> notes;
-	private final Block lastBlock;
 	private final long delay;
 	private final Iterator<Note> iter;
 	
@@ -32,7 +31,6 @@ public class NoteAlert {
 		this.loc = loc;
 		this.notes = notes;
 		this.delay = delay;
-		lastBlock = loc.getBlock();
 		iter = this.notes.iterator();
 	}
 
@@ -67,6 +65,7 @@ public class NoteAlert {
 	
 	public void cancel() {
 		ChessCraftLogger.finer("NoteAlert [" + player.getName() + "]: cancelling");
+		Block lastBlock = loc.getBlock();
 		player.sendBlockChange(loc, lastBlock.getType(), lastBlock.getData());
 		Bukkit.getScheduler().cancelTask(taskId);
 	}
