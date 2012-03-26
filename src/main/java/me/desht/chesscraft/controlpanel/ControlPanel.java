@@ -168,9 +168,9 @@ public class ControlPanel {
 	private String getOfferText(Player p) {
 		if (p == null) {
 			return ""; //$NON-NLS-1$
-		} else if (ChessCraft.expecter.isExpecting(p, ExpectDrawResponse.class)) {
+		} else if (ChessCraft.getResponseHandler().isExpecting(p, ExpectDrawResponse.class)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (ChessCraft.expecter.isExpecting(p, ExpectSwapResponse.class)) {
+		} else if (ChessCraft.getResponseHandler().isExpecting(p, ExpectSwapResponse.class)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$
@@ -277,7 +277,7 @@ public class ControlPanel {
 			view.showBoardDetail(player);
 		} else if (name.equals(INVITE_PLAYER)) { //$NON-NLS-1$
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
-				ChessCraft.expecter.expectingResponse(player, new ExpectInvitePlayer());
+				ChessCraft.getResponseHandler().expect(player, new ExpectInvitePlayer());
 				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInvitePrompt")); //$NON-NLS-1$
 			}
 		} else if (name.equals(INVITE_ANYONE)) { //$NON-NLS-1$

@@ -59,8 +59,8 @@ public class ChessPlayerListener implements Listener {
 		Player player = event.getPlayer();
 
 		// a left or right-click cancels any pending player invite response
-		if (ChessCraft.expecter.isExpecting(player, ExpectInvitePlayer.class)) {
-			ChessCraft.expecter.cancelAction(player, ExpectInvitePlayer.class);
+		if (ChessCraft.getResponseHandler().isExpecting(player, ExpectInvitePlayer.class)) {
+			ChessCraft.getResponseHandler().cancelAction(player, ExpectInvitePlayer.class);
 			ChessUtils.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
 			event.setCancelled(true);
 			return;
@@ -72,8 +72,8 @@ public class ChessPlayerListener implements Listener {
 				return;
 			}
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
-					ChessCraft.expecter.cancelAction(player, ExpectBoardCreation.class);
+				if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
+					ChessCraft.getResponseHandler().cancelAction(player, ExpectBoardCreation.class);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
@@ -84,10 +84,10 @@ public class ChessPlayerListener implements Listener {
 					}
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.expecter.getAction(player,	ExpectBoardCreation.class);
+				if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
+					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.getResponseHandler().getAction(player,	ExpectBoardCreation.class);
 					a.setLocation(b.getLocation());
-					ChessCraft.expecter.handleAction(player, ExpectBoardCreation.class);
+					ChessCraft.getResponseHandler().handleAction(player, ExpectBoardCreation.class);
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -99,8 +99,8 @@ public class ChessPlayerListener implements Listener {
 			}
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
-			if (ChessCraft.expecter.isExpecting(player, ExpectBoardCreation.class)) {
-				ChessCraft.expecter.cancelAction(player, ExpectBoardCreation.class);
+			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
+				ChessCraft.getResponseHandler().cancelAction(player, ExpectBoardCreation.class);
 				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
@@ -213,12 +213,12 @@ public class ChessPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = true, priority=EventPriority.HIGH)
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
-		if (ChessCraft.expecter.isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
+		if (ChessCraft.getResponseHandler().isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
 			try {
-				ExpectInvitePlayer ip = (ExpectInvitePlayer) ChessCraft.expecter.getAction(player, ExpectInvitePlayer.class);
+				ExpectInvitePlayer ip = (ExpectInvitePlayer) ChessCraft.getResponseHandler().getAction(player, ExpectInvitePlayer.class);
 				ip.setInviteeName(event.getMessage());
 				event.setCancelled(true);
-				ChessCraft.expecter.handleAction(player, ip.getClass());
+				ChessCraft.getResponseHandler().handleAction(player, ip.getClass());
 			} catch (ChessException e) {
 				ChessUtils.errorMessage(player, e.getMessage());
 			}

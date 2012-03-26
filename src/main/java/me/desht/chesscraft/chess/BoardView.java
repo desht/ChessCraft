@@ -124,7 +124,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void save() {
-		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
+		ChessCraft.getPersistenceHandler().savePersistable("board", this);
 	}
 
 	public void autoSave() {
@@ -430,7 +430,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void deletePermanently(Player p) {
 		deleteCommon(true, p);
-		ChessCraft.getInstance().getPersistenceHandler().unpersist(this);
+		ChessCraft.getPersistenceHandler().unpersist(this);
 	}
 
 	private void deleteCommon(boolean deleteBlocks, Player p) {

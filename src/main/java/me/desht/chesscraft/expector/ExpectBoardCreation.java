@@ -13,10 +13,11 @@ import org.bukkit.entity.Player;
 
 public class ExpectBoardCreation extends ExpectBase {
 
-	String boardName;
-	String style;
-	String pieceStyle;
-	Location loc;
+	private final String boardName;
+	private final String style;
+	private final String pieceStyle;
+	
+	private Location loc;
 
 	public ExpectBoardCreation(String boardName, String style, String pieceStyle) {
 		this.boardName = boardName;
@@ -35,10 +36,10 @@ public class ExpectBoardCreation extends ExpectBase {
 		if (ChessCraft.getWorldEdit() != null) {
 			TerrainBackup.save(player, view);
 		}
+		view.save();
 		view.paintAll();
 		ChessUtils.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
 				boardName, ChessUtils.formatLoc(view.getA1Square())));
-		view.save();
 	}
 
 }

@@ -8,15 +8,15 @@ import me.desht.chesscraft.expector.ExpectBase;
 
 import org.bukkit.entity.Player;
 
-public class ExpectResponse {
+public class ResponseHandler {
 
 	private final Map<String, ExpectBase> exp = new HashMap<String, ExpectBase>();
 
-	public void expectingResponse(Player p, ExpectBase data) {
-		expectingResponse(p, data, null);
+	public void expect(Player p, ExpectBase data) {
+		expect(p, data, null);
 	}
 
-	public void expectingResponse(Player p, ExpectBase data, String expectee) {
+	public void expect(Player p, ExpectBase data, String expectee) {
 		if (expectee != null) {
 			exp.put(genKey(expectee, data.getClass()), data);
 		} else {

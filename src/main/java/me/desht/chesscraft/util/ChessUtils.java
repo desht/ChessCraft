@@ -6,7 +6,6 @@
  */
 package me.desht.chesscraft.util;
 
-import me.desht.chesscraft.chess.ChessGame;
 import chesspresso.Chess;
 
 import java.text.SimpleDateFormat;
@@ -26,39 +25,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 /**
  * @author jacob
  */
 public class ChessUtils {
-
-	private int tickTaskId = -1;
 	
 	private static Map<String,String> prevColours = new HashMap<String,String>();
-
-	public void setupRepeatingTask(Plugin plugin, int initialDelay) {
-		if (plugin == null) {
-			return;
-		}
-		BukkitScheduler s = plugin.getServer().getScheduler();
-		if (tickTaskId != -1) {
-			s.cancelTask(tickTaskId);
-		}
-		long interval = plugin.getConfig().getInt("tick_interval", 1) * 20L;
-		tickTaskId = s.scheduleSyncRepeatingTask(plugin, new Runnable() {
-			@Override
-			public void run() {
-				for (ChessGame game : ChessGame.listGames()) {
-					game.clockTick();
-					game.checkForAutoDelete();
-				}
-			}
-		}, 20L * initialDelay, interval); //$NON-NLS-1$
-		
-		ChessCraftLogger.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
-	}
 
 	public static String getColour(int c) {
 		switch (c) {

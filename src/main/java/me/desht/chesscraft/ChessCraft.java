@@ -46,7 +46,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -60,7 +59,7 @@ import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
-import me.desht.chesscraft.expector.ExpectResponse;
+import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -74,16 +73,13 @@ public class ChessCraft extends JavaPlugin {
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
 	private static ScrollingMenuSign smsPlugin;
-	public static ExpectResponse expecter;
+	private static ResponseHandler expecter;
+	private static ChessPersistence persistence;
+	
 	public static Economy economy = null;
 	public static Permission permission = null;
 	
-	private ChessPlayerListener playerListener;
-	private ChessBlockListener blockListener;
-	private ChessEntityListener entityListener;
-	public ChessPersistence persistence;
-	public ChessConfig config = null;
-	public ChessUtils util = null;
+	public static ChessTickTask tickTask;
 	
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
@@ -100,46 +96,44 @@ public class ChessCraft extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
-		PluginDescriptionFile description = this.getDescription();
+
 		ChessCraftLogger.init();
 		DirectoryStructure.setup();
 		ChessConfig.init();
-		util = new ChessUtils();
 
-		playerListener = new ChessPlayerListener();
-		blockListener = new ChessBlockListener();
-		entityListener = new ChessEntityListener();
-
+		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
-		expecter = new ExpectResponse();
+		expecter = new ResponseHandler();
 
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
 		//		Results.getResultsHandler().addTestData();
 
 		PluginManager pm = getServer().getPluginManager();
-		
 		setupVault(pm);
 		setupSMS(pm);
 		setupWorldEdit(pm);
 		
-		pm.registerEvents(blockListener, this);
-		pm.registerEvents(entityListener, this);
-		pm.registerEvents(playerListener, this);
+		pm.registerEvents(new ChessPlayerListener(), this);
+		pm.registerEvents(new ChessBlockListener(), this);
+		pm.registerEvents(new ChessEntityListener(), this);
 
 		registerCommands();
 
 		persistence.reload();
-		util.setupRepeatingTask(this, 1);
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.createMenus();
 		}
 
-		ChessCraftLogger.info("Version " + description.getVersion() + " is enabled!");
+		tickTask.start(20L);
+
+		ChessCraftLogger.info("Version " + getDescription().getVersion() + " is enabled!");
 	}
 
 	@Override
-	public void onDisable() {		
+	public void onDisable() {
+		tickTask.cancel();
+		
 		ChessAI.clearAIs();
 		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
@@ -159,6 +153,8 @@ public class ChessCraft extends JavaPlugin {
 		permission = null;
 		smsPlugin = null;
 		worldEditPlugin = null;
+		persistence = null;
+		expecter = null;
 		
 		ChessCraftLogger.info("disabled!");
 	}
@@ -198,7 +194,7 @@ public class ChessCraft extends JavaPlugin {
 			if (p != null && p instanceof ScrollingMenuSign) {
 				smsPlugin = (ScrollingMenuSign) p;
 				SMSIntegration.setup(smsPlugin);
-				ChessCraftLogger.log("ScrollingMenuSign plugin detected.");
+				ChessCraftLogger.log("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 			} else {
 				ChessCraftLogger.log("ScrollingMenuSign plugin not detected.");
 			}
@@ -213,9 +209,9 @@ public class ChessCraft extends JavaPlugin {
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Cuboid.setWorldEdit(worldEditPlugin);
-			ChessCraftLogger.log("WorldEdit plugin detected - chess board terrain saving enabled.");
+			ChessCraftLogger.log("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
-			ChessCraftLogger.log("WorldEdit plugin not detected - chess board terrain saving disabled.");
+			ChessCraftLogger.log("WorldEdit plugin not detected: chess board terrain saving disabled.");
 		}
 	}
 
@@ -235,6 +231,14 @@ public class ChessCraft extends JavaPlugin {
 		}
 
 		return (permission != null);
+	}
+
+	public static ChessPersistence getPersistenceHandler() {
+		return persistence;
+	}
+
+	public static ResponseHandler getResponseHandler() {
+		return expecter;
 	}
 
 	public static ScrollingMenuSign getSMS() {
@@ -261,12 +265,6 @@ public class ChessCraft extends JavaPlugin {
 
 	/*-----------------------------------------------------------------*/
 
-	public ChessPersistence getPersistenceHandler() {
-		return persistence;
-	}
-
-	/*-----------------------------------------------------------------*/
-
 	public void playerLeft(String who) {
 		loggedOutAt.put(who, System.currentTimeMillis());
 	}
@@ -286,20 +284,19 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	public static void handleExpectedResponse(Player player, boolean isAccepted) throws ChessException {
-		ExpectYesNoResponse a = null;
-		if (expecter.isExpecting(player, ExpectDrawResponse.class)) {
-			a = (ExpectYesNoResponse) expecter.getAction(player, ExpectDrawResponse.class);
-			a.setReponse(isAccepted);
-			expecter.handleAction(player, ExpectDrawResponse.class);
-		} else if (expecter.isExpecting(player, ExpectSwapResponse.class)) {
-			a = (ExpectYesNoResponse) expecter.getAction(player, ExpectSwapResponse.class);
-			a.setReponse(isAccepted);
-			expecter.handleAction(player, ExpectSwapResponse.class);
+		Class<? extends ExpectYesNoResponse> c = null;
+		if (getResponseHandler().isExpecting(player, ExpectDrawResponse.class)) {
+			c = ExpectDrawResponse.class;
+		} else if (getResponseHandler().isExpecting(player, ExpectSwapResponse.class)) {
+			c = ExpectSwapResponse.class;
+		} else {
+			return;
 		}
-
-		if (a != null) {
-			a.getGame().getView().getControlPanel().repaintSignButtons();
-		}
+		
+		ExpectYesNoResponse response = (ExpectYesNoResponse) getResponseHandler().getAction(player, c);
+		response.setResponse(isAccepted);
+		getResponseHandler().handleAction(player, c);
+		response.getGame().getView().getControlPanel().repaintSignButtons();
 	}
 
 	private void registerCommands() {

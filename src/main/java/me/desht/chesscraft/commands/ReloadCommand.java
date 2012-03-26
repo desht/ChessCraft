@@ -41,7 +41,7 @@ public class ReloadCommand extends AbstractCommand {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {
-			plugin.persistence.reload();
+			ChessCraft.getPersistenceHandler().reload();
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 		return true;

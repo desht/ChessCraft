@@ -273,7 +273,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void save() {
-		ChessCraft.getInstance().getPersistenceHandler().savePersistable("game", this);
+		ChessCraft.getPersistenceHandler().savePersistable("game", this);
 	}
 
 	public void autoSave() {
@@ -755,13 +755,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
 			// making a move after a draw or swap offer has been made is equivalent to declining the offer
-			if (ChessCraft.expecter.isExpecting(player, ExpectDrawResponse.class)) {
+			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectDrawResponse.class)) {
 				ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
-				ChessCraft.expecter.cancelAction(player, ExpectDrawResponse.class);
+				ChessCraft.getResponseHandler().cancelAction(player, ExpectDrawResponse.class);
 			}
-			if (ChessCraft.expecter.isExpecting(player, ExpectSwapResponse.class)) {
+			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectSwapResponse.class)) {
 				ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
-				ChessCraft.expecter.cancelAction(player, ExpectSwapResponse.class);
+				ChessCraft.getResponseHandler().cancelAction(player, ExpectSwapResponse.class);
 			}
 		}
 
@@ -997,7 +997,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * Called when a game is permanently deleted.
 	 */
 	public void deletePermanently() {
-		ChessCraft.getInstance().getPersistenceHandler().unpersist(this);
+		ChessCraft.getPersistenceHandler().unpersist(this);
 
 		handlePayout(GameResult.Abandoned, playerWhite, playerBlack);
 
@@ -1286,7 +1286,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensureGameState(GameState.RUNNING);
 
 		String otherPlayer = getOtherPlayer(playerName);
-		ChessCraft.expecter.expectingResponse(player, new ExpectDrawResponse(this, playerName, otherPlayer), otherPlayer);
+		ChessCraft.getResponseHandler().expect(player, new ExpectDrawResponse(this, playerName, otherPlayer), otherPlayer);
 
 		if (player != null) {
 			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayer)); //$NON-NLS-1$
@@ -1312,7 +1312,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			ChessCraft.expecter.expectingResponse(player, new ExpectSwapResponse(this, playerName, otherName), otherName);
+			ChessCraft.getResponseHandler().expect(player, new ExpectSwapResponse(this, playerName, otherName), otherName);
 			if (player != null) {
 				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherName)); //$NON-NLS-1$
 			} 

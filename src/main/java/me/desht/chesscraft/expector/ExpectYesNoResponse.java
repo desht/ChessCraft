@@ -4,9 +4,9 @@ import me.desht.chesscraft.chess.ChessGame;
 
 public abstract class ExpectYesNoResponse extends ExpectBase {
 
-	protected ChessGame game;
-	protected String offerer;
-	protected String offeree;
+	protected final ChessGame game;
+	protected final String offerer;
+	protected final String offeree;
 	protected boolean accepted;
 
 	public ExpectYesNoResponse(ChessGame game, String offerer, String offeree) {
@@ -15,7 +15,7 @@ public abstract class ExpectYesNoResponse extends ExpectBase {
 		this.offeree = offeree;
 	}
 
-	public void setReponse(boolean accepted) {
+	public void setResponse(boolean accepted) {
 		this.accepted = accepted;
 	}
 
