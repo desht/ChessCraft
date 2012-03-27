@@ -6,10 +6,8 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -48,10 +46,14 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 
 public class ChessPlayerListener implements Listener {
 	
-	private static final Map<String, List<String>> expecting = new HashMap<String, List<String>>();
-
-	private static final long MIN_ANIMATION_WAIT = 200; //milliseconds
+	// block ids to be considered transparent when calling player.getTargetBlock()
+	private static HashSet<Byte> transparent = new HashSet<Byte>();
+	static {
+		transparent.add((byte) 0); // air
+		transparent.add((byte) 20); // glass
+	}
 	
+	private static final long MIN_ANIMATION_WAIT = 200; // milliseconds
 	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
 
 	@EventHandler(ignoreCancelled = true)
@@ -124,9 +126,6 @@ public class ChessPlayerListener implements Listener {
 				String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
 				int wandId = (MaterialWithData.get(wand)).getMaterial();
 				if (player.getItemInHand().getTypeId() == wandId) {
-					HashSet<Byte> transparent = new HashSet<Byte>();
-					transparent.add((byte) 0); // air
-					transparent.add((byte) 20); // glass
 					targetBlock = player.getTargetBlock(transparent, 100);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
@@ -309,19 +308,11 @@ public class ChessPlayerListener implements Listener {
 		}
 	}
 
-	static void expectingClick(Player p, String name, String style) {
-		List<String> list = new ArrayList<String>();
-		list.add(name);
-		list.add(style);
-		expecting.put(p.getName(), list);
-	}
-
 	private long lastAnimationEvent(Player player) {
 		if (!lastAnimation.containsKey(player.getName())) {
 			lastAnimation.put(player.getName(), 0L);
 		}
 		return lastAnimation.get(player.getName());
 	}
-
 
 }
