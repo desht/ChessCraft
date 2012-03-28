@@ -61,15 +61,16 @@ public class ChessPlayerListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 
+		ResponseHandler resp = ChessCraft.getResponseHandler();
+		
 		// a left or right-click cancels any pending player invite response
-		if (ChessCraft.getResponseHandler().isExpecting(player, ExpectInvitePlayer.class)) {
-			ChessCraft.getResponseHandler().cancelAction(player, ExpectInvitePlayer.class);
+		if (resp.isExpecting(player, ExpectInvitePlayer.class)) {
+			resp.cancelAction(player, ExpectInvitePlayer.class);
 			ChessUtils.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
 			event.setCancelled(true);
 			return;
 		}
 
-		ResponseHandler resp = ChessCraft.getResponseHandler();
 		try {
 			Block b = event.getClickedBlock();
 			if (b == null) {
@@ -279,7 +280,7 @@ public class ChessPlayerListener implements Listener {
 	private void teleportToPiece(Player player, BoardView bv, Location loc) {
 		Block b = loc.getBlock();
 		Block b1 = b.getRelative(BlockFace.UP);
-		boolean isSolid = BlockType.canPassThrough(bv.getEnclosureMaterial().getMaterial());
+		boolean isSolid = !BlockType.canPassThrough(bv.getEnclosureMaterial().getMaterial());
 		int max = isSolid ? bv.getOuterBounds().getUpperY() - 2 : loc.getWorld().getMaxHeight();
 		while (b.getType() != Material.AIR && b1.getType() != Material.AIR && b1.getLocation().getY() < max) {
 			b = b.getRelative(BlockFace.UP);
