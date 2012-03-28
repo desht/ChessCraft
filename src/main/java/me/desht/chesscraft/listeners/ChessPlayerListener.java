@@ -39,6 +39,7 @@ import chesspresso.move.IllegalMoveException;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
+import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
@@ -68,14 +69,15 @@ public class ChessPlayerListener implements Listener {
 			return;
 		}
 
+		ResponseHandler resp = ChessCraft.getResponseHandler();
 		try {
 			Block b = event.getClickedBlock();
 			if (b == null) {
 				return;
 			}
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
-					ChessCraft.getResponseHandler().cancelAction(player, ExpectBoardCreation.class);
+				if (resp.isExpecting(player, ExpectBoardCreation.class)) {
+					resp.cancelAction(player, ExpectBoardCreation.class);
 					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
@@ -86,10 +88,10 @@ public class ChessPlayerListener implements Listener {
 					}
 				}
 			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) ChessCraft.getResponseHandler().getAction(player,	ExpectBoardCreation.class);
+				if (resp.isExpecting(player, ExpectBoardCreation.class)) {
+					ExpectBoardCreation a = (ExpectBoardCreation) resp.getAction(player, ExpectBoardCreation.class);
 					a.setLocation(b.getLocation());
-					ChessCraft.getResponseHandler().handleAction(player, ExpectBoardCreation.class);
+					resp.handleAction(player, ExpectBoardCreation.class);
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -101,8 +103,8 @@ public class ChessPlayerListener implements Listener {
 			}
 		} catch (ChessException e) {
 			ChessUtils.errorMessage(player, e.getMessage());
-			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectBoardCreation.class)) {
-				ChessCraft.getResponseHandler().cancelAction(player, ExpectBoardCreation.class);
+			if (resp.isExpecting(player, ExpectBoardCreation.class)) {
+				resp.cancelAction(player, ExpectBoardCreation.class);
 				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
@@ -123,9 +125,8 @@ public class ChessPlayerListener implements Listener {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
-				int wandId = (MaterialWithData.get(wand)).getMaterial();
-				if (player.getItemInHand().getTypeId() == wandId) {
+				int wandId = getWandId();
+				if (wandId < 0 || player.getItemInHand().getTypeId() == wandId) {
 					targetBlock = player.getTargetBlock(transparent, 100);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
@@ -153,7 +154,7 @@ public class ChessPlayerListener implements Listener {
 		}
 
 	}
-
+	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
@@ -212,14 +213,16 @@ public class ChessPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = true, priority=EventPriority.HIGH)
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
-		if (ChessCraft.getResponseHandler().isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
+		ResponseHandler resp = ChessCraft.getResponseHandler();
+		if (resp.isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
 			try {
-				ExpectInvitePlayer ip = (ExpectInvitePlayer) ChessCraft.getResponseHandler().getAction(player, ExpectInvitePlayer.class);
+				ExpectInvitePlayer ip = (ExpectInvitePlayer) resp.getAction(player, ExpectInvitePlayer.class);
 				ip.setInviteeName(event.getMessage());
 				event.setCancelled(true);
-				ChessCraft.getResponseHandler().handleAction(player, ip.getClass());
+				resp.handleAction(player, ip.getClass());
 			} catch (ChessException e) {
 				ChessUtils.errorMessage(player, e.getMessage());
+				resp.cancelAction(player, ExpectInvitePlayer.class);
 			}
 		}
 	}
@@ -283,7 +286,10 @@ public class ChessPlayerListener implements Listener {
 			b1 = b1.getRelative(BlockFace.UP);
 		}
 		if (b1.getY() < max) {
-			player.teleport(b1.getLocation());
+			Location dest = b1.getLocation();
+			dest.setYaw(player.getLocation().getYaw());
+			dest.setPitch(player.getLocation().getPitch());
+			player.teleport(dest);
 		}
 	}
 
@@ -313,6 +319,15 @@ public class ChessPlayerListener implements Listener {
 			lastAnimation.put(player.getName(), 0L);
 		}
 		return lastAnimation.get(player.getName());
+	}
+
+	private int getWandId() {
+		String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
+		if (wand.equalsIgnoreCase("*")) {
+			return -1;
+		}
+		MaterialWithData mat = MaterialWithData.get(wand);
+		return mat == null ? 0 : mat.getMaterial();
 	}
 
 }
