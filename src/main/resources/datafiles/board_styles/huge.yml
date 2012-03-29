@@ -14,23 +14,23 @@ square_size: 15
 # width in blocks of the frame surrounding the board
 frame_width: 5
 # height of the board - number of squares of clear air between board and enclosure roof
-height: 25
+height: 35
 # material/data for the white squares
 white_square: 'wool:white'
 # material/data for the black squares
 black_square: 'wool:black'
 # material/data for the frame
 frame: wood
-# material/data for the enclosure (if you don't use glass, then you better have lit = true!)
+# material/data for the enclosure
 enclosure: air
-# material/data for the struts (default: enclosure)
+# material/data for the struts (default: enclosure material)
 struts: wood
 # the board's light level
 light_level: 15
 # style of chess set to use (see ../pieces/*.yml)
 # the style chosen must fit within the square_size specified above
-piece_style: Standard
+piece_style: huge
 # square highlighting style: use one of None, Line, Edges, Corners, Checkered/Chequered
 highlight_style: Line
 # highlight material
-highlight_style: 'wool:red'
+highlight: 'wool:red'

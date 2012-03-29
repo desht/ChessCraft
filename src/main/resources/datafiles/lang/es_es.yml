@@ -136,6 +136,7 @@ ChessUtils:
   pawn: "Peón"
   queen: "Reina"
   rook: "Torre"
+  anything: "algo"
 
 # Button text definitions may contain a semicolon (;).  This indicates a line break on the sign text.
 ControlPanel:

@@ -529,6 +529,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.showPage();
 	}
 
+	public void summonPlayer(Player player) {
+		if (isPartOfBoard(player.getLocation())) {
+			return; // already there
+		}
+		Location loc = getControlPanel().getLocationTP();
+		ChessCraft.getInstance().teleportPlayer(player, loc);
+	}
+
 	/*----------------------static methods--------------------------------------*/
 
 	public static String makeBoardName() {

@@ -211,7 +211,7 @@ public class BoardStyle {
 			out.write("black_square: '" + blackSquareMat + "'\n");
 			out.write("# material/data for the frame\n");
 			out.write("frame: '" + frameMat + "'\n");
-			out.write("# material/data for the enclosure (if you don't use glass or air, then light the board!)\n");
+			out.write("# material/data for the enclosure\n");
 			out.write("enclosure: '" + enclosureMat + "'\n");
 			out.write("# material/data for the enclosure struts (default: 'enclosure' setting)\n");
 			out.write("struts: '" + strutsMat + "'\n");
@@ -222,7 +222,7 @@ public class BoardStyle {
 			out.write("piece_style: " + pieceStyleName + "\n");
 			out.write("# material/data for the control panel (default: 'frame' setting)\n");
 			out.write("panel: '" + controlPanelMat + "'\n");
-			out.write("# highlighting style (NONE, CORNERS, EDGES, LINE, CHECKERED)\n");
+			out.write("# highlighting style (one of NONE, CORNERS, EDGES, LINE, CHECKERED)\n");
 			out.write("highlight_style: " + highlightStyle + "\n");
 			out.write("# highlighting material (default: glowstone)\n");
 			out.write("highlight: '" + highlightMat + "'\n");

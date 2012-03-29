@@ -46,6 +46,7 @@ permissions:
       chesscraft.commands.board.set: true
       chesscraft.commands.board.save: true
       chesscraft.basic: true
+      chesscraft.commands.teleport.board: true
   chesscraft.basic:
     default: true
     description: Gives access to basic ChessCraft commands
@@ -123,6 +124,9 @@ permissions:
   chesscraft.commands.teleport:
     description: Allows you to teleport to chess games
     default: true
+  chesscraft.commands.teleport.board:
+    description: Allows you to teleport to chess boards
+    default: op
   chesscraft.commands.win:
     description: Allows you to claim victory by default if the opposing player went offline
     default: true

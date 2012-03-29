@@ -137,6 +137,7 @@ ChessUtils:
   pawn: Bauer
   queen: Königin
   rook: Turm
+  anything: irgendetwas
 ControlPanel:
   acceptDrawBtn: Akzeptierst du ein unentschieden?
   acceptSwapBtn: Akzeptierst du einen Seitenwechsel?

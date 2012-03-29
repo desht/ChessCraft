@@ -43,7 +43,6 @@ import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
-import me.desht.chesscraft.blocks.MaterialWithData;
 
 public class ChessPlayerListener implements Listener {
 	
@@ -126,7 +125,7 @@ public class ChessPlayerListener implements Listener {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				int wandId = getWandId();
+				int wandId = ChessUtils.getWandId();
 				if (wandId < 0 || player.getItemInHand().getTypeId() == wandId) {
 					targetBlock = player.getTargetBlock(transparent, 100);
 					Location loc = targetBlock.getLocation();
@@ -322,13 +321,5 @@ public class ChessPlayerListener implements Listener {
 		return lastAnimation.get(player.getName());
 	}
 
-	private int getWandId() {
-		String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
-		if (wand.equalsIgnoreCase("*")) {
-			return -1;
-		}
-		MaterialWithData mat = MaterialWithData.get(wand);
-		return mat == null ? 0 : mat.getMaterial();
-	}
 
 }

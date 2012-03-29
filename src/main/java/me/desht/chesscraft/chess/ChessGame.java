@@ -14,8 +14,6 @@ import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -35,7 +33,6 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 
-import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
@@ -45,7 +42,6 @@ import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.Duration;
 import me.desht.chesscraft.util.MessagePager;
-import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.chess.ChessAI.AI_Def;
 import me.desht.chesscraft.enums.GameState;
 
@@ -604,8 +600,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			summonPlayers();
 		}
 
-		int wandId = MaterialWithData.get(ChessConfig.getConfig().getString("wand_item")).getMaterial();
-		String wand = Material.getMaterial(wandId).toString();
+		String wand = ChessUtils.getWandDescription();
 		alert(playerWhite, Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
 		alert(playerBlack, Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$
 
@@ -637,22 +632,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void summonPlayer(Player player) throws ChessException {
-		if (player == null) {
+		if (player == null || ChessAI.isAIPlayer(player.getName())) {
 			return;
 		}
-		String playerName = player.getName();
-		if (ChessAI.isAIPlayer(playerName)) {
-			return;
-		}
-		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 
-		BoardView bv = getView();
-		if (bv.isPartOfBoard(player.getLocation())) {
-			return; // already there
-		}
-		Location loc = bv.getControlPanel().getLocationTP();
-		ChessCraft.getInstance().teleportPlayer(player, loc);
-		ChessGame.setCurrentGame(playerName, this);
+		getView().summonPlayer(player);
+		
+		ChessGame.setCurrentGame(player.getName(), this);
 	}
 
 	public void resign(String playerName) throws ChessException {

@@ -18,7 +18,9 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 import org.bukkit.Bukkit;
@@ -292,5 +294,21 @@ public class ChessUtils {
 		return matchList;
 	}
 
+
+	public static int getWandId() {
+		String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
+		if (wand.equalsIgnoreCase("*")) {
+			return -1;
+		}
+		MaterialWithData mat = MaterialWithData.get(wand);
+		return mat == null ? 0 : mat.getMaterial();
+	}
+	
+	public static String getWandDescription() {
+		int id = getWandId();
+		
+		return id < 0 ? Messages.getString("ChessUtils.anything") : MaterialWithData.get(id).toString();
+	}
+	
 } // end class ChessUtils
 
