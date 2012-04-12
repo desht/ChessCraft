@@ -9,6 +9,7 @@ tick_interval: 1
 auto_teleport_on_join: true
 timeout_forfeit: 60 sec
 no_pvp: true
+teleporting: true
 stake:
     default: 0.0
     largeIncrement: 10.0

@@ -14,7 +14,7 @@ public class NoCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		ChessCraft.handleExpectedResponse(player, false);
+		ChessCraft.handleYesNoResponse(player, false);
 		return true;
 	}
 

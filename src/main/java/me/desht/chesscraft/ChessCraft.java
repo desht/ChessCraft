@@ -250,6 +250,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
+	
 	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
 		player.teleport(loc);
@@ -283,19 +284,21 @@ public class ChessCraft extends JavaPlugin {
 		return instance;
 	}
 
-	public static void handleExpectedResponse(Player player, boolean isAccepted) throws ChessException {
+	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
+		ResponseHandler respHandler = getResponseHandler();
+		
 		Class<? extends ExpectYesNoResponse> c = null;
-		if (getResponseHandler().isExpecting(player, ExpectDrawResponse.class)) {
+		if (respHandler.isExpecting(player, ExpectDrawResponse.class)) {
 			c = ExpectDrawResponse.class;
-		} else if (getResponseHandler().isExpecting(player, ExpectSwapResponse.class)) {
+		} else if (respHandler.isExpecting(player, ExpectSwapResponse.class)) {
 			c = ExpectSwapResponse.class;
 		} else {
 			return;
 		}
 		
-		ExpectYesNoResponse response = (ExpectYesNoResponse) getResponseHandler().getAction(player, c);
+		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player, c);
 		response.setResponse(isAccepted);
-		getResponseHandler().handleAction(player, c);
+		respHandler.handleAction(player, c);
 		response.getGame().getView().getControlPanel().repaintSignButtons();
 	}
 

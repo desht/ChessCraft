@@ -91,6 +91,7 @@ ChessCommandExecutor:
   noGame: "(none)"
   noNegativeStakes: "Negative stakes are not permitted!"
   noPendingInvitation: "You don't have any pending invitations right now."
+  noTeleporting: "Teleporting to or from boards is not permitted right now."
   notFromConsole: "This command cannot be run from the console."
   notOnChessboard: "Not on a chessboard!"
   otherPlayerMustBeOffline: "You can only do this if the other player has gone offline."

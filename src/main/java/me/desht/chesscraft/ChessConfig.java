@@ -151,23 +151,28 @@ public class ChessConfig {
 
 		// special hooks
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
-//			plugin.util.setupRepeatingTask(plugin, 0);
 			ChessCraft.tickTask.start(0L);
 		} else if (key.equalsIgnoreCase("locale")) {
 			try {
 				Messages.loadMessages();
 				// redraw control panel signs in the right language
-				for (BoardView bv : BoardView.listBoardViews()) {
-					bv.getControlPanel().repaint();
-				}
+				redrawControlPanels();
 			} catch (IOException e) {
 				ChessCraftLogger.severe("Can't load messages file", e);
 			}
 		} else if (key.equalsIgnoreCase("log_level")) {
 			ChessCraftLogger.setLogLevel(val);
+		} else if (key.equalsIgnoreCase("teleporting")) {
+			redrawControlPanels();
 		}
 
 		ChessCraft.getInstance().saveConfig();
+	}
+	
+	private static void redrawControlPanels() {
+		for (BoardView bv : BoardView.listBoardViews()) {
+			bv.getControlPanel().repaintSignButtons();
+		}
 	}
 	
 	public static <T> void setPluginConfiguration(String key, List<T> list) throws ChessException {

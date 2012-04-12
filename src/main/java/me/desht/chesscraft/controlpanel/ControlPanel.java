@@ -77,13 +77,13 @@ public class ControlPanel {
 		buttons = new HashMap<String, SignButton>();
 		buttonLocs = new HashMap<Location, SignButton>();
 
-		panelBlocks = getBoardControlPanel(view);
+		panelBlocks = getBoardControlPanel();
 
 		toMoveIndicator = panelBlocks.inset(Direction.Vertical, 1).
 				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
 				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
 
-		signMat = MaterialWithData.get("wall_sign:" + getSignDir(signDir));
+		signMat = MaterialWithData.get("wall_sign:" + getSignDirection());
 		halfMoveClockSign = getSignLocation(2, 0);
 		plyCountSign = getSignLocation(5, 0);
 		whiteClockSign = getSignLocation(2, 1);
@@ -119,9 +119,10 @@ public class ControlPanel {
 		boolean running = game != null && game.getState() == GameState.RUNNING;
 		boolean hasWhite = game != null && !game.getPlayerWhite().isEmpty();
 		boolean hasBlack = game != null && !game.getPlayerBlack().isEmpty();
+		boolean teleportAllowed = ChessConfig.getConfig().getBoolean("teleporting");
 
 		createSignButton(0, 2, BOARD_INFO, Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
-		createSignButton(0, 1, TELEPORT, Messages.getString("ControlPanel.teleportOutBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
+		createSignButton(0, 1, TELEPORT, Messages.getString("ControlPanel.teleportOutBtn"), signMat, teleportAllowed); //$NON-NLS-1$ //$NON-NLS-2$
 		if (ChessCraft.economy != null) {
 			createSignButton(7, 1, STAKE, getStakeStr(game), signMat, game != null); //$NON-NLS-1$
 		}
@@ -285,7 +286,9 @@ public class ControlPanel {
 				game.inviteOpen(player.getName());
 			}
 		} else if (name.equals(TELEPORT)) { //$NON-NLS-1$
-			BoardView.teleportOut(player);
+			if (ChessConfig.getConfig().getBoolean("teleporting")) {
+				BoardView.teleportOut(player);
+			}
 		} else if (name.equals(WHITE_PROMOTE)) { //$NON-NLS-1$
 			game.cyclePromotionPiece(player.getName());
 			view.getControlPanel().updateSignButtonText(WHITE_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -293,9 +296,9 @@ public class ControlPanel {
 			game.cyclePromotionPiece(player.getName());
 			view.getControlPanel().updateSignButtonText(BLACK_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (name.equals(WHITE_YES) || name.equals(BLACK_YES)) { //$NON-NLS-1$ //$NON-NLS-2$
-			ChessCraft.handleExpectedResponse(player, true);
+			ChessCraft.handleYesNoResponse(player, true);
 		} else if (name.equals(WHITE_NO) || name.equals(BLACK_NO)) { //$NON-NLS-1$ //$NON-NLS-2$
-			ChessCraft.handleExpectedResponse(player, false);
+			ChessCraft.handleYesNoResponse(player, false);
 		} else if (name.equals(STAKE) && ChessCraft.economy != null) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
@@ -410,7 +413,7 @@ public class ControlPanel {
 		}
 	}
 
-	private static Cuboid getBoardControlPanel(BoardView view) {
+	private Cuboid getBoardControlPanel() {
 		BoardRotation dir = view.getRotation();
 		Location a1 = view.getA1Square();
 
@@ -443,8 +446,8 @@ public class ControlPanel {
 		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
 	}
 
-	private static byte getSignDir(BoardRotation signDir) {
-		switch(signDir){
+	private byte getSignDirection() {
+		switch (signDir){
 		case NORTH:
 			return 4;
 		case EAST:

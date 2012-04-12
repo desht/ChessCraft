@@ -1,6 +1,8 @@
 package me.desht.chesscraft.commands;
 
+import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -19,6 +21,10 @@ public class TeleportCommand extends AbstractCommand {
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		notFromConsole(player);
+		
+		if (!ChessConfig.getConfig().getBoolean("teleporting")) {
+			throw new ChessException(Messages.getString("ChessCommandExecutor.noTeleporting"));
+		}
 		
 		switch (args.length) {
 		case 0:
