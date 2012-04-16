@@ -74,6 +74,7 @@ public class PieceDesigner {
 							// not seen this material yet
 							reverseMap.put(materialName, nextChar);
 							whiteMap.put(nextChar, mat);
+							ChessCraftLogger.finer("Designer: add material mapping: " + nextChar + "->" + materialName);
 							nextChar = getNextChar(nextChar);
 						}
 						templates[p].put(x, y, z, reverseMap.get(materialName));
@@ -95,7 +96,7 @@ public class PieceDesigner {
 		} else if (c == '9') {
 			throw new ChessException("material limit exceeded (maximum 62 different materials)");
 		} else {
-			return c++;
+			return ++c;
 		}
 	}
 	
