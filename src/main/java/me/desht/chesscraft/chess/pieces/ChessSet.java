@@ -230,6 +230,7 @@ public class ChessSet implements Iterable<ChessStone> {
 				conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
 			}
 			conf.save(f);
+			ChessCraftLogger.fine("saved chess set '" + name + "' to " + f);
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
 		}
@@ -275,7 +276,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);
-		ChessCraftLogger.fine("loaded chess set '" + set.getName() + "'.");
+		ChessCraftLogger.fine("loaded chess set '" + set.getName() + "' from " + f);
 		
 		allChessSets.put(setName, set);
 		setLoadTime.put(setName, System.currentTimeMillis());

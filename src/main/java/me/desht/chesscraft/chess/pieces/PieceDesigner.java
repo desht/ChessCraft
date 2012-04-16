@@ -212,6 +212,8 @@ public class PieceDesigner {
 	public void save() throws ChessException {
 		if (chessSet != null) {
 			chessSet.save(setName);
+			// force the new set to be re-cached
+			ChessSet.getChessSet(setName);
 		}
 	}
 
