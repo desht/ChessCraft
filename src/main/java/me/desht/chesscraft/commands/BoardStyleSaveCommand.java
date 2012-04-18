@@ -21,7 +21,7 @@ public class BoardStyleSaveCommand extends AbstractCommand {
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
 		if (bv == null) {
-			throw new ChessException("You are not standing on a chess board.");
+			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 

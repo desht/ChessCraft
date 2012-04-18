@@ -30,7 +30,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		
 		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
 		if (bv == null) {
-			throw new ChessException("You are not standing on a chess board.");
+			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 		
@@ -62,6 +62,9 @@ public class BoardStyleSetCommand extends AbstractCommand {
 				} else if (partialMatch(attr, "light_level")) {
 					style.setLightLevel(Integer.parseInt(val));
 				} else if (partialMatch(attr, "piecestyle")) {
+					// update both the default piece style for the current board style...
+					style.setPieceStyleName(val);
+					// ... and the piece style that the current board is using.
 					bv.getChessBoard().setPieceStyle(val);
 				} else if (partialMatch(attr, "boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
