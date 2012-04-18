@@ -1,8 +1,8 @@
-v1.0
+v1.0.0
 * Built against CraftBukkit 1.2.5-R1.0.  Running this against earlier CB releases is not supported.
 * Added a piece designer - design your own chess set!  See [[Piece Designer]].
-* Added new "huge" (15x35x15) style, created by myself (desht) with piece designer.
-* With kind permission, added Yazpanda's amazing set (27x60x27!), "yazpanda", imported with the help of the piece designer.  See http://www.youtube.com/watch?v=a4HkyzqTv50 .  You will *need* a fast server and client to play with this set at its best, and even then expect some lag when creating and deleting boards/games due to the sheer quantity of blocks (millions) being manipulated.
+* Added new "huge" (15x35x15) board & piece style, created by myself (desht) with piece designer.  You can create boards using this style 
+* With kind permission, added Yazpanda's amazing board & piece style (27x60x27) !, "yazpanda", imported with the help of the piece designer.  See http://www.youtube.com/watch?v=a4HkyzqTv50 .  You will *need* a fast server and client to play with this set at its best, and even then expect some lag when creating and deleting boards/games due to the sheer quantity of blocks (millions) being manipulated.
 * Shift-clicking any targeted piece will now teleport you onto that piece.  This is very useful for larger sets, though perhaps less so for the "standard" (3x6x3) set, especially if the board has a roof.
 * If you are standing on a piece when it moves, you will now be moved with it (see effects.piece_riding config setting).  Good news for Harry Potter fans!
 * Audible tones are now played when a move is made and/or you are placed in check (see effects.move_alert & effects.check_alert).
@@ -12,7 +12,7 @@ v1.0
 * The "wand_item" config setting can be set to "*" to allow any item to be held when playing.
 * "/chess tp <board-name> -b" will allow you to port between boards (provided you have the chesscraft.commands.teleport permission node).
 * Adding "teleporting" config setting to globally enable/disable all teleporting between boards with the control panel "Teleport Out" button or the "/chess tp" command (it does not affect teleporting around a board by clicking)
-* Added German translation ("/chess set locale de_de").
+* Added German translation ("/chess set locale de_de") - thanks @baemboo.
 * Considerable code streamlining - reduced CPU and memory usage.
 
 v0.5.2
@@ -23,7 +23,7 @@ v0.5.1
 * Catch & warn about exceptions thrown by economy plugins when trying to format currencies. Not sure under what circumstances this actually happens, but we don't want other plugins preventing ChessCraft from starting up.
 * ScrollingMenuSign integration: SMS menus are now created with a "cc_" prefix, not "cc:" (Windows doesn't like colons in file names). Any existing views you have will be auto-renamed too, no user action required.
 * The chesscraft.commands.board.set and .board.save nodes are now included in the chesscraft.basic & chesscraft.admin parent nodes. Overlooked that in 0.5.
-pom.xml fix to ensure all resource files are correctly copied.
+* pom.xml fix to ensure all resource files are correctly copied.
 
 v0.5
 * Requires CB 1.1-R1 (build 1818).  This will not work with earlier releases.
@@ -37,119 +37,115 @@ v0.5
 * Now uses Maven to build the project.
 
 v0.4.1
-Spanish translation
+* Spanish translation
 
 v0.4
-board rotation now supported - board orientation is decided by player orientation when created
-messages are now customizable and stored in external message file - new config option "locale" for language file to use
-added game results logging
-- stored in plugins/ChessCraft/results/results.db, a SQLite database
-- "league" and "ladder" results views
-- new "/chess list top ..." command for viewing the leaderboard
-ScrollingMenuSign integration - create some useful menus of boards and games
-catch & ignore IllegalState exception from player.getTargetBlock()
-latest version of Register included - iConomy v6 now works 
-now possible to use the jChecs opening book for AI players
-added "autostart" config item - can make the game start as soon as two players have joined
-various durations (timeouts etc.) can now be specified with more unit types, not just as number of seconds
-waving at a board square while on the board now teleports you to that square - easier movement around the board
+* board rotation now supported - board orientation is decided by player orientation when created
+* messages are now customizable and stored in external message file - new config option "locale" for language file to use
+* added game results logging
+  - stored in plugins/ChessCraft/results/results.db, a SQLite database
+  - "league" and "ladder" results views
+  - new "/chess list top ..." command for viewing the leaderboard
+* ScrollingMenuSign integration - create some useful menus of boards and games
+* catch & ignore IllegalState exception from player.getTargetBlock()
+* latest version of Register included - iConomy v6 now works 
+* now possible to use the jChecs opening book for AI players
+* added "autostart" config item - can make the game start as soon as two players have joined
+* various durations (timeouts etc.) can now be specified with more unit types, not just as number of seconds
+* waving at a board square while on the board now teleports you to that square - easier movement around the board
 
 v0.3.4 (9 Sep 2011)
-Fixed a potential problem with thread safety in the AI. Hopefully fixes some odd exceptions which a few people have seen.
+* Fixed a potential problem with thread safety in the AI. Hopefully fixes some odd exceptions which a few people have seen.
 
 v0.3.3 (1 Aug 2011)
-Fixed a nasty bug relating to persistence - saved games were not correctly reloaded (board and game state were inconsistent)
+* Fixed a nasty bug relating to persistence - saved games were not correctly reloaded (board and game state were inconsistent)
 
 
 v0.3.2 (30 Jul 2011)
-Fixed (hopefully) NPE reported by @Joy in the entity listener
+* Fixed (hopefully) NPE reported by @Joy in the entity listener
 
 
 v0.3.1 (29 July 2011):
-Fixed (hopefully) NoSuchMethod exception that some people would see.
-Removed a spurious "in thaw" debug statement that was appearing on the console.
+* Fixed (hopefully) NoSuchMethod exception that some people would see.
+* Removed a spurious "in thaw" debug statement that was appearing on the console.
 
 
 v0.3 (29 Jul 2011)
-right-click piece moving removed
-can now separately define board style & piece style
-players must be online to be invited
-moves players out of the way of moving chess pieces
-added no_pvp option to config
-players on a chess board are protected from monster attacks
-- player damage is disabled
-- monsters are removed
-- players cannot exploit protection & damage monsters, either
-now does terrain saving when a board is created
-- this feature depends on WorldEdit
-- WorldEdit can instead be put in ChessCraft plugin folder or lib folder
-board creation now triggers data autosave
-control panel items are grey when inactive
-can setup economy stakes - amount each player bets on winning (winner receives double)
-- supports iConomy 4, 5, & 6, BOSEconomy 6 & 7, EssentialsEco, & MultiCurrency (using Register)
-games now auto-delete if not started 
-pieces with nonsolid blocks (like torches) won't leave trails of items when they move
-added an optional "panel" material definition in the board definition: control panel can be different than the frame
-[[now automatically downloads Chesspresso-lib.jar if not found]]
-- class file now included inside plugin, so lib is no longer required separately
-major-ish code restructure
-players now allowed to resign even when not their turn
-players can now delete a game if they created it (or if not started & the person who joined left)
-added partial-name matching for games
-added option to highlight last move
-- board definition can manually set material with "highlight"
-- can also define "highlight_white_square & "highlight_black_square"
-- highlight style can be configured in the board style definition
-- - outline edges, highlight corners, use a checkerboard pattern, or draw a line
-boards are now redrawn on load (if style changed / worldedit mistakes)
-board control panel toplay indicator color on reload fixed
-style "large" (7x7 board squares & matching pieces) is now included
-support for Bukkit superperms (Permissions still used first if found, for now...)
-AI SUPPORT ADDED :D
-- games, if started without another player, will have an AI player "join"
-- chess engine taken from jChecs: http://sourceforge.net/projects/jchecs/files/Sources/v0.1.0/jChecs-0.1.0-src.tgz
-- settings: ai.min_move_wait - minimum time (seconds) before AI makes a move (0 is faster, but can be disorientatingly quick)
+* right-click piece moving removed
+* can now separately define board style & piece style
+* players must be online to be invited
+* moves players out of the way of moving chess pieces
+* added no_pvp option to config
+* players on a chess board are protected from monster attacks
+  - player damage is disabled
+  - monsters are removed
+  - players cannot exploit protection & damage monsters either
+* now does terrain saving when a board is created
+  - this feature depends on WorldEdit
+  - WorldEdit can instead be put in ChessCraft plugin folder or lib folder
+* board creation now triggers data autosave
+* control panel items are grey when inactive
+* can setup economy stakes - amount each player bets on winning (winner receives double)
+  - supports iConomy 4, 5, & 6, BOSEconomy 6 & 7, EssentialsEco, & MultiCurrency (using Register)
+* games now auto-delete if not started 
+* pieces with nonsolid blocks (like torches) won't leave trails of items when they move
+* added an optional "panel" material definition in the board definition: control panel can be different than the frame
+* now automatically downloads Chesspresso-lib.jar if not found
+  - class file now included inside plugin, so lib is no longer required separately
+* major-ish code restructure
+* players now allowed to resign even when not their turn
+* players can now delete a game if they created it (or if not started & the person who joined left)
+* added partial-name matching for games
+* added option to highlight last move
+  - board definition can manually set material with "highlight"
+  - can also define "highlight_white_square & "highlight_black_square"
+  - highlight style can be configured in the board style definition
+  - outline edges, highlight corners, use a checkerboard pattern, or draw a line
+* boards are now redrawn on load (if style changed / worldedit mistakes)
+* board control panel toplay indicator color on reload fixed
+* style "large" (7x7 board squares & matching pieces) is now included
+* support for Bukkit superperms (Permissions still used first if found, for now...)
+* AI SUPPORT ADDED :D
+  - games, if started without another player, will have an AI player "join"
+  - chess engine taken from jChecs: http://sourceforge.net/projects/jchecs/files/Sources/v0.1.0/jChecs-0.1.0-src.tgz
+  - settings: ai.min_move_wait - minimum time (seconds) before AI makes a move (0 is faster, but can be disorientatingly quick)
             ai.max_ai_games - limit the maximum concurrent AI game sessions (AI can be CPU-intensive) (0 disables AI)
-- AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
--- players can invite specific AIs with these names
-- project is now licensed under the GPLv3 instead of Creative Commons license
-games & boards are now saved in seperate files
-- will automativally impor old persist.yml file
+  - AI styles and difficulty can have named personas (defined in the included AI_settings.yml file)
+  - players can invite specific AIs with these names
+  - project is now licensed under the GPLv3 instead of Creative Commons license
+* games & boards are now saved in seperate files
+  - will automatically import old persist.yml file
 
 
 v0.2.2 (18 Jul 2011)
-Fixed a problem with en passant moves for Black
-Fixed a problem with queen's side castling (was checking for King move to B file instead of C file - /facepalm)
-Included twist.yml piece style by @ppp
-When creating boards, you can now also add a '-pstyle <style>' option to override the board's default piece style. Should reduce the need to create new board definitions just to try out a different piece style.
-
+* Fixed a problem with en passant moves for Black
+* Fixed a problem with queen's side castling (was checking for King move to B file instead of C file - /facepalm)
+* Included twist.yml piece style by @ppp
+* When creating boards, you can now also add a '-pstyle <style>' option to override the board's default piece style. Should reduce the need to create new board definitions just to try out a different piece style.
 
 v0.2.1 (13 Jul 2011):
-Now only tells you if you are actually in one or more games at login
-
+* Now only tells you if you are actually in one or more games at login
 
 v0.2 (13 Jul 2011)
-Piece selection/moving has changed: now pieces are selected & moved by waving a wand item 
-- (new config item wand_item, default is empty hand) with left-click. 
-- Much more usable, since it can be done from a distance - less running about the board needed. 
-- Right-click still works but is deprecated and will print a warning every time it's used. 
-- - Right-click will be removed in the next release.
-Control panel on the side of each board with chess clock
-- to-play indicator
-- halfmove clock display
-- ply count display
-- and a set of buttons to make a lot of the /chess commands easier to use (e.g. you can now create a game on the board with one click).
-More visible notification if you've been placed in check.
-When you join a game, you can now be automatically teleported to it (new config itemauto_teleport_on_join, default true).
-If a player logs out, their opponent may claim victory by default after a configurable delay (new config item forfeit_timeout, default 60 seconds).
-Board lighting is now checked once per second by default, not once per 10 seconds. The same task also updates chess clocks on each board.
-Implemented the 50-move rule (game is drawn if no pawn moves & no captures in the last 50 moves - see the halfmove clock on the control panel).
-Various minor tweaks & bug fixes.
-
+* Piece selection/moving has changed: now pieces are selected & moved by waving a wand item 
+  - (new config item wand_item, default is empty hand) with left-click. 
+  - Much more usable, since it can be done from a distance - less running about the board needed. 
+  - Right-click still works but is deprecated and will print a warning every time it's used. 
+  - Right-click will be removed in the next release.
+* Control panel on the side of each board with chess clock
+  - to-play indicator
+  - halfmove clock display
+  - ply count display
+  - and a set of buttons to make a lot of the /chess commands easier to use (e.g. you can now create a game on the board with one click).
+* More visible notification if you've been placed in check.
+* When you join a game, you can now be automatically teleported to it (new config item auto_teleport_on_join, default true).
+* If a player logs out, their opponent may claim victory by default after a configurable delay (new config item forfeit_timeout, default 60 seconds).
+* Board lighting is now checked once per second by default, not once per 10 seconds. The same task also updates chess clocks on each board.
+* Implemented the 50-move rule (game is drawn if no pawn moves & no captures in the last 50 moves - see the halfmove clock on the control panel).
+* Various minor tweaks & bug fixes.
 
 v0.1.1 (8 Jul 2011)
-Fixed a logic error which was mistakenly treating any move into row 1 as a pawn promotion move.
-
+* Fixed a logic error which was mistakenly treating any move into row 1 as a pawn promotion move.
 
 v0.1 (4 Jul 2011)
-Initial release
+* Initial release
