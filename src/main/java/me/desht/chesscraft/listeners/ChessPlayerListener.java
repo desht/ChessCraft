@@ -41,6 +41,7 @@ import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
 
@@ -127,7 +128,8 @@ public class ChessPlayerListener implements Listener {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
 				int wandId = ChessUtils.getWandId();
 				if (wandId < 0 || player.getItemInHand().getTypeId() == wandId) {
-					targetBlock = player.getTargetBlock(transparent, 100);
+					targetBlock = player.getTargetBlock(transparent, 120);
+					ChessCraftLogger.finer("Player " + player.getName() + " waved at block " + targetBlock);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
 					if ((bv = BoardView.onChessBoard(loc)) != null) {
@@ -238,17 +240,19 @@ public class ChessPlayerListener implements Listener {
 	}
 
 	private void pieceClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
+		if (player.isSneaking()) {
+			// shift-clicked a piece - try to teleport the player onto the piece
+			teleportToPiece(player, bv, loc);
+			return;
+		}
+		
 		ChessGame game = bv.getGame();
 		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
 
 		int sqi = game.getView().getSquareAt(loc);
-		
-		if (player.isSneaking()) {
-			// shift-clicked a piece - try to teleport the player onto the piece
-			teleportToPiece(player, bv, loc);
-		} else if (game.isPlayerToMove(player.getName())) {
+		if (game.isPlayerToMove(player.getName())) {
 			if (game.getFromSquare() == Chess.NO_SQUARE) {
 				// select the piece for moving (if it belongs to the player)
 				int colour = game.getPosition().getColor(sqi);
