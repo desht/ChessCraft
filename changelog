@@ -1,3 +1,23 @@
+v1.0
+* Built against CraftBukkit 1.2.5-R1.0.  Running this against earlier CB releases is not supported.
+* Added a piece designer - design your own chess set!  See [[Piece Designer]].
+* Added new "huge" (15x35x15) style, created by myself (desht) with piece designer.
+* With kind permission, added Yazpanda's amazing set (27x60x27!), "yazpanda", imported with the help of the piece designer.  See http://www.youtube.com/watch?v=a4HkyzqTv50 .  You will *need* a fast server and client to play with this set at its best, and even then expect some lag when creating and deleting boards/games due to the sheer quantity of blocks (millions) being manipulated.
+* Shift-clicking any targeted piece will now teleport you onto that piece.  This is very useful for larger sets, though perhaps less so for the "standard" (3x6x3) set, especially if the board has a roof.
+* If you are standing on a piece when it moves, you will now be moved with it (see effects.piece_riding config setting).  Good news for Harry Potter fans!
+* Audible tones are now played when a move is made and/or you are placed in check (see effects.move_alert & effects.check_alert).
+* An explosion sound effect is now played when a piece is captured (see effects.capture_explosion)
+* If the AI encounters an unrecoverable exception it will now abandon the game, resulting in a draw.  The game's result will not be logged.
+* The "Invite Player" control panel button will now prompt you to type a player's name in chat instead of just giving you the /invite usage information.
+* The "wand_item" config setting can be set to "*" to allow any item to be held when playing.
+* "/chess tp <board-name> -b" will allow you to port between boards (provided you have the chesscraft.commands.teleport permission node).
+* Adding "teleporting" config setting to globally enable/disable all teleporting between boards with the control panel "Teleport Out" button or the "/chess tp" command (it does not affect teleporting around a board by clicking)
+* Added German translation ("/chess set locale de_de").
+* Considerable code streamlining - reduced CPU and memory usage.
+
+v0.5.2
+* Works with CB 1.2 API
+
 v0.5.1
 * If you use portal blocks as part of board styles (e.g. the enclosure), they will no longer send you to the nether.
 * Catch & warn about exceptions thrown by economy plugins when trying to format currencies. Not sure under what circumstances this actually happens, but we don't want other plugins preventing ChessCraft from starting up.
