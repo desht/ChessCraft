@@ -598,7 +598,7 @@ public class ChessBoard {
 	}
 
 	/**
-	 * Get the Chesspresso index of the given location
+	 * Get the Chesspresso square index of the given location
 	 * 
 	 * @param loc	desired location
 	 * @return the square index, or Chess.NO_SQUARE if not on the board

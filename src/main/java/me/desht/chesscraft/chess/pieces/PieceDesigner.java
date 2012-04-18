@@ -19,19 +19,25 @@ import me.desht.chesscraft.regions.Cuboid;
 
 public class PieceDesigner {
 	private final BoardView view;
+	private final String playerName;
 	private String setName;	// name of the set currently being designed
 	private ChessSet chessSet;	// the set currently being designed
 
-	public PieceDesigner(BoardView view, String setName) throws ChessException {
+	public PieceDesigner(BoardView view, String setName, String playerName) throws ChessException {
 		if (view.isDesigning()) {
 			throw new ChessException("This board is already in design mode.");
 		}
 		this.view = view;
 		this.setName = setName;
+		this.playerName = playerName;
 	}
 
 	public String getSetName() {
 		return setName;
+	}
+
+	public String getPlayerName() {
+		return playerName;
 	}
 
 	public void setSetName(String setName) {
@@ -85,7 +91,7 @@ public class PieceDesigner {
 
 		MaterialMap blackMap = initBlackMaterialMap(whiteMap);
 
-		chessSet = new ChessSet(setName, templates, whiteMap, blackMap);
+		chessSet = new ChessSet(setName, templates, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
 	}
 
 	private char getNextChar(char c) throws ChessException {

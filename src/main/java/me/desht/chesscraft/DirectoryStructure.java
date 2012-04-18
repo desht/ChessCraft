@@ -135,13 +135,15 @@ public class DirectoryStructure {
 		extractResource("/datafiles/board_styles/large.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/small.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/huge.yml", boardStyleDir); //$NON-NLS-1$
-
+		extractResource("/datafiles/board_styles/yazpanda.yml", boardStyleDir); //$NON-NLS-1$
+		
 		extractResource("/datafiles/piece_styles/standard.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/small.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/huge.yml", pieceStyleDir); //$NON-NLS-1$
+		extractResource("/datafiles/piece_styles/yazpanda.yml", pieceStyleDir); //$NON-NLS-1$
 
 		// message resources no longer extracted here - this is now done by Messages.loadMessages()
 	}

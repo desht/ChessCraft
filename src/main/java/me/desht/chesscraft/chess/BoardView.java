@@ -88,9 +88,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 
-		String designerName = conf.getString("designer");
+		String designerName = conf.getString("designer.setName");
+		String designerPlayerName = conf.getString("designer.playerName");
 		if (designerName != null && !designerName.isEmpty()) {
-			setDesigner(new PieceDesigner(this, designerName));
+			setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
 		}
 	}
 
@@ -103,11 +104,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		result.put("boardStyle", chessBoard.getBoardStyleName()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
 		result.put("direction", chessBoard.getRotation().name()); //$NON-NLS-1$
+		Map<String, Object> d = new HashMap<String, Object>();
 		if (isDesigning()) {
-			result.put("designer", chessBoard.getDesigner().getSetName()); //$NON-NLS-1$
+			d.put("setName", chessBoard.getDesigner().getSetName()); //$NON-NLS-1$
+			d.put("playerName", chessBoard.getDesigner().getPlayerName()); //$NON-NLS-1$
 		} else {
-			result.put("designer", "");
+			d.put("setName", "");
+			d.put("playerName", "");
 		}
+		result.put("designer", d);
 		return result;
 	}
 
@@ -250,7 +255,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Get the bounds of the chess board itself.
+	 * Get the bounds of the chess board itself (not including the frame).
 	 * 
 	 * @return the bounds of the chess board
 	 */
@@ -378,8 +383,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check if the location is above the board but below the enclosure roof.
 	 * 
 	 * @param loc	location to check
-	 * @return true if the location is above the board <br>
-	 *         AND within the board's height range
+	 * @return true if the location is above the board AND within the board's height range
 	 */
 	public boolean isAboveBoard(Location loc) {
 		return isOnBoard(loc, 1, chessBoard.getBoardStyle().getHeight());
@@ -397,13 +401,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		Cuboid o = chessBoard.getFullBoard().outset(Direction.Both, fudge);
 		return o != null && o.contains(loc);
 	}
-	
 	public boolean isPartOfBoard(Location loc) {
 		return isPartOfBoard(loc, 0);
 	}
 	
 	public boolean isControlPanel(Location loc) {
-		return controlPanel.getPanelBlocks().contains(loc);
+		// outsetting the cuboid allows the signs on the panel to be targeted too
+		return controlPanel.getPanelBlocks().outset(Direction.Horizontal, 1).contains(loc);
 	}
 
 	/**
@@ -420,6 +424,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return Chess.sqiToCol(sqi) < 5 && Chess.sqiToCol(sqi) >= 0 && Chess.sqiToRow(sqi) < 2 && Chess.sqiToRow(sqi) >= 0;
 	}
 
+	/**
+	 * Get the Chesspresso square index (sqi) of the given Location.
+	 * 
+	 * @param loc	The Location to check	
+	 * @return		The sqi of the Location or Chess.NO_SQUARE if not on the board
+	 */
 	public int getSquareAt(Location loc) {
 		return chessBoard.getSquareAt(loc);
 	}
@@ -521,11 +531,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel())); //$NON-NLS-1$
-
 		if (chessBoard.getDesigner() != null) {
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
-
+		String setComment = getChessBoard().getChessSet().getComment();
+		if (setComment != null && !setComment.isEmpty()) {
+			for (String s : setComment.split("\n")) {
+				pager.add(ChatColor.YELLOW + s);
+			}
+		}
+		
 		pager.showPage();
 	}
 

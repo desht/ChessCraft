@@ -42,6 +42,8 @@ public class ChessSet implements Iterable<ChessStone> {
 			"",
 			"'name' is the name for this set, and should match the filename",
 			"",
+			"'comment' is a freeform comment about the set (can be multi-line)",
+			"",
 			"'materials.white' & 'materials.black' are lists of materials used in this set",
 			" Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)",
 			" or material plus data (e.g. 35:0, wool:white)",
@@ -63,6 +65,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	// cache of instantiated chess stones
 	private final Map<String, ChessStone> stoneCache = new HashMap<String, ChessStone>();
 	private final String name;
+	private final String comment;
 	private final int maxWidth;
 	private final int maxHeight;
 
@@ -80,6 +83,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		ChessPersistence.requireSection(c, "materials.black");
 		
 		name = c.getString("name");
+		comment = c.getString("comment", "");
 		
 		ConfigurationSection pieceConf = c.getConfigurationSection("pieces");
 		int maxH = 0, maxW = 0;
@@ -123,10 +127,11 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * @param materialMapWhite
 	 * @param materialMapBlack
 	 */
-	ChessSet(String name, ChessPieceTemplate[] templates, MaterialMap materialMapWhite, MaterialMap materialMapBlack) {
+	ChessSet(String name, ChessPieceTemplate[] templates, MaterialMap materialMapWhite, MaterialMap materialMapBlack, String comment) {
 		this.name = name;
 		this.materialMapWhite = materialMapWhite;
 		this.materialMapBlack = materialMapBlack;
+		this.comment = comment;
 		int maxW = 0, maxH = 0;
 		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
 			this.templates[piece] = templates[piece];
@@ -190,6 +195,15 @@ public class ChessSet implements Iterable<ChessStone> {
 	}
 
 	/**
+	 * Get the comment for this chess set.
+	 * 
+	 * @return
+	 */
+	public String getComment() {
+		return comment;
+	}
+
+	/**
 	 * Return the width (X or Z) of the widest piece in the set
 	 *
 	 * @return
@@ -220,6 +234,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		conf.options().header(Joiner.on("\n").join(CHESS_SET_HEADER_LINES));
 		try {
 			conf.set("name", name);
+			conf.set("comment", comment);
 			for (char c : materialMapWhite.getMap().keySet()) {
 				conf.set("materials.white." + c, materialMapWhite.get(c).toString());
 			}

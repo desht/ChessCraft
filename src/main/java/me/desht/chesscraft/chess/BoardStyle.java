@@ -26,7 +26,7 @@ public class BoardStyle {
 	public static final String DEFAULT_BOARD_STYLE = "standard";
 	
 	public static final int MIN_HEIGHT = 3, MIN_FRAMEWIDTH = 2, MIN_SQUARESIZE = 1;
-	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 20, MAX_SQUARESIZE = 20;
+	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 10, MAX_SQUARESIZE = 30;
 	
 	private int frameWidth, squareSize, height;
 	private MaterialWithData blackSquareMat, whiteSquareMat;
@@ -39,7 +39,45 @@ public class BoardStyle {
 	private String pieceStyleName;
 
 	// protected - have to use BoardStyle.loadNewStyle to get a new one..
-	protected BoardStyle() {
+	protected BoardStyle(String styleName, Configuration c) throws ChessException {
+		this.styleName = styleName;
+		
+		for (String k : new String[] {
+				"square_size", "frame_width", "height",
+				"black_square", "white_square", "frame", "enclosure"}) {
+			ChessPersistence.requireSection(c, k);
+		}
+		if (!c.contains("lit") && !c.contains("light_level")) {
+			throw new ChessException("board style must have at least one of 'lit' or 'light_level'");
+		}
+		
+		this.setSquareSize(c.getInt("square_size"));
+		this.setFrameWidth(c.getInt("frame_width"));
+		this.setHeight(c.getInt("height"));
+		this.pieceStyleName = c.getString("piece_style", "standard");
+
+		if (c.contains("lit")) {
+			this.lightLevel = 15;
+		} else {
+			this.lightLevel = c.getInt("light_level");
+		}
+
+		this.blackSquareMat = MaterialWithData.get(c.getString("black_square"));
+		this.whiteSquareMat = MaterialWithData.get(c.getString("white_square"));
+		this.frameMat = MaterialWithData.get(c.getString("frame"));
+		this.enclosureMat = MaterialWithData.get(c.getString("enclosure"));
+
+		/************** optional parameters  **************/		
+		this.controlPanelMat = MaterialWithData.get(c.getString("panel", this.frameMat.toString()));
+		this.strutsMat = MaterialWithData.get(c.getString("struts", this.enclosureMat.toString()));
+		this.highlightMat = MaterialWithData.get(c.getString("highlight", "glowstone"));
+		this.highlightWhiteSquareMat = MaterialWithData.get(c.getString("highlight_white_square", this.highlightMat.toString()));
+		this.highlightBlackSquareMat = MaterialWithData.get(c.getString("highlight_black_square", this.highlightMat.toString()));
+		try {
+			this.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
+		} catch (IllegalArgumentException e) {
+			throw new ChessException(e.getMessage());
+		}
 	}
 
 	public String getName() {
@@ -49,7 +87,7 @@ public class BoardStyle {
 	public String getPieceStyleName() {
 		return pieceStyleName;
 	}
-
+	
 	public int getFrameWidth() {
 		return frameWidth;
 	}
@@ -114,6 +152,10 @@ public class BoardStyle {
 
 	public MaterialWithData getWhiteSquareHighlightMaterial() {
 		return highlightWhiteSquareMat == null ? highlightMat : highlightWhiteSquareMat;
+	}
+
+	public void setPieceStyleName(String pieceStyleName) {
+		this.pieceStyleName = pieceStyleName;
 	}
 
 	public void setBlackSquareMaterial(MaterialWithData blackSquareMat) {
@@ -238,54 +280,21 @@ public class BoardStyle {
 		}
 	}
 	
-	public static BoardStyle loadStyle(String boardStyle) throws ChessException {
-		if (boardStyle == null) {
-			boardStyle = DEFAULT_BOARD_STYLE;
+	/**
+	 * Load a new style.
+	 * 
+	 * @param styleName		Name of the style to load
+	 * @return				The new loaded style
+	 * @throws ChessException
+	 */
+	public static BoardStyle loadStyle(String styleName) throws ChessException {
+		if (styleName == null) {
+			styleName = DEFAULT_BOARD_STYLE;
 		}
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), boardStyle);
+		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), styleName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
-
-		for (String k : new String[] {
-				"square_size", "frame_width", "height",
-				"black_square", "white_square", "frame", "enclosure"}) {
-			ChessPersistence.requireSection(c, k);
-		}
-		if (!c.contains("lit") && !c.contains("light_level")) {
-			throw new ChessException("board style must have at least one of 'lit' or 'light_level'");
-		}
-		
-		BoardStyle style = new BoardStyle();
-		style.styleName = boardStyle;
-
-		style.setSquareSize(c.getInt("square_size"));
-		style.setFrameWidth(c.getInt("frame_width"));
-		style.setHeight(c.getInt("height"));
-		style.pieceStyleName = c.getString("piece_style");
-
-		if (c.contains("lit")) {
-			style.lightLevel = 15;
-		} else {
-			style.lightLevel = c.getInt("light_level");
-		}
-
-		style.blackSquareMat = MaterialWithData.get(c.getString("black_square"));
-		style.whiteSquareMat = MaterialWithData.get(c.getString("white_square"));
-		style.frameMat = MaterialWithData.get(c.getString("frame"));
-		style.enclosureMat = MaterialWithData.get(c.getString("enclosure"));
-
-		/************** optional parameters  **************/		
-		style.controlPanelMat = MaterialWithData.get(c.getString("panel", style.frameMat.toString()));
-		style.strutsMat = MaterialWithData.get(c.getString("struts", style.enclosureMat.toString()));
-		style.highlightMat = MaterialWithData.get(c.getString("highlight", "glowstone"));
-		style.highlightWhiteSquareMat = MaterialWithData.get(c.getString("highlight_white_square", style.highlightMat.toString()));
-		style.highlightBlackSquareMat = MaterialWithData.get(c.getString("highlight_black_square", style.highlightMat.toString()));
-		try {
-			style.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
-		} catch (IllegalArgumentException e) {
-			throw new ChessException(e.getMessage());
-		}
-		return style;
+		return new BoardStyle(styleName, c);
 	}
 	
 	/**
