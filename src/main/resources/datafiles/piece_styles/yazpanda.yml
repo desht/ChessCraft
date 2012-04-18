@@ -1,7 +1,9 @@
 # ChessCraft piece style definition file
 # See http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles
 # 
-# 'name' is the name for this set, and should match the filename
+# 'name' is the name for this set, and should match the filename.
+#
+# 'comment' is a freeform comment about the set.
 # 
 # 'materials.white' & 'materials.black' are lists of materials used in this set
 #  Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)
@@ -16,7 +18,9 @@
 #  - definition[0][0] is the northmost row on the lowest layer
 #  - each string runs from west to east and consists of materials defined above
 name: yazpanda
-comment: Set design by Yazpanda - http://www.youtube.com/watch?v=a4HkyzqTv50
+comment: |
+  Chess set design by Yazpanda
+  http://www.youtube.com/watch?v=a4HkyzqTv50
 materials:
   white:
     A: AIR:0
