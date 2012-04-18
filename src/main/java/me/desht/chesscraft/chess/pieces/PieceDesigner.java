@@ -66,7 +66,7 @@ public class PieceDesigner {
 			for (int x = 0; x < templates[p].getSizeX(); x++) {
 				for (int y = 0; y < templates[p].getSizeY(); y++) {
 					for (int z = 0; z < templates[p].getSizeZ(); z++) {
-						Point rotatedPoint = rotate(x, z, templates[p].getSizeX(), templates[p].getSizeZ(), 360 - rotation);
+						Point rotatedPoint = rotate(x, z, templates[p].getSizeZ(), templates[p].getSizeX(), rotation);
 						Block b = c.getRelativeBlock(rotatedPoint.x, y, rotatedPoint.z);
 						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData()).rotate(rotation);
 						String materialName = mat.toString();
@@ -117,7 +117,7 @@ public class PieceDesigner {
 		case 90:
 			return new Point(z, sizeZ - x - 1);
 		case 180:
-			return new Point(sizeX - x - 1, sizeZ - z - 1);
+			return new Point(sizeZ - x - 1, sizeX - z - 1);
 		case 270:
 			return new Point(sizeX - z - 1, x);
 		default:
