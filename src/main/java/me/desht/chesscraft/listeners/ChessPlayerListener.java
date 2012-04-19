@@ -31,7 +31,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.sk89q.worldedit.blocks.BlockType;
+import me.desht.chesscraft.blocks.BlockType;
 
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
