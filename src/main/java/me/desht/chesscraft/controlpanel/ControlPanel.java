@@ -162,9 +162,10 @@ public class ControlPanel {
 	 * 
 	 * @return
 	 */
-	public Location getLocationTP(){
+	public Location getTeleportLocation() {
 		Location l = (new Cuboid(toMoveIndicator.getCenter())).
 				shift(signDir.getDirection(), 4).
+				shift(signDir.getLeft().getDirection(), 1).
 				shift(Direction.Down, 1).getLowerNE();
 		l.setYaw((signDir.getYaw() + 180.0f) % 360);
 		return l;

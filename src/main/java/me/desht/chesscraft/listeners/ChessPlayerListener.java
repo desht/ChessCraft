@@ -140,7 +140,7 @@ public class ChessPlayerListener implements Listener {
 						if (bv.isControlPanel(loc)) {
 							Location l = bv.getControlPanel().getPanelBlocks().getCenter();
 							if (l.distance(player.getLocation()) > 5) {
-								player.teleport(bv.getControlPanel().getLocationTP());
+								player.teleport(bv.getControlPanel().getTeleportLocation());
 							}
 						}
 					}
