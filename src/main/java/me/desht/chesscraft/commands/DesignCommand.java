@@ -47,7 +47,7 @@ public class DesignCommand extends AbstractCommand {
 				return true;
 			} else {
 				// toggle into design mode
-				designer = new PieceDesigner(bv, bv.getPieceStyleName());
+				designer = new PieceDesigner(bv, bv.getPieceStyleName(), "");
 				bv.getChessBoard().setDesigner(designer);
 				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessConfig.getConfig().getBoolean("designer.auto_load")) {
