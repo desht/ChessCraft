@@ -57,7 +57,7 @@ public class ChessPlayerListener implements Listener {
 	private static final long MIN_ANIMATION_WAIT = 200; // milliseconds
 	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
 
-	@EventHandler(ignoreCancelled = true)
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 
@@ -71,6 +71,10 @@ public class ChessPlayerListener implements Listener {
 			return;
 		}
 
+		if (event.isCancelled()) {
+			return;
+		}
+		
 		try {
 			Block b = event.getClickedBlock();
 			if (b == null) {
