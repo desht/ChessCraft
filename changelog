@@ -13,6 +13,8 @@ v1.0.0
 * "/chess tp <board-name> -b" will allow you to port between boards (provided you have the chesscraft.commands.teleport permission node).
 * Adding "teleporting" config setting to globally enable/disable all teleporting between boards with the control panel "Teleport Out" button or the "/chess tp" command (it does not affect teleporting around a board by clicking)
 * Added German translation ("/chess set locale de_de") - thanks @baemboo.
+* Some in-game messages (e.g. move notifications) are now more terse, only using one line of chat.
+* Waving at a board square to port to it now works silently.  To see the old "Square [a1], board board1" messages, hold shift while clicking.
 * Considerable code streamlining - reduced CPU and memory usage.
 
 v0.5.2
