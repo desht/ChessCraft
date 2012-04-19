@@ -138,8 +138,10 @@ public class ChessPlayerListener implements Listener {
 						pieceClicked(player, loc, bv);
 					} else if ((bv = BoardView.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
-							Location l = bv.getControlPanel().getLocationTP();
-							player.teleport(l);
+							Location l = bv.getControlPanel().getPanelBlocks().getCenter();
+							if (l.distance(player.getLocation()) > 5) {
+								player.teleport(bv.getControlPanel().getLocationTP());
+							}
 						}
 					}
 				}
@@ -305,8 +307,10 @@ public class ChessPlayerListener implements Listener {
 			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
 					game.getPosition().getLastMove().getLAN()));
 		} else {
-			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
-					Chess.sqiToStr(sqi), bv.getName()));
+			if (player.isSneaking()) {
+				ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+				                                                    Chess.sqiToStr(sqi), bv.getName()));
+			}
 			if (bv.isPartOfBoard(player.getLocation())) {
 				// allow teleporting around the board, but only if the player is 
 				// already on the board
