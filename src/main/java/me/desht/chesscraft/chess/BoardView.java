@@ -176,6 +176,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
 		}
 		chessBoard.getFullBoard().sendClientChanges();
+		controlPanel.repaintClocks();
 		controlPanel.repaintSignButtons();
 	}
 

@@ -106,10 +106,14 @@ public class ControlPanel {
 		signMat.applyToBlock(whiteClockSign.getBlock());
 		signMat.applyToBlock(blackClockSign.getBlock());
 
+		repaintClocks();
+		repaintSignButtons();
+	}
+	
+	public void repaintClocks() {
+		ChessGame game = view.getGame();
 		updateClock(Chess.WHITE, game == null ? null : game.getTcWhite());
 		updateClock(Chess.BLACK, game == null ? null : game.getTcBlack());
-
-		repaintSignButtons();
 	}
 
 	public void repaintSignButtons() {
