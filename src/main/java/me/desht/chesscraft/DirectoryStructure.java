@@ -226,9 +226,31 @@ public class DirectoryStructure {
 	 * @return
 	 * @throws ChessException
 	 */
-	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
+//	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
+//		File f = new File(dir, "custom" + File.separator + filename + ".yml");
+//		if (!f.exists()) {
+//			f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");	
+//		}
+//		if (!f.exists() && !saving) {
+//			f = new File(dir, filename.toLowerCase() + ".yml");
+//			if (!f.exists()) {
+//				throw new ChessException("resource file '" + f + "' is not readable");
+//			}
+//		}
+//		return f;
+//	}
+//	
+//	public static File getResourceFile(File dir, String filename) throws ChessException {
+//		return getResourceFile(dir, filename, false);
+//	}
+	
+	public static File getResourceFileForLoad(File dir, String filename) throws ChessException {
+		// try the lower-cased form first, if that fails try the exact filename
 		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
-		if (!f.exists() && !saving) {
+		if (!f.exists()) {
+			f = new File(dir, "custom" + File.separator + filename + ".yml");
+		}
+		if (!f.exists()) {
 			f = new File(dir, filename.toLowerCase() + ".yml");
 			if (!f.exists()) {
 				throw new ChessException("resource file '" + f + "' is not readable");
@@ -237,9 +259,9 @@ public class DirectoryStructure {
 		return f;
 	}
 	
-	public static File getResourceFile(File dir, String filename) throws ChessException {
-		return getResourceFile(dir, filename, false);
+	public static File getResourceFileForSave(File dir, String filename) throws ChessException {
+		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
+		return f;
 	}
-	
 	
 }

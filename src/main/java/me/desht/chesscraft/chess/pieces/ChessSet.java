@@ -228,7 +228,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * @throws ChessException
 	 */
 	public void save(String newName) throws ChessException {
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName), true);
+		File f = DirectoryStructure.getResourceFileForSave(DirectoryStructure.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName));
 		
 		YamlConfiguration conf = new YamlConfiguration();
 		conf.options().header(Joiner.on("\n").join(CHESS_SET_HEADER_LINES));
@@ -282,12 +282,12 @@ public class ChessSet implements Iterable<ChessStone> {
 		if (!setLoadTime.containsKey(setName)) {
 			return true;
 		}
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), setName);
+		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
 		return f.lastModified() > setLoadTime.get(setName);
 	}
 
 	private static ChessSet loadChessSet(String setName) throws ChessException {
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getPieceStyleDirectory(), setName);
+		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);

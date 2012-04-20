@@ -233,7 +233,7 @@ public class BoardStyle {
 	}
 	
 	public void saveStyle(String newStyleName) throws ChessException {
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), newStyleName, true);
+		File f = DirectoryStructure.getResourceFileForSave(DirectoryStructure.getBoardStyleDirectory(), newStyleName);
 
 		// It would be nice to use the configuration API to save this, but I want comments!
 		try {
@@ -291,7 +291,7 @@ public class BoardStyle {
 		if (styleName == null) {
 			styleName = DEFAULT_BOARD_STYLE;
 		}
-		File f = DirectoryStructure.getResourceFile(DirectoryStructure.getBoardStyleDirectory(), styleName);
+		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getBoardStyleDirectory(), styleName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		return new BoardStyle(styleName, c);

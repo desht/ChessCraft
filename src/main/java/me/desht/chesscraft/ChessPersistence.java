@@ -135,10 +135,13 @@ public class ChessPersistence {
 			BoardView bv;
 			if (conf.contains("board")) {
 				bv = (BoardView) conf.get("board");
-			} else {
+			} else if (conf.getKeys(false).size() > 0) {
 				bv = new BoardView(conf);
 				savePersistable("board", bv);
 				ChessCraftLogger.info("migrated v4-format board save " + f.getName() + " to v5-format");
+			} else {
+				// empty config returned - probably due to corrupted save file of some kind
+				return false;
 			}
 			BoardView.addBoardView(bv);
 			return true;
@@ -229,7 +232,7 @@ public class ChessPersistence {
 	private static void moveBackup(File original) {
 		File backup = getBackupFileName(original.getParentFile(), original.getName());
 	
-		ChessCraftLogger.log(Level.INFO, "An error occurred while loading " + original.getName() + ":\n"
+		ChessCraftLogger.log(Level.WARNING, "An error occurred while loading " + original.getPath() + ":\n"
 				+ "a backup copy has been saved to " + backup.getPath());
 		original.renameTo(backup);
 	}
