@@ -37,6 +37,7 @@ ChessCommandExecutor:
     frameWidth: 'Einfassungsbreite: &f{0,number,integer} ({1})'
     game: 'Spiel: &f{0}'
     height: 'Höhe: &f{0,number,integer}'
+    lightLevel: "Lichtstaerke: : &f{0,number,integer}"
     isLit: 'Beleuchtung: &f{0}'
     boardExtents: 'Brett Ausmasse: &f{0} - {1}'
     pieceStyle: 'Figurenstil: &f{0}'
