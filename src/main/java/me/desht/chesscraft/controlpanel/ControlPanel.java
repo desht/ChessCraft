@@ -94,24 +94,14 @@ public class ControlPanel {
 		panelBlocks.set(view.getControlPanelMaterial(), true);
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
-		ChessGame game = view.getGame();
-		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
-
-		signMat.applyToBlock(halfMoveClockSign.getBlock());
-		updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
-
-		signMat.applyToBlock(plyCountSign.getBlock());
-		updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
-
-		signMat.applyToBlock(whiteClockSign.getBlock());
-		signMat.applyToBlock(blackClockSign.getBlock());
-
-		repaintClocks();
 		repaintSignButtons();
+		repaintClocks();
 	}
 	
 	public void repaintClocks() {
 		ChessGame game = view.getGame();
+		signMat.applyToBlock(whiteClockSign.getBlock());
+		signMat.applyToBlock(blackClockSign.getBlock());
 		updateClock(Chess.WHITE, game == null ? null : game.getTcWhite());
 		updateClock(Chess.BLACK, game == null ? null : game.getTcBlack());
 	}
@@ -154,6 +144,18 @@ public class ControlPanel {
 		String offerb = getOfferText(pb);
 		createSignButton(6, 0, BLACK_YES, offerb + Messages.getString("ControlPanel.yesBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(7, 0, BLACK_NO, offerb + Messages.getString("ControlPanel.noBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		// indicators - to-move, half-moves, ply count
+		
+		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
+
+		signMat.applyToBlock(halfMoveClockSign.getBlock());
+		updateHalfMoveClock(game == null ? 0 : game.getPosition().getHalfMoveClock());
+
+		signMat.applyToBlock(plyCountSign.getBlock());
+		updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
+
+
 	}
 
 	/**

@@ -11,7 +11,6 @@ import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -28,23 +27,19 @@ import org.bukkit.configuration.Configuration;
 public class ChessConfig {
 
 	private static ChessCraft plugin;
-	
+
 	public static void init() {
 		ChessConfig.plugin = ChessCraft.getInstance();
-		
+
 		configFileInitialise();
-		
+
 		ChessCraftLogger.setLogLevel(getConfig().getString("log_level"));
 
-		try {
-			Messages.init();
-		} catch (IOException e) {
-			ChessCraftLogger.severe("Can't load messages file", e);
-		}
+		Messages.init(getConfig().getString("locale"));
 
 		ChessAI.initAINames();
 	}
-	
+
 	public static Configuration getConfig() {
 		return plugin.getConfig();
 	}
@@ -58,7 +53,7 @@ public class ChessConfig {
 	private static void configFileInitialise() {
 		plugin.getConfig().options().copyDefaults(true);
 		Configuration config = plugin.getConfig();
-		
+
 		String currentVersion = plugin.getDescription().getVersion();
 		if (currentVersion != null && !config.getString("version").equals(currentVersion)) {
 			versionChanged(config.getString("version"), currentVersion);
@@ -69,7 +64,7 @@ public class ChessConfig {
 				ChessCraftLogger.severe("Can't update version in configuration file", e);
 			}
 		}
-		
+
 		plugin.saveConfig();
 	}
 
@@ -131,7 +126,7 @@ public class ChessConfig {
 		Collections.sort(res);
 		return res;
 	}
-	
+
 	/**
 	 * @return a sorted list of all config keys
 	 */
@@ -147,40 +142,38 @@ public class ChessConfig {
 	}
 
 	public static void setPluginConfiguration(String key, String val) throws ChessException {
-		setConfigItem(getConfig(), key, val);
-
+		
 		// special hooks
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
 			ChessCraft.tickTask.start(0L);
 		} else if (key.equalsIgnoreCase("locale")) {
-			try {
-				Messages.loadMessages();
-				// redraw control panel signs in the right language
-				redrawControlPanels();
-			} catch (IOException e) {
-				ChessCraftLogger.severe("Can't load messages file", e);
-			}
+			Messages.setMessageLocale(val);
+			// redraw control panel signs in the right language
+			updateAllControlPanels();
 		} else if (key.equalsIgnoreCase("log_level")) {
 			ChessCraftLogger.setLogLevel(val);
 		} else if (key.equalsIgnoreCase("teleporting")) {
-			redrawControlPanels();
+			updateAllControlPanels();
 		}
+
+		setConfigItem(getConfig(), key, val);
 
 		ChessCraft.getInstance().saveConfig();
 	}
-	
-	private static void redrawControlPanels() {
+
+	private static void updateAllControlPanels() {
 		for (BoardView bv : BoardView.listBoardViews()) {
 			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintClocks();
 		}
 	}
-	
+
 	public static <T> void setPluginConfiguration(String key, List<T> list) throws ChessException {
 		setConfigItem(getConfig(), key, list);
 
 		ChessCraft.getInstance().saveConfig();
 	}
-	
+
 	/**
 	 * Sets a configuration item in the given config object.  The key and value are both strings; the value
 	 * will be converted into an object of the correct type, if possible (where the type is discovered from
@@ -228,7 +221,7 @@ public class ChessConfig {
 			}
 		}
 	}
-	
+
 	public static <T> void setConfigItem(Configuration config, String key, List<T> list) throws ChessException {
 		if (config.getDefaults().get(key) == null) {
 			throw new ChessException(Messages.getString("ChessConfig.noSuchKey", key));

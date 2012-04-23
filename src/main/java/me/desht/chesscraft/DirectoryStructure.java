@@ -26,10 +26,10 @@ public class DirectoryStructure {
 	private static final String resultsFoldername = "results"; //$NON-NLS-1$
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
-	
+
 	public static void setup() {
 		pluginDir = ChessCraft.getInstance().getDataFolder();
-		
+
 		setupDirectoryStructure();
 		extractResources();
 	}
@@ -69,7 +69,7 @@ public class DirectoryStructure {
 	public static File getPersistFile() {
 		return persistFile;
 	}
-	
+
 	public static File getResultsDir() {
 		return resultsDir;
 	}
@@ -121,11 +121,11 @@ public class DirectoryStructure {
 			createDir(schematicsDir);
 		}
 	}
-	
+
 	public static File getJarFile() {
 		return new File("plugins", "ChessCraft.jar");
 	}
-	
+
 	private static void extractResources() {
 		extractResource("/AI_settings.yml", pluginDir); //$NON-NLS-1$
 
@@ -136,7 +136,7 @@ public class DirectoryStructure {
 		extractResource("/datafiles/board_styles/small.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/huge.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/yazpanda.yml", boardStyleDir); //$NON-NLS-1$
-		
+
 		extractResource("/datafiles/piece_styles/standard.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
@@ -157,7 +157,7 @@ public class DirectoryStructure {
 		}
 	}
 
-	private static void extractResource(String from, File toDir) {
+	static void extractResource(String from, File toDir) {
 		extractResource(from, toDir, false);
 	}
 
@@ -170,14 +170,20 @@ public class DirectoryStructure {
 			System.out.println("not a file: " + of);
 			return;
 		}
-		
+
+		ChessCraftLogger.fine("extractResource: file=" + of +
+		                      ", file-last-mod=" + of.lastModified() +
+		                      ", file-exists=" + of.exists() +
+		                      ", jar-last-mod=" +  getJarFile().lastModified() +
+		                      ", force=" + force);
+
 		// if the file exists and is newer than the JAR, then we'll leave it alone
 		if (of.exists() && of.lastModified() > getJarFile().lastModified() && !force) {
 			return;
 		}
 
-		ChessCraftLogger.fine("Extracting resource file: " + from + " -> " + of);
-		
+		ChessCraftLogger.fine("extractResource: " + from + " -> " + of);
+
 		OutputStream out = null;
 		try {
 			// Got to jump through hoops to ensure we can still pull messages from a JAR
@@ -226,24 +232,6 @@ public class DirectoryStructure {
 	 * @return
 	 * @throws ChessException
 	 */
-//	public static File getResourceFile(File dir, String filename, boolean saving) throws ChessException {
-//		File f = new File(dir, "custom" + File.separator + filename + ".yml");
-//		if (!f.exists()) {
-//			f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");	
-//		}
-//		if (!f.exists() && !saving) {
-//			f = new File(dir, filename.toLowerCase() + ".yml");
-//			if (!f.exists()) {
-//				throw new ChessException("resource file '" + f + "' is not readable");
-//			}
-//		}
-//		return f;
-//	}
-//	
-//	public static File getResourceFile(File dir, String filename) throws ChessException {
-//		return getResourceFile(dir, filename, false);
-//	}
-	
 	public static File getResourceFileForLoad(File dir, String filename) throws ChessException {
 		// try the lower-cased form first, if that fails try the exact filename
 		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
@@ -258,10 +246,18 @@ public class DirectoryStructure {
 		}
 		return f;
 	}
-	
+
+	/** 
+	 * Find a YAML resource in the custom/ subdirectory of the given directory.
+	 * 
+	 * @param dir
+	 * @param filename
+	 * @return
+	 * @throws ChessException
+	 */
 	public static File getResourceFileForSave(File dir, String filename) throws ChessException {
 		File f = new File(dir, "custom" + File.separator + filename.toLowerCase() + ".yml");
 		return f;
 	}
-	
+
 }

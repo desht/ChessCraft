@@ -9,6 +9,9 @@ import java.util.List;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.google.common.base.Joiner;
+
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.log.ChessCraftLogger;
 
 public class Messages {
@@ -16,89 +19,60 @@ public class Messages {
 	static Configuration fallbackMessages = null;
 	static Configuration messages = null;
 
-	public static void init() throws IOException {
-		if (fallbackMessages == null) {
-			File langDir = DirectoryStructure.getLanguagesDirectory();
-			File def = new File(langDir, "default.yml");
-			fallbackMessages = checkUpToDate(locateMessageFile(def));
-		}
-		loadMessages();
-	}
-
-	public static void loadMessages() throws IOException {
+	public static void init(String locale) {
 		File langDir = DirectoryStructure.getLanguagesDirectory();
-		String locale = ChessConfig.getConfig().getString("locale", "default").toLowerCase();
-		File wanted = new File(langDir, locale + ".yml");
 
-		if (wanted.isFile() && wanted.lastModified() > DirectoryStructure.getJarFile().lastModified()) {
-			// file exists on disk and is newer than the JAR
-			messages = checkUpToDate(wanted);
-		} else if (!wanted.isFile()) {
-			// file does not exist on disk, attempt to extract from the JAR
-			DirectoryStructure.extractResource("/datafiles/lang/" + wanted.getName(), langDir, true);
-			if (wanted.isFile()) {
-				messages = YamlConfiguration.loadConfiguration(wanted);
-			} else {
-				// find the best match (could be default.yml)
-				File actual = locateMessageFile(wanted);
-				messages = actual.getName().equals("default.yml") ? fallbackMessages : checkUpToDate(actual);
-			}
-		} else {
-			// file exists on disk but we have a newer version in the JAR
-			messages = checkUpToDate(wanted);
+		DirectoryStructure.extractResource("/datafiles/lang/default.yml", langDir);
+		DirectoryStructure.extractResource("/datafiles/lang/es_es.yml", langDir);
+		DirectoryStructure.extractResource("/datafiles/lang/de_de.yml", langDir);
+		DirectoryStructure.extractResource("/datafiles/lang/ru_ru.yml", langDir);
+
+		try {
+			fallbackMessages = loadMessageFile("default");
+		} catch (ChessException e) {
+			ChessCraftLogger.severe("can't load fallback messages file!", e);
 		}
-
-		// ensure we actually have some messages - if not, fall back to default
-		if (messages.getKeys(false).isEmpty()) {
+		
+		try {
+			setMessageLocale(locale);
+		} catch (ChessException e) {
+			ChessCraftLogger.warning("can't load messages for " + locale + ": using default");
 			messages = fallbackMessages;
 		}
 	}
 
-	/**
-	 * Ensure that the extracted file on disk (if any) has all the messages that the
-	 * shipped file (in the JAR) has.  But don't modify any messages in the extracted
-	 * file that have already been changed (i.e. allow users to set custom messages if
-	 * they wish).
-	 *  
-	 * @param f
-	 * @throws IOException 
-	 */
-	private static Configuration checkUpToDate(File f) throws IOException {
+	public static void setMessageLocale(String wantedLocale) throws ChessException {
+		messages = loadMessageFile(wantedLocale);
+	}
+
+	private static Configuration loadMessageFile(String wantedLocale) throws ChessException {
 		File langDir = DirectoryStructure.getLanguagesDirectory();
-
-		// extract the shipped file to a temporary file
-		File tmpFile = File.createTempFile("msg", ".tmp", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/" + f.getName(), tmpFile, true);
-
-		// load the temporary file into a temp configuration object
-		Configuration tmpCfg = YamlConfiguration.loadConfiguration(tmpFile);
-
-		// load the real (extracted) file
-		YamlConfiguration actualCfg = YamlConfiguration.loadConfiguration(f);
-
-		// merge the temp config into the actual one, adding any non-existent keys
-		for (String key : tmpCfg.getKeys(true)) {
-			if (!actualCfg.contains(key) && !tmpCfg.isConfigurationSection(key)) {
-				actualCfg.set(key, tmpCfg.get(key));
-			}
+		File wanted = new File(langDir, wantedLocale + ".yml");
+		File located = locateMessageFile(wanted);
+		if (located == null) {
+			throw new ChessException("Unknown locale '" + wantedLocale + "'");
 		}
+		YamlConfiguration conf = YamlConfiguration.loadConfiguration(located);
 
 		// ensure that the config we're loading has all of the messages that the fallback has
-		if (fallbackMessages != null && actualCfg.getKeys(true).size() != fallbackMessages.getKeys(true).size()) {
+		// make a note of any missing translations
+		if (fallbackMessages != null && conf.getKeys(true).size() != fallbackMessages.getKeys(true).size()) {
 			List<String> missingKeys = new ArrayList<String>();
 			for (String key : fallbackMessages.getKeys(true)) {
-				if (!actualCfg.contains(key) && !fallbackMessages.isConfigurationSection(key)) {
-					actualCfg.set(key, fallbackMessages.get(key));
+				if (!conf.contains(key) && !fallbackMessages.isConfigurationSection(key)) {
+					conf.set(key, fallbackMessages.get(key));
 					missingKeys.add(key);
 				}
 			}
-			actualCfg.set("NEEDS_TRANSLATION", missingKeys);
+			conf.set("NEEDS_TRANSLATION", missingKeys);
+			try {
+				conf.save(located);
+			} catch (IOException e) {
+				ChessCraftLogger.warning("Can't write " + located + ": " + e.getMessage());
+			}
 		}
 
-		tmpFile.delete();
-		actualCfg.save(f);
-
-		return actualCfg;
+		return conf;
 	}
 
 	private static File locateMessageFile(File wanted) {
@@ -116,30 +90,12 @@ public class Messages {
 			if (actual.isFile() && actual.canRead()) {
 				return actual;
 			} else {
-				String locale = ChessConfig.getConfig().getString("locale", "default");
-				ChessCraftLogger.warning("no messages catalog for " + locale + " found - falling back to default");
-				return new File(wanted.getParent(), "default.yml");
+				return null;
 			}
 		}
 	}
 
-	public static String getString(String key) {
-		if (messages == null) {
-			ChessCraftLogger.warning("No messages catalog!?!");
-			return "!" + key + "!";
-		}
-		String s = getKey(messages, key);
-		if (s == null) {
-			ChessCraftLogger.warning("Missing message key '" + key + "'");
-			s = getKey(fallbackMessages, key);
-			if (s == null) {
-				s = "!" + key + "!";
-			}
-		}
-		return s;
-	}
-
-	private static String getKey(Configuration conf, String key) {
+	private static String getString(Configuration conf, String key) {
 		String s = null;
 		Object o = conf.get(key);
 		if (o instanceof String) {
@@ -147,14 +103,23 @@ public class Messages {
 		} else if (o instanceof List<?>) {
 			@SuppressWarnings("unchecked")
 			List<String> l = (List<String>) o;
-			StringBuilder add = new StringBuilder();
-			for (int i = 0; i < l.size(); ++i) {
-				add.append(l.get(i));
-				if (i + 1 < l.size()) {
-					add.append("\n");
-				}
+			s = Joiner.on("\n").join(l);
+		}
+		return s;
+	}
+
+	public static String getString(String key) {
+		if (messages == null) {
+			ChessCraftLogger.warning("No messages catalog!?!");
+			return "!" + key + "!";
+		}
+		String s = getString(messages, key);
+		if (s == null) {
+			ChessCraftLogger.warning("Missing message key '" + key + "'");
+			s = getString(fallbackMessages, key);
+			if (s == null) {
+				s = "!" + key + "!";
 			}
-			s = add.toString();
 		}
 		return s;
 	}
