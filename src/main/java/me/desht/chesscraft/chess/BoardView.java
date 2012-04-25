@@ -55,7 +55,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
-
+	
+	private double defaultStake;
 	private ChessGame game = null;			// null indicates board not currently used by any game
 
 	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
@@ -70,7 +71,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		chessBoard = new ChessBoard(origin, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
-
+		defaultStake = -1.0;
 	}
 
 	public BoardView(ConfigurationSection conf) throws ChessException {
@@ -93,6 +94,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (designerName != null && !designerName.isEmpty()) {
 			setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
 		}
+		
+		defaultStake = conf.getDouble("defaultStake", -1.0);
 	}
 
 	@Override
@@ -113,6 +116,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			d.put("playerName", "");
 		}
 		result.put("designer", d);
+		result.put("defaultStake", defaultStake);
 		return result;
 	}
 
@@ -160,6 +164,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public ChessGame getGame() {
 		return game;
+	}
+	
+	public double getDefaultStake() {
+		return defaultStake >= 0.0 ? defaultStake : ChessConfig.getConfig().getDouble("stake.default", 0.0);
+	}
+
+	public void setDefaultStake(double defaultStake) {
+		this.defaultStake = defaultStake;
 	}
 
 	public void setGame(ChessGame game) {
@@ -532,6 +544,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel())); //$NON-NLS-1$
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()))); //$NON-NLS-1$
+		
 		if (chessBoard.getDesigner() != null) {
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}

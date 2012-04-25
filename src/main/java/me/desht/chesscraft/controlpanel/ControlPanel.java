@@ -7,7 +7,6 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,7 +117,7 @@ public class ControlPanel {
 		createSignButton(0, 2, BOARD_INFO, Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(0, 1, TELEPORT, Messages.getString("ControlPanel.teleportOutBtn"), signMat, teleportAllowed); //$NON-NLS-1$ //$NON-NLS-2$
 		if (ChessCraft.economy != null) {
-			createSignButton(7, 1, STAKE, getStakeStr(game), signMat, game != null); //$NON-NLS-1$
+			createSignButton(7, 1, STAKE, getStakeMessage(), signMat, game != null); //$NON-NLS-1$
 		}
 
 		createSignButton(1, 2, CREATE_GAME, Messages.getString("ControlPanel.createGameBtn"), signMat, game == null && !view.isDesigning()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -320,34 +319,10 @@ public class ControlPanel {
 				return;
 			}
 			game.adjustStake(stakeIncr);
-			view.getControlPanel().updateSignButtonText(STAKE, getStakeStr(game)); //$NON-NLS-1$
+			view.getControlPanel().updateSignButtonText(STAKE, getStakeMessage()); //$NON-NLS-1$
 		}
 	}
 
-	private String getStakeStr(ChessGame game) {
-		String buttonText = Messages.getString("ControlPanel.stakeBtn"); //$NON-NLS-1$
-		if (game == null) {
-			double stake = ChessConfig.getConfig().getDouble("stake.default"); //$NON-NLS-1$
-			String stakeStr = getStakeStr(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
-			return buttonText + stakeStr;
-		} else {
-			double stake = game.getStake();
-			String stakeStr = getStakeStr(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
-			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
-			return col + buttonText + "&4" + stakeStr; //$NON-NLS-1$
-		}
-	}
-
-	private String getStakeStr(double stake) {
-		try {
-			return ChessCraft.economy.format(stake);
-		} catch (Exception e) {
-			ChessCraftLogger.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
-			e.printStackTrace();
-			ChessCraftLogger.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
-			return new DecimalFormat("#0.00").format(stake);
-		}
-	}
 
 	private String getPromoStr(ChessGame game, int colour) {
 		if (game == null) {
@@ -467,4 +442,20 @@ public class ControlPanel {
 			return 0;
 		}
 	}
+
+	public String getStakeMessage() {
+		String buttonText = Messages.getString("ControlPanel.stakeBtn"); //$NON-NLS-1$
+		ChessGame game = view.getGame();
+		if (game == null) {
+			double stake = view.getDefaultStake();
+			String stakeStr = ChessUtils.formatStakeStr(stake).replaceFirst(" ", ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			return buttonText + stakeStr;
+		} else {
+			double stake = game.getStake();
+			String stakeStr = ChessUtils.formatStakeStr(stake).replaceFirst(" ", ";&4"); //$NON-NLS-1$ //$NON-NLS-2$
+			String col = game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty() ? "&1" : "&0"; //$NON-NLS-1$ //$NON-NLS-2$
+			return col + buttonText + "&4" + stakeStr; //$NON-NLS-1$
+		}
+	}
+	
 }

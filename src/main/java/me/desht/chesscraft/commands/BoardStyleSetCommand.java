@@ -61,13 +61,15 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					style.setHighlightStyle(HighlightStyle.getStyle(val));
 				} else if (partialMatch(attr, "light_level")) {
 					style.setLightLevel(Integer.parseInt(val));
-				} else if (partialMatch(attr, "piecestyle")) {
+				} else if (partialMatch(attr, "piece_style") || partialMatch(attr, "piecestyle")) {
 					// update both the default piece style for the current board style...
 					style.setPieceStyleName(val);
 					// ... and the piece style that the current board is using.
 					bv.getChessBoard().setPieceStyle(val);
-				} else if (partialMatch(attr, "boardstyle")) {
+				} else if (partialMatch(attr, "board_style") || partialMatch(attr, "boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
+				} else if (partialMatch(attr, "default_stake")) {
+					bv.setDefaultStake(Double.parseDouble(val));
 				} else {
 					throw new ChessException("Unknown attribute '" + attr + "'.");
 				}
@@ -81,6 +83,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
 		
 		bv.paintAll();
+		bv.save();
 		
 		return true;
 	}

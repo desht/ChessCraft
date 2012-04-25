@@ -472,7 +472,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				throw new ChessException(Messages.getString("Game.notInvited")); //$NON-NLS-1$
 			}
 			if (ChessCraft.economy != null && !ChessCraft.economy.has(playerName, getStake())) {
-				throw new ChessException(Messages.getString("Game.cantAffordToJoin", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+				throw new ChessException(Messages.getString("Game.cantAffordToJoin", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 			}
 			if (playerBlack.isEmpty()) {
 				playerBlack = playerName;
@@ -527,7 +527,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			inviteeName = player.getName();
 			alert(player, Messages.getString("Game.youAreInvited", inviterName)); //$NON-NLS-1$ 
 			if (ChessCraft.economy != null && getStake() > 0.0) {
-				alert(player, Messages.getString("Game.gameHasStake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+				alert(player, Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 			}
 			alert(player, Messages.getString("Game.joinPrompt")); //$NON-NLS-1$
 			if (!invited.isEmpty()) {
@@ -542,7 +542,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		inviteSanityCheck(inviterName);
 		ChessUtils.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
-			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
 		ChessUtils.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
 		invited = "*"; //$NON-NLS-1$
@@ -590,10 +590,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		if (!canAffordToPlay(playerWhite)) {
-			throw new ChessException(Messages.getString("Game.cantAffordToStart", whiteStr, ChessCraft.economy.format(stake))); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("Game.cantAffordToStart", whiteStr, ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		}
 		if (!canAffordToPlay(playerBlack)) {
-			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessCraft.economy.format(stake))); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		}
 
 		if (ChessConfig.getConfig().getBoolean("auto_teleport_on_join")) {
@@ -611,7 +611,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			if (!ChessAI.isAIPlayer(playerBlack)) {
 				ChessCraft.economy.withdrawPlayer(playerBlack, stake);
 			}
-			alert(Messages.getString("Game.paidStake", ChessCraft.economy.format(stake))); //$NON-NLS-1$ 
+			alert(Messages.getString("Game.paidStake", ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$ 
 		}
 
 		if (ChessAI.isAIPlayer(playerWhite)) {
@@ -962,9 +962,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 					winnings = stake * 2.0;
 				}
 				ChessCraft.economy.depositPlayer(p1, winnings);
-				alert(p1, Messages.getString("Game.youWon", ChessCraft.economy.format(winnings))); //$NON-NLS-1$
+				alert(p1, Messages.getString("Game.youWon", ChessUtils.formatStakeStr(winnings))); //$NON-NLS-1$
 			}
-			alert(p2, Messages.getString("Game.lostStake", ChessCraft.economy.format(stake))); //$NON-NLS-1$
+			alert(p2, Messages.getString("Game.lostStake", ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		} else {
 			// a draw
 			if (!ChessAI.isAIPlayer(p1)) {
@@ -973,7 +973,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			if (!ChessAI.isAIPlayer(p2)) {
 				ChessCraft.economy.depositPlayer(p2, stake);
 			}
-			alert(Messages.getString("Game.getStakeBack", ChessCraft.economy.format(stake))); //$NON-NLS-1$
+			alert(Messages.getString("Game.getStakeBack", ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		}
 
 		stake = 0.0;
@@ -1323,7 +1323,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
 		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
 		if (ChessCraft.economy != null) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessCraft.economy.format(getStake()))); //$NON-NLS-1$
+			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
 		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$

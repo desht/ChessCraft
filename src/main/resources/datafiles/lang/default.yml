@@ -44,6 +44,7 @@ ChessCommandExecutor:
     squareSize: "Square size: &f{0,number,integer} ({1}/{2})"
     struts: "Enclosure struts: &f{0}"
     boardOrientation: "Board Orientation: &f{0}"
+    defaultStake: "Default Stake: &f{0}"
   boardList: "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-"
   boardRedrawn: "Board &6{0}&- has been redrawn."
   boardStyleChanged: "Board &6{0}&- style changed.  Use &f/chess board save <new-name>&- to save changes."

@@ -8,6 +8,7 @@ package me.desht.chesscraft.util;
 
 import chesspresso.Chess;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -308,6 +310,17 @@ public class ChessUtils {
 		int id = getWandId();
 		
 		return id < 0 ? Messages.getString("ChessUtils.anything") : MaterialWithData.get(id).toString();
+	}
+	
+	public static String formatStakeStr(double stake) {
+		try {
+			return ChessCraft.economy.format(stake);
+		} catch (Exception e) {
+			ChessCraftLogger.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
+			e.printStackTrace();
+			ChessCraftLogger.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
+			return new DecimalFormat("#0.00").format(stake);
+		}
 	}
 	
 } // end class ChessUtils
