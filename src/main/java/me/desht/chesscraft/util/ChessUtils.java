@@ -123,12 +123,12 @@ public class ChessUtils {
 	}
 	
 	private static String parseColourSpec(Player player, String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
 		return res.replace("&-", getPrevColour(player)).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 	
 	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-F])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
+		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
 		return res.replace("&-", "").replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
@@ -258,22 +258,7 @@ public class ChessUtils {
 		// actually has the most recent cost counts
 		return p[n];
 	}
-
-	public static boolean partialMatch(String[] args, int index, String match) {
-		if (index >= args.length) {
-			return false;
-		}
-		return partialMatch(args[index], match);
-	}
-
-	public static Boolean partialMatch(String str, String match) {
-		int l = match.length();
-		if (str.length() < l) {
-			return false;
-		}
-		return str.substring(0, l).equalsIgnoreCase(match);
-	}
-
+	
 	public static List<String> splitQuotedString(String s) {
 		List<String> matchList = new ArrayList<String>();
 

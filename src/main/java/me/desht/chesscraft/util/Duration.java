@@ -80,15 +80,15 @@ public class Duration {
 	}
 
 	private int getMult(String str) {
-		if (ChessUtils.partialMatch(str, "ms") || ChessUtils.partialMatch(str, "mil")) {
+		if (str.startsWith("ms") || str.startsWith("mil")) {
 			return 1;
-		} else if (ChessUtils.partialMatch(str, "s")) {
+		} else if (str.startsWith("s")) {
 			return 1000;
-		} else if (ChessUtils.partialMatch(str, "m")) {
+		} else if (str.startsWith("m")) {
 			return 60000;
-		} else if (ChessUtils.partialMatch(str, "h")) {
+		} else if (str.startsWith("h")) {
 			return 3600000;
-		} else if (ChessUtils.partialMatch(str, "d")) {
+		} else if (str.startsWith("d")) {
 			return 86400000;
 		} else {
 			throw new IllegalArgumentException("Unknown duration specifier " + str);

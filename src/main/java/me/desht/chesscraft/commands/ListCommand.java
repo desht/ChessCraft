@@ -34,21 +34,21 @@ public class ListCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		if (ChessUtils.partialMatch(args[0], "g")) { // game //$NON-NLS-1$
+		if (args[0].startsWith("g")) { // game //$NON-NLS-1$
 			if (args.length > 1) {
 				ChessGame.getGame(args[1]).showGameDetail(player);
 			} else {
 				listGames(player);
 			}
-		} else if (ChessUtils.partialMatch(args[0], "b")) { // board //$NON-NLS-1$
+		} else if (args[0].startsWith("b")) { // board //$NON-NLS-1$
 			if (args.length > 1) {
 				BoardView.getBoardView(args[1]).showBoardDetail(player);
 			} else {
 				listBoards(player);
 			}
-		} else if (ChessUtils.partialMatch(args[0], "a")) { // ai //$NON-NLS-1$
+		} else if (args[0].startsWith("a")) { // ai //$NON-NLS-1$
 			listAIs(player);
-		} else if (ChessUtils.partialMatch(args[0], "t")) { // top scores //$NON-NLS-1$
+		} else if (args[0].startsWith("t")) { // top scores //$NON-NLS-1$
 			listScores(player, args);
 		} else {
 			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$

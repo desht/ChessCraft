@@ -22,10 +22,10 @@ public class PageCommand extends AbstractCommand {
 			// default is to advance one page and display
 			pager.nextPage();
 			pager.showPage();
-		} else if (ChessUtils.partialMatch(args[0], "n")) { //$NON-NLS-1$
+		} else if (args[0].startsWith("n")) { //$NON-NLS-1$
 			pager.nextPage();
 			pager.showPage();
-		} else if (ChessUtils.partialMatch(args[0], "p")) { //$NON-NLS-1$
+		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
 			pager.prevPage();
 			pager.showPage();
 		} else {

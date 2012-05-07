@@ -22,6 +22,10 @@ public class ChessCraftLogger {
 		logger = ChessCraft.getInstance().getLogger();
 	}
 	
+	public static Level getLogLevel() {
+		return logger.getLevel();
+	}
+	
 	public static void setLogLevel(Level level) {
 		logger.setLevel(level);
 		logger.getParent().setLevel(level);
