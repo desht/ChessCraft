@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.log.ChessCraftLogger;
@@ -28,6 +29,7 @@ import net.minecraft.server.ChunkCoordIntPair;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.EnumSkyBlock;
 
+import com.google.common.base.Joiner;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.entity.Player;
 
@@ -593,7 +595,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
 		for (int x = x1; x <= x2; x += 16) {
 			for (int z = z1; z <= z2; z += 16) {
-				res.add(world.getChunkAt(x, z));
+				res.add(world.getChunkAt(x >> 4, z >> 4));
 			}
 		}
 		return res;
@@ -639,7 +641,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	
 		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
 		for (Chunk c : getChunks()) {
-			pairs.add(new ChunkCoordIntPair(c.getX() >> 4, c.getZ() >> 4));
+			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
 		}
 		int centerX = getLowerX() + getSizeX() / 2;	
 		int centerZ = getLowerZ() + getSizeZ() / 2;
@@ -647,18 +649,16 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			int px = player.getLocation().getBlockX();
 			int pz = player.getLocation().getBlockZ();
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
-				EntityPlayer ep = ((CraftPlayer) player).getHandle();
-				queueChunks(ep, pairs);
-//				System.out.print("chunkCoordIntPair: " );
-//				for (Object o : ep.chunkCoordIntPairQueue) {
-//					System.out.print(((ChunkCoordIntPair)o).x + "," + ((ChunkCoordIntPair)o).z + " ");
-//				}
+				queueChunks(((CraftPlayer) player).getHandle(), pairs);
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")	
 	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
+		if (ChessCraftLogger.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
+			ChessCraftLogger.finest("queue chunk co-ordinate pairs for " + ep.name + ": " + Joiner.on(", ").join(pairs));
+		}
 		Set<ChunkCoordIntPair> queued = new HashSet<ChunkCoordIntPair>();
 		for (Object o : ep.chunkCoordIntPairQueue) {
 			queued.add((ChunkCoordIntPair) o);
