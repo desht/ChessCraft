@@ -56,12 +56,8 @@ public class TerrainBackup {
 		localSession = we.getSession(localPlayer);
 		editSession = localSession.createEditSession(localPlayer);
 
-		try {
-			saveFile = we.getSafeSaveFile(localPlayer, DirectoryStructure.getSchematicsDirectory(), view.getName(),
-					"schematic", new String[] { "schematic" }); //$NON-NLS-1$ //$NON-NLS-2$
-		} catch (FilenameException ex) {
-			ChessCraftLogger.log(Level.WARNING, ex.getMessage());
-		}
+		saveFile = we.getSafeSaveFile(localPlayer, DirectoryStructure.getSchematicsDirectory(), view.getName(),
+		                              "schematic", new String[] { "schematic" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private void saveTerrain() {
