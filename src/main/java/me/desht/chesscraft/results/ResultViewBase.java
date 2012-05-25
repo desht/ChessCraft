@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 /**
  * @author des
@@ -54,7 +54,7 @@ public abstract class ResultViewBase {
 			scoreMap = null;
 			conn.setAutoCommit(true);
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("Can't rebuild results view " + viewType + ": " + e.getMessage());
+			LogUtils.warning("Can't rebuild results view " + viewType + ": " + e.getMessage());
 		}
 	}
 	
@@ -91,7 +91,7 @@ public abstract class ResultViewBase {
 				res.add(new ScoreRecord(rs.getString(1), rs.getInt(2)));
 			}
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("can't retrieve scores: " + e.getMessage());
+			LogUtils.warning("can't retrieve scores: " + e.getMessage());
 		}
 		
 		return res;
@@ -145,7 +145,7 @@ public abstract class ResultViewBase {
 //				System.out.println("update score " + player + " = " + score);
 			}
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("Can't set " + viewType + " score for " + player + ": " + e.getMessage());
+			LogUtils.warning("Can't set " + viewType + " score for " + player + ": " + e.getMessage());
 		}
 	}
 
@@ -183,7 +183,7 @@ public abstract class ResultViewBase {
 				return getInitialScore();
 			}
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("Can't get " + viewType + " score for " + player + ": " + e.getMessage());
+			LogUtils.warning("Can't get " + viewType + " score for " + player + ": " + e.getMessage());
 			return 0;
 		}
 	}

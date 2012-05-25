@@ -3,7 +3,7 @@ package me.desht.chesscraft.blocks;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -40,7 +40,7 @@ public class MaterialWithData implements Cloneable {
 		String[] matAndText = string.split("=");
 		String[] matAndData = matAndText[0].split(":");
 
-		ChessCraftLogger.finest("MaterialWithData constructor: " + string);
+		LogUtils.finest("MaterialWithData constructor: " + string);
 		metadata = matAndText.length > 1 ? makeText(matAndText[1]) : null;
 
 		if (matAndData[0].matches("^[0-9]+$")) {

@@ -14,7 +14,7 @@ import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.chesscraft.regions.Cuboid;
 
 public class PieceDesigner {
@@ -55,7 +55,7 @@ public class PieceDesigner {
 		ChessPieceTemplate[] templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
 
 		int rotation = rotationNeeded();
-		ChessCraftLogger.fine("Designer: need to rotate templates by " + rotation + " degrees");
+		LogUtils.fine("Designer: need to rotate templates by " + rotation + " degrees");
 		
 		// reverse mapping of character to material name
 		Map<String,Character> reverseMap = new HashMap<String, Character>();
@@ -64,7 +64,7 @@ public class PieceDesigner {
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
 			// get the bounding box for the materials in this square
 			Cuboid c = getPieceBox(p);
-			ChessCraftLogger.fine("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
+			LogUtils.fine("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
 
 			templates[p] = createTemplate(c, rotation);
 			
@@ -80,7 +80,7 @@ public class PieceDesigner {
 							// not seen this material yet
 							reverseMap.put(materialName, nextChar);
 							whiteMap.put(nextChar, mat);
-							ChessCraftLogger.finer("Designer: add material mapping: " + nextChar + "->" + materialName);
+							LogUtils.finer("Designer: add material mapping: " + nextChar + "->" + materialName);
 							nextChar = getNextChar(nextChar);
 						}
 						templates[p].put(x, y, z, reverseMap.get(materialName));
@@ -151,7 +151,7 @@ public class PieceDesigner {
 				MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
 				if (reverseMap.containsKey(mat.toString())) {
 					MaterialWithData mat2 = MaterialWithData.get(b2.getTypeId(), b2.getData());
-					ChessCraftLogger.fine("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
+					LogUtils.fine("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					blackMap.put(reverseMap.get(mat.toString()), mat2);
 				}
 			}
@@ -180,7 +180,7 @@ public class PieceDesigner {
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			bounding = c.getBoundingCuboid(bounding);
 			ChessStone whiteStone = chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getRotation());
-			ChessCraftLogger.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
+			LogUtils.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
 			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
 		}
 

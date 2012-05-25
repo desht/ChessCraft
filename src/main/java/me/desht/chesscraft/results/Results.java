@@ -15,7 +15,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class Results {
 	private static Results results = null;	// this is a singleton class
@@ -157,7 +157,7 @@ public class Results {
 					"pgnResult = '0-1' AND playerBlack = ?");
 			return doSearch(playerName, stmtW, stmtB);
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQL query failed: " + e.getMessage());
+			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
 		
 		return nWins;
@@ -181,7 +181,7 @@ public class Results {
 					"pgnResult = '1/2-1/2' AND playerBlack = ?");
 			return doSearch(playerName, stmtW, stmtB);
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQL query failed: " + e.getMessage());
+			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
 		
 		return nDraws;
@@ -203,7 +203,7 @@ public class Results {
 					"pgnResult = '1-0' AND playerBlack = ?");
 			return doSearch(playerName, stmtW, stmtB);
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQL query failed: " + e.getMessage());
+			LogUtils.warning("SQL query failed: " + e.getMessage());
 			return 0;
 		}
 	}
@@ -228,7 +228,7 @@ public class Results {
 				entries.add(e);
 			}
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQL query failed: " + e.getMessage());
+			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
 	}
 	
@@ -273,7 +273,7 @@ public class Results {
 			}
 			System.out.println("test data added & committed");
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("can't put test data into DB: " + e.getMessage());
+			LogUtils.warning("can't put test data into DB: " + e.getMessage());
 		}
 	}
 }

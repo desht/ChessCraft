@@ -11,7 +11,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSHandler;
@@ -39,7 +39,7 @@ public class SMSIntegration {
 					canNotify = true;
 				}
 			} catch (Exception e) {
-				ChessCraftLogger.warning("Outdated version of ScrollingMenuSign - sign views will not update properly.  Please upgrade to 0.6 or later");
+				LogUtils.warning("Outdated version of ScrollingMenuSign - sign views will not update properly.  Please upgrade to 0.6 or later");
 			}
 		}
 	}
@@ -126,7 +126,7 @@ public class SMSIntegration {
 				}
 			} catch (SMSException e) {
 				// shouldn't get here
-				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -140,7 +140,7 @@ public class SMSIntegration {
 					menu.notifyObservers();
 				}
 			} catch (SMSException e) {
-				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -158,7 +158,7 @@ public class SMSIntegration {
 				menu.removeAllItems();
 			} catch (SMSException e) {
 				// shouldn't get here - we already checked that the menu exists
-				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
 		}
 		if (menu != null) {
@@ -171,7 +171,7 @@ public class SMSIntegration {
 			try {
 				smsHandler.deleteMenu(name);
 			} catch (SMSException e) {
-				ChessCraftLogger.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -200,9 +200,9 @@ public class SMSIntegration {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sms reload");
 				}
 				
-				ChessCraftLogger.info("Updated all ChessCraft/ScrollingMenuSign menus & view to new naming standard ('cc_' prefix)");
+				LogUtils.info("Updated all ChessCraft/ScrollingMenuSign menus & view to new naming standard ('cc_' prefix)");
 			} catch (SMSException e) {
-				ChessCraftLogger.warning("Caught exception while cleaning up obsolete SMS menus", e);
+				LogUtils.warning("Caught exception while cleaning up obsolete SMS menus", e);
 			}
 		}
 	}
@@ -219,7 +219,7 @@ public class SMSIntegration {
 		try {
 			conf.save(f2);
 		} catch (IOException e) {
-			ChessCraftLogger.warning("Can't rewrite view: " + f2, e);
+			LogUtils.warning("Can't rewrite view: " + f2, e);
 		}
 	}
 }

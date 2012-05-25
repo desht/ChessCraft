@@ -3,7 +3,7 @@ package me.desht.chesscraft.chess.pieces;
 import chesspresso.Chess;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class ChessStone {
 	private final int stone;
@@ -29,7 +29,7 @@ public class ChessStone {
 		int tmplY = tmpl.getSizeY();
 		int tmplZ = tmpl.getSizeZ();
 		
-		ChessCraftLogger.finest("ChessStone: stone = " + stone + " rotation = " + rotation);
+		LogUtils.finest("ChessStone: stone = " + stone + " rotation = " + rotation);
 		sizeY = tmplY;
 		if (rotation == 90 || rotation == 270) {
 			// allows for pieces with a non-square footprint
@@ -39,7 +39,7 @@ public class ChessStone {
 			sizeX = tmplX;
 			sizeZ = tmplZ;
 		}
-		ChessCraftLogger.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + sizeX + "," + sizeY + "," + sizeZ);
+		LogUtils.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + sizeX + "," + sizeY + "," + sizeZ);
 		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
 
 		switch (rotation) {
@@ -82,7 +82,7 @@ public class ChessStone {
 		default:
 			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
 		}
-		ChessCraftLogger.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
+		LogUtils.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
 	}
 
 	public int getStone() {

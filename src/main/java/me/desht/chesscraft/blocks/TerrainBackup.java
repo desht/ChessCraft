@@ -1,9 +1,15 @@
 package me.desht.chesscraft.blocks;
 
-import me.desht.chesscraft.chess.BoardView;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
+
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.DirectoryStructure;
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -17,13 +23,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.data.DataException;
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.Messages;
-
-import me.desht.chesscraft.log.ChessCraftLogger;
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.util.ChessUtils;
+import com.sk89q.worldedit.schematic.SchematicFormat;
 
 public class TerrainBackup {
 
@@ -69,7 +69,7 @@ public class TerrainBackup {
 			editSession.enableQueue();
 			clipboard = new CuboidClipboard(max.subtract(min).add(new Vector(1, 1, 1)), min);
 			clipboard.copy(editSession);
-			clipboard.saveSchematic(saveFile);
+			SchematicFormat.MCEDIT.save(clipboard, saveFile);
 			editSession.flushQueue();
 		} catch (DataException e) {
 			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
@@ -85,13 +85,13 @@ public class TerrainBackup {
 
 		try {
 			editSession.enableQueue();
-			localSession.setClipboard(CuboidClipboard.loadSchematic(saveFile));
+			localSession.setClipboard(SchematicFormat.MCEDIT.load(saveFile));
 			Vector pos = localSession.getClipboard().getOrigin();
 			localSession.getClipboard().place(editSession, pos, false);
 			editSession.flushQueue();
 			we.flushBlockBag(localPlayer, editSession);
 			if (!saveFile.delete()) {
-				ChessCraftLogger.log(Level.WARNING, Messages.getString("TerrainBackup.cantDeleteTerrain", saveFile)); //$NON-NLS-1$
+				LogUtils.warning(Messages.getString("TerrainBackup.cantDeleteTerrain", saveFile)); //$NON-NLS-1$
 			}
 			return true;
 		} catch (Exception e) {
@@ -107,7 +107,7 @@ public class TerrainBackup {
 			TerrainBackup tb = new TerrainBackup(player, view);
 			tb.saveTerrain();
 		} catch (FilenameException e) {
-			ChessCraftLogger.log(Level.WARNING, e.getMessage());
+			LogUtils.warning(e.getMessage());
 		}
 	}
 
@@ -117,7 +117,7 @@ public class TerrainBackup {
 			TerrainBackup tb = new TerrainBackup(player, view);
 			restored = tb.reloadTerrain();
 		} catch (FilenameException e) {
-			ChessCraftLogger.log(Level.WARNING, e.getMessage());
+			LogUtils.warning(e.getMessage());
 		}
 		return restored;
 	}

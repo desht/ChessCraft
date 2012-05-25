@@ -55,7 +55,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
-import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
@@ -100,7 +99,7 @@ public class ChessCraft extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 
-		ChessCraftLogger.init();
+		LogUtils.init(this);
 		DirectoryStructure.setup();
 		ChessConfig.init();
 
@@ -132,7 +131,7 @@ public class ChessCraft extends JavaPlugin {
 		
 		setupMetrics();
 
-		ChessCraftLogger.info("Version " + getDescription().getVersion() + " is enabled!");
+		LogUtils.info("Version " + getDescription().getVersion() + " is enabled!");
 	}
 
 	@Override
@@ -161,7 +160,7 @@ public class ChessCraft extends JavaPlugin {
 		persistence = null;
 		expecter = null;
 		
-		ChessCraftLogger.info("disabled!");
+		LogUtils.info("disabled!");
 	}
 
 	@Override
@@ -202,15 +201,15 @@ public class ChessCraft extends JavaPlugin {
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			ChessCraftLogger.info("Loaded Vault v" + vault.getDescription().getVersion());
+			LogUtils.info("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
-				ChessCraftLogger.warning("No economy plugin detected - economy command costs not available");
+				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}
 			if (!setupPermission()) {
-				ChessCraftLogger.warning("No permissions plugin detected");
+				LogUtils.warning("No permissions plugin detected");
 			}
 		} else {
-			ChessCraftLogger.warning("Vault not loaded: no economy support & superperms-only permission support");
+			LogUtils.warning("Vault not loaded: no economy support & superperms-only permission support");
 		}
 	}
 
@@ -220,13 +219,13 @@ public class ChessCraft extends JavaPlugin {
 			if (p != null && p instanceof ScrollingMenuSign) {
 				smsPlugin = (ScrollingMenuSign) p;
 				SMSIntegration.setup(smsPlugin);
-				ChessCraftLogger.log("ScrollingMenuSign plugin detected: ChessCraft menus created.");
+				LogUtils.info("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 			} else {
-				ChessCraftLogger.log("ScrollingMenuSign plugin not detected.");
+				LogUtils.info("ScrollingMenuSign plugin not detected.");
 			}
 		} catch (NoClassDefFoundError e) {
 			// this can happen if ScrollingMenuSign was disabled
-			ChessCraftLogger.log("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
+			LogUtils.info("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
 		}
 	}
 
@@ -235,9 +234,9 @@ public class ChessCraft extends JavaPlugin {
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Cuboid.setWorldEdit(worldEditPlugin);
-			ChessCraftLogger.log("WorldEdit plugin detected: chess board terrain saving enabled.");
+			LogUtils.info("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
-			ChessCraftLogger.log("WorldEdit plugin not detected: chess board terrain saving disabled.");
+			LogUtils.info("WorldEdit plugin not detected: chess board terrain saving disabled.");
 		}
 	}
 

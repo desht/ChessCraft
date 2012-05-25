@@ -6,6 +6,28 @@
  */
 package me.desht.chesscraft.chess;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.DirectoryStructure;
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.enums.ChessEngine;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.Rand;
+import me.desht.dhutils.LogUtils;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import fr.free.jchecs.ai.Engine;
 import fr.free.jchecs.ai.EngineFactory;
 import fr.free.jchecs.core.Game;
@@ -13,27 +35,6 @@ import fr.free.jchecs.core.Move;
 import fr.free.jchecs.core.MoveGenerator;
 import fr.free.jchecs.core.Player;
 import fr.free.jchecs.core.Square;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import me.desht.chesscraft.ChessConfig;
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.enums.ChessEngine;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.Rand;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
  * @author jacob
@@ -184,7 +185,7 @@ public class ChessAI {
 			jChecsGame.moveFromCurrent(new Move(jChecsGame.getBoard().getPieceAt(from), from, to));
 			userToMove = !userToMove;
 		}
-		ChessCraftLogger.finer("ChessAI: replayMoves: loaded " + moves.size() + " moves into " + getName() + ": AI to move = " + !userToMove);
+		LogUtils.finer("ChessAI: replayMoves: loaded " + moves.size() + " moves into " + getName() + ": AI to move = " + !userToMove);
 		if (!userToMove) {
 			setAIThinking();
 		}
@@ -201,7 +202,7 @@ public class ChessAI {
 
 			// we're assuming the move is legal (it should be - it's already been validated by Chesspresso)
 			Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
-			ChessCraftLogger.fine("ChessAI: userHasMoved: " + m);
+			LogUtils.fine("ChessAI: userHasMoved: " + m);
 			jChecsGame.moveFromCurrent(m);
 		} catch (Exception e) {
 			aiHasFailed(e);
@@ -216,7 +217,7 @@ public class ChessAI {
 		}
 
 		setUserToMove(true);
-		ChessCraftLogger.fine("ChessAI: aiHasMoved: " + m);
+		LogUtils.fine("ChessAI: aiHasMoved: " + m);
 
 		// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
 		// which is Very Bad.  So we just note the move made now, and let the ChessGame object check for it on
@@ -231,7 +232,7 @@ public class ChessAI {
 	 * @param e
 	 */
 	private void aiHasFailed(Exception e) {
-		ChessCraftLogger.log(Level.SEVERE, "Unexpected Exception in AI", e);
+		LogUtils.severe("Unexpected Exception in AI", e);
 		chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 		hasFailed = true;
 	}
@@ -265,14 +266,14 @@ public class ChessAI {
 		try {
 			File aiFile = new File(DirectoryStructure.getPluginDirectory(), "AI_settings.yml"); //$NON-NLS-1$
 			if (!aiFile.exists()) {
-				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: file not found"); //$NON-NLS-1$
+				LogUtils.severe("AI Loading Error: file not found"); //$NON-NLS-1$
 				return;
 			}
 			YamlConfiguration config = YamlConfiguration.loadConfiguration(aiFile);
 			ConfigurationSection n = config.getConfigurationSection("AI"); //$NON-NLS-1$
 
 			if (n == null) {
-				ChessCraftLogger.log(Level.SEVERE, "AI Loading Error: AI definitions not found"); //$NON-NLS-1$
+				LogUtils.severe("AI Loading Error: AI definitions not found"); //$NON-NLS-1$
 				return;
 			}
 
@@ -291,7 +292,7 @@ public class ChessAI {
 				}
 			}
 		} catch (Exception ex) {
-			ChessCraftLogger.log(Level.SEVERE, Messages.getString("ChessAI.AIloadError"), ex); //$NON-NLS-1$
+			LogUtils.severe(Messages.getString("ChessAI.AIloadError"), ex); //$NON-NLS-1$
 		}
 	}
 

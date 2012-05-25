@@ -30,7 +30,7 @@ import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.PermissionUtils;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class ControlPanel {
 
@@ -379,7 +379,7 @@ public class ControlPanel {
 			}
 			s.update();
 		} else {
-			ChessCraftLogger.warning("Block at " + l + " should be a sign but is not!");
+			LogUtils.warning("Block at " + l + " should be a sign but is not!");
 		}
 
 	}
@@ -420,7 +420,7 @@ public class ControlPanel {
 			x += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
 			break;
 		default:
-			ChessCraftLogger.severe("Unexpected BoardOrientation value ", new Exception());
+			LogUtils.severe("Unexpected BoardOrientation value ", new Exception());
 			return null;
 		}
 

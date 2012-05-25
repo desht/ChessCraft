@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.configuration.Configuration;
 
@@ -33,7 +33,7 @@ public class ChessConfig {
 
 		configFileInitialise();
 
-		ChessCraftLogger.setLogLevel(getConfig().getString("log_level"));
+		LogUtils.setLogLevel(getConfig().getString("log_level"));
 
 		Messages.init(getConfig().getString("locale"));
 
@@ -61,7 +61,7 @@ public class ChessConfig {
 				setConfigItem(config, "version", currentVersion);
 			} catch (ChessException e) {
 				// shouldn't ever get here...
-				ChessCraftLogger.severe("Can't update version in configuration file", e);
+				LogUtils.severe("Can't update version in configuration file", e);
 			}
 		}
 
@@ -110,7 +110,7 @@ public class ChessConfig {
 			}
 			return major * 1000000 + minor * 1000 + rel;
 		} catch (NumberFormatException e) {
-			ChessCraftLogger.warning("Version string [" + ver + "] doesn't look right!");
+			LogUtils.warning("Version string [" + ver + "] doesn't look right!");
 			return 0;
 		}
 	}
@@ -151,7 +151,7 @@ public class ChessConfig {
 			// redraw control panel signs in the right language
 			updateAllControlPanels();
 		} else if (key.equalsIgnoreCase("log_level")) {
-			ChessCraftLogger.setLogLevel(val);
+			LogUtils.setLogLevel(val);
 		} else if (key.equalsIgnoreCase("teleporting")) {
 			updateAllControlPanels();
 		}

@@ -12,7 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.google.common.base.Joiner;
 
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class Messages {
 
@@ -30,13 +30,13 @@ public class Messages {
 		try {
 			fallbackMessages = loadMessageFile("default");
 		} catch (ChessException e) {
-			ChessCraftLogger.severe("can't load fallback messages file!", e);
+			LogUtils.severe("can't load fallback messages file!", e);
 		}
 		
 		try {
 			setMessageLocale(locale);
 		} catch (ChessException e) {
-			ChessCraftLogger.warning("can't load messages for " + locale + ": using default");
+			LogUtils.warning("can't load messages for " + locale + ": using default");
 			messages = fallbackMessages;
 		}
 	}
@@ -68,7 +68,7 @@ public class Messages {
 			try {
 				conf.save(located);
 			} catch (IOException e) {
-				ChessCraftLogger.warning("Can't write " + located + ": " + e.getMessage());
+				LogUtils.warning("Can't write " + located + ": " + e.getMessage());
 			}
 		}
 
@@ -110,12 +110,12 @@ public class Messages {
 
 	public static String getString(String key) {
 		if (messages == null) {
-			ChessCraftLogger.warning("No messages catalog!?!");
+			LogUtils.warning("No messages catalog!?!");
 			return "!" + key + "!";
 		}
 		String s = getString(messages, key);
 		if (s == null) {
-			ChessCraftLogger.warning("Missing message key '" + key + "'");
+			LogUtils.warning("Missing message key '" + key + "'");
 			s = getString(fallbackMessages, key);
 			if (s == null) {
 				s = "!" + key + "!";
@@ -128,7 +128,7 @@ public class Messages {
 		try {
 			return MessageFormat.format(getString(key), args);
 		} catch (Exception e) {
-			ChessCraftLogger.severe("Error fomatting message for " + key + ": " + e.getMessage());
+			LogUtils.severe("Error fomatting message for " + key + ": " + e.getMessage());
 			return getString(key);
 		}
 	}

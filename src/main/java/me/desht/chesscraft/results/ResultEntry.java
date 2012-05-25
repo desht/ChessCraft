@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class ResultEntry {
 
@@ -113,7 +113,7 @@ public class ResultEntry {
 			stmt.setString(7, pgnResult);
 			stmt.executeUpdate();
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQL insert failed: " + e.getMessage());
+			LogUtils.warning("SQL insert failed: " + e.getMessage());
 		}	
 	}
 }

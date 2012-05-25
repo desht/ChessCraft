@@ -25,7 +25,6 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 import me.desht.chesscraft.blocks.TerrainBackup;
 
-import me.desht.chesscraft.log.ChessCraftLogger;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
@@ -38,6 +37,7 @@ import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -598,7 +598,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 				bv = getBoardView(name);
 				SMSIntegration.boardDeleted(bv);
 			} catch (ChessException e) {
-				ChessCraftLogger.warning("removeBoardView: unknown board name " + name);
+				LogUtils.warning("removeBoardView: unknown board name " + name);
 			}
 		}
 

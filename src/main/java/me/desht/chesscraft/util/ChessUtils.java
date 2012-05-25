@@ -23,7 +23,7 @@ import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -96,7 +96,7 @@ public class ChessUtils {
 			if (player != null) {
 				player.sendMessage(parseColourSpec(player, line));
 			} else {
-				ChessCraftLogger.log(level, line);
+				LogUtils.info(line);
 			}
 		}
 	}
@@ -107,7 +107,7 @@ public class ChessUtils {
 			if (player != null) {
 				player.sendMessage(colour + parseColourSpec(player, line));
 			} else {
-				ChessCraftLogger.log(level, line);
+				LogUtils.info(line);
 			}
 		}
 	}
@@ -301,9 +301,9 @@ public class ChessUtils {
 		try {
 			return ChessCraft.economy.format(stake);
 		} catch (Exception e) {
-			ChessCraftLogger.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
+			LogUtils.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
 			e.printStackTrace();
-			ChessCraftLogger.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
+			LogUtils.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
 			return new DecimalFormat("#0.00").format(stake);
 		}
 	}

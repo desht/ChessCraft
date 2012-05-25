@@ -1,7 +1,7 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 
@@ -26,7 +26,7 @@ public class ChessTickTask {
 			}
 		}, initialDelay, interval);
 		
-		ChessCraftLogger.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
+		LogUtils.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
 	}
 	
 	public void cancel() {

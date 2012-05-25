@@ -26,7 +26,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class ChessSet implements Iterable<ChessStone> {
 
@@ -158,7 +158,7 @@ public class ChessSet implements Iterable<ChessStone> {
 			String w = e.getValue().toString();
 			String b = materialMapBlack.get(e.getKey()).toString();
 			if (!w.equals(b)) {
-				ChessCraftLogger.finer("ChessSet: " + name + ": add white->black material map: " + w + "->" + b);
+				LogUtils.finer("ChessSet: " + name + ": add white->black material map: " + w + "->" + b);
 				res.put(w, b);
 			}
 		}
@@ -245,7 +245,7 @@ public class ChessSet implements Iterable<ChessStone> {
 				conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
 			}
 			conf.save(f);
-			ChessCraftLogger.fine("saved chess set '" + name + "' to " + f);
+			LogUtils.fine("saved chess set '" + name + "' to " + f);
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
 		}
@@ -291,7 +291,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
 		ChessSet set = new ChessSet(c);
-		ChessCraftLogger.fine("loaded chess set '" + set.getName() + "' from " + f);
+		LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
 		
 		allChessSets.put(setName, set);
 		setLoadTime.put(setName, System.currentTimeMillis());

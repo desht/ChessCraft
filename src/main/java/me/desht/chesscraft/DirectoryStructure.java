@@ -6,10 +6,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
 
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class DirectoryStructure {
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -114,7 +113,7 @@ public class DirectoryStructure {
 		File oldSchematicsDir = new File(pluginDir, "schematics"); //$NON-NLS-1$
 		if (oldSchematicsDir.isDirectory()) {
 			if (!oldSchematicsDir.renameTo(schematicsDir)) {
-				ChessCraftLogger.warning("Can't move " + oldSchematicsDir + " to " + schematicsDir); //$NON-NLS-1$ //$NON-NLS-2$
+				LogUtils.warning("Can't move " + oldSchematicsDir + " to " + schematicsDir); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			// [plugins]/ChessCraft/data/boards/schematics
@@ -153,7 +152,7 @@ public class DirectoryStructure {
 			return;
 		}
 		if (!dir.mkdir()) {
-			ChessCraftLogger.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
+			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
 
@@ -171,7 +170,7 @@ public class DirectoryStructure {
 			return;
 		}
 
-		ChessCraftLogger.fine("extractResource: file=" + of +
+		LogUtils.fine("extractResource: file=" + of +
 		                      ", file-last-mod=" + of.lastModified() +
 		                      ", file-exists=" + of.exists() +
 		                      ", jar-last-mod=" +  getJarFile().lastModified() +
@@ -182,7 +181,7 @@ public class DirectoryStructure {
 			return;
 		}
 
-		ChessCraftLogger.fine("extractResource: " + from + " -> " + of);
+		LogUtils.fine("extractResource: " + from + " -> " + of);
 
 		OutputStream out = null;
 		try {
@@ -190,7 +189,7 @@ public class DirectoryStructure {
 			// file after it's been reloaded...
 			URL res = ChessCraft.class.getResource(from);
 			if (res == null) {
-				ChessCraftLogger.warning("can't find " + from + " in plugin JAR file"); //$NON-NLS-1$
+				LogUtils.warning("can't find " + from + " in plugin JAR file"); //$NON-NLS-1$
 				return;
 			}
 			URLConnection resConn = res.openConnection();
@@ -198,7 +197,7 @@ public class DirectoryStructure {
 			InputStream in = resConn.getInputStream();
 
 			if (in == null) {
-				ChessCraftLogger.warning("can't get input stream from " + res); //$NON-NLS-1$
+				LogUtils.warning("can't get input stream from " + res); //$NON-NLS-1$
 			} else {
 				out = new FileOutputStream(of);
 				byte[] buf = new byte[1024];
@@ -210,7 +209,7 @@ public class DirectoryStructure {
 				out.close();
 			}
 		} catch (Exception ex) {
-			ChessCraftLogger.log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
 		} finally {
 			try {
 				if (out != null) {

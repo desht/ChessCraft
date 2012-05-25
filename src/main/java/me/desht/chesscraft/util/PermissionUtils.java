@@ -1,7 +1,7 @@
 package me.desht.chesscraft.util;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.entity.Player;
 
@@ -27,7 +27,7 @@ public class PermissionUtils {
 			}
 		}
 		String name = player == null ? "CONSOLE" : player.getName();
-		ChessCraftLogger.fine("Permission check: player = " + name + ", node = " + node + ", allowed = " + allowed);
+		LogUtils.fine("Permission check: player = " + name + ", node = " + node + ", allowed = " + allowed);
 		return allowed;
 	}
 

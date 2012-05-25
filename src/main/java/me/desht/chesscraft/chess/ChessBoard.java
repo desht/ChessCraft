@@ -23,7 +23,7 @@ import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -410,7 +410,7 @@ public class ChessBoard {
 			if (cStone != null) {
 				paintChessPiece(region, cStone);
 			} else {
-				ChessCraftLogger.severe("unknown piece: " + stone);
+				LogUtils.severe("unknown piece: " + stone);
 			}
 		}
 
@@ -558,7 +558,7 @@ public class ChessBoard {
 	 */
 	public Cuboid getSquare(int row, int col) {
 		if (row < 0 || col < 0 || row > 7 || col > 7) {
-			ChessCraftLogger.warning("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");
+			LogUtils.warning("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");
 			return null;
 		}
 		Cuboid sq = null;

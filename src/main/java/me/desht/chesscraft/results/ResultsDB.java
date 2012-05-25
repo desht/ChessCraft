@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 public class ResultsDB {
 
@@ -27,9 +27,9 @@ public class ResultsDB {
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 			setupTables();
 		} catch (ClassNotFoundException e) {
-			ChessCraftLogger.warning("SQLite not available, result logging disabled: " + e.getMessage());
+			LogUtils.warning("SQLite not available, result logging disabled: " + e.getMessage());
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQLite connection failed, result logging disabled: " + e.getMessage());
+			LogUtils.warning("SQLite connection failed, result logging disabled: " + e.getMessage());
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class ResultsDB {
 			}
 			connection.close();
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("can't cleanly shut down DB connection: " + e.getMessage());
+			LogUtils.warning("can't cleanly shut down DB connection: " + e.getMessage());
 		}
 	}
 
@@ -84,7 +84,7 @@ public class ResultsDB {
 			// (ai 17 is closer to 0 than 1000)
 			// (will need to input ai names as something like __ai__## to avoid renaming problems)
 		} catch (SQLException e) {
-			ChessCraftLogger.warning("SQLite table creation failed: " + e.getMessage());
+			LogUtils.warning("SQLite table creation failed: " + e.getMessage());
 			throw e;
 		}
 	}

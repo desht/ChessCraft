@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 import me.desht.chesscraft.util.WorldEditUtils;
 
 import org.bukkit.Bukkit;
@@ -397,7 +397,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 
-		ChessCraftLogger.finer("Cuboid: " + this + ": set " + blockID + ": " + (System.nanoTime() - start) + "ns");
+		LogUtils.finer("Cuboid: " + this + ": set " + blockID + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	/**
@@ -436,7 +436,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 		
-		ChessCraftLogger.finer("Cuboid: " + this + ": set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+		LogUtils.finer("Cuboid: " + this + ": set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 
 	}
 
@@ -607,7 +607,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public void initLighting() {	
 		for (Chunk c : getChunks()) {
 			((CraftChunk)c).getHandle().initLighting();
-			ChessCraftLogger.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
+			LogUtils.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
 		}
 	}
 	
@@ -626,7 +626,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				}
 			}
 		}
-		ChessCraftLogger.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
+		LogUtils.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
 	
 	/**
@@ -656,8 +656,8 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	
 	@SuppressWarnings("unchecked")	
 	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
-		if (ChessCraftLogger.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
-			ChessCraftLogger.finest("queue chunk co-ordinate pairs for " + ep.name + ": " + Joiner.on(", ").join(pairs));
+		if (LogUtils.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
+			LogUtils.finest("queue chunk co-ordinate pairs for " + ep.name + ": " + Joiner.on(", ").join(pairs));
 		}
 		Set<ChunkCoordIntPair> queued = new HashSet<ChunkCoordIntPair>();
 		for (Object o : ep.chunkCoordIntPairQueue) {

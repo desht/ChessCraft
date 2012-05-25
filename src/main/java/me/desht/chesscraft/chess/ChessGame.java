@@ -10,7 +10,24 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.logging.Level;
+
+import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessPersistable;
+import me.desht.chesscraft.DirectoryStructure;
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.SMSIntegration;
+import me.desht.chesscraft.chess.ChessAI.AI_Def;
+import me.desht.chesscraft.enums.GameResult;
+import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectDrawResponse;
+import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.results.Results;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.Duration;
+import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,24 +43,6 @@ import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
 import chesspresso.pgn.PGNWriter;
 import chesspresso.position.Position;
-import me.desht.chesscraft.ChessConfig;
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.ChessPersistable;
-import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.SMSIntegration;
-
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.expector.ExpectDrawResponse;
-import me.desht.chesscraft.expector.ExpectSwapResponse;
-import me.desht.chesscraft.enums.GameResult;
-import me.desht.chesscraft.log.ChessCraftLogger;
-import me.desht.chesscraft.results.Results;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.Duration;
-import me.desht.chesscraft.util.MessagePager;
-import me.desht.chesscraft.chess.ChessAI.AI_Def;
-import me.desht.chesscraft.enums.GameState;
 
 /**
  * @author des
@@ -419,7 +418,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				try {
 					winByDefault(getOtherPlayer(playerName));
 				} catch (ChessException e) {
-					ChessCraftLogger.severe("unexpected exception: " + e.getMessage(), e);
+					LogUtils.severe("unexpected exception: " + e.getMessage(), e);
 				}
 			} else if (needToWarn(tc, colour)) {
 				alert(playerName, Messages.getString("Game.timeControlWarning", tc.getRemainingTime() / 1000 + 1));
@@ -935,7 +934,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		handlePayout(rt, p1, p2);
 		Results.getResultsHandler().logResult(this, rt);
-		ChessCraftLogger.info(msg);
+		LogUtils.info(msg);
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {
@@ -956,7 +955,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 						winnings = stake * (1.0 + ai.getPayoutMultiplier());
 					} else {
 						winnings = stake * 2.0;
-						ChessCraftLogger.log(Level.WARNING, "couldn't retrieve AI definition for " + p2); //$NON-NLS-1$
+						LogUtils.warning("couldn't retrieve AI definition for " + p2); //$NON-NLS-1$
 					}
 				} else {
 					winnings = stake * 2.0;
@@ -1012,7 +1011,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		try {
 			ChessGame.removeGame(getName());
 		} catch (ChessException e) {
-			ChessCraftLogger.log(Level.WARNING, e.getMessage());
+			LogUtils.warning(e.getMessage());
 		}
 	}
 
@@ -1170,7 +1169,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		if (mustDelete) {
 			alert(alertStr);
-			ChessCraftLogger.log(Level.INFO, alertStr);
+			LogUtils.info(alertStr);
 			deletePermanently();
 		}
 	}
@@ -1372,7 +1371,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				drawn(GameResult.Abandoned);
 			} catch (ChessException e) {
 				// should never get here
-				ChessCraftLogger.severe("Unexpected exception caught while trying to draw game - deleted", e);
+				LogUtils.severe("Unexpected exception caught while trying to draw game - deleted", e);
 				deletePermanently();
 			}
 		} else if (ai.getPendingMove() != null) {

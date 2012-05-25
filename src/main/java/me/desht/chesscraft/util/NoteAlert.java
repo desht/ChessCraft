@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.log.ChessCraftLogger;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Instrument;
@@ -46,7 +46,7 @@ public class NoteAlert {
 					if (iter.hasNext()) {
 						Note note = iter.next();
 						if (note != null) {
-							ChessCraftLogger.finer("NoteAlert [" + player.getName() + "]: play note " + note.getId());
+							LogUtils.finer("NoteAlert [" + player.getName() + "]: play note " + note.getId());
 							player.playNote(loc, Instrument.PIANO, note);
 						}
 					} else {
@@ -64,7 +64,7 @@ public class NoteAlert {
 	}
 	
 	public void cancel() {
-		ChessCraftLogger.finer("NoteAlert [" + player.getName() + "]: cancelling");
+		LogUtils.finer("NoteAlert [" + player.getName() + "]: cancelling");
 		Block lastBlock = loc.getBlock();
 		player.sendBlockChange(loc, lastBlock.getType(), lastBlock.getData());
 		Bukkit.getScheduler().cancelTask(taskId);
