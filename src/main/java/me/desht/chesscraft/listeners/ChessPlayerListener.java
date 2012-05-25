@@ -1,6 +1,5 @@
 package me.desht.chesscraft.listeners;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -184,7 +183,7 @@ public class ChessPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
-		int timeout = ChessConfig.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
+		int timeout = ChessCraft.getInstance().getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				ChessCraft.getInstance().playerLeft(who);

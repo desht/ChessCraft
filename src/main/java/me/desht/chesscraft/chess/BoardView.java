@@ -16,7 +16,6 @@ import chesspresso.move.Move;
 import chesspresso.position.ImmutablePosition;
 import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
@@ -138,7 +137,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void autoSave() {
-		if (ChessConfig.getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
+		if (ChessCraft.getInstance().getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
 			save();
 		}
 	}
@@ -168,7 +167,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 	
 	public double getDefaultStake() {
-		return defaultStake >= 0.0 ? defaultStake : ChessConfig.getConfig().getDouble("stake.default", 0.0);
+		return defaultStake >= 0.0 ? defaultStake : ChessCraft.getInstance().getConfig().getDouble("stake.default", 0.0);
 	}
 
 	public void setDefaultStake(double defaultStake) {
@@ -341,7 +340,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
 
-		if (Move.isCapturing(move) && ChessConfig.getConfig().getBoolean("effects.capture_explosion")) {
+		if (Move.isCapturing(move) && ChessCraft.getInstance().getConfig().getBoolean("effects.capture_explosion")) {
 			Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
 			chessBoard.getA1Center().getWorld().createExplosion(loc, 0.0f);
 		}
@@ -362,7 +361,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
 	private void pieceRidingCheck(int fromSqi, int toSqi) {
-		if (!ChessConfig.getConfig().getBoolean("effects.piece_riding")) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("effects.piece_riding")) {
 			return;
 		}
 		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
@@ -495,7 +494,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void playMovedAlert(String playerName) {
-		if (ChessConfig.getConfig().getBoolean("effects.move_alert")) {
+		if (ChessCraft.getInstance().getConfig().getBoolean("effects.move_alert")) {
 			List<Note> notes = new ArrayList<Note>();
 			notes.add(new Note(16));
 			audibleAlert(playerName, notes, 5L);
@@ -503,7 +502,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void playCheckAlert(String playerName) {
-		if (ChessConfig.getConfig().getBoolean("effects.check_alert")) {
+		if (ChessCraft.getInstance().getConfig().getBoolean("effects.check_alert")) {
 			List<Note> notes = new ArrayList<Note>();
 			notes.add(new Note(24));
 			notes.add(new Note(16));

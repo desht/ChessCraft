@@ -2,6 +2,7 @@ package me.desht.chesscraft;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import me.desht.chesscraft.Metrics.Plotter;
@@ -50,7 +51,10 @@ import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -69,22 +73,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
-public class ChessCraft extends JavaPlugin {
-	
+public class ChessCraft extends JavaPlugin implements ConfigurationListener {
+
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
 	private static ScrollingMenuSign smsPlugin;
 	private static ResponseHandler responseHandler;
 	private static ChessPersistence persistence;
-	
+
 	public static Economy economy = null;
 	public static Permission permission = null;
-	
+
 	public static ChessTickTask tickTask;
-	
+
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 	private final CommandManager cmds = new CommandManager(this);
+
+	private ConfigurationManager configManager;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -96,11 +102,20 @@ public class ChessCraft extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		instance = this;
+		setInstance(this);
 
 		LogUtils.init(this);
+
 		DirectoryStructure.setup();
-		ChessConfig.init();
+
+		configManager = new ConfigurationManager(this);
+		configManager.setConfigurationListener(this);
+
+		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
+
+		Messages.init(getConfig().getString("locale", "default"));
+
+		ChessAI.initAINames();
 
 		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
@@ -114,29 +129,32 @@ public class ChessCraft extends JavaPlugin {
 		setupVault(pm);
 		setupSMS(pm);
 		setupWorldEdit(pm);
-		
+
 		pm.registerEvents(new ChessPlayerListener(), this);
 		pm.registerEvents(new ChessBlockListener(), this);
 		pm.registerEvents(new ChessEntityListener(), this);
 
 		registerCommands();
 
+		MessagePager.setPageCmd("/chess page [#|n|p]");
+
 		persistence.reload();
+
 		if (ChessCraft.getSMS() != null) {
 			SMSIntegration.createMenus();
 		}
 
 		tickTask.start(20L);
-		
+
 		setupMetrics();
 
-		LogUtils.info("Version " + getDescription().getVersion() + " is enabled!");
+		LogUtils.fine("Version " + getDescription().getVersion() + " is enabled!");
 	}
 
 	@Override
 	public void onDisable() {
 		tickTask.cancel();
-		
+
 		ChessAI.clearAIs();
 		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
@@ -150,7 +168,7 @@ public class ChessCraft extends JavaPlugin {
 			view.deleteTemporary();
 		}
 		Results.shutdown();
-		
+
 		instance = null;
 		economy = null;
 		permission = null;
@@ -158,8 +176,8 @@ public class ChessCraft extends JavaPlugin {
 		worldEditPlugin = null;
 		persistence = null;
 		responseHandler = null;
-		
-		LogUtils.info("disabled!");
+
+		LogUtils.fine("disabled!");
 	}
 
 	@Override
@@ -182,7 +200,7 @@ public class ChessCraft extends JavaPlugin {
 		}
 		try {
 			Metrics metrics = new Metrics(this);
-			
+
 			metrics.createGraph("Boards Created").addPlotter(new Plotter() {
 				@Override
 				public int getValue() { return BoardView.listBoardViews().size();	}
@@ -196,11 +214,11 @@ public class ChessCraft extends JavaPlugin {
 			LogUtils.warning("Can't submit metrics data: " + e.getMessage());
 		}
 	}
-	
+
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			LogUtils.info("Loaded Vault v" + vault.getDescription().getVersion());
+			LogUtils.fine("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - economy command costs not available");
 			}
@@ -218,13 +236,13 @@ public class ChessCraft extends JavaPlugin {
 			if (p != null && p instanceof ScrollingMenuSign) {
 				smsPlugin = (ScrollingMenuSign) p;
 				SMSIntegration.setup(smsPlugin);
-				LogUtils.info("ScrollingMenuSign plugin detected: ChessCraft menus created.");
+				LogUtils.fine("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 			} else {
-				LogUtils.info("ScrollingMenuSign plugin not detected.");
+				LogUtils.fine("ScrollingMenuSign plugin not detected.");
 			}
 		} catch (NoClassDefFoundError e) {
 			// this can happen if ScrollingMenuSign was disabled
-			LogUtils.info("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
+			LogUtils.fine("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
 		}
 	}
 
@@ -233,9 +251,9 @@ public class ChessCraft extends JavaPlugin {
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Cuboid.setWorldEdit(worldEditPlugin);
-			LogUtils.info("WorldEdit plugin detected: chess board terrain saving enabled.");
+			LogUtils.fine("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
-			LogUtils.info("WorldEdit plugin not detected: chess board terrain saving disabled.");
+			LogUtils.warning("WorldEdit plugin not detected: chess board terrain saving disabled.");
 		}
 	}
 
@@ -274,7 +292,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	/*-----------------------------------------------------------------*/
-	
+
 	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
 		player.teleport(loc);
@@ -302,6 +320,10 @@ public class ChessCraft extends JavaPlugin {
 		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
 	}
 
+	private void setInstance(ChessCraft chessCraft) {
+		instance = chessCraft;
+	}
+
 	/*-----------------------------------------------------------------*/
 
 	public static ChessCraft getInstance() {
@@ -310,7 +332,7 @@ public class ChessCraft extends JavaPlugin {
 
 	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
 		ResponseHandler respHandler = getResponseHandler();
-		
+
 		Class<? extends ExpectYesNoResponse> c = null;
 		if (respHandler.isExpecting(player, ExpectDrawResponse.class)) {
 			c = ExpectDrawResponse.class;
@@ -319,7 +341,7 @@ public class ChessCraft extends JavaPlugin {
 		} else {
 			return;
 		}
-		
+
 		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player, c);
 		response.setResponse(isAccepted);
 		respHandler.handleAction(player, c);
@@ -358,5 +380,44 @@ public class ChessCraft extends JavaPlugin {
 		cmds.registerCommand(new TeleportCommand());
 		cmds.registerCommand(new TimeControlCommand());
 		cmds.registerCommand(new YesCommand());
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal,
+			Object newVal) {
+		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
+			ChessCraft.tickTask.start(0L);
+		} else if (key.equalsIgnoreCase("locale")) { //$NON-NLS-1$
+			Messages.setMessageLocale(newVal.toString());
+			// redraw control panel signs in the right language
+			updateAllControlPanels();
+		} else if (key.equalsIgnoreCase("log_level")) { //$NON-NLS-1$
+			LogUtils.setLogLevel(newVal.toString());
+		} else if (key.equalsIgnoreCase("teleporting")) { //$NON-NLS-1$
+			updateAllControlPanels();
+		}
+	}
+
+	private static void updateAllControlPanels() {
+		for (BoardView bv : BoardView.listBoardViews()) {
+			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintClocks();
+		}
+	}
+
+	public ConfigurationManager getConfigManager() {
+		return configManager;
 	}
 }

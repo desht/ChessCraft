@@ -1,6 +1,6 @@
 package me.desht.chesscraft.results;
 
-import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.results.ResultEntry;
 
 /**
@@ -167,7 +167,7 @@ public class Ladder extends ResultViewBase {
 
 	@Override
 	int getInitialScore() {
-		return ChessConfig.getConfig().getInt("ladder.initial_position", INITIAL_POS);
+		return ChessCraft.getInstance().getConfig().getInt("ladder.initial_position", INITIAL_POS);
 	}
 
 	private int getKfactor(int rating) {

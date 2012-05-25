@@ -1,6 +1,5 @@
 package me.desht.chesscraft.controlpanel;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -113,7 +112,7 @@ public class ControlPanel {
 		boolean running = game != null && game.getState() == GameState.RUNNING;
 		boolean hasWhite = game != null && !game.getPlayerWhite().isEmpty();
 		boolean hasBlack = game != null && !game.getPlayerBlack().isEmpty();
-		boolean teleportAllowed = ChessConfig.getConfig().getBoolean("teleporting");
+		boolean teleportAllowed = ChessCraft.getInstance().getConfig().getBoolean("teleporting");
 
 		createSignButton(0, 2, BOARD_INFO, Messages.getString("ControlPanel.boardInfoBtn"), signMat, true); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(0, 1, TELEPORT, Messages.getString("ControlPanel.teleportOutBtn"), signMat, teleportAllowed); //$NON-NLS-1$ //$NON-NLS-2$
@@ -293,7 +292,7 @@ public class ControlPanel {
 				game.inviteOpen(player.getName());
 			}
 		} else if (name.equals(TELEPORT)) { //$NON-NLS-1$
-			if (ChessConfig.getConfig().getBoolean("teleporting")) {
+			if (ChessCraft.getInstance().getConfig().getBoolean("teleporting")) {
 				BoardView.teleportOut(player);
 			}
 		} else if (name.equals(WHITE_PROMOTE)) { //$NON-NLS-1$
@@ -309,9 +308,9 @@ public class ControlPanel {
 		} else if (name.equals(STAKE) && ChessCraft.economy != null) { //$NON-NLS-1$
 			double stakeIncr;
 			if (player.isSneaking()) {
-				stakeIncr = ChessConfig.getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
+				stakeIncr = ChessCraft.getInstance().getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
 			} else {
-				stakeIncr = ChessConfig.getConfig().getDouble("stake.largeIncrement"); //$NON-NLS-1$
+				stakeIncr = ChessCraft.getInstance().getConfig().getDouble("stake.largeIncrement"); //$NON-NLS-1$
 			}
 			if (action == Action.RIGHT_CLICK_BLOCK) {
 				stakeIncr = -stakeIncr;

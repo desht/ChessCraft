@@ -1,6 +1,6 @@
 package me.desht.chesscraft.listeners;
 
-import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.dhutils.MiscUtil;
@@ -25,7 +25,7 @@ public class ChessEntityListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -41,7 +41,7 @@ public class ChessEntityListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityTarget(EntityTargetEvent event) {
 		if (!(event.getTarget() instanceof Player)
-				|| !ChessConfig.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+				|| !ChessCraft.getInstance().getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -57,7 +57,7 @@ public class ChessEntityListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -100,7 +100,7 @@ public class ChessEntityListener implements Listener {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		if (!ChessConfig.getConfig().getBoolean("no_misc_damage")) { //$NON-NLS-1$
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_misc_damage")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -147,10 +147,10 @@ public class ChessEntityListener implements Listener {
 
 	private boolean isAllowedMonsterAttack(Entity damager) {
 		return !(damager instanceof Player) && damager instanceof LivingEntity
-				&& !ChessConfig.getConfig().getBoolean("no_monster_attacks"); //$NON-NLS-1$
+				&& !ChessCraft.getInstance().getConfig().getBoolean("no_monster_attacks"); //$NON-NLS-1$
 	}
 
 	private boolean isAllowedPlayerAttack(Entity damager) {
-		return damager instanceof Player && !ChessConfig.getConfig().getBoolean("no_pvp"); //$NON-NLS-1$
+		return damager instanceof Player && !ChessCraft.getInstance().getConfig().getBoolean("no_pvp"); //$NON-NLS-1$
 	}
 }

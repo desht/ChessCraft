@@ -1,8 +1,12 @@
 package me.desht.chesscraft.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -21,7 +25,7 @@ public class GetcfgCommand extends AbstractCommand {
 	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
 		if (args.length < 1) {
 			MessagePager pager = MessagePager.getPager(player).clear();
-			for (String line : ChessConfig.getPluginConfiguration()) {
+			for (String line : getPluginConfiguration()) {
 				pager.add(line);
 			}
 			pager.showPage();
@@ -36,5 +40,16 @@ public class GetcfgCommand extends AbstractCommand {
 		return true;
 	}
 
+	public static List<String> getPluginConfiguration() {
+		ArrayList<String> res = new ArrayList<String>();
+		Configuration config = ChessCraft.getInstance().getConfig();
+		for (String k : config.getDefaults().getKeys(true)) {
+			if (config.isConfigurationSection(k))
+				continue;
+			res.add("&f" + k + "&- = '&e" + config.get(k) + "&-'");
+		}
+		Collections.sort(res);
+		return res;
+	}
 }
 

@@ -1,6 +1,6 @@
 package me.desht.chesscraft.listeners;
 
-import me.desht.chesscraft.ChessConfig;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +16,7 @@ public class ChessBlockListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -28,7 +28,7 @@ public class ChessBlockListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -40,7 +40,7 @@ public class ChessBlockListener implements Listener {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_building", true)) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -52,7 +52,7 @@ public class ChessBlockListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if (!ChessConfig.getConfig().getBoolean("no_burning", true)) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {

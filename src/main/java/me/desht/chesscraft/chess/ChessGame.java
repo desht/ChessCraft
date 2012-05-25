@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.DirectoryStructure;
@@ -94,13 +93,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		fromSquare = Chess.NO_SQUARE;
 		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
-		setTimeControl(ChessConfig.getConfig().getString("time_control.default"));
+		setTimeControl(ChessCraft.getInstance().getConfig().getString("time_control.default"));
 		created = System.currentTimeMillis();
 		started = finished = 0L;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null) {
 			double defBalance = ChessCraft.economy == null ? 0.0 : ChessCraft.economy.getBalance(playerName);
-			stake = Math.min(ChessConfig.getConfig().getDouble("stake.default"), defBalance); //$NON-NLS-1$
+			stake = Math.min(ChessCraft.getInstance().getConfig().getDouble("stake.default"), defBalance); //$NON-NLS-1$
 		} else {
 			stake = 0.0;
 		}
@@ -273,7 +272,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void autoSave() {
-		if (ChessConfig.getConfig().getBoolean("autosave")) { //$NON-NLS-1$
+		if (ChessCraft.getInstance().getConfig().getBoolean("autosave")) { //$NON-NLS-1$
 			save();
 		}
 	}
@@ -430,11 +429,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private boolean needToWarn(TimeControl tc, int colour) {
 		long remaining = tc.getRemainingTime();
-		long t = ChessConfig.getConfig().getInt("time_control.warn_seconds") * 1000;
+		long t = ChessCraft.getInstance().getConfig().getInt("time_control.warn_seconds") * 1000;
 		long tot = tc.getTotalTime();
 		long warning = Math.min(t, tot) >>> tcWarned[colour];
 
-		int tickInt = (ChessConfig.getConfig().getInt("tick_interval") * 1000) + 50;	// fudge for inaccuracy of tick timer
+		int tickInt = (ChessCraft.getInstance().getConfig().getInt("tick_interval") * 1000) + 50;	// fudge for inaccuracy of tick timer
 		return remaining <= warning && remaining > warning - tickInt;
 	}
 
@@ -485,7 +484,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		clearInvitation();
 
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-			if (ChessConfig.getConfig().getBoolean("autostart", true)) {
+			if (ChessCraft.getInstance().getConfig().getBoolean("autostart", true)) {
 				start(playerName);
 			} else {
 				alert(Messages.getString("Game.startPrompt")); //$NON-NLS-1$
@@ -596,7 +595,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.cantAffordToStart", blackStr, ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		}
 
-		if (ChessConfig.getConfig().getBoolean("auto_teleport_on_join")) {
+		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
 			summonPlayers();
 		}
 
@@ -919,7 +918,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			msg = Messages.getString("Game.abandoned", p1, p2); //$NON-NLS-1$
 			break;
 		}
-		if (ChessConfig.getConfig().getBoolean("broadcast_results")
+		if (ChessCraft.getInstance().getConfig().getBoolean("broadcast_results")
 				&& !p1.equalsIgnoreCase(p2)) { //$NON-NLS-1$
 			if (!msg.isEmpty()) {
 				MiscUtil.broadcastMessage(msg);
@@ -1147,21 +1146,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		if (getState() == GameState.SETTING_UP) {
 			long elapsed = System.currentTimeMillis() - created;
-			Duration timeout = new Duration(ChessConfig.getConfig().getString("auto_delete.not_started", "3 mins"));
+			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.not_started", "3 mins"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration() && (playerWhite.isEmpty() || playerBlack.isEmpty())) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteNotStarted", timeout); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.FINISHED) {
 			long elapsed = System.currentTimeMillis() - finished;
-			Duration timeout = new Duration(ChessConfig.getConfig().getString("auto_delete.finished", "30 mins"));
+			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.finished", "30 mins"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.RUNNING) {
 			long elapsed = System.currentTimeMillis() - lastMoved;
-			Duration timeout = new Duration(ChessConfig.getConfig().getString("auto_delete.running", "28 days"));
+			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.running", "28 days"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteRunning", timeout); //$NON-NLS-1$

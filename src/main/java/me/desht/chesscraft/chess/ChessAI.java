@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
@@ -155,7 +154,7 @@ public class ChessAI {
 	 * Start the AI thinking about its next move.
 	 */
 	private void setAIThinking() {
-		int wait = ChessConfig.getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
+		int wait = ChessCraft.getInstance().getConfig().getInt("ai.min_move_wait"); //$NON-NLS-1$
 		aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
 			public void run() {
 				try {
@@ -255,7 +254,7 @@ public class ChessAI {
 	 * @return
 	 */
 	public static String getAIPrefix() {
-		return ChessConfig.getConfig().getString("ai.name_prefix"); //$NON-NLS-1$
+		return ChessCraft.getInstance().getConfig().getString("ai.name_prefix"); //$NON-NLS-1$
 	}
 
 	/**
@@ -309,7 +308,7 @@ public class ChessAI {
 	public static ChessAI getNewAI(ChessGame callback, String aiName, boolean forceNew, boolean isWhiteAI) throws ChessException {
 		// uses exceptions method to stop too many AI's being created
 		if (!forceNew) {
-			int max = ChessConfig.getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
+			int max = ChessCraft.getInstance().getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
 			if (max == 0) {
 				throw new ChessException(Messages.getString("ChessAI.AIdisabled")); //$NON-NLS-1$
 			} else if (runningAI.size() >= max) {
@@ -484,7 +483,7 @@ public class ChessAI {
 					moteur.setSearchDepthLimit(searchDepth);
 				}
 			}
-			moteur.setOpeningsEnabled(ChessConfig.getConfig().getBoolean("ai.use_opening_book", false));
+			moteur.setOpeningsEnabled(ChessCraft.getInstance().getConfig().getBoolean("ai.use_opening_book", false));
 			return moteur;
 		}
 	}

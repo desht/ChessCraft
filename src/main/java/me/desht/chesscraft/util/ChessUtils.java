@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
@@ -213,7 +212,7 @@ public class ChessUtils {
 
 
 	public static int getWandId() {
-		String wand = ChessConfig.getConfig().getString("wand_item"); //$NON-NLS-1$
+		String wand = ChessCraft.getInstance().getConfig().getString("wand_item"); //$NON-NLS-1$
 		if (wand.equalsIgnoreCase("*")) {
 			return -1;
 		}

@@ -1,6 +1,5 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -50,7 +49,7 @@ public class DesignCommand extends AbstractCommand {
 				designer = new PieceDesigner(bv, bv.getPieceStyleName(), "");
 				bv.getChessBoard().setDesigner(designer);
 				MiscUtil.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
-				if (ChessConfig.getConfig().getBoolean("designer.auto_load")) {
+				if (ChessCraft.getInstance().getConfig().getBoolean("designer.auto_load")) {
 					designer.load();
 					MiscUtil.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 				}

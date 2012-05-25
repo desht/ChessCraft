@@ -15,7 +15,7 @@ public class ChessTickTask {
 	public void start(long initialDelay) {
 		cancel();
 		
-		long interval = ChessConfig.getConfig().getInt("tick_interval", 1) * 20L;
+		long interval = ChessCraft.getInstance().getConfig().getInt("tick_interval", 1) * 20L;
 		tickTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(ChessCraft.getInstance(), new Runnable() {
 			@Override
 			public void run() {
