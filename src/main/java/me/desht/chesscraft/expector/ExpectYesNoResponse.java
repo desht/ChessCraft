@@ -1,6 +1,7 @@
 package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.dhutils.responsehandler.ExpectBase;
 
 public abstract class ExpectYesNoResponse extends ExpectBase {
 

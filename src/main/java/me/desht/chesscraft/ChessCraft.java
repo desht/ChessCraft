@@ -60,10 +60,10 @@ import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
-import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -75,7 +75,7 @@ public class ChessCraft extends JavaPlugin {
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
 	private static ScrollingMenuSign smsPlugin;
-	private static ResponseHandler expecter;
+	private static ResponseHandler responseHandler;
 	private static ChessPersistence persistence;
 	
 	public static Economy economy = null;
@@ -105,7 +105,7 @@ public class ChessCraft extends JavaPlugin {
 
 		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
-		expecter = new ResponseHandler();
+		responseHandler = new ResponseHandler();
 
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
@@ -158,7 +158,7 @@ public class ChessCraft extends JavaPlugin {
 		smsPlugin = null;
 		worldEditPlugin = null;
 		persistence = null;
-		expecter = null;
+		responseHandler = null;
 		
 		LogUtils.info("disabled!");
 	}
@@ -263,7 +263,7 @@ public class ChessCraft extends JavaPlugin {
 	}
 
 	public static ResponseHandler getResponseHandler() {
-		return expecter;
+		return responseHandler;
 	}
 
 	public static ScrollingMenuSign getSMS() {

@@ -1270,14 +1270,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensurePlayerToMove(playerName);
 		ensureGameState(GameState.RUNNING);
 
-		String otherPlayer = getOtherPlayer(playerName);
-		ChessCraft.getResponseHandler().expect(player, new ExpectDrawResponse(this, playerName, otherPlayer), otherPlayer);
+		String otherPlayerName = getOtherPlayer(playerName);
+		ChessCraft.getResponseHandler().expect(player, new ExpectDrawResponse(this, playerName, otherPlayerName));
 
 		if (player != null) {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayer)); //$NON-NLS-1$
+			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayerName)); //$NON-NLS-1$
 		}
-		alert(otherPlayer, Messages.getString("ChessCommandExecutor.drawOfferedOther", playerName)); //$NON-NLS-1$
-		alert(otherPlayer, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+		alert(otherPlayerName, Messages.getString("ChessCommandExecutor.drawOfferedOther", playerName)); //$NON-NLS-1$
+		alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		getView().getControlPanel().repaintSignButtons();
 	}
 
@@ -1292,17 +1292,17 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Player player = Bukkit.getPlayer(playerName);
 		ensurePlayerInGame(playerName);
 
-		String otherName = getOtherPlayer(playerName);
-		if (otherName.isEmpty()) {
+		String otherPlayerName = getOtherPlayer(playerName);
+		if (otherPlayerName.isEmpty()) {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			ChessCraft.getResponseHandler().expect(player, new ExpectSwapResponse(this, playerName, otherName), otherName);
+			ChessCraft.getResponseHandler().expect(player, new ExpectSwapResponse(this, playerName, otherPlayerName));
 			if (player != null) {
-				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherName)); //$NON-NLS-1$
+				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherPlayerName)); //$NON-NLS-1$
 			} 
-			alert(otherName, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", playerName)); //$NON-NLS-1$ 
-			alert(otherName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", playerName)); //$NON-NLS-1$ 
+			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		}
 		getView().getControlPanel().repaintSignButtons();
 	}

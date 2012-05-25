@@ -1,12 +1,12 @@
 package me.desht.chesscraft.expector;
 
-import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.TerrainBackup;
+import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.responsehandler.ExpectBase;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class ExpectBoardCreation extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(Player player) throws ChessException {
+	public void doResponse(Player player) {
 		BoardView view = new BoardView(boardName, loc, BoardRotation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
 		if (ChessCraft.getWorldEdit() != null) {

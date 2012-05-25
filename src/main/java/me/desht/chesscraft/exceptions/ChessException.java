@@ -1,7 +1,7 @@
 package me.desht.chesscraft.exceptions;
 
 @SuppressWarnings("serial")
-public class ChessException extends Exception {
+public class ChessException extends RuntimeException {
 
 	public ChessException() {
 	}

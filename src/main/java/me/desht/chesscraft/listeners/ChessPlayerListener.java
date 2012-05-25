@@ -39,9 +39,9 @@ import chesspresso.move.IllegalMoveException;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
-import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.MessagePager;
 

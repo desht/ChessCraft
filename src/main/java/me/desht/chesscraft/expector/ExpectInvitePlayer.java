@@ -1,7 +1,7 @@
 package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.responsehandler.ExpectBase;
 
 import org.bukkit.entity.Player;
 
@@ -20,7 +20,7 @@ public class ExpectInvitePlayer extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(Player player) throws ChessException {
+	public void doResponse(Player player) {
 		ChessGame game = ChessGame.getCurrentGame(player, true);
 		game.invitePlayer(player.getName(), inviteeName);
 	}
