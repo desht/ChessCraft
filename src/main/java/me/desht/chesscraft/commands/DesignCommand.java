@@ -6,7 +6,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -49,35 +49,35 @@ public class DesignCommand extends AbstractCommand {
 				// toggle into design mode
 				designer = new PieceDesigner(bv, bv.getPieceStyleName(), "");
 				bv.getChessBoard().setDesigner(designer);
-				ChessUtils.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
+				MiscUtil.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessConfig.getConfig().getBoolean("designer.auto_load")) {
 					designer.load();
-					ChessUtils.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
+					MiscUtil.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 				}
 			}
 			bv.paintAll();
 		} else if (args[0].startsWith("e")) {	// exit
 			if (bv.isDesigning()) {
 				bv.getChessBoard().setDesigner(null);
-				ChessUtils.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
+				MiscUtil.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
 				bv.paintAll();
 			}
 		} else if (args[0].startsWith("c")) {	// clear
 			designer.clear();
-			ChessUtils.statusMessage(player, Messages.getString("Designer.cleared", designer.getSetName()));
+			MiscUtil.statusMessage(player, Messages.getString("Designer.cleared", designer.getSetName()));
 		} else if (args[0].startsWith("s")) {	// save
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}
 			designer.scan();
 			designer.save();
-			ChessUtils.statusMessage(player, Messages.getString("Designer.styleSaved", designer.getSetName()));
+			MiscUtil.statusMessage(player, Messages.getString("Designer.styleSaved", designer.getSetName()));
 		} else if (args[0].startsWith("l")) {	// load
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}
 			designer.load();
-			ChessUtils.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
+			MiscUtil.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 		}
 		
 		return true;

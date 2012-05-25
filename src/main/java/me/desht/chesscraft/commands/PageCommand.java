@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 
 public class PageCommand extends AbstractCommand {
 
@@ -33,7 +33,7 @@ public class PageCommand extends AbstractCommand {
 				int pageNum = Integer.parseInt(args[0]);
 				pager.showPage(pageNum);
 			} catch (NumberFormatException e) {
-				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[0])); //$NON-NLS-1$
+				MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[0])); //$NON-NLS-1$
 			}
 		}
 		return true;

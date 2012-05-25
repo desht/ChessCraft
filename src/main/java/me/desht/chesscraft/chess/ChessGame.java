@@ -25,9 +25,10 @@ import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.Duration;
-import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.Duration;
+import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -539,11 +540,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public void inviteOpen(String inviterName) throws ChessException {
 		inviteSanityCheck(inviterName);
-		ChessUtils.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
+		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
-			ChessUtils.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
+			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
-		ChessUtils.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
+		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
 		invited = "*"; //$NON-NLS-1$
 	}
 
@@ -741,11 +742,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (player != null) {
 			// making a move after a draw or swap offer has been made is equivalent to declining the offer
 			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectDrawResponse.class)) {
-				ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
 				ChessCraft.getResponseHandler().cancelAction(player, ExpectDrawResponse.class);
 			}
 			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectSwapResponse.class)) {
-				ChessUtils.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
 				ChessCraft.getResponseHandler().cancelAction(player, ExpectSwapResponse.class);
 			}
 		}
@@ -921,7 +922,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (ChessConfig.getConfig().getBoolean("broadcast_results")
 				&& !p1.equalsIgnoreCase(p2)) { //$NON-NLS-1$
 			if (!msg.isEmpty()) {
-				ChessUtils.broadcastMessage(msg);
+				MiscUtil.broadcastMessage(msg);
 			}
 		} else {
 			if (!msg.isEmpty()) {
@@ -1043,7 +1044,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void alert(Player player, String message) {
-		ChessUtils.alertMessage(player, Messages.getString("Game.alertPrefix", getName()) + message); //$NON-NLS-1$
+		MiscUtil.alertMessage(player, Messages.getString("Game.alertPrefix", getName()) + message); //$NON-NLS-1$
 	}
 
 	public void alert(String playerName, String message) {
@@ -1274,7 +1275,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ChessCraft.getResponseHandler().expect(player, new ExpectDrawResponse(this, playerName, otherPlayerName));
 
 		if (player != null) {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayerName)); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayerName)); //$NON-NLS-1$
 		}
 		alert(otherPlayerName, Messages.getString("ChessCommandExecutor.drawOfferedOther", playerName)); //$NON-NLS-1$
 		alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
@@ -1299,7 +1300,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			ChessCraft.getResponseHandler().expect(player, new ExpectSwapResponse(this, playerName, otherPlayerName));
 			if (player != null) {
-				ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherPlayerName)); //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherPlayerName)); //$NON-NLS-1$
 			} 
 			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.sideSwapOfferedOther", playerName)); //$NON-NLS-1$ 
 			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
@@ -1550,7 +1551,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		game.autoSave();
 
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$ 
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$ 
 
 		return game;
 	}

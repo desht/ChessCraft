@@ -4,7 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -24,9 +24,9 @@ public class BoardDeletionCommand extends AbstractCommand {
 		String boardName = bv.getName();
 		if (bv.getGame() == null) {
 			bv.deletePermanently(player);
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$
 		} else {
-			ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.boardCantBeDeleted", //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.boardCantBeDeleted", //$NON-NLS-1$
 			                                                   boardName, bv.getGame().getName()));
 		}
 

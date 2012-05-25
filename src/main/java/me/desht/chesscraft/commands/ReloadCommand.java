@@ -4,7 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -34,15 +34,15 @@ public class ReloadCommand extends AbstractCommand {
 
 		if (reloadConfig) {
 			plugin.reloadConfig();
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
 			ChessAI.initAINames();
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {
 			ChessCraft.getPersistenceHandler().reload();
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 		return true;
 	}

@@ -28,7 +28,8 @@ import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 
@@ -249,7 +250,7 @@ public class ControlPanel {
 
 		if (game != null && (loc.equals(whiteClockSign) || loc.equals(blackClockSign))) {
 			// doesn't matter which time control we use here, they should both have the same parameters
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", game.getTcWhite().toString()));
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", game.getTcWhite().toString()));
 			return;
 		}
 
@@ -285,7 +286,7 @@ public class ControlPanel {
 		} else if (name.equals(INVITE_PLAYER)) { //$NON-NLS-1$
 			if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
 				ChessCraft.getResponseHandler().expect(player, new ExpectInvitePlayer());
-				ChessUtils.statusMessage(player, Messages.getString("ControlPanel.chessInvitePrompt")); //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ControlPanel.chessInvitePrompt")); //$NON-NLS-1$
 			}
 		} else if (name.equals(INVITE_ANYONE)) { //$NON-NLS-1$
 			if (game != null) {
@@ -339,7 +340,7 @@ public class ControlPanel {
 		if (plyCountSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) plyCountSign.getBlock().getState();
 			setSignLabel(s, Messages.getString("ControlPanel.playNumber")); //$NON-NLS-1$
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + playNumber)); //$NON-NLS-1$
+			s.setLine(2, MiscUtil.parseColourSpec("&4" + playNumber)); //$NON-NLS-1$
 			s.update();
 		}
 	}
@@ -348,7 +349,7 @@ public class ControlPanel {
 		if (halfMoveClockSign.getBlock().getState() instanceof Sign) {
 			Sign s = (Sign) halfMoveClockSign.getBlock().getState();
 			setSignLabel(s, Messages.getString("ControlPanel.halfmoveClock")); //$NON-NLS-1$
-			s.setLine(2, ChessUtils.parseColourSpec("&4" + halfMoveClock)); //$NON-NLS-1$
+			s.setLine(2, MiscUtil.parseColourSpec("&4" + halfMoveClock)); //$NON-NLS-1$
 			s.update();
 		}
 	}
@@ -364,10 +365,10 @@ public class ControlPanel {
 			Sign s = (Sign) l.getBlock().getState();
 			setSignLabel(s, ChessUtils.getColour(colour));
 			if (tc == null) {
-				s.setLine(2, ChessUtils.parseColourSpec("&4" + ChessUtils.milliSecondsToHMS(0)));	//$NON-NLS-1$
+				s.setLine(2, MiscUtil.parseColourSpec("&4" + ChessUtils.milliSecondsToHMS(0)));	//$NON-NLS-1$
 				s.setLine(3, "");
 			} else {
-				s.setLine(2, ChessUtils.parseColourSpec("&4" + tc.getClockString())); //$NON-NLS-1$
+				s.setLine(2, MiscUtil.parseColourSpec("&4" + tc.getClockString())); //$NON-NLS-1$
 				switch (tc.getControlType()) {
 				case NONE:
 					s.setLine(3, Messages.getString("ControlPanel.timeElapsed"));

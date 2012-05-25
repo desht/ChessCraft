@@ -1,7 +1,7 @@
 package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -67,7 +67,7 @@ public class SignButton {
 				if (!enabled) {
 					lines[i] = lines[i].replaceFirst("^&[0-9a-f]", "");
 				}
-				s.setLine(i, ChessUtils.parseColourSpec(col + lines[i]));
+				s.setLine(i, MiscUtil.parseColourSpec(col + lines[i]));
 			}
 			s.update();
 		}

@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.PermissionUtils;
 
 public class CommandManager {
 	private ChessCraft plugin;

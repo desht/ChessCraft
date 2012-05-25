@@ -6,7 +6,7 @@ import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 public class SetcfgCommand extends AbstractCommand {
 
@@ -23,7 +23,7 @@ public class SetcfgCommand extends AbstractCommand {
 		String val = args[1];
 		ChessConfig.setPluginConfiguration(key, val);
 
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfig().get(key))); //$NON-NLS-1$
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.configKeySet", key, ChessConfig.getConfig().get(key))); //$NON-NLS-1$
 
 		return true;
 	}

@@ -7,7 +7,7 @@ import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -80,7 +80,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 			}
 		}
 		
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
 		
 		bv.paintAll();
 		bv.save();

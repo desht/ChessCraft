@@ -5,7 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -40,7 +40,7 @@ public class ClaimVictoryCommand extends AbstractCommand {
 		if (elapsed >= timeout) {
 			game.winByDefault(player.getName());
 		} else {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
 		}
 		
 		return true;

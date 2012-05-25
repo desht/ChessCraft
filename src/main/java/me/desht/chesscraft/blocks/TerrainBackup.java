@@ -8,8 +8,8 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -72,9 +72,9 @@ public class TerrainBackup {
 			SchematicFormat.MCEDIT.save(clipboard, saveFile);
 			editSession.flushQueue();
 		} catch (DataException e) {
-			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
 		} catch (IOException e) {
-			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("TerrainBackup.cantWriteTerrain", e.getMessage())); //$NON-NLS-1$
 		}
 	}
 
@@ -97,7 +97,7 @@ public class TerrainBackup {
 		} catch (Exception e) {
 			// DataException, IOException, EmptyClipboardException,
 			// MaxChangedBlocksException
-			ChessUtils.errorMessage(player, Messages.getString("TerrainBackup.cantRestoreTerrain", e.getMessage())); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("TerrainBackup.cantRestoreTerrain", e.getMessage())); //$NON-NLS-1$
 			return false;
 		}
 	}

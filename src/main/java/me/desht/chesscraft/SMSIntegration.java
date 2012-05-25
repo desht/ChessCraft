@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.desht.dhutils.LogUtils;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.scrollingmenusign.SMSConfig;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
@@ -154,7 +154,7 @@ public class SMSIntegration {
 			try {
 				// clear all menu items - start with a clean slate
 				menu = smsHandler.getMenu(name);
-				menu.setTitle(ChessUtils.parseColourSpec(title));
+				menu.setTitle(MiscUtil.parseColourSpec(title));
 				menu.removeAllItems();
 			} catch (SMSException e) {
 				// shouldn't get here - we already checked that the menu exists

@@ -6,16 +6,11 @@
  */
 package me.desht.chesscraft.util;
 
-import chesspresso.Chess;
-
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,17 +20,14 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.dhutils.LogUtils;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+
+import chesspresso.Chess;
 
 /**
  * @author jacob
  */
 public class ChessUtils {
-	
-	private static Map<String,String> prevColours = new HashMap<String,String>();
 
 	public static String getColour(int c) {
 		switch (c) {
@@ -68,68 +60,6 @@ public class ChessUtils {
 		long mins = (l - (hrs * 3600)) / 60;
 	
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
-	}
-
-	public static void errorMessage(Player player, String string) {
-		message(player, string, ChatColor.RED, Level.WARNING);
-	}
-
-	public static void statusMessage(Player player, String string) {
-		message(player, string, ChatColor.AQUA, Level.INFO);
-	}
-
-	public static void alertMessage(Player player, String string) {
-		message(player, string, ChatColor.YELLOW, Level.INFO);
-	}
-
-	public static void generalMessage(Player player, String string, ChatColor colour) {
-		message(player, string, Level.INFO);
-	}
-
-	public static void broadcastMessage(String string) {
-		setPrevColour(null, ChatColor.YELLOW.toString());
-		Bukkit.getServer().broadcastMessage(ChessUtils.parseColourSpec(null, "&6[ChessCraft]&e " + string)); //$NON-NLS-1$
-	}
-
-	private static void message(Player player, String string, Level level) {
-		for (String line : string.split("\\n")) { //$NON-NLS-1$
-			if (player != null) {
-				player.sendMessage(parseColourSpec(player, line));
-			} else {
-				LogUtils.info(line);
-			}
-		}
-	}
-
-	private static void message(Player player, String string, ChatColor colour, Level level) {
-		setPrevColour(player, colour.toString());
-		for (String line : string.split("\\n")) { //$NON-NLS-1$
-			if (player != null) {
-				player.sendMessage(colour + parseColourSpec(player, line));
-			} else {
-				LogUtils.info(line);
-			}
-		}
-	}
-
-	private static void setPrevColour(Player player, String colour) {
-		String name = player != null ? player.getName() : "*";
-		prevColours.put(name, colour);
-	}
-	
-	private static String getPrevColour(Player player) {
-		String name = player != null ? player.getName() : "*";
-		return prevColours.containsKey(name) ? prevColours.get(name) : "";
-	}
-	
-	private static String parseColourSpec(Player player, String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
-		return res.replace("&-", getPrevColour(player)).replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
-	
-	public static String parseColourSpec(String spec) {
-		String res = spec.replaceAll("&(?<!&&)(?=[0-9a-fA-Fk-oK-OrR])", "\u00A7"); //$NON-NLS-1$ //$NON-NLS-2$
-		return res.replace("&-", "").replace("&&", "&"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public static String formatLoc(Location loc) {

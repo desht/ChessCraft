@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.dhutils.MiscUtil;
 
 public abstract class AbstractCommand {
 	//	private String command;	
@@ -105,9 +106,9 @@ public abstract class AbstractCommand {
 		if (usage != null) {
 			for (int i = 0; i < usage.length; i++) {
 				if (i == 0) {
-					ChessUtils.errorMessage(player, "Usage: " + usage[i]);
+					MiscUtil.errorMessage(player, "Usage: " + usage[i]);
 				} else {
-					ChessUtils.errorMessage(player, "         " + usage[i]);
+					MiscUtil.errorMessage(player, "         " + usage[i]);
 				}
 			}
 		}

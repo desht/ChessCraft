@@ -5,6 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -24,7 +25,7 @@ public class FenCommand extends AbstractCommand {
 
 		game.setFen(combine(args, 1));
 
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
 		                                                    game.getName(), ChessUtils.getColour(game.getPosition().getToPlay())));
 		return true;
 	}

@@ -1,12 +1,12 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.entity.Player;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
+
+import org.bukkit.entity.Player;
 
 public class StakeCommand extends AbstractCommand {
 
@@ -33,7 +33,7 @@ public class StakeCommand extends AbstractCommand {
 			}
 			game.setStake(amount);
 			game.getView().getControlPanel().repaintSignButtons();
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", ChessCraft.economy.format(amount))); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", ChessCraft.economy.format(amount))); //$NON-NLS-1$
 		} catch (NumberFormatException e) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", stakeStr)); //$NON-NLS-1$
 		}

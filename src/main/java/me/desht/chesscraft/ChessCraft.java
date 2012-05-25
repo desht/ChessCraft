@@ -1,18 +1,22 @@
 package me.desht.chesscraft;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.commands.ArchiveCommand;
+import me.desht.chesscraft.commands.BoardCreationCommand;
+import me.desht.chesscraft.commands.BoardDeletionCommand;
 import me.desht.chesscraft.commands.BoardStyleSaveCommand;
 import me.desht.chesscraft.commands.BoardStyleSetCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
 import me.desht.chesscraft.commands.CommandManager;
-import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.CreateGameCommand;
-import me.desht.chesscraft.commands.BoardDeletionCommand;
 import me.desht.chesscraft.commands.DeleteGameCommand;
 import me.desht.chesscraft.commands.DesignCommand;
 import me.desht.chesscraft.commands.FenCommand;
@@ -37,10 +41,21 @@ import me.desht.chesscraft.commands.StartCommand;
 import me.desht.chesscraft.commands.TeleportCommand;
 import me.desht.chesscraft.commands.TimeControlCommand;
 import me.desht.chesscraft.commands.YesCommand;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectDrawResponse;
+import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectYesNoResponse;
+import me.desht.chesscraft.listeners.ChessBlockListener;
+import me.desht.chesscraft.listeners.ChessEntityListener;
+import me.desht.chesscraft.listeners.ChessPlayerListener;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.results.Results;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.responsehandler.ResponseHandler;
+import me.desht.scrollingmenusign.ScrollingMenuSign;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -51,22 +66,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import me.desht.chesscraft.listeners.ChessBlockListener;
-import me.desht.chesscraft.listeners.ChessEntityListener;
-import me.desht.chesscraft.listeners.ChessPlayerListener;
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.results.Results;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.expector.ExpectDrawResponse;
-import me.desht.chesscraft.expector.ExpectSwapResponse;
-import me.desht.chesscraft.expector.ExpectYesNoResponse;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
@@ -172,7 +171,7 @@ public class ChessCraft extends JavaPlugin {
 		try {
 			return cmds.dispatch(player, command.getName(), args);
 		} catch (ChessException e) {
-			ChessUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 			return true;
 		}
 	}

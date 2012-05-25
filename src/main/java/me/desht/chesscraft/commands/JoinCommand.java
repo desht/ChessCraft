@@ -5,6 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -40,13 +41,13 @@ public class JoinCommand extends AbstractCommand {
 		ChessGame game = ChessGame.getGame(gameName);
 		ChessGame.setCurrentGame(player.getName(), game);
 		int playingAs = game.playingAs(player.getName());
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
 		                                                    game.getName(), ChessUtils.getColour(playingAs)));
 		
 		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) { //$NON-NLS-1$
 			game.summonPlayers();
 		} else {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
 		}
 		return true;
 	}

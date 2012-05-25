@@ -4,7 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -22,13 +22,13 @@ public class RedrawCommand extends AbstractCommand {
 			BoardView bv = BoardView.getBoardView(args[0]);
 			bv.reloadStyle();
 			bv.paintAll();
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardRedrawn", bv.getName())); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardRedrawn", bv.getName())); //$NON-NLS-1$
 		} else {
 			for (BoardView bv : BoardView.listBoardViews()) {
 				bv.reloadStyle();
 				bv.paintAll();
 			}
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.allBoardsRedrawn")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.allBoardsRedrawn")); //$NON-NLS-1$
 		}
 		return true;
 	}

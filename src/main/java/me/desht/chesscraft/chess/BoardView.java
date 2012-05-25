@@ -27,9 +27,10 @@ import me.desht.chesscraft.blocks.TerrainBackup;
 
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.chesscraft.util.NoteAlert;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
@@ -749,7 +750,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 				ChessCraft.getInstance().teleportPlayer(player, loc);
 			} else {
 				ChessCraft.getInstance().teleportPlayer(player, player.getWorld().getSpawnLocation());
-				ChessUtils.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
+				MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
 			}
 		} else if (prev != null) {
 			// go back to previous location

@@ -6,15 +6,16 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
-import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI.AI_Def;
+import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.results.ScoreRecord;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessagePager;
-import me.desht.chesscraft.util.MinecraftChatStr;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.MinecraftChatStr;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.entity.Player;
 
@@ -51,10 +52,10 @@ public class ListCommand extends AbstractCommand {
 		} else if (args[0].startsWith("t")) { // top scores //$NON-NLS-1$
 			listScores(player, args);
 		} else {
-			ChessUtils.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
-			ChessUtils.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
-			ChessUtils.errorMessage(player, "       /chess list ai"); //$NON-NLS-1$
-			ChessUtils.errorMessage(player, "       /chess list top [<n>] [ladder|league]"); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, "Usage: /chess list board"); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, "       /chess list game"); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, "       /chess list ai"); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, "       /chess list top [<n>] [ladder|league]"); //$NON-NLS-1$
 		}
 		
 		return true;
@@ -64,7 +65,7 @@ public class ListCommand extends AbstractCommand {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.list.game");
 		
 		if (ChessGame.listGames().isEmpty()) {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
 			return;
 		}
 
@@ -93,7 +94,7 @@ public class ListCommand extends AbstractCommand {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.list.board");
 		
 		if (BoardView.listBoardViews().isEmpty()) {
-			ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.noBoards")); //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.noBoards")); //$NON-NLS-1$
 			return;
 		}
 

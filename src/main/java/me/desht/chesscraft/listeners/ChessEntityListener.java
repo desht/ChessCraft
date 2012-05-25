@@ -3,7 +3,7 @@ package me.desht.chesscraft.listeners;
 import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -138,7 +138,7 @@ public class ChessEntityListener implements Listener {
 		} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
 				&& n < MAX_DIST);
 		if (n >= MAX_DIST) {
-			ChessUtils.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
+			MiscUtil.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
 			p.teleport(p.getWorld().getSpawnLocation());
 		} else {
 			p.teleport(loc);

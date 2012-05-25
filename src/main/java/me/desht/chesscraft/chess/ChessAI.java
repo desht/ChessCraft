@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -20,7 +21,6 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.enums.ChessEngine;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.Rand;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
@@ -395,7 +395,8 @@ public class ChessAI {
 				}
 			}
 			if (free.size() > 0) {
-				return availableAI.get(ai[Rand.RandomInt(0, ai.length - 1)]);
+				Random r = new Random();
+				return availableAI.get(ai[r.nextInt(ai.length)]);
 			} else {
 				return null;
 			}

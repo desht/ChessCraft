@@ -41,9 +41,10 @@ import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.MessagePager;
 
 public class ChessPlayerListener implements Listener {
 	
@@ -66,7 +67,7 @@ public class ChessPlayerListener implements Listener {
 		// a left or right-click cancels any pending player invite response
 		if (resp.isExpecting(player, ExpectInvitePlayer.class)) {
 			resp.cancelAction(player, ExpectInvitePlayer.class);
-			ChessUtils.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
+			MiscUtil.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
 			event.setCancelled(true);
 			return;
 		}
@@ -83,7 +84,7 @@ public class ChessPlayerListener implements Listener {
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if (resp.isExpecting(player, ExpectBoardCreation.class)) {
 					resp.cancelAction(player, ExpectBoardCreation.class);
-					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
+					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					event.setCancelled(true);
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
@@ -107,10 +108,10 @@ public class ChessPlayerListener implements Listener {
 				}
 			}
 		} catch (ChessException e) {
-			ChessUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 			if (resp.isExpecting(player, ExpectBoardCreation.class)) {
 				resp.cancelAction(player, ExpectBoardCreation.class);
-				ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
+				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
 	}
@@ -151,11 +152,11 @@ public class ChessPlayerListener implements Listener {
 				}
 			}
 		} catch (ChessException e) {
-			ChessUtils.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(player, e.getMessage());
 		} catch (IllegalMoveException e) {
 			// targetBlock must be non-null at this point
 			cancelMove(targetBlock.getLocation());
-			ChessUtils.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
+			MiscUtil.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
 		} catch (IllegalStateException e) {
 			// player.getTargetBlock() throws this exception occasionally - it appears
 			// to be harmless, so we'll ignore it
@@ -176,7 +177,7 @@ public class ChessPlayerListener implements Listener {
 			}
 		}
 		if (games.length() > 0) {
-			ChessUtils.alertMessage(event.getPlayer(), Messages.getString("ChessPlayerListener.currentGames", games)); //$NON-NLS-1$
+			MiscUtil.alertMessage(event.getPlayer(), Messages.getString("ChessPlayerListener.currentGames", games)); //$NON-NLS-1$
 		}
 	}
 
@@ -229,7 +230,7 @@ public class ChessPlayerListener implements Listener {
 				event.setCancelled(true);
 				resp.handleAction(player, ip.getClass());
 			} catch (ChessException e) {
-				ChessUtils.errorMessage(player, e.getMessage());
+				MiscUtil.errorMessage(player, e.getMessage());
 				resp.cancelAction(player, ExpectInvitePlayer.class);
 			}
 		}
@@ -266,23 +267,23 @@ public class ChessPlayerListener implements Listener {
 					game.setFromSquare(sqi);
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					ChessUtils.statusMessage(player,
+					MiscUtil.statusMessage(player,
 							Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 				}
 			} else {
 				if (sqi == game.getFromSquare()) {
 					// cancel a selected piece
 					game.setFromSquare(Chess.NO_SQUARE);
-					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
+					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
-					ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
+					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
 							game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
-			ChessUtils.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
 		}
 	}
 
@@ -308,11 +309,11 @@ public class ChessPlayerListener implements Listener {
 		ChessGame game = bv.getGame();
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
-			ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
+			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
 					game.getPosition().getLastMove().getLAN()));
 		} else {
 			if (player.isSneaking()) {
-				ChessUtils.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
 				                                                    Chess.sqiToStr(sqi), bv.getName()));
 			}
 			if (bv.isPartOfBoard(player.getLocation())) {

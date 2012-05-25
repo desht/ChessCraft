@@ -5,7 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.entity.Player;
 
@@ -31,7 +31,7 @@ public class BoardStyleSaveCommand extends AbstractCommand {
 		bv.getChessBoard().setBoardStyle(newStyleName);
 		bv.save();
 		
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleSaved", bv.getName(), newStyleName));
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleSaved", bv.getName(), newStyleName));
 		
 		return true;
 	}

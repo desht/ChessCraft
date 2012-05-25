@@ -6,7 +6,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.entity.Player;
 

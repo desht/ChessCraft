@@ -6,8 +6,8 @@ import me.desht.chesscraft.ChessConfig;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.MessagePager;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 
 public class GetcfgCommand extends AbstractCommand {
 
@@ -28,9 +28,9 @@ public class GetcfgCommand extends AbstractCommand {
 		} else {
 			String res = plugin.getConfig().getString(args[0]);
 			if (res != null) {
-				ChessUtils.statusMessage(player, "&f" + args[0] + " = '&e" + res + "&-'"); //$NON-NLS-1$ //$NON-NLS-2$
+				MiscUtil.statusMessage(player, "&f" + args[0] + " = '&e" + res + "&-'"); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				ChessUtils.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[0])); //$NON-NLS-1$
+				MiscUtil.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[0])); //$NON-NLS-1$
 			}
 		}
 		return true;

@@ -4,8 +4,8 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.PermissionUtils;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.entity.Player;
 
@@ -31,7 +31,7 @@ public class DeleteGameCommand extends AbstractCommand {
 		String deleter = player == null ? "CONSOLE" : player.getName(); //$NON-NLS-1$
 		game.alert(Messages.getString("ChessCommandExecutor.gameDeletedAlert", deleter)); //$NON-NLS-1$
 		game.deletePermanently();
-		ChessUtils.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDeleted", gameName)); //$NON-NLS-1$
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameDeleted", gameName)); //$NON-NLS-1$
 		
 		return true;
 	}
