@@ -46,5 +46,6 @@ effects:
     move_alert: true
     piece_riding: true
 log_level: INFO
+mcstats: true
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

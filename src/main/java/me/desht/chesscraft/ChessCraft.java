@@ -1,5 +1,6 @@
 package me.desht.chesscraft;
 
+import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessAI;
@@ -37,6 +38,7 @@ import me.desht.chesscraft.commands.TeleportCommand;
 import me.desht.chesscraft.commands.TimeControlCommand;
 import me.desht.chesscraft.commands.YesCommand;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +64,7 @@ import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ResponseHandler;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
+import me.desht.dhutils.LogUtils;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -126,6 +129,8 @@ public class ChessCraft extends JavaPlugin {
 		}
 
 		tickTask.start(20L);
+		
+		setupMetrics();
 
 		ChessCraftLogger.info("Version " + getDescription().getVersion() + " is enabled!");
 	}
@@ -173,6 +178,27 @@ public class ChessCraft extends JavaPlugin {
 		}
 	}
 
+	private void setupMetrics() {
+		if (!getConfig().getBoolean("mcstats")) {
+			return;
+		}
+		try {
+			Metrics metrics = new Metrics(this);
+			
+			metrics.createGraph("Boards Created").addPlotter(new Plotter() {
+				@Override
+				public int getValue() { return BoardView.listBoardViews().size();	}
+			});
+			metrics.createGraph("Games in Progress").addPlotter(new Plotter() {
+				@Override
+				public int getValue() { return ChessGame.listGames().size(); }
+			});
+			metrics.start();
+		} catch (IOException e) {
+			LogUtils.warning("Can't submit metrics data: " + e.getMessage());
+		}
+	}
+	
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
