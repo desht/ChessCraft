@@ -110,12 +110,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 
 		LogUtils.init(this);
 
-		DirectoryStructure.setup();
-
 		configManager = new ConfigurationManager(this);
 		configManager.setConfigurationListener(this);
 
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
+
+		DirectoryStructure.setup();
 
 		Messages.init(getConfig().getString("locale", "default"));
 

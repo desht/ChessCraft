@@ -24,9 +24,10 @@ commands:
       /chess offer (draw|swap)
       /chess (yes|no)
       /chess tp [<gamename>]
-      /chess redraw
+      /chess tp <boardname> -b
+      /chess redraw [<boardname>]
       /chess save
-      /chess reload
+      /chess reload <ai|config|persist>
       /chess page [<page#|n|p>]
       /chess setcfg <item> <value>
       /chess getcfg [<item>]
@@ -52,6 +53,7 @@ permissions:
     description: Gives access to basic ChessCraft commands
     children:
       chesscraft.commands.create.game: true
+      chesscraft.commands.game: true
       chesscraft.commands.invite: true
       chesscraft.commands.invite.anyone: true
       chesscraft.commands.join: true
@@ -96,6 +98,9 @@ permissions:
     default: op
   chesscraft.commands.create.game:
     description: Allows you to create chess games
+    default: true
+  chesscraft.commands.game:
+    description: Allows you to check or set your currently active game.
     default: true
   chesscraft.commands.invite:
     description: Allows you to invite a player to a game

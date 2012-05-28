@@ -94,7 +94,7 @@ public class ChessPersistence {
 			bv.getControlPanel().repaintSignButtons();
 		}
 
-		LogUtils.info("loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
+		LogUtils.fine("loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
 
 		// load other misc data which isn't tied to any board or game
 		try {
