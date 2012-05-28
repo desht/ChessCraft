@@ -91,7 +91,6 @@ ChessCommandExecutor:
   noBoards: Es gibt zur Zeit keine Bretter.
   noCurrentGames: Es gibt zur Zeit keine Spiele.
   noGame: (none)
-  noNegativeStakes: Negative Einsaetze sind nicht erlaubt!
   noPendingInvitation: Du hast zur Zeit keine laufenden Einlaudungen.
   notFromConsole: Dieser Befehl kann nicht von der Konsole ausgeführt werden.
   notOnChessboard: Nicht auf einem Schachbrett!
@@ -211,6 +210,7 @@ Game:
   lostStake: Du hast deinen Einsatz von {0} verloren.
   newTimeControlPhase: 'Neue Zeitkontroll Phase gestartet: &6{0}&-.'
   noActiveGame: Kein aktives Spiel - starte eins mit &f/chess game <name>&-.
+  noNegativeStakes: Negative Einsaetze sind nicht erlaubt!
   noSuchGame: Kein solches Spiel &6{0}&-.
   notInGame: Du bist nicht in einem Spiel!
   notInvited: Du hast keine Einladung fuer dieses Spiel.

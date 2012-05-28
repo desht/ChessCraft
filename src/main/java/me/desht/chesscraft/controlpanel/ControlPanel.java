@@ -318,7 +318,7 @@ public class ControlPanel {
 			if (game == null || (!game.getPlayerWhite().isEmpty() && !game.getPlayerBlack().isEmpty())) {
 				return;
 			}
-			game.adjustStake(stakeIncr);
+			game.adjustStake(player.getName(), stakeIncr);
 			view.getControlPanel().updateSignButtonText(STAKE, getStakeMessage()); //$NON-NLS-1$
 		}
 	}

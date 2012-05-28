@@ -90,7 +90,6 @@ ChessCommandExecutor:
   noBoards: "There are currently no boards."
   noCurrentGames: "There are currently no games."
   noGame: "(none)"
-  noNegativeStakes: "Negative stakes are not permitted!"
   noPendingInvitation: "You don't have any pending invitations right now."
   noTeleporting: "Teleporting to or from boards is not permitted right now."
   notFromConsole: "This command cannot be run from the console."
@@ -224,6 +223,7 @@ Game:
   lostStake: "You lost your stake of {0}."
   newTimeControlPhase: "New time control phase started: &6{0}&-."
   noActiveGame: "No active game - set one with &f/chess game <name>&-."
+  noNegativeStakes: "Negative stakes are not permitted!"
   noSuchGame: "No such game &6{0}&-."
   notInGame: "You are not in this game!"
   notInvited: "You don't have an invitation for this game."
@@ -239,6 +239,7 @@ Game:
   resigned: "&6{0}&- beat &6{1}&- (resigned) in a game of Chess!"
   shouldBeState: "Game should be in state {0}."
   stakeCantBeChanged: "Stake cannot be changed once both players have joined."
+  stakeTooHigh: "The maximum stake allowed is {0,number,currency}."
   stalemated: "&6{0}&- drew with &6{1}&- (stalemate) in a game of Chess!"
   started:
     - "Game started!  You are playing &f{0}&-."

@@ -11,6 +11,7 @@ timeout_forfeit: 60 sec
 no_pvp: true
 teleporting: true
 stake:
+	max: -1.0
     default: 0.0
     largeIncrement: 10.0
     smallIncrement: 1.0

@@ -350,9 +350,24 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return stake;
 	}
 
-	public void setStake(double newStake) throws ChessException {
+	/**
+	 * A player is trying to adjust the stake for this game.
+	 * 
+	 * @param playerName	Name of the player setting the stake
+	 * @param newStake		The stake being set
+	 * @throws ChessException	if the stake is out of range or not affordable or the game isn't in setup phase
+	 */
+	public void setStake(String playerName, double newStake) throws ChessException {
 		ensureGameState(GameState.SETTING_UP);
 
+		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+
+		if (newStake <= 0.0) {
+			throw new ChessException(Messages.getString("Game.noNegativeStakes")); //$NON-NLS-1$
+		}
+		if (newStake > max) {
+			throw new ChessException(Messages.getString("Game.stakeTooHigh", max)); //$NON-NLS-1$
+		}
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
 			throw new ChessException(Messages.getString("Game.stakeCantBeChanged")); //$NON-NLS-1$
 		}
@@ -387,7 +402,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Housekeeping task, called every <tick_interval> seconds as a scheduled sync task.
+	 * Housekeeping task, called periodically by the scheduler.  Update the clocks for the game, and
+	 * check for any pending AI moves.
 	 */
 	public void clockTick() {
 		if (state != GameState.RUNNING) {
@@ -616,7 +632,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (ChessAI.isAIPlayer(playerWhite)) {
 			aiPlayer.setUserToMove(false); // tell AI to start thinking
 		}
-		
+
 		clearInvitation();
 		started = lastMoved = System.currentTimeMillis();
 		tcWhite.setActive(true);
@@ -636,7 +652,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		getView().summonPlayer(player);
-		
+
 		ChessGame.setCurrentGame(player.getName(), this);
 	}
 
@@ -1242,17 +1258,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param adjustment
 	 * @throws ChessException
 	 */
-	public void adjustStake(double adjustment) throws ChessException {
-		double newStake = getStake() + adjustment;
-		if (newStake < 0.0)
+	public void adjustStake(String playerName, double adjustment) throws ChessException {
+		if (ChessCraft.economy == null) 
 			return;
-		if (ChessCraft.economy != null) {
-			String playerName = playerWhite.isEmpty() ? playerBlack : playerWhite;
-			if (newStake > ChessCraft.economy.getBalance(playerName)) {
-				newStake = ChessCraft.economy.getBalance(playerName);
-			}
+
+		double newStake = getStake() + adjustment;
+		if (newStake < 0.0 || newStake > ChessCraft.getInstance().getConfig().getDouble("stake.max"))
+			return;
+		
+		if (newStake > ChessCraft.economy.getBalance(playerName)) {
+			newStake = ChessCraft.economy.getBalance(playerName);
 		}
-		setStake(newStake);
+
+		setStake(playerName, newStake);
 	}
 
 	/**
@@ -1359,12 +1377,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		checkAIPlayer(aiPlayer);
 		checkAIPlayer(aiPlayer2);
 	}
-	
+
 	private void checkAIPlayer(ChessAI ai) {
 		if (ai == null) {
 			return;
 		}
-		
+
 		if (ai.hasFailed()) {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {
