@@ -1,11 +1,12 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 import chesspresso.Chess;
 
@@ -18,10 +19,11 @@ public class TimeControlCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 		String tcSpec = args[0];
 
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 		game.setTimeControl(tcSpec);
 		game.getView().getControlPanel().updateClock(Chess.WHITE, game.getTcWhite());
 		game.getView().getControlPanel().updateClock(Chess.BLACK, game.getTcBlack());

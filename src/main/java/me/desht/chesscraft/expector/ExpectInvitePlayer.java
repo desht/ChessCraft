@@ -21,7 +21,7 @@ public class ExpectInvitePlayer extends ExpectBase {
 
 	@Override
 	public void doResponse(Player player) {
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
 		game.invitePlayer(player.getName(), inviteeName);
 	}
 }

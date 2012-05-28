@@ -5,9 +5,11 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class StakeCommand extends AbstractCommand {
 
@@ -18,17 +20,14 @@ public class StakeCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		if (ChessCraft.economy == null) {
 			return true;
 		}
 		
 		String stakeStr = args[0];
 		try {
-			ChessGame game = ChessGame.getCurrentGame(player);
-			if (game == null) {
-				return true;
-			}
+			ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
 			double amount = Double.parseDouble(stakeStr);
 			game.setStake(player.getName(), amount);
 			game.getView().getControlPanel().repaintSignButtons();

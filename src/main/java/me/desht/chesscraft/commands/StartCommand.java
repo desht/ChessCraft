@@ -1,10 +1,11 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.entity.Player;
-
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class StartCommand extends AbstractCommand {
 
@@ -15,12 +16,12 @@ public class StartCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		notFromConsole(player);
 		if (args.length >= 2) {
 			ChessGame.getGame(args[0]).start(player.getName());
 		} else {
-			ChessGame.getCurrentGame(player).start(player.getName());
+			ChessGame.getCurrentGame(player.getName(), true).start(player.getName());
 		}
 		return true;
 	}

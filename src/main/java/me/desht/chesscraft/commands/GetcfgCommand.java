@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bukkit.configuration.Configuration;
-import org.bukkit.entity.Player;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.plugin.Plugin;
 
 public class GetcfgCommand extends AbstractCommand {
 
@@ -22,7 +24,7 @@ public class GetcfgCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		if (args.length < 1) {
 			MessagePager pager = MessagePager.getPager(player).clear();
 			for (String line : getPluginConfiguration()) {

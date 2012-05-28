@@ -1,9 +1,11 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.commands.AbstractCommand;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
 
 public class CreateGameCommand extends AbstractCommand {
@@ -15,13 +17,13 @@ public class CreateGameCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 		
 		String gameName = args.length >= 1 ? args[0] : null;
 		String boardName = args.length >= 2 ? args[1] : null;
 		
-		ChessGame.createGame(player, gameName, boardName);
+		ChessGame.createGame((Player) sender, gameName, boardName);
 		
 		return true;
 	}

@@ -31,6 +31,8 @@ import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -1221,20 +1223,23 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param pl
 	 * @return
 	 */
-	public boolean playerCanDelete(Player pl) {
+	public boolean playerCanDelete(CommandSender pl) {
 		if (pl == null) {
 			return false;
 		}
-		String plN = pl.getName();
+		if (pl instanceof ConsoleCommandSender) {
+			return true;
+		}
+		String playerName = pl.getName();
 		if (state == GameState.SETTING_UP) {
 			if (!playerWhite.isEmpty() && playerBlack.isEmpty()) {
-				return playerWhite.equalsIgnoreCase(plN);
+				return playerWhite.equalsIgnoreCase(playerName);
 			} else if (playerWhite.isEmpty() && !playerBlack.isEmpty()) {
-				return playerBlack.equalsIgnoreCase(plN);
-			} else if (playerWhite.equalsIgnoreCase(plN)) {
+				return playerBlack.equalsIgnoreCase(playerName);
+			} else if (playerWhite.equalsIgnoreCase(playerName)) {
 				Player other = pl.getServer().getPlayer(playerBlack);
 				return other == null || !other.isOnline();
-			} else if (playerBlack.equalsIgnoreCase(plN)) {
+			} else if (playerBlack.equalsIgnoreCase(playerName)) {
 				Player other = pl.getServer().getPlayer(playerWhite);
 				return other == null || !other.isOnline();
 			}
@@ -1289,8 +1294,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensureGameState(GameState.RUNNING);
 
 		String otherPlayerName = getOtherPlayer(playerName);
-		ChessCraft.getResponseHandler().expect(player, new ExpectDrawResponse(this, playerName, otherPlayerName));
-
+		Player otherPlayer = Bukkit.getPlayer(otherPlayerName);
+		if (otherPlayer != null) {
+			ChessCraft.getResponseHandler().expect(otherPlayer, new ExpectDrawResponse(this, playerName, otherPlayerName));
+		} else if (ChessAI.isAIPlayer(otherPlayerName)) {
+			// TODO: work how to offer a draw to the AI, if possible
+		} else {
+			throw new ChessException("unknown player '" + otherPlayerName + "'");
+		}
 		if (player != null) {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayerName)); //$NON-NLS-1$
 		}
@@ -1315,7 +1326,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			ChessCraft.getResponseHandler().expect(player, new ExpectSwapResponse(this, playerName, otherPlayerName));
+			Player otherPlayer = Bukkit.getPlayer(otherPlayerName);
+			if (otherPlayer != null) {
+				ChessCraft.getResponseHandler().expect(otherPlayer, new ExpectSwapResponse(this, playerName, otherPlayerName));
+			} else if (ChessAI.isAIPlayer(otherPlayerName)) {
+				return;
+			} else {
+				throw new ChessException("unknown player '" + otherPlayerName + "'");
+			}
 			if (player != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherPlayerName)); //$NON-NLS-1$
 			} 
@@ -1330,12 +1348,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * 
 	 * @param player
 	 */
-	public void showGameDetail(Player player) {
+	public void showGameDetail(CommandSender sender) {
 		String white = getPlayerWhite().isEmpty() ? "?" : getPlayerWhite(); //$NON-NLS-1$
 		String black = getPlayerBlack().isEmpty() ? "?" : getPlayerBlack(); //$NON-NLS-1$
 
 		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
-		MessagePager pager = MessagePager.getPager(player).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
 		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
@@ -1502,15 +1520,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		currentGame.put(playerName, game);
 	}
 
-	public static ChessGame getCurrentGame(Player player) throws ChessException {
-		return getCurrentGame(player, false);
+	public static ChessGame getCurrentGame(String playerName) throws ChessException {
+		return getCurrentGame(playerName, false);
 	}
 
-	public static ChessGame getCurrentGame(Player player, boolean verify) throws ChessException {
-		if (player == null) {
-			return null;
-		}
-		ChessGame game = currentGame.get(player.getName());
+	public static ChessGame getCurrentGame(String playerName, boolean verify) throws ChessException {
+		ChessGame game = currentGame.get(playerName);
 		if (verify && game == null) {
 			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
 		}

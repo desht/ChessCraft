@@ -1,13 +1,15 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class BoardStyleSaveCommand extends AbstractCommand {
 
@@ -18,8 +20,10 @@ public class BoardStyleSaveCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		
+		BoardView bv = BoardView.partOfChessBoard(((Player)sender).getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
@@ -31,7 +35,7 @@ public class BoardStyleSaveCommand extends AbstractCommand {
 		bv.getChessBoard().setBoardStyle(newStyleName);
 		bv.save();
 		
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardStyleSaved", bv.getName(), newStyleName));
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSaved", bv.getName(), newStyleName));
 		
 		return true;
 	}

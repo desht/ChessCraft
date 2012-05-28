@@ -1,9 +1,12 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.entity.Player;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class NoCommand extends AbstractCommand {
 
@@ -13,8 +16,9 @@ public class NoCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		ChessCraft.handleYesNoResponse(player, false);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		ChessCraft.handleYesNoResponse((Player)sender, false);
 		return true;
 	}
 

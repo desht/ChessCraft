@@ -1,12 +1,13 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class RedrawCommand extends AbstractCommand {
 
@@ -17,7 +18,7 @@ public class RedrawCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		if (args.length >= 1) {
 			BoardView bv = BoardView.getBoardView(args[0]);
 			bv.reloadStyle();

@@ -1,12 +1,13 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
-
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 
@@ -19,10 +20,10 @@ public class MoveCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		notFromConsole(player);
-		
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+
+		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 
 		String move = combine(args, 0).replaceFirst(" ", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		if (move.length() != 4) {
@@ -38,11 +39,13 @@ public class MoveCommand extends AbstractCommand {
 		}
 		game.setFromSquare(from);
 		try {
-			game.doMove(player.getName(), to);
+			game.doMove(sender.getName(), to);
+			MiscUtil.statusMessage(sender, Messages.getString("ChessPlayerListener.youPlayed",
+			                                                  game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
 		} catch (IllegalMoveException e) {
 			throw new ChessException(e.getMessage());
 		}
-		
+
 		return true;
 	}
 

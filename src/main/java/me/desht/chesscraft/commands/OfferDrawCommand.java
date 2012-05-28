@@ -1,10 +1,11 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.entity.Player;
-
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class OfferDrawCommand extends AbstractCommand {
 
@@ -15,10 +16,10 @@ public class OfferDrawCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		notFromConsole(player);
 		
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
 		game.offerDraw(player.getName());
 		
 		return true;

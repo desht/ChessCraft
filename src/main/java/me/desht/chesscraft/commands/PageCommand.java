@@ -1,12 +1,13 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.entity.Player;
-
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class PageCommand extends AbstractCommand {
 
@@ -16,8 +17,8 @@ public class PageCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		MessagePager pager = MessagePager.getPager(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		MessagePager pager = MessagePager.getPager(sender);
 		if (args.length < 1) {
 			// default is to advance one page and display
 			pager.nextPage();
@@ -33,7 +34,7 @@ public class PageCommand extends AbstractCommand {
 				int pageNum = Integer.parseInt(args[0]);
 				pager.showPage(pageNum);
 			} catch (NumberFormatException e) {
-				MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.invalidNumeric", args[0])); //$NON-NLS-1$
+				MiscUtil.errorMessage(sender, Messages.getString("ChessCommandExecutor.invalidNumeric", args[0])); //$NON-NLS-1$
 			}
 		}
 		return true;

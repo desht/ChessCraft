@@ -16,7 +16,6 @@ import me.desht.chesscraft.commands.BoardDeletionCommand;
 import me.desht.chesscraft.commands.BoardStyleSaveCommand;
 import me.desht.chesscraft.commands.BoardStyleSetCommand;
 import me.desht.chesscraft.commands.ClaimVictoryCommand;
-import me.desht.chesscraft.commands.CommandManager;
 import me.desht.chesscraft.commands.CreateGameCommand;
 import me.desht.chesscraft.commands.DeleteGameCommand;
 import me.desht.chesscraft.commands.DesignCommand;
@@ -25,7 +24,10 @@ import me.desht.chesscraft.commands.GameCommand;
 import me.desht.chesscraft.commands.GetcfgCommand;
 import me.desht.chesscraft.commands.InvitePlayerCommand;
 import me.desht.chesscraft.commands.JoinCommand;
-import me.desht.chesscraft.commands.ListCommand;
+import me.desht.chesscraft.commands.ListAICommand;
+import me.desht.chesscraft.commands.ListBoardCommand;
+import me.desht.chesscraft.commands.ListGameCommand;
+import me.desht.chesscraft.commands.ListTopCommand;
 import me.desht.chesscraft.commands.MoveCommand;
 import me.desht.chesscraft.commands.NoCommand;
 import me.desht.chesscraft.commands.OfferDrawCommand;
@@ -53,9 +55,11 @@ import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
@@ -179,17 +183,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 
 		LogUtils.fine("disabled!");
 	}
-
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = null;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		}
 		try {
-			return cmds.dispatch(player, command.getName(), args);
+			return cmds.dispatch(sender, command.getName(), args);
+		} catch (DHUtilsException e) {
+			MiscUtil.errorMessage(sender, e.getMessage());
+			return true;
 		} catch (ChessException e) {
-			MiscUtil.errorMessage(player, e.getMessage());
+			MiscUtil.errorMessage(sender, e.getMessage());
 			return true;
 		}
 	}
@@ -363,7 +366,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		cmds.registerCommand(new GetcfgCommand());
 		cmds.registerCommand(new InvitePlayerCommand());
 		cmds.registerCommand(new JoinCommand());
-		cmds.registerCommand(new ListCommand());
+		cmds.registerCommand(new ListAICommand());
+		cmds.registerCommand(new ListGameCommand());
+		cmds.registerCommand(new ListBoardCommand());
+		cmds.registerCommand(new ListTopCommand());
 		cmds.registerCommand(new MoveCommand());
 		cmds.registerCommand(new NoCommand());
 		cmds.registerCommand(new OfferDrawCommand());

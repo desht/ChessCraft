@@ -1,13 +1,14 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class FenCommand extends AbstractCommand {
 	
@@ -18,14 +19,14 @@ public class FenCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 
 		game.setFen(combine(args, 1));
 
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
 		                                                    game.getName(), ChessUtils.getColour(game.getPosition().getToPlay())));
 		return true;
 	}

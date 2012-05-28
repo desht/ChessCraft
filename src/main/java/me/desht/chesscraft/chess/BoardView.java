@@ -43,6 +43,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Note;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -522,12 +523,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 	}
 
-	public void showBoardDetail(Player player) {
+	public void showBoardDetail(CommandSender sender) {
 		String bullet = ChatColor.LIGHT_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
 		Cuboid bounds = getOuterBounds();
 		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 
-		MessagePager pager = MessagePager.getPager(player).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
 		                                      ChessUtils.formatLoc(bounds.getLowerNE()),

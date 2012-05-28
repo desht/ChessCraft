@@ -7,8 +7,11 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
 
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
 
 public class BoardCreationCommand extends AbstractCommand {
@@ -21,11 +24,13 @@ public class BoardCreationCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 
+		notFromConsole(sender);
+		
 		String name = args[0];
 		if (name.startsWith("-")) {
-			showUsage(player);
+			showUsage(sender);
 			return true;
 		}
 		
@@ -37,8 +42,8 @@ public class BoardCreationCommand extends AbstractCommand {
 		// this will throw an exception if the styles are in any way invalid or incompatible
 		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
 
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.getResponseHandler().expect(player, new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
+		ChessCraft.getResponseHandler().expect((Player) sender, new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
 		
 		return true;
 	}

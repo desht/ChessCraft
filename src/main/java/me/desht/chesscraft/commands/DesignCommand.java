@@ -6,8 +6,11 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class DesignCommand extends AbstractCommand {
 
@@ -24,10 +27,10 @@ public class DesignCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 		
-		BoardView bv = BoardView.partOfChessBoard(player.getLocation());
+		BoardView bv = BoardView.partOfChessBoard(((Player)sender).getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
@@ -42,41 +45,41 @@ public class DesignCommand extends AbstractCommand {
 		
 		if (args.length == 0) {
 			if (bv.isDesigning()) {
-				showUsage(player);
+				showUsage(sender);
 				return true;
 			} else {
 				// toggle into design mode
 				designer = new PieceDesigner(bv, bv.getPieceStyleName(), "");
 				bv.getChessBoard().setDesigner(designer);
-				MiscUtil.statusMessage(player, Messages.getString("Designer.inDesignMode", bv.getName()));
+				MiscUtil.statusMessage(sender, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessCraft.getInstance().getConfig().getBoolean("designer.auto_load")) {
 					designer.load();
-					MiscUtil.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
+					MiscUtil.statusMessage(sender, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 				}
 			}
 			bv.paintAll();
 		} else if (args[0].startsWith("e")) {	// exit
 			if (bv.isDesigning()) {
 				bv.getChessBoard().setDesigner(null);
-				MiscUtil.statusMessage(player, Messages.getString("Designer.outOfDesignMode", bv.getName()));
+				MiscUtil.statusMessage(sender, Messages.getString("Designer.outOfDesignMode", bv.getName()));
 				bv.paintAll();
 			}
 		} else if (args[0].startsWith("c")) {	// clear
 			designer.clear();
-			MiscUtil.statusMessage(player, Messages.getString("Designer.cleared", designer.getSetName()));
+			MiscUtil.statusMessage(sender, Messages.getString("Designer.cleared", designer.getSetName()));
 		} else if (args[0].startsWith("s")) {	// save
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}
 			designer.scan();
 			designer.save();
-			MiscUtil.statusMessage(player, Messages.getString("Designer.styleSaved", designer.getSetName()));
+			MiscUtil.statusMessage(sender, Messages.getString("Designer.styleSaved", designer.getSetName()));
 		} else if (args[0].startsWith("l")) {	// load
 			if (args.length >= 2) {
 				designer.setSetName(args[1]);
 			}
 			designer.load();
-			MiscUtil.statusMessage(player, Messages.getString("Designer.styleLoaded", designer.getSetName()));
+			MiscUtil.statusMessage(sender, Messages.getString("Designer.styleLoaded", designer.getSetName()));
 		}
 		
 		return true;

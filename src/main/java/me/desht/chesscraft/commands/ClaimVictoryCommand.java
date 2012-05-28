@@ -6,8 +6,10 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ClaimVictoryCommand extends AbstractCommand {
 
@@ -18,29 +20,29 @@ public class ClaimVictoryCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(ChessCraft plugin, Player player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 
-		ChessGame game = ChessGame.getCurrentGame(player, true);
+		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 
 		game.ensureGameState(GameState.RUNNING);
 
-		String other = game.getOtherPlayer(player.getName());
+		String other = game.getOtherPlayer(sender.getName());
 		if (other.isEmpty()) {
 			return true;
 		}
 
 		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
-		long leftAt = plugin.getPlayerLeftAt(other);
+		long leftAt = ((ChessCraft)plugin).getPlayerLeftAt(other);
 		if (leftAt == 0) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline")); //$NON-NLS-1$
 		}
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
 		if (elapsed >= timeout) {
-			game.winByDefault(player.getName());
+			game.winByDefault(sender.getName());
 		} else {
-			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
 		}
 		
 		return true;
