@@ -34,6 +34,9 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
+		if (bv.isDesigning()) {
+			throw new ChessException(Messages.getString("Game.boardInDesignMode"));
+		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 		
 		for (int i = 0; i < args.length; i += 2) {
