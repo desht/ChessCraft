@@ -166,7 +166,7 @@ public class DirectoryStructure {
 			String fname = new File(from).getName();
 			of = new File(to, fname);
 		} else if (!of.isFile()) {
-			System.out.println("not a file: " + of);
+			LogUtils.warning("not a file: " + of);
 			return;
 		}
 

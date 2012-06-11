@@ -84,11 +84,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 	private static ScrollingMenuSign smsPlugin;
 	private static ResponseHandler responseHandler;
 	private static ChessPersistence persistence;
+	private static ChessTickTask tickTask;
 
 	public static Economy economy = null;
 	public static Permission permission = null;
-
-	public static ChessTickTask tickTask;
 
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
@@ -390,14 +389,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
-		// TODO Auto-generated method stub
-
+		// do nothing
 	}
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// TODO Auto-generated method stub
-
+		// do nothing
 	}
 
 	@Override

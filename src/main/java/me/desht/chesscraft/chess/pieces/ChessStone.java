@@ -29,7 +29,6 @@ public class ChessStone {
 		int tmplY = tmpl.getSizeY();
 		int tmplZ = tmpl.getSizeZ();
 		
-		LogUtils.finest("ChessStone: stone = " + stone + " rotation = " + rotation);
 		sizeY = tmplY;
 		if (rotation == 90 || rotation == 270) {
 			// allows for pieces with a non-square footprint
