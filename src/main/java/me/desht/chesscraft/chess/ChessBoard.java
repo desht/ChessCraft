@@ -24,18 +24,20 @@ import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.chesscraft.regions.Cuboid;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 
 public class ChessBoard {
 
 	// the center of the A1 square (lower-left on the board)
-	private final Location a1Center;
+	private final PersistableLocation a1Center;
 	// the lower-left-most part (outer corner) of the a1 square (depends on rotation)
-	private final Location a1Corner;
+	private final PersistableLocation a1Corner;
 	// the upper-right-most part (outer corner) of the h8 square (depends on rotation)
-	private final Location h8Corner;
+	private final PersistableLocation h8Corner;
 	// region that defines the board itself - just the squares
 	private final Cuboid board;
 	// area above the board squares
@@ -71,10 +73,10 @@ public class ChessBoard {
 		setBoardStyle(boardStyleName);
 		setPieceStyle(pieceStyleName != null ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
-		a1Center = origin;
+		a1Center = new PersistableLocation(origin);
 		a1Corner = initA1Corner(origin, rotation);
-		h8Corner = initH8Corner(a1Corner);
-		board = new Cuboid(a1Corner, h8Corner);
+		h8Corner = initH8Corner(a1Corner.getLocation());
+		board = new Cuboid(a1Corner.getLocation(), h8Corner.getLocation());
 		areaBoard = board.expand(Direction.Up, boardStyle.getHeight());
 		frameBoard = board.outset(Direction.Horizontal, boardStyle.getFrameWidth());
 		aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight() - 1);
@@ -82,7 +84,7 @@ public class ChessBoard {
 		validateBoardPosition();
 	}
 
-	private Location initA1Corner(Location origin, BoardRotation rotation) {
+	private PersistableLocation initA1Corner(Location origin, BoardRotation rotation) {
 		Location a1 = new Location(origin.getWorld(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 		int offset = boardStyle.getSquareSize() / 2;
 		switch (rotation) {
@@ -95,10 +97,10 @@ public class ChessBoard {
 		case WEST:
 			a1.add(offset, 0, -offset); break;
 		}
-		return a1;
+		return new PersistableLocation(a1);
 	}
 
-	private Location initH8Corner(Location a1) {
+	private PersistableLocation initH8Corner(Location a1) {
 		Location h8 = new Location(a1.getWorld(), a1.getBlockX(), a1.getBlockY(), a1.getBlockZ());
 		int size = boardStyle.getSquareSize();
 		switch (rotation) {
@@ -111,7 +113,7 @@ public class ChessBoard {
 		case WEST:
 			h8.add(-size * 8 + 1, 0, size * 8 - 1); break;
 		}
-		return h8;
+		return new PersistableLocation(h8);
 	}
 
 	/**
@@ -138,21 +140,21 @@ public class ChessBoard {
 	}
 
 	public Location getA1Center() {
-		return a1Center.clone();
+		return a1Center.getLocation();
 	}
 
 	/**
 	 * @return the outer-most corner of the A1 square
 	 */
 	public Location getA1Corner() {
-		return a1Corner.clone();
+		return a1Corner.getLocation();
 	}
 
 	/**
 	 * @return the outer-most corner of the H8 square
 	 */
 	public Location getH8Corner() {
-		return h8Corner.clone();
+		return h8Corner.getLocation();
 	}
 
 	/**
@@ -426,6 +428,7 @@ public class ChessBoard {
 		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
 
 		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
+		World world = region.getWorld();
 		for (int x = 0; x < stone.getSizeX(); x++) {
 			for (int y = 0; y < stone.getSizeY(); y++) {
 				for (int z = 0; z < stone.getSizeZ(); z++) {
@@ -434,7 +437,7 @@ public class ChessBoard {
 						// the region was pre-cleared, skip placing air a second time
 						continue;
 					}
-					Block b = region.getRelativeBlock(x + xOff, y, z + zOff);
+					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);
 					if (BlockType.shouldPlaceLast(mat.getMaterial())) {
 						deferred.put(b, mat);
 					} else {
@@ -564,19 +567,19 @@ public class ChessBoard {
 		int s = boardStyle.getSquareSize();
 		switch (rotation) {
 		case NORTH:
-			sq = new Cuboid(a1Corner.clone().add(s * -row, 0, s * -col));
+			sq = new Cuboid(a1Corner.getLocation().add(s * -row, 0, s * -col));
 			sq = sq.expand(Direction.North, s - 1).expand(Direction.East, s - 1);
 			break;
 		case EAST:
-			sq = new Cuboid(a1Corner.clone().add(s * col, 0, s * -row));
+			sq = new Cuboid(a1Corner.getLocation().add(s * col, 0, s * -row));
 			sq = sq.expand(Direction.East, s - 1).expand(Direction.South, s - 1);
 			break;
 		case SOUTH:
-			sq = new Cuboid(a1Corner.clone().add(s * row, 0, s * col));
+			sq = new Cuboid(a1Corner.getLocation().add(s * row, 0, s * col));
 			sq = sq.expand(Direction.South, s - 1).expand(Direction.West, s - 1);
 			break;
 		case WEST:
-			sq = new Cuboid(a1Corner.clone().add(s * -col, 0, s * row));
+			sq = new Cuboid(a1Corner.getLocation().add(s * -col, 0, s * row));
 			sq = sq.expand(Direction.West, s - 1).expand(Direction.North, s - 1);
 		}
 		return sq;

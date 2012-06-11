@@ -29,6 +29,7 @@ import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 
@@ -61,12 +62,12 @@ public class ControlPanel {
 	private final MaterialWithData signMat;
 	private final Cuboid panelBlocks;
 	private final Cuboid toMoveIndicator;
-	private final Location halfMoveClockSign;
-	private final Location whiteClockSign;
-	private final Location blackClockSign;
-	private final Location plyCountSign;
+	private final PersistableLocation halfMoveClockSign;
+	private final PersistableLocation whiteClockSign;
+	private final PersistableLocation blackClockSign;
+	private final PersistableLocation plyCountSign;
 	private final Map<String, SignButton> buttons;
-	private final Map<Location, SignButton> buttonLocs;
+	private final Map<PersistableLocation, SignButton> buttonLocs;
 
 	public ControlPanel(BoardView view) {
 		this.view = view;
@@ -74,7 +75,7 @@ public class ControlPanel {
 		signDir = boardDir.getRight();
 
 		buttons = new HashMap<String, SignButton>();
-		buttonLocs = new HashMap<Location, SignButton>();
+		buttonLocs = new HashMap<PersistableLocation, SignButton>();
 
 		panelBlocks = getBoardControlPanel();
 
@@ -184,7 +185,7 @@ public class ControlPanel {
 		}
 	}
 
-	private Location getSignLocation(int x, int y) {
+	private PersistableLocation getSignLocation(int x, int y) {
 		int realX = signDir.getX();
 		int realY = panelBlocks.getLowerNE().getBlockY() + y;
 		int realZ = signDir.getZ();
@@ -207,7 +208,7 @@ public class ControlPanel {
 			realZ += panelBlocks.getLowerZ();
 			break;
 		}
-		return new Location(panelBlocks.getWorld(), realX, realY, realZ);
+		return new PersistableLocation(panelBlocks.getWorld(), realX, realY, realZ);
 	}
 
 	private void createSignButton(int x, int y, String name, String text, MaterialWithData m, boolean enabled) {
@@ -218,7 +219,7 @@ public class ControlPanel {
 			button.setEnabled(enabled);
 			button.repaint();
 		} else {
-			Location loc = getSignLocation(x, y);
+			PersistableLocation loc = getSignLocation(x, y);
 			button = new SignButton(name, loc, text, m, enabled);
 			button.repaint();
 			buttons.put(name, button);
@@ -244,7 +245,7 @@ public class ControlPanel {
 
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		ChessGame game = view.getGame();
-		Location loc = block.getLocation();
+		PersistableLocation loc = new PersistableLocation(block.getLocation());
 		SignButton button = buttonLocs.get(loc);
 
 		if (game != null && (loc.equals(whiteClockSign) || loc.equals(blackClockSign))) {
@@ -354,7 +355,7 @@ public class ControlPanel {
 	}
 
 	public void updateClock(int colour, TimeControl tc) {
-		Location l;
+		PersistableLocation l;
 		if (colour == Chess.WHITE) {
 			l = whiteClockSign;
 		} else {
@@ -443,7 +444,7 @@ public class ControlPanel {
 		}
 	}
 
-	public String getStakeMessage() {
+	private String getStakeMessage() {
 		String buttonText = Messages.getString("ControlPanel.stakeBtn"); //$NON-NLS-1$
 		ChessGame game = view.getGame();
 		if (game == null) {

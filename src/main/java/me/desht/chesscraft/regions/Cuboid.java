@@ -36,7 +36,7 @@ import org.bukkit.entity.Player;
 public class Cuboid implements Iterable<Block>, Cloneable {
 	private static WorldEditPlugin wep = null;
 
-	private final World world;
+	private final String worldName;
 	private final int x1, y1, z1;
 	private final int x2, y2, z2;
 
@@ -55,7 +55,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		if (l1.getWorld() != l2.getWorld()) {
 			throw new IllegalArgumentException("locations must be on the same world");
 		}
-		world = l1.getWorld();
+		worldName = l1.getWorld().getName();
 		x1 = Math.min(l1.getBlockX(), l2.getBlockX());
 		y1 = Math.min(l1.getBlockY(), l2.getBlockY());
 		z1 = Math.min(l1.getBlockZ(), l2.getBlockZ());
@@ -79,7 +79,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param other the Cuboid to copy
 	 */
 	public Cuboid(Cuboid other) {
-		this(other.world, other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
+		this(other.getWorld(), other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param z2 Z co-ordinate of corner 2
 	 */
 	public Cuboid(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
-		this.world = world;
+		this.worldName = world.getName();
 		this.x1 = Math.min(x1, x2);
 		this.x2 = Math.max(x1, x2);
 		this.y1 = Math.min(y1, y2);
@@ -110,7 +110,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return Location of the lower northeast corner
 	 */
 	public Location getLowerNE() {
-		return new Location(world, x1, y1, z1);
+		return new Location(getWorld(), x1, y1, z1);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return Location of the upper southwest corner
 	 */
 	public Location getUpperSW() {
-		return new Location(world, x2, y2, z2);
+		return new Location(getWorld(), x2, y2, z2);
 	}
 
 	/**
@@ -140,6 +140,10 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return the World object representing this Cuboid's world
 	 */
 	public World getWorld() {
+		World world = Bukkit.getWorld(worldName);
+		if (world == null) {
+			throw new IllegalStateException("can't find world " + worldName);
+		}
 		return world;
 	}
 
@@ -186,6 +190,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public List<Block> corners() {
 		List<Block> res = new ArrayList<Block>(8);
+		World world = getWorld();
 		res.add(world.getBlockAt(x1, y1, z1));
 		res.add(world.getBlockAt(x1, y1, z2));
 		res.add(world.getBlockAt(x1, y2, z1));
@@ -210,17 +215,17 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public Cuboid expand(Direction dir, int amount) {		
 		switch (dir) {
 		case North:
-			return new Cuboid(world, x1 - amount, y1, z1, x2, y2, z2);
+			return new Cuboid(getWorld(), x1 - amount, y1, z1, x2, y2, z2);
 		case South:
-			return new Cuboid(world, x1, y1, z1, x2 + amount, y2, z2);
+			return new Cuboid(getWorld(), x1, y1, z1, x2 + amount, y2, z2);
 		case East:
-			return new Cuboid(world, x1, y1, z1 - amount, x2, y2, z2);
+			return new Cuboid(getWorld(), x1, y1, z1 - amount, x2, y2, z2);
 		case West:
-			return new Cuboid(world, x1, y1, z1, x2, y2, z2 + amount);
+			return new Cuboid(getWorld(), x1, y1, z1, x2, y2, z2 + amount);
 		case Down:
-			return new Cuboid(world, x1, y1 - amount, z1, x2, y2, z2);
+			return new Cuboid(getWorld(), x1, y1 - amount, z1, x2, y2, z2);
 		case Up:
-			return new Cuboid(world, x1, y1, z1, x2, y2 + amount, z2);
+			return new Cuboid(getWorld(), x1, y1, z1, x2, y2 + amount, z2);
 		default:
 			throw new IllegalArgumentException("invalid direction " + dir);
 		}
@@ -303,7 +308,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return
 	 */
 	public boolean contains(Location l) {
-		if (l.getWorld() != world) {
+		if (l.getWorld() != getWorld()) {
 			return false;
 		}
 		return contains(l.getBlockX(), l.getBlockY(), l.getBlockZ());
@@ -497,32 +502,32 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			while (face.containsOnly(0) && face.getLowerY() > this.getLowerY()) {
 				face = face.shift(Direction.Down, 1);
 			}
-			return new Cuboid(world, x1, y1, z1, x2, face.getUpperY(), z2);
+			return new Cuboid(getWorld(), x1, y1, z1, x2, face.getUpperY(), z2);
 		case Up:
 			while (face.containsOnly(0) && face.getUpperY() < this.getUpperY()) {
 				face = face.shift(Direction.Up, 1);
 			}
-			return new Cuboid(world, x1, face.getLowerY(), z1, x2, y2, z2);
+			return new Cuboid(getWorld(), x1, face.getLowerY(), z1, x2, y2, z2);
 		case North:
 			while (face.containsOnly(0) && face.getLowerX() > this.getLowerX()) {
 				face = face.shift(Direction.North, 1);
 			}
-			return new Cuboid(world, x1, y1, z1, face.getUpperX(), y2, z2);
+			return new Cuboid(getWorld(), x1, y1, z1, face.getUpperX(), y2, z2);
 		case South:
 			while (face.containsOnly(0) && face.getUpperX() < this.getUpperX()) {
 				face = face.shift(Direction.South, 1);
 			}
-			return new Cuboid(world, face.getLowerX(), y1, z1, x2, y2, z2);
+			return new Cuboid(getWorld(), face.getLowerX(), y1, z1, x2, y2, z2);
 		case East:
 			while (face.containsOnly(0) && face.getLowerZ() > this.getLowerZ()) {
 				face = face.shift(Direction.East, 1);
 			}
-			return new Cuboid(world, x1, y1, z1, x2, y2, face.getUpperZ());
+			return new Cuboid(getWorld(), x1, y1, z1, x2, y2, face.getUpperZ());
 		case West:
 			while (face.containsOnly(0) && face.getUpperZ() < this.getUpperZ()) {
 				face = face.shift(Direction.West, 1);
 			}
-			return new Cuboid(world, x1, y1, face.getLowerZ(), x2, y2, z2);
+			return new Cuboid(getWorld(), x1, y1, face.getLowerZ(), x2, y2, z2);
 		default:
 			throw new IllegalArgumentException("Invalid direction " + dir);
 		}
@@ -538,17 +543,17 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public Cuboid getFace(Direction dir	) {
 		switch (dir) {
 		case Down:
-			return new Cuboid(world, x1, y1, z1, x2, y1, z2);
+			return new Cuboid(getWorld(), x1, y1, z1, x2, y1, z2);
 		case Up:
-			return new Cuboid(world, x1, y2, z1, x2, y2, z2);
+			return new Cuboid(getWorld(), x1, y2, z1, x2, y2, z2);
 		case North:
-			return new Cuboid(world, x1, y1, z1, x1, y2, z2);
+			return new Cuboid(getWorld(), x1, y1, z1, x1, y2, z2);
 		case South:
-			return new Cuboid(world, x2, y1, z1, x2, y2, z2);
+			return new Cuboid(getWorld(), x2, y1, z1, x2, y2, z2);
 		case East:
-			return new Cuboid(world, x1, y1, z1, x2, y2, z1);
+			return new Cuboid(getWorld(), x1, y1, z1, x2, y2, z1);
 		case West:
-			return new Cuboid(world, x1, y1, z2, x2, y2, z2);
+			return new Cuboid(getWorld(), x1, y1, z2, x2, y2, z2);
 		default:
 			throw new IllegalArgumentException("Invalid direction " + dir);
 		}
@@ -587,7 +592,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		int yMax = Math.max(getUpperY(), other.getUpperY());
 		int zMax = Math.max(getUpperZ(), other.getUpperZ());
 
-		return new Cuboid(world, xMin, yMin, zMin, xMax, yMax, zMax);
+		return new Cuboid(getWorld(), xMin, yMin, zMin, xMax, yMax, zMax);
 	}
 
 	/**
@@ -599,7 +604,21 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @return
 	 */
 	public Block getRelativeBlock(int x, int y, int z) {
-		return world.getBlockAt(x1 + x, y1 + y, z1 + z);
+		return getWorld().getBlockAt(x1 + x, y1 + y, z1 + z);
+	}
+	
+	/**
+	 * Get a block relative to the lower NE point of the Cuboid.  Use this version if you're
+	 * calling getRelativeBlock() from within a loop to avoid excessive recalculation of the world.
+	 * 
+	 * @param w
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public Block getRelativeBlock(World w, int x, int y, int z) {
+		return w.getBlockAt(x1 + x, y1 + y, z1 + z);
 	}
 
 	/**
@@ -610,6 +629,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public List<Chunk> getChunks() {
 		List<Chunk> res = new ArrayList<Chunk>();
 
+		World world = getWorld();
 		int x1 = getLowerX() & ~0xf; int x2 = getUpperX() & ~0xf;
 		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
 		for (int x = x1; x <= x2; x += 16) {
@@ -664,7 +684,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 		int centerX = getLowerX() + getSizeX() / 2;	
 		int centerZ = getLowerZ() + getSizeZ() / 2;
-		for (Player player : world.getPlayers()) {
+		for (Player player : getWorld().getPlayers()) {
 			int px = player.getLocation().getBlockX();
 			int pz = player.getLocation().getBlockZ();
 			if ((px - centerX) * (px - centerX) + (pz - centerZ) * (pz - centerZ) < threshold) {
@@ -691,7 +711,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	@Override
 	public Iterator<Block> iterator() {
-		return new CuboidIterator(world, x1, y1, z1, x2, y2, z2);
+		return new CuboidIterator(getWorld(), x1, y1, z1, x2, y2, z2);
 	}
 
 	@Override
@@ -701,7 +721,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 
 	@Override
 	public String toString() {
-		return new String("Cuboid: " + world.getName() + "," + x1 + "," + y1 + "," + z1 + "=>" + x2 + "," + y2 + "," + z2);
+		return new String("Cuboid: " + worldName + "," + x1 + "," + y1 + "," + z1 + "=>" + x2 + "," + y2 + "," + z2);
 	}
 
 	/**
@@ -711,7 +731,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public void worldEditSetSelection(String playerName) {
 		Player p = Bukkit.getPlayer(playerName);
-		if (p == null || p.getWorld() != world) {
+		if (p == null || p.getWorld() != getWorld()) {
 			return;
 		}
 		worldEditSetSelection(p);

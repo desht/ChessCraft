@@ -2,9 +2,9 @@ package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
@@ -12,21 +12,21 @@ public class SignButton {
 	private final static ChatColor enabledColour = ChatColor.DARK_BLUE;
 	private final static ChatColor disabledColour = ChatColor.DARK_GRAY;
 
-	private final Location location;
+	private final PersistableLocation location;
 	private final MaterialWithData mat;
 	private final String name;
 	private boolean enabled;
 	private String text;
 
-	public SignButton(String name, Location loc, String text, MaterialWithData mat, boolean enabled) {
+	public SignButton(String name, PersistableLocation loc, String text, MaterialWithData mat, boolean enabled) {
 		this.name = name;
 		this.text = text;
-		this.location = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+		this.location = loc;
 		this.enabled = enabled;
 		this.mat = mat;
 	}
 
-	public Location getLocation() {
+	public PersistableLocation getLocation() {
 		return location;
 	}
 

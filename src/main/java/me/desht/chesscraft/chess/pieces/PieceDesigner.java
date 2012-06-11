@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -61,6 +63,8 @@ public class PieceDesigner {
 		Map<String,Character> reverseMap = new HashMap<String, Character>();
 		char nextChar = 'A';
 
+		World world = view.getA1Square().getWorld();
+		
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
 			// get the bounding box for the materials in this square
 			Cuboid c = getPieceBox(p);
@@ -73,7 +77,7 @@ public class PieceDesigner {
 				for (int y = 0; y < templates[p].getSizeY(); y++) {
 					for (int z = 0; z < templates[p].getSizeZ(); z++) {
 						Point rotatedPoint = rotate(x, z, templates[p].getSizeZ(), templates[p].getSizeX(), rotation);
-						Block b = c.getRelativeBlock(rotatedPoint.x, y, rotatedPoint.z);
+						Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
 						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData()).rotate(rotation);
 						String materialName = mat.toString();
 						if (!reverseMap.containsKey(materialName)) {
