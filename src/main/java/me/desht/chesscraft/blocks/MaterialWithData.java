@@ -47,6 +47,9 @@ public class MaterialWithData implements Cloneable {
 			material = Integer.parseInt(matAndData[0]);
 		} else {
 			BlockType b = BlockType.lookup(matAndData[0], true);
+			if (b == null) {
+				throw new IllegalArgumentException("unknown material: " + matAndData[0]);
+			}
 			material = b.getID();
 		}
 		if (matAndData.length < 2) {
@@ -143,7 +146,7 @@ public class MaterialWithData implements Cloneable {
 
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
-			c.set(material, data, true);
+			c.setFast(material, data);
 		}
 	}
 

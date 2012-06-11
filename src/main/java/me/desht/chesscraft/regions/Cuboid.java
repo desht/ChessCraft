@@ -380,20 +380,14 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param blockID
 	 * @param fast
 	 */
-	public void set(int blockID, boolean fast) {
+	public void set(int blockID) {
 		long start = System.nanoTime();
 
 		if (blockID == 0) {
-			clear(fast);
+			clear(false);
 		} else {
-			if (fast) {
-				for (Block b : this) {
-					BlockUtils.setBlockFast(b, blockID);
-				}
-			} else {
-				for (Block b : this) {
-					b.setTypeId(blockID);
-				}
+			for (Block b : this) {
+				b.setTypeId(blockID);
 			}
 		}
 
@@ -403,41 +397,22 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	/**
 	 * Set all the blocks within the Cuboid to the given block ID and data byte.
 	 * 
-	 * @param blockID
+	 * @param blockId
 	 * @param data
 	 * @param fast
 	 */
-	public void set(int blockID, Byte data, boolean fast) {
+	public void set(int blockId, byte data) {
 		long start = System.nanoTime();
 
-		if (blockID == 0) {
-			clear(fast);
+		if (blockId == 0) {
+			clear(false);
 		} else {
-			if (data != null) {
-				if (fast) {
-					for (Block b : this) {
-						BlockUtils.setBlockFast(b, blockID, data);
-					}
-				} else {
-					for (Block b : this) {
-						b.setTypeIdAndData(blockID, data, false);
-					}
-				}
-			} else {
-				if (fast) {
-					for (Block b : this) {
-						BlockUtils.setBlockFast(b, blockID);
-					}
-				} else {
-					for (Block b : this) {
-						b.setTypeId(blockID, false);
-					}
-				}
+			for (Block b : this) {
+				b.setTypeIdAndData(blockId, data, false);
 			}
 		}
-		
-		LogUtils.finer("Cuboid: " + this + ": set " + blockID + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
 	}
 
 	/**
@@ -446,8 +421,52 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param mat
 	 * @param fast
 	 */
-	public void set(MaterialWithData mat, boolean fast) {
-		set(mat.getMaterial(), mat.getData(), fast);
+	public void set(MaterialWithData mat) {
+		set(mat.getMaterial(), mat.getData());
+	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID, using fast direct chunk access.
+	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
+	 * 
+	 * @param blockId	The block ID to set
+	 */
+	public void setFast(int blockId) {
+		long start = System.nanoTime();
+		
+		if (blockId == 0) {
+			clear(true);
+		} else {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, blockId);
+			}
+		}
+		
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	/**
+	 * Set all the blocks within the Cuboid to the given block ID and data, using fast direct chunk access.
+	 * This will require a call to sendClientChanges() later to ensure clients see the updates.
+	 * 
+	 * @param blockId	The block ID to set
+	 * @param data 	The data byte to set
+	 */
+	public void setFast(int blockId, byte data) {
+		long start = System.nanoTime();
+		
+		if (blockId == 0) {
+			clear(true);
+		} else {
+			for (Block b : this) {
+				BlockUtils.setBlockFast(b, blockId, data);
+			}
+		}
+		LogUtils.finer("Cuboid: " + this + ": set " + blockId + "/" + data + ": " + (System.nanoTime() - start) + "ns");
+	}
+
+	public void setFast(MaterialWithData mat) {
+		setFast(mat.getMaterial(), mat.getData());
 	}
 
 	/**
@@ -463,7 +482,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 				contract(Direction.North).
 				contract(Direction.West);
 	}
-	
+
 	/**
 	 * Contract the Cuboid in the given direction, returning a new Cuboid which has no exterior empty space.
 	 * E.g. a direction of Down will push the top face downwards as much as possible.
@@ -508,7 +527,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			throw new IllegalArgumentException("Invalid direction " + dir);
 		}
 	}
-	
+
 	/**
 	 * Get the Cuboid representing the face of this Cuboid.  The resulting Cuboid will be
 	 * one block thick in the axis perpendicular to the requested face.
@@ -560,17 +579,17 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		if (other == null) {
 			return this;
 		}
-		
+
 		int xMin = Math.min(getLowerX(), other.getLowerX());
 		int yMin = Math.min(getLowerY(), other.getLowerY());
 		int zMin = Math.min(getLowerZ(), other.getLowerZ());
 		int xMax = Math.max(getUpperX(), other.getUpperX());
 		int yMax = Math.max(getUpperY(), other.getUpperY());
 		int zMax = Math.max(getUpperZ(), other.getUpperZ());
-		
+
 		return new Cuboid(world, xMin, yMin, zMin, xMax, yMax, zMax);
 	}
-	
+
 	/**
 	 * Get a block relative to the lower NE point of the Cuboid.
 	 * 
@@ -590,7 +609,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 */
 	public List<Chunk> getChunks() {
 		List<Chunk> res = new ArrayList<Chunk>();
-	
+
 		int x1 = getLowerX() & ~0xf; int x2 = getUpperX() & ~0xf;
 		int z1 = getLowerZ() & ~0xf; int z2 = getUpperZ() & ~0xf;
 		for (int x = x1; x <= x2; x += 16) {
@@ -610,7 +629,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			LogUtils.finer("Cuboid: initLighting: chunk " + c + ": relit"); 
 		}
 	}
-	
+
 	/**
 	 * Set the light level of all blocks within this Cuboid.
 	 * 
@@ -628,7 +647,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		}
 		LogUtils.finer("Cuboid: forceLightLevel: " + this + " (level " + level + ") in " + (System.nanoTime() - start) + " ns");
 	}
-	
+
 	/**
 	 * Any players within the threshold distance of the cuboid may need
 	 * to be notified of any fast changes that happened, to avoid "phantom" blocks showing
@@ -638,7 +657,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	public void sendClientChanges() {
 		int threshold = (Bukkit.getServer().getViewDistance() << 4) + 32;
 		threshold = threshold * threshold;
-	
+
 		List<ChunkCoordIntPair> pairs = new ArrayList<ChunkCoordIntPair>();
 		for (Chunk c : getChunks()) {
 			pairs.add(new ChunkCoordIntPair(c.getX(), c.getZ()));
@@ -653,7 +672,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")	
 	private void queueChunks(EntityPlayer ep, List<ChunkCoordIntPair> pairs) {
 		if (LogUtils.getLogLevel() == Level.FINEST) {	// if statement to avoid unnecessary Joiner call overhead
@@ -749,5 +768,4 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 			// nop
 		}
 	}
-
 }

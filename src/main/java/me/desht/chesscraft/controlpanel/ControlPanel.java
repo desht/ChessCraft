@@ -90,7 +90,7 @@ public class ControlPanel {
 	}
 
 	public void repaint() {
-		panelBlocks.set(view.getControlPanelMaterial(), true);
+		panelBlocks.setFast(view.getControlPanelMaterial());
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
 		repaintSignButtons();
@@ -332,7 +332,7 @@ public class ControlPanel {
 	}
 
 	public void updateToMoveIndicator(MaterialWithData mat) {
-		toMoveIndicator.set(mat, false);
+		toMoveIndicator.set(mat);
 	}
 
 	public void updatePlyCount(int playNumber) {
