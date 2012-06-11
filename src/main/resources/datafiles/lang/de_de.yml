@@ -226,6 +226,7 @@ Game:
   resigned: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
   shouldBeState: Spiel sollte im Status {0} sein.
   stakeCantBeChanged: Der Einsatz kann nicht verändert werden sobald beide Spieler beigetreten sind.
+  stakeTooHigh: Der maximal erlaubte Einsatz ist {0,number,currency}.
   stalemated: '&6{0}&- spielte unentschieden mit &6{1}&- (Patt) in einem Schachspiel!'
   started:
   - Spiel gestartet! Du spielst &f{0}&-.
