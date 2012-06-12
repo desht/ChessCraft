@@ -427,7 +427,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	 * @param fast
 	 */
 	public void set(MaterialWithData mat) {
-		set(mat.getMaterial(), mat.getData());
+		set(mat.getMaterialId(), mat.getData());
 	}
 
 	/**
@@ -471,7 +471,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 	}
 
 	public void setFast(MaterialWithData mat) {
-		setFast(mat.getMaterial(), mat.getData());
+		setFast(mat.getMaterialId(), mat.getData());
 	}
 
 	/**

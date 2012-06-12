@@ -217,7 +217,7 @@ public class ChessUtils {
 			return -1;
 		}
 		MaterialWithData mat = MaterialWithData.get(wand);
-		return mat == null ? 0 : mat.getMaterial();
+		return mat == null ? 0 : mat.getMaterialId();
 	}
 	
 	public static String getWandDescription() {
