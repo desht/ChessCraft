@@ -93,12 +93,12 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.2.5-R3.0</version>
+			<version>1.2.5-R4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
-			<version>1.2.5-R3.0</version>
+			<version>1.2.5-R4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>me.desht</groupId>
 			<artifactId>scrollingmenusign</artifactId>
-			<version>[0.6,)</version>
+			<version>[1.2.0,)</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sk89q</groupId>

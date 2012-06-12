@@ -13,7 +13,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.SMSConfig;
+import me.desht.scrollingmenusign.DirectoryStructure;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.SMSException;
@@ -208,10 +208,10 @@ public class SMSIntegration {
 	}
 
 	private static void migrateView(String viewName, String menuName) {
-		File f1 = new File(SMSConfig.getViewsFolder(), viewName + ".yml");
+		File f1 = new File(DirectoryStructure.getViewsFolder(), viewName + ".yml");
 		viewName = viewName.replaceFirst("cc:", "cc_");
 		menuName = menuName.replaceFirst("cc:", "cc_");
-		File f2 = new File(SMSConfig.getViewsFolder(), viewName + ".yml");
+		File f2 = new File(DirectoryStructure.getViewsFolder(), viewName + ".yml");
 		
 		YamlConfiguration conf = YamlConfiguration.loadConfiguration(f1);
 		conf.set("name", viewName);
