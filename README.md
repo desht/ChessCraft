@@ -29,3 +29,9 @@ Use 'mvn eclipse:eclipse' to create the .project and .classpath files if you wan
 ## License
 
 ChessCraft by Des Herriott is licensed under the [Gnu GPL v3](http://www.gnu.org/licenses/gpl-3.0.html). 
+
+ChessCraft includes unmodified copies of the following third-party projects:
+
+* [Chesspresso](http://www.chesspresso.org/) 
+* [jChecs](http://jchecs.free.fr/en/index.php)
+
