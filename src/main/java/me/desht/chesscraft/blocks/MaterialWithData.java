@@ -46,11 +46,9 @@ public class MaterialWithData implements Cloneable {
 		if (matAndData[0].matches("^[0-9]+$")) {
 			material = Integer.parseInt(matAndData[0]);
 		} else {
-			// we'll look for the material string first in the WorldEdit
-			// BlockType class
-			// and if that fails, we'll check for a Bukkit Material, and if that
-			// fails,
-			// just throw an IllegalArgumentException
+			// we'll look for the material string first in the WorldEdit BlockType class
+			// and if that fails, we'll check for a Bukkit Material,
+			// and if that fails, just throw an IllegalArgumentException
 			BlockType b = BlockType.lookup(matAndData[0], true);
 			if (b == null) {
 				Material m = Material.matchMaterial(matAndData[0]);
@@ -107,9 +105,8 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Get a MaterialData object from a String specification. The specification
-	 * is a string or numeric Material name, optionally followed by a colon (:)
-	 * and a numeric data byte.
+	 * Get a MaterialData object from a String specification. The specification is a string or numeric Material name,
+	 * optionally followed by a colon (:) and a numeric data byte.
 	 * 
 	 * @param spec
 	 *            The specification
@@ -127,8 +124,8 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Get a MaterialData from a numeric ID and data byte, and extra
-	 * material-dependent metadata (e.g. the text on a sign).
+	 * Get a MaterialData from a numeric ID and data byte, and extra material-dependent metadata (e.g. the text on a
+	 * sign).
 	 * 
 	 * @param id
 	 *            material ID
@@ -196,10 +193,9 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Use direct NMS calls to apply this MaterialWithData to a block without
-	 * the overhead of lighting recalculation etc. Use this during mass block
-	 * updates. The caller is responsible for subsequently ensuring that
-	 * lighting is re-initialised and clients are notified of any changes.
+	 * Use direct NMS calls to apply this MaterialWithData to a block without the overhead of lighting recalculation
+	 * etc. Use this during mass block updates. The caller is responsible for subsequently ensuring that lighting is
+	 * re-initialised and clients are notified of any changes.
 	 * 
 	 * @param b
 	 *            The block to apply the material to
@@ -217,9 +213,8 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Apply this MaterialWithData to all the blocks within the given Cuboid
-	 * using fast NMS calls. The caller is responsible for subsequently ensuring
-	 * that lighting is re-initialised and clients are notified of any changes.
+	 * Apply this MaterialWithData to all the blocks within the given Cuboid using fast NMS calls. The caller is
+	 * responsible for subsequently ensuring that lighting is re-initialised and clients are notified of any changes.
 	 * 
 	 * @param c
 	 */
@@ -229,7 +224,9 @@ public class MaterialWithData implements Cloneable {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -243,7 +240,9 @@ public class MaterialWithData implements Cloneable {
 		return s.toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -251,7 +250,9 @@ public class MaterialWithData implements Cloneable {
 		return new MaterialWithData(this);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -290,12 +291,11 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	/**
-	 * Get a rotated version of this MaterialData by altering the data byte
-	 * appropriately.
+	 * Get a rotated version of this MaterialData by altering the data byte appropriately.
 	 * 
 	 * @param rotation
-	 *            The rotation in degrees; must be one of 90, 180 or 270 (any
-	 *            other value will return the original material unchanged)
+	 *            The rotation in degrees; must be one of 90, 180 or 270 (any other value will return the original
+	 *            material unchanged)
 	 * @return the rotated material
 	 */
 	public MaterialWithData rotate(int rotation) {
