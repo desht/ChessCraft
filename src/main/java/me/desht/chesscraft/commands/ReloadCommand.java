@@ -2,7 +2,9 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.chess.TimeControlDefs;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
@@ -23,6 +25,7 @@ public class ReloadCommand extends AbstractCommand {
 		boolean reloadPersisted = false;
 		boolean reloadAI = false;
 		boolean reloadConfig = false;
+		boolean reloadTimeControls = false;
 
 		if (args[0].startsWith("a")) { //$NON-NLS-1$
 			reloadAI = true;
@@ -30,6 +33,8 @@ public class ReloadCommand extends AbstractCommand {
 			reloadConfig = true;
 		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
 			reloadPersisted = true;
+		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
+			reloadTimeControls = true;
 		} else {
 			showUsage(player);
 		}
@@ -45,6 +50,13 @@ public class ReloadCommand extends AbstractCommand {
 		if (reloadPersisted) {
 			ChessCraft.getPersistenceHandler().reload();
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
+		}
+		if (reloadTimeControls) {
+			TimeControlDefs.loadDefs();
+			for (BoardView bv : BoardView.listBoardViews()) {
+				bv.getControlPanel().repaintSignButtons();
+			}
+			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.timeControlsReloaded")); //$NON-NLS-1$
 		}
 		return true;
 	}

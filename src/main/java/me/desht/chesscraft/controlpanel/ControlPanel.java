@@ -256,6 +256,10 @@ public class ControlPanel {
 		return panelBlocks;
 	}
 
+	public TimeControlDefs getTcDefs() {
+		return tcDefs;
+	}
+
 	public void signClicked(Player player, Block block, BoardView view, Action action) throws ChessException {
 		ChessGame game = view.getGame();
 		PersistableLocation loc = new PersistableLocation(block.getLocation());
@@ -311,10 +315,10 @@ public class ControlPanel {
 			}
 		} else if (name.equals(WHITE_PROMOTE)) { //$NON-NLS-1$
 			game.cyclePromotionPiece(player.getName());
-			view.getControlPanel().updateSignButtonText(WHITE_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
+			updateSignButtonText(WHITE_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.WHITE)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (name.equals(BLACK_PROMOTE)) { //$NON-NLS-1$
 			game.cyclePromotionPiece(player.getName());
-			view.getControlPanel().updateSignButtonText(BLACK_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
+			updateSignButtonText(BLACK_PROMOTE, "=;=;;&4" + getPromoStr(game, Chess.BLACK)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (name.equals(WHITE_YES) || name.equals(BLACK_YES)) { //$NON-NLS-1$ //$NON-NLS-2$
 			ChessCraft.handleYesNoResponse(player, true);
 		} else if (name.equals(WHITE_NO) || name.equals(BLACK_NO)) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -333,7 +337,7 @@ public class ControlPanel {
 				return;
 			}
 			game.adjustStake(player.getName(), stakeIncr);
-			view.getControlPanel().updateSignButtonText(STAKE, getStakeMessage()); //$NON-NLS-1$
+			updateSignButtonText(STAKE, getStakeMessage()); //$NON-NLS-1$
 		} else if (name.equals(TIME_CONTROL) && game.getState() == GameState.SETTING_UP) {
 			switch (action) {
 			case LEFT_CLICK_BLOCK:
@@ -342,9 +346,9 @@ public class ControlPanel {
 				tcDefs.prevDef(); break;
 			}
 			game.setTimeControl(tcDefs.currentDef().getSpec());
-			game.getView().getControlPanel().updateClock(Chess.WHITE, game.getTcWhite());
-			game.getView().getControlPanel().updateClock(Chess.BLACK, game.getTcBlack());
-			view.getControlPanel().updateSignButtonText(TIME_CONTROL, getTimeControlMessage());
+			updateClock(Chess.WHITE, game.getTcWhite());
+			updateClock(Chess.BLACK, game.getTcBlack());
+			updateSignButtonText(TIME_CONTROL, getTimeControlMessage());
 		}
 	}
 

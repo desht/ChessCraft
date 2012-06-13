@@ -16,11 +16,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class TimeControlDefs {
 	private static final String TIME_CONTROLS_FILE = "timecontrols.yml";
 	
-	private final List<TCDef> defs;
-	private int idx = 0;
+	private static final List<TCDef> defs = new ArrayList<TCDef>();
 	
-	public TimeControlDefs() {
-		defs = new ArrayList<TCDef>();
+	private int idx;
+	private String customSpec;
+	
+	public static void loadDefs() {
+		defs.clear();
 		
 		File f = new File(ChessCraft.getInstance().getDataFolder(), TIME_CONTROLS_FILE);
 		Configuration c = YamlConfiguration.loadConfiguration(f);
@@ -48,6 +50,19 @@ public class TimeControlDefs {
 		}
 	}
 	
+	public TimeControlDefs() {
+		idx = 0;
+		customSpec = "";
+	}
+	
+	public String getCustomSpec() {
+		return customSpec;
+	}
+
+	public void setCustomSpec(String customSpec) {
+		this.customSpec = customSpec;
+	}
+
 	/**
 	 * Get the next time control definition in the list, wrapping round at the end of the list.
 	 * 
@@ -61,6 +76,7 @@ public class TimeControlDefs {
 		if (idx >= defs.size()) {
 			idx = 0;
 		}
+		customSpec = "";
 		return defs.get(idx);
 	}
 	
@@ -76,12 +92,16 @@ public class TimeControlDefs {
 		if (idx < 0) {
 			idx = defs.size() - 1;
 		}
+		customSpec = "";
 		return defs.get(idx);
 	}
 	
 	public TCDef currentDef() {
 		if (defs.isEmpty()) {
 			return new TCDef("None", "None");
+		}
+		if (!customSpec.isEmpty()) {
+			return new TCDef("Custom;" + customSpec, customSpec);
 		}
 		if (idx < 0) {
 			idx = 0;
@@ -91,7 +111,7 @@ public class TimeControlDefs {
 		return defs.get(idx);
 	}
 	
-	public class TCDef {
+	public static class TCDef {
 		private final String[] label;
 		private final String spec;
 		

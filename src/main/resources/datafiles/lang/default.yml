@@ -107,6 +107,7 @@ ChessCommandExecutor:
   stakeChanged: "Stake for this game is now {0}."
   teleportDestObstructed: "Teleport destination obstructed!"
   timeControlSet: "Time control for this game set to {0} ({1})"
+  timeControlsReloaded: "Time control definitions have been reloaded."
   typeYesOrNo: "Type &f/chess yes&- to accept, or &f/chess no&- to decline."
 
 ChessConfig:

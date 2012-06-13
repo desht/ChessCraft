@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -25,8 +26,11 @@ public class TimeControlCommand extends AbstractCommand {
 
 		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 		game.setTimeControl(tcSpec);
-		game.getView().getControlPanel().updateClock(Chess.WHITE, game.getTcWhite());
-		game.getView().getControlPanel().updateClock(Chess.BLACK, game.getTcBlack());
+		ControlPanel cp = game.getView().getControlPanel();
+		cp.getTcDefs().setCustomSpec(tcSpec);
+		cp.repaintSignButtons();
+		cp.updateClock(Chess.WHITE, game.getTcWhite());
+		cp.updateClock(Chess.BLACK, game.getTcBlack());
 		
 		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTcWhite().toString()));
 		
