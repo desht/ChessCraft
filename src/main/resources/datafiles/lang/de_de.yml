@@ -156,6 +156,7 @@ ControlPanel:
   stakeBtn: Einsatz;;
   startGameBtn: ;Starte;Spiel
   teleportOutBtn: ;Teleport;Raus
+  timeControl: Zeitkontrolle
   timeElapsed: vergangen
   timeRemaining: verbleibend
   whitePawnPromotionBtn: Weisser Bauer;Aufwerung;;&4

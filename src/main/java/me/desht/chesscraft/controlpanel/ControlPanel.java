@@ -5,16 +5,20 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
+import me.desht.chesscraft.chess.TimeControlDefs;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+
+import com.google.common.base.Joiner;
 
 import chesspresso.Chess;
 
@@ -54,6 +58,7 @@ public class ControlPanel {
 	private static final String RESIGN = "resign";
 	private static final String START = "start";
 	private static final String CREATE_GAME = "create.game";
+	private static final String TIME_CONTROL = "tc";
 
 	public static final int PANEL_WIDTH = 8;
 
@@ -68,6 +73,7 @@ public class ControlPanel {
 	private final PersistableLocation plyCountSign;
 	private final Map<String, SignButton> buttons;
 	private final Map<PersistableLocation, SignButton> buttonLocs;
+	private final TimeControlDefs tcDefs;
 
 	public ControlPanel(BoardView view) {
 		this.view = view;
@@ -88,6 +94,8 @@ public class ControlPanel {
 		plyCountSign = getSignLocation(5, 0);
 		whiteClockSign = getSignLocation(2, 1);
 		blackClockSign = getSignLocation(5, 1);
+
+		tcDefs = new TimeControlDefs();
 	}
 
 	public void repaint() {
@@ -97,7 +105,7 @@ public class ControlPanel {
 		repaintSignButtons();
 		repaintClocks();
 	}
-	
+
 	public void repaintClocks() {
 		ChessGame game = view.getGame();
 		signMat.applyToBlock(whiteClockSign.getBlock());
@@ -144,9 +152,11 @@ public class ControlPanel {
 		String offerb = getOfferText(pb);
 		createSignButton(6, 0, BLACK_YES, offerb + Messages.getString("ControlPanel.yesBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
 		createSignButton(7, 0, BLACK_NO, offerb + Messages.getString("ControlPanel.noBtn"), signMat, !offerb.isEmpty()); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
+		createSignButton(3, 0, TIME_CONTROL, getTimeControlMessage() , signMat, game != null);
+
 		// indicators - to-move, half-moves, ply count
-		
+
 		view.toPlayChanged(game != null ? game.getPosition().getToPlay() : Chess.NOBODY);
 
 		signMat.applyToBlock(halfMoveClockSign.getBlock());
@@ -155,8 +165,8 @@ public class ControlPanel {
 		signMat.applyToBlock(plyCountSign.getBlock());
 		updatePlyCount(game == null ? 0 : game.getPosition().getPlyNumber());
 
-
 	}
+
 
 	/**
 	 * Get a teleport-in location for this control panel.  Player will be standing in front of the
@@ -167,7 +177,7 @@ public class ControlPanel {
 	public Location getTeleportLocation() {
 		double xOff = (panelBlocks.getUpperX() - panelBlocks.getLowerX()) / 2.0 + 0.5 + signDir.getX() * 3.5;
 		double zOff = (panelBlocks.getUpperZ() - panelBlocks.getLowerZ()) / 2.0 + 0.5 + signDir.getZ() * 3.5;
-		
+
 		return new Location(panelBlocks.getWorld(),
 		                    panelBlocks.getLowerX() + xOff,
 		                    panelBlocks.getLowerY(),
@@ -324,9 +334,19 @@ public class ControlPanel {
 			}
 			game.adjustStake(player.getName(), stakeIncr);
 			view.getControlPanel().updateSignButtonText(STAKE, getStakeMessage()); //$NON-NLS-1$
+		} else if (name.equals(TIME_CONTROL) && game.getState() == GameState.SETTING_UP) {
+			switch (action) {
+			case LEFT_CLICK_BLOCK:
+				tcDefs.nextDef(); break;
+			case RIGHT_CLICK_BLOCK:
+				tcDefs.prevDef(); break;
+			}
+			game.setTimeControl(tcDefs.currentDef().getSpec());
+			game.getView().getControlPanel().updateClock(Chess.WHITE, game.getTcWhite());
+			game.getView().getControlPanel().updateClock(Chess.BLACK, game.getTcBlack());
+			view.getControlPanel().updateSignButtonText(TIME_CONTROL, getTimeControlMessage());
 		}
 	}
-
 
 	private String getPromoStr(ChessGame game, int colour) {
 		if (game == null) {
@@ -461,5 +481,27 @@ public class ControlPanel {
 			return col + buttonText + "&4" + stakeStr; //$NON-NLS-1$
 		}
 	}
-	
+
+	private String getTimeControlMessage() {
+		String buttonText = Messages.getString("ControlPanel.timeControl");
+
+		String col;
+		if (view.getGame() == null) {
+			col = "";
+		} else if (view.getGame().getState() == GameState.SETTING_UP) {
+			col = ChatColor.DARK_RED.toString();
+		} else {
+			col = ChatColor.BLACK.toString();
+		}
+		String label = ";" + col + Joiner.on(";" + col).join(tcDefs.currentDef().getLabel());
+		if (tcDefs.currentDef().getLabel().length < 3) {
+			label = ";" + label;
+		}
+		if (tcDefs.currentDef().getLabel().length < 2) {
+			label = label + "; ";
+		}
+		
+		return buttonText + label;
+	}
+
 }

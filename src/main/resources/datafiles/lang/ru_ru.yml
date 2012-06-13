@@ -161,6 +161,7 @@ ControlPanel:
   stakeBtn: "Ставка;;"
   startGameBtn: ";Начать;партию"
   teleportOutBtn: ";Телепортация;наружу"
+  timeControl: "Time Control"
   timeElapsed: "Прошло"
   timeRemaining: "Осталось"
   whitePawnPromotionBtn: "Белая пешка;Превращение;;&4"

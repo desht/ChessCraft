@@ -162,6 +162,7 @@ ControlPanel:
   stakeBtn: "Stake;;"
   startGameBtn: ";Start;Game"
   teleportOutBtn: ";Teleport;Out"
+  timeControl: "Time Control"
   timeElapsed: "Elapsed"
   timeRemaining: "Remaining"
   whitePawnPromotionBtn: "White Pawn;Promotion;;&4"

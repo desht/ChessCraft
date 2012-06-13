@@ -1,0 +1,26 @@
+# This file contains a set of predefined time controls.  These can be selected via the control
+# panel by left- or right-clicking the "Time Control" sign.
+#
+# Edit this as you please, and run "/chess reload tc" when finished (or restart the server).
+# Be sure to use valid YAML!  No tabs, and consistent indentation!
+#
+# The "label" must fit on three lines of the sign.  Use ";" for line breaks, no more than 15 
+# characters per line.
+#
+# See http://dev.bukkit.org/server-mods/chesscraft/pages/time-controls for a description
+# of the "spec" string.
+#
+
+time_controls:
+  - label: None
+    spec: ""
+  - label: Game in 40;minutes
+    spec: G/40
+  - label: Move in 3;minutes;(Lightning)
+    spec: M/180
+  - label: Move in 10;minutes;(Blitz)
+    spec: M/600
+  - label: Move in 20;minutes;(Active)
+    spec: M/1200
+  - label: 30 Moves in;15 minutes;(+30s/move)
+    spec: 30/15/30
