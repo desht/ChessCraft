@@ -46,7 +46,7 @@ ChessCommandExecutor:
     boardOrientation: 'Brettorientierung: &f{0}'
   boardList: '&6{0}&-: loc=&f{1}&- Stil=&6{2}&- Spiel=&6{3}&-'
   boardRedrawn: Brett &6{0}&- wurde neu entworfen.
-  boardStyleChanged: Brett &6{0}&- Stil wurde geändert.  Benutze &f/chess board save <neuer-name>&- um die Änderungen zu speichern.
+  boardStyleChanged: Brett &6{0}&- Stil wurde geändert.  Benutze &f/chess board save [<neuer-name>]&- um die Änderungen zu speichern.
   boardStyleSaved: Brett &6{0}&- Stil gespeichert als &6{1}&-.
   boardStyleBadParam: Ungueltiger Stil Parameter Wert &6{0}&-.
   cantAffordStake: Du kannst dir den Einsatz nicht leisten!

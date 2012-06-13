@@ -46,7 +46,7 @@ ChessCommandExecutor:
     boardOrientation: "Ориентация доски: &f{0}"
   boardList: "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-"
   boardRedrawn: "Доска &6{0}&- была перерисована."
-  boardStyleChanged: "Доска &6{0}&- стиль изменен.  Используйте &f/chess board save <новое имя>&- для сохранения изменений."
+  boardStyleChanged: "Доска &6{0}&- стиль изменен.  Используйте &f/chess board save [<новое имя>]&- для сохранения изменений."
   boardStyleSaved: "Доска &6{0}&- стиль сохранен как &6{1}&-."
   boardStyleBadParam: "Неправильный параметр стиля &6{0}&-."
   cantAffordStake: "Вы не можете себе позволить эту ставку!"
