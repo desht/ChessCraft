@@ -9,7 +9,7 @@ Detailed documentation can be found in BukkitDev: http://dev.bukkit.org/server-m
 ## Building
 
 If you want to build ChessCraft yourself, you will need Maven.
-
+f
 1a) Download a copy of Vault.jar (1.1.1 minimum required, but get the latest) from http://dev.bukkit.org/server-mods/vault/
 
 1b) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar' (adjust version accordingly)
@@ -20,7 +20,11 @@ If you want to build ChessCraft yourself, you will need Maven.
 
 2c) Alternatively, "git clone https://github.com/desht/ScrollingMenuSign" and build it from source (see https://github.com/desht/ScrollingMenuSign)
 
-3) Run 'mvn clean install'
+3a) Download a copy of WorldEdit 5.3 from http://dev.bukkit.org/server-mods/worldedit/
+
+3b) Run 'mvn install:install-file -DgroupId=com.sk89q -DartifactId=worldedit -Dversion=5.3 -Dpackaging=jar -Dfile=worldedit-5.3.jar'
+
+4) Run 'mvn clean install'
 
 This should give you a copy of ChessCraft.jar under the target/ directory.
 
