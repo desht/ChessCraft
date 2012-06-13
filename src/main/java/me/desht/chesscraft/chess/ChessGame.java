@@ -101,7 +101,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null) {
 			double defBalance = ChessCraft.economy == null ? 0.0 : ChessCraft.economy.getBalance(playerName);
-			stake = Math.min(ChessCraft.getInstance().getConfig().getDouble("stake.default"), defBalance); //$NON-NLS-1$
+			stake = Math.min(view.getDefaultStake(), defBalance);
 		} else {
 			stake = 0.0;
 		}
@@ -360,21 +360,59 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException	if the stake is out of range or not affordable or the game isn't in setup phase
 	 */
 	public void setStake(String playerName, double newStake) throws ChessException {
+		if (ChessCraft.economy == null) {
+			return;
+		}
+		
 		ensureGameState(GameState.SETTING_UP);
 
-		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
-
-		if (newStake <= 0.0) {
+		if (newStake < 0.0) {
 			throw new ChessException(Messages.getString("Game.noNegativeStakes")); //$NON-NLS-1$
 		}
-		if (newStake > max) {
+
+		if (!ChessCraft.economy.has(playerName, newStake)) {
+			throw new ChessException(Messages.getString("ChessCommandExecutor.cantAffordStake"));	//$NON-NLS-1$
+		}
+
+		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+		if (max >= 0.0 && newStake > max) {
 			throw new ChessException(Messages.getString("Game.stakeTooHigh", max)); //$NON-NLS-1$
 		}
+
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
 			throw new ChessException(Messages.getString("Game.stakeCantBeChanged")); //$NON-NLS-1$
 		}
 
 		this.stake = newStake;
+	}
+
+	/**
+	 * Adjust the game's stake by the given amount.
+	 * 
+	 * @param playerName	Name of the player adjusting the stake
+	 * @param adjustment	amount to adjust by (may be negative)
+	 * @throws ChessException	if the new stake is out of range or not affordable or the game isn't in setup phase
+	 */
+	public void adjustStake(String playerName, double adjustment) throws ChessException {
+		if (ChessCraft.economy == null) {
+			return;
+		}
+		
+		double newStake = getStake() + adjustment;
+		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+		
+		if (max >= 0.0 && newStake > max && adjustment < 0.0) {
+			// allow stake to be adjusted down without throwing an exception
+			// could happen if global max stake was changed to something lower than
+			// a game's current stake setting
+			newStake = Math.min(max, ChessCraft.economy.getBalance(playerName));
+		}
+		if (!ChessCraft.economy.has(playerName, newStake) && adjustment < 0.0) {
+			// similarly for the player's own balance
+			newStake = Math.min(max, ChessCraft.economy.getBalance(playerName));
+		}
+			
+		setStake(playerName, newStake);
 	}
 
 	public TimeControl getTcWhite() {
@@ -1254,28 +1292,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public boolean isAIGame() {
 		return ChessAI.isAIPlayer(playerWhite) || ChessAI.isAIPlayer(playerBlack);
-	}
-
-	/**
-	 * Adjust the game's stake by the given amount.
-	 * 
-	 * @param playerName
-	 * @param adjustment
-	 * @throws ChessException
-	 */
-	public void adjustStake(String playerName, double adjustment) throws ChessException {
-		if (ChessCraft.economy == null) 
-			return;
-
-		double newStake = getStake() + adjustment;
-		if (newStake < 0.0 || newStake > ChessCraft.getInstance().getConfig().getDouble("stake.max"))
-			return;
-		
-		if (newStake > ChessCraft.economy.getBalance(playerName)) {
-			newStake = ChessCraft.economy.getBalance(playerName);
-		}
-
-		setStake(playerName, newStake);
 	}
 
 	/**
