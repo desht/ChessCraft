@@ -644,6 +644,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
 
+		// just in case stake.max got adjusted after game creation...
+		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+		if (stake > max) {
+			stake = max;
+			view.getControlPanel().repaintSignButtons();
+		}
 		if (!canAffordToPlay(playerWhite)) {
 			throw new ChessException(Messages.getString("Game.cantAffordToStart", whiteStr, ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
 		}
