@@ -16,14 +16,14 @@ public class MaterialWithData implements Cloneable {
 
 	private final static Map<String, MaterialWithData> materialCache = new HashMap<String, MaterialWithData>();
 
-	final int material;
+	final int matId;
 	final byte data;
 	final String[] metadata; // e.g. sign text
 
-	private MaterialWithData(int mat, byte d) {
-		material = mat;
-		data = d;
-		metadata = null;
+	private MaterialWithData(int matId, byte data) {
+		this.matId = matId;
+		this.data = data;
+		this.metadata = null;
 	}
 
 	private MaterialWithData(int mat) {
@@ -31,9 +31,9 @@ public class MaterialWithData implements Cloneable {
 	}
 
 	private MaterialWithData(MaterialWithData m) {
-		material = m.material;
-		data = m.data;
-		metadata = m.metadata;
+		this.matId = m.matId;
+		this.data = m.data;
+		this.metadata = m.metadata;
 	}
 
 	private MaterialWithData(String string) {
@@ -44,7 +44,7 @@ public class MaterialWithData implements Cloneable {
 		metadata = matAndText.length > 1 ? makeText(matAndText[1]) : null;
 
 		if (matAndData[0].matches("^[0-9]+$")) {
-			material = Integer.parseInt(matAndData[0]);
+			matId = Integer.parseInt(matAndData[0]);
 		} else {
 			// we'll look for the material string first in the WorldEdit BlockType class
 			// and if that fails, we'll check for a Bukkit Material,
@@ -55,9 +55,9 @@ public class MaterialWithData implements Cloneable {
 				if (m == null) {
 					throw new IllegalArgumentException("unknown material: " + matAndData[0]);
 				}
-				material = m.getId();
+				matId = m.getId();
 			} else {
-				material = b.getID();
+				matId = b.getID();
 			}
 		}
 		if (matAndData.length < 2) {
@@ -65,7 +65,7 @@ public class MaterialWithData implements Cloneable {
 		} else {
 			if (matAndData[1].matches("^[0-9]+$")) {
 				data = Byte.parseByte(matAndData[1]);
-			} else if (material == BlockType.CLOTH.getID()) {
+			} else if (matId == BlockID.CLOTH) {
 				ClothColor cc = ClothColor.lookup(matAndData[1]);
 				if (cc == null) {
 					throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
@@ -75,33 +75,6 @@ public class MaterialWithData implements Cloneable {
 				throw new IllegalArgumentException("invalid data specification: " + matAndData[1]);
 			}
 		}
-	}
-
-	/**
-	 * Get the data byte for this MaterialWithData object
-	 * 
-	 * @return the material data byte
-	 */
-	public Byte getData() {
-		return data;
-	}
-
-	/**
-	 * Get the material ID for this MaterialWithData object
-	 * 
-	 * @return the material ID
-	 */
-	public int getMaterialId() {
-		return material;
-	}
-
-	/**
-	 * Get the extra data for this MaterialWithData object
-	 * 
-	 * @return list of Strings representing extra data for this object
-	 */
-	public String[] getText() {
-		return metadata;
 	}
 
 	/**
@@ -165,13 +138,56 @@ public class MaterialWithData implements Cloneable {
 		return get(String.format("%d:%d", id, 0));
 	}
 
-	private String[] makeText(String input) {
-		String[] t = new String[] { "", "", "", "" };
-		String[] s = input.split(";");
-		for (int i = 0; i < 4 && i < s.length; i++) {
-			t[i] = s[i];
+	/**
+	 * Get the data byte for this MaterialWithData object
+	 * 
+	 * @return the material data byte
+	 */
+	public Byte getData() {
+		return data;
+	}
+
+	/**
+	 * Get the material ID for this MaterialWithData object
+	 * 
+	 * @return the material ID
+	 */
+	public int getId() {
+		return matId;
+	}
+
+	/**
+	 * Get the extra data for this MaterialWithData object
+	 * 
+	 * @return list of Strings representing extra data for this object
+	 */
+	public String[] getText() {
+		return metadata;
+	}
+
+	/**
+	 * Get a rotated version of this MaterialData by altering the data byte appropriately.
+	 * 
+	 * @param rotation
+	 *            The rotation in degrees; must be one of 90, 180 or 270 (any other value will return the original
+	 *            material unchanged)
+	 * @return a new MaterialWithData object, rotated as necessary
+	 */
+	public MaterialWithData rotate(int rotation) {
+		byte newData = data;
+		switch (rotation) {
+		case 270:
+			newData = (byte) BlockData.rotate90Reverse(matId, data);
+			break;
+		case 180:
+			newData = (byte) BlockData.rotate90(matId, data);
+			newData = (byte) BlockData.rotate90(matId, newData);
+			break;
+		case 90:
+			newData = (byte) BlockData.rotate90(matId, data);
+			break;
 		}
-		return t;
+		return MaterialWithData.get(matId, newData, metadata);
 	}
 
 	/**
@@ -181,8 +197,8 @@ public class MaterialWithData implements Cloneable {
 	 *            The block to apply the material to
 	 */
 	public void applyToBlock(Block b) {
-		b.setTypeIdAndData(material, data, false);
-		if (metadata != null && (material == 63 || material == 68)) {
+		b.setTypeIdAndData(matId, data, false);
+		if (metadata != null && (matId == 63 || matId == 68)) {
 			// updating a wall sign or floor sign, with text
 			Sign sign = (Sign) b.getState().getData();
 			for (int i = 0; i < 4; i++) {
@@ -201,8 +217,8 @@ public class MaterialWithData implements Cloneable {
 	 *            The block to apply the material to
 	 */
 	public void applyToBlockFast(Block b) {
-		BlockUtils.setBlockFast(b, material, data);
-		if (metadata != null && (material == 63 || material == 68)) {
+		BlockUtils.setBlockFast(b, matId, data);
+		if (metadata != null && (matId == 63 || matId == 68)) {
 			// updating a wall sign or floor sign, with text
 			Sign sign = (Sign) b.getState().getData();
 			for (int i = 0; i < 4; i++) {
@@ -220,7 +236,7 @@ public class MaterialWithData implements Cloneable {
 	 */
 	public void applyToCuboid(Cuboid c) {
 		if (c != null) {
-			c.setFast(material, data);
+			c.setFast(matId, data);
 		}
 	}
 
@@ -231,8 +247,8 @@ public class MaterialWithData implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder(Material.getMaterial(material).toString());
-		if (material == 35) { // wool
+		StringBuilder s = new StringBuilder(Material.getMaterial(matId).toString());
+		if (matId == BlockID.CLOTH) {
 			s.append(":").append(DyeColor.getByData(data).toString());
 		} else {
 			s.append(":").append(Byte.toString(data));
@@ -260,7 +276,7 @@ public class MaterialWithData implements Cloneable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + data;
-		result = prime * result + material;
+		result = prime * result + matId;
 		return result;
 	}
 
@@ -281,7 +297,7 @@ public class MaterialWithData implements Cloneable {
 			return false;
 		}
 		MaterialWithData other = (MaterialWithData) obj;
-		if (material != other.material) {
+		if (matId != other.matId) {
 			return false;
 		} else if (data != other.data) {
 			return false;
@@ -290,29 +306,13 @@ public class MaterialWithData implements Cloneable {
 		}
 	}
 
-	/**
-	 * Get a rotated version of this MaterialData by altering the data byte appropriately.
-	 * 
-	 * @param rotation
-	 *            The rotation in degrees; must be one of 90, 180 or 270 (any other value will return the original
-	 *            material unchanged)
-	 * @return the rotated material
-	 */
-	public MaterialWithData rotate(int rotation) {
-		byte newData = data;
-		switch (rotation) {
-		case 270:
-			newData = (byte) BlockData.rotate90Reverse(material, data);
-			break;
-		case 180:
-			newData = (byte) BlockData.rotate90(material, data);
-			newData = (byte) BlockData.rotate90(material, newData);
-			break;
-		case 90:
-			newData = (byte) BlockData.rotate90(material, data);
-			break;
+	private String[] makeText(String input) {
+		String[] t = new String[] { "", "", "", "" };
+		String[] s = input.split(";");
+		for (int i = 0; i < 4 && i < s.length; i++) {
+			t[i] = s[i];
 		}
-		return MaterialWithData.get(material, newData, metadata);
+		return t;
 	}
 
 }

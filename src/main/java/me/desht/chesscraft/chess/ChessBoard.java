@@ -433,12 +433,12 @@ public class ChessBoard {
 			for (int y = 0; y < stone.getSizeY(); y++) {
 				for (int z = 0; z < stone.getSizeZ(); z++) {
 					MaterialWithData mat = stone.getMaterial(x, y, z);
-					if (mat.getMaterialId() == 0) {
+					if (mat.getId() == 0) {
 						// the region was pre-cleared, skip placing air a second time
 						continue;
 					}
 					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);
-					if (BlockType.shouldPlaceLast(mat.getMaterialId())) {
+					if (BlockType.shouldPlaceLast(mat.getId())) {
 						deferred.put(b, mat);
 					} else {
 						mat.applyToBlockFast(b);

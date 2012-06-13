@@ -171,7 +171,7 @@ public class BoardStyle {
 	}
 
 	public void setControlPanelMaterial(MaterialWithData controlPanelMat) {
-		if (controlPanelMat != null && !BlockType.canPassThrough(controlPanelMat.getMaterialId())) {
+		if (controlPanelMat != null && !BlockType.canPassThrough(controlPanelMat.getId())) {
 			this.controlPanelMat = controlPanelMat;
 		}
 	}
