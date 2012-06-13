@@ -162,15 +162,18 @@ public class ControlPanel {
 	 * Get a teleport-in location for this control panel.  Player will be standing in front of the
 	 * control panel, facing it.
 	 * 
-	 * @return
+	 * @return	The teleport-in location
 	 */
 	public Location getTeleportLocation() {
-		Location l = (new Cuboid(toMoveIndicator.getCenter())).
-				shift(signDir.getDirection(), 4).
-				shift(signDir.getLeft().getDirection(), 1).
-				shift(Direction.Down, 1).getLowerNE();
-		l.setYaw((signDir.getYaw() + 180.0f) % 360);
-		return l;
+		double xOff = (panelBlocks.getUpperX() - panelBlocks.getLowerX()) / 2.0 + 0.5 + signDir.getX() * 3.5;
+		double zOff = (panelBlocks.getUpperZ() - panelBlocks.getLowerZ()) / 2.0 + 0.5 + signDir.getZ() * 3.5;
+		
+		return new Location(panelBlocks.getWorld(),
+		                    panelBlocks.getLowerX() + xOff,
+		                    panelBlocks.getLowerY(),
+		                    panelBlocks.getLowerZ() + zOff,
+		                    (signDir.getYaw() + 180.0f) % 360,
+		                    0.0f);
 	}
 
 	private String getOfferText(Player p) {

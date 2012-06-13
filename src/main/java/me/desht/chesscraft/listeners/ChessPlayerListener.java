@@ -38,10 +38,12 @@ import chesspresso.move.IllegalMoveException;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
+import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ResponseHandler;
+import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MessagePager;
 
@@ -142,9 +144,10 @@ public class ChessPlayerListener implements Listener {
 						pieceClicked(player, loc, bv);
 					} else if ((bv = BoardView.partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
-							Location l = bv.getControlPanel().getPanelBlocks().getCenter();
-							if (l.distance(player.getLocation()) > 5) {
-								player.teleport(bv.getControlPanel().getTeleportLocation());
+							Location tpLoc = bv.getControlPanel().getTeleportLocation();
+							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(Direction.Horizontal, 4);
+							if (!zone.contains(player.getLocation()) && bv.isPartOfBoard(player.getLocation())) {
+								player.teleport(tpLoc);
 							}
 						}
 					}
