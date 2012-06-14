@@ -27,7 +27,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		
 		if (args.length % 2 != 0) {
 			showUsage(sender);
-			return false;
+			return true;
 		}
 		
 		BoardView bv = BoardView.partOfChessBoard(((Player)sender).getLocation());
@@ -39,41 +39,56 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 		
+		boolean suggestStyleSave = false;
+		
 		for (int i = 0; i < args.length; i += 2) {
-			String attr = args[i];
+			String attr = args[i].replace("_", "");	// '_' is optional
 			String val = args[i + 1];
 			
 			try {
 				if (attr.startsWith("white")) {
 					style.setWhiteSquareMaterial(MaterialWithData.get(val));
+					suggestStyleSave = true;
 				} else if (attr.startsWith("black")) {
 					style.setBlackSquareMaterial(MaterialWithData.get(val));
+					suggestStyleSave = true;
 				} else if (attr.startsWith("frame")) {
 					style.setFrameMaterial(MaterialWithData.get(val));
+					suggestStyleSave = true;
 				} else if (attr.startsWith("panel")) {
 					style.setControlPanelMaterial(MaterialWithData.get(val));
+					suggestStyleSave = true;
 				} else if (attr.startsWith("enclosure")) {
 					style.setEnclosureMaterial(MaterialWithData.get(val));
+					suggestStyleSave = true;
 				} else if (attr.startsWith("struts")) {
 					style.setStrutsMaterial(MaterialWithData.get(val));
-				} else if (attr.startsWith("highlight_default")) {
+					suggestStyleSave = true;
+				} else if (attr.startsWith("highlightdefault")) {
 					style.setHighlightMaterial(MaterialWithData.get(val));
-				} else if (attr.startsWith("highlight_white")) {
+					suggestStyleSave = true;
+				} else if (attr.startsWith("highlightwhite")) {
 					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
-				} else if (attr.startsWith("highlight_black")) {
+					suggestStyleSave = true;
+				} else if (attr.startsWith("highlightblack")) {
 					style.setHighlightBlackSquareMaterial(MaterialWithData.get(val));
-				} else if (attr.startsWith("highlight_style")) {
+					suggestStyleSave = true;
+				} else if (attr.startsWith("highlightstyle")) {
 					style.setHighlightStyle(HighlightStyle.getStyle(val));
-				} else if (attr.startsWith("light_level")) {
+					suggestStyleSave = true;
+				} else if (attr.startsWith("lightlevel")) {
 					style.setLightLevel(Integer.parseInt(val));
-				} else if (attr.startsWith("piece_style") || attr.startsWith("piecestyle")) {
-					// update both the default piece style for the current board style...
+					suggestStyleSave = true;
+				} else if (attr.startsWith("piecestyle")) {
+					// update the default piece style for the current board style
 					style.setPieceStyleName(val);
-					// ... and the piece style that the current board is using.
+					suggestStyleSave = true;
+				} else if (attr.startsWith("overridepiecestyle")) {
+					// update the piece style used by this board (but don't modify the style)
 					bv.getChessBoard().setPieceStyle(val);
-				} else if (attr.startsWith("board_style") || attr.startsWith("boardstyle")) {
+				} else if (attr.startsWith("boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
-				} else if (attr.startsWith("default_stake")) {
+				} else if (attr.startsWith("defaultstake")) {
 					bv.setDefaultStake(Double.parseDouble(val));
 				} else {
 					throw new ChessException("Unknown attribute '" + attr + "'.");
@@ -86,6 +101,9 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		}
 		
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
+		if (suggestStyleSave) {
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSuggestSave"));
+		}
 		
 		bv.paintAll();
 		bv.save();
