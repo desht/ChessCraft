@@ -231,7 +231,8 @@ public class ChessAI {
 	 * @param e
 	 */
 	private void aiHasFailed(Exception e) {
-		LogUtils.severe("Unexpected Exception in AI", e);
+		LogUtils.severe("Unexpected Exception in AI");
+		e.printStackTrace();
 		chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 		hasFailed = true;
 	}
