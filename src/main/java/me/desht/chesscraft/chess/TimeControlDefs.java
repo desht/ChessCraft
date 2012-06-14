@@ -60,6 +60,16 @@ public class TimeControlDefs {
 	}
 
 	public void setCustomSpec(String customSpec) {
+		// see if the custom spec is actually one we know about
+		for (int i = 0; i < defs.size(); i++) {
+			TCDef def = defs.get(i);
+			if (def.getSpec().equalsIgnoreCase(customSpec)) {
+				idx = i;
+				this.customSpec = "";
+				return;
+			}
+		}
+		
 		this.customSpec = customSpec;
 	}
 

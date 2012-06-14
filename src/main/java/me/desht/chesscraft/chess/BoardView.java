@@ -97,8 +97,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		
 		defaultStake = conf.getDouble("defaultStake", -1.0);
-		
-		controlPanel.getTcDefs().setCustomSpec(conf.getString("customTcSpec", ""));
 	}
 
 	@Override
@@ -120,7 +118,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		result.put("designer", d);
 		result.put("defaultStake", defaultStake);
-		result.put("customTcSpec", controlPanel.getTcDefs().getCustomSpec());
 		return result;
 	}
 

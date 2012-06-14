@@ -99,6 +99,10 @@ public class TimeControl implements ConfigurationSerializable {
 		return elapsed;
 	}
 
+	public String getSpec() {
+		return spec;
+	}
+
 	public boolean isNewPhase() {
 		return newPhase;
 	}

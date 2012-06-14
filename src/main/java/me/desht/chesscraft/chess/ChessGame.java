@@ -171,6 +171,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		replayMoves();
 
+		if (!tcWhite.getSpec().isEmpty()) {
+			view.getControlPanel().getTcDefs().setCustomSpec(tcWhite.getSpec());
+		}
 		view.setGame(this);
 	}
 

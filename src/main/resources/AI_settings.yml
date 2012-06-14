@@ -88,7 +88,7 @@ AI:
     funName:
     engine: "MiniMax++"
     depth: 5
-    enabled: true
+    enabled: false
   ai13:
     # good, but sometimes confused (if has the upper-hand)
     # once could've had a 1-move mate that it instead waited another 6 moves
