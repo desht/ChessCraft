@@ -649,7 +649,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		// just in case stake.max got adjusted after game creation...
 		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
-		if (stake > max) {
+		if (max >= 0 && stake > max) {
 			stake = max;
 			view.getControlPanel().repaintSignButtons();
 		}
