@@ -1594,6 +1594,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			bv = BoardView.getBoardView(boardName);
 		}
+		
+		return createGame(player, gameName, bv);
+	}
+	
+	public static ChessGame createGame(Player player, String gameName, BoardView bv) {
 
 		String playerName = player.getName();
 

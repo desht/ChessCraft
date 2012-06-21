@@ -98,6 +98,10 @@ public class ControlPanel {
 		tcDefs = new TimeControlDefs();
 	}
 
+	public BoardView getView() {
+		return view;
+	}
+
 	public void repaint() {
 		panelBlocks.setFast(view.getControlPanelMaterial());
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
