@@ -1,6 +1,5 @@
 package me.desht.chesscraft.controlpanel;
 
-import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -13,14 +12,11 @@ public class CreateGameButton extends AbstractSignButton {
 	
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		// TODO Auto-generated method stub
-		ChessGame.createGame(event.getPlayer(), null, getPanel().getView());
+		ChessGame.createGame(event.getPlayer(), null, getView());
 	}
 
 	@Override
 	public boolean isEnabled() {
-		BoardView view = getView();
-		return view.getGame() == null && !view.isDesigning(); 
+		return getGame() == null && !getView().isDesigning(); 
 	}
-
 }

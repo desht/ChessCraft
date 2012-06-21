@@ -10,7 +10,7 @@ public class BoardInfoButton extends AbstractSignButton {
 	
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		getPanel().getView().showBoardDetail(event.getPlayer());
+		getView().showBoardDetail(event.getPlayer());
 	}
 
 	@Override

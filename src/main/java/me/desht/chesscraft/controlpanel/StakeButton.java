@@ -25,7 +25,7 @@ public class StakeButton extends AbstractSignButton {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			stakeIncr = -stakeIncr;
 		}
-		ChessGame game = getView().getGame();
+		ChessGame game = getGame();
 		if (game == null || (!game.getPlayerWhite().isEmpty() && !game.getPlayerBlack().isEmpty())) {
 			return;
 		}
@@ -40,15 +40,15 @@ public class StakeButton extends AbstractSignButton {
 	}
 	
 	@Override
-	protected String[] getCustomText() {	
+	protected String[] getCustomSignText() {	
 		String[] res = new String[4];
 		
 		int i = 0;
-		for (String s : getTranslation("ControlPanel.stakeBtn")) {
+		for (String s : getSignText()) {
 			res[i++] = s;
 		}
 		
-		ChessGame game = getView().getGame();
+		ChessGame game = getGame();
 		if (game == null) {
 			double stake = getView().getDefaultStake();
 			String[] s = ChessUtils.formatStakeStr(stake).split(" ", 2);

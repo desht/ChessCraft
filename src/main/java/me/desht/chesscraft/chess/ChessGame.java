@@ -290,6 +290,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return view;
 	}
 
+	public String getPlayer(int colour) {
+		switch (colour) {
+		case Chess.WHITE: return playerWhite;
+		case Chess.BLACK: return playerBlack;
+		default: throw new IllegalArgumentException("invalid colour: " + colour);
+		}
+	}
+	
 	public String getPlayerWhite() {
 		return playerWhite;
 	}

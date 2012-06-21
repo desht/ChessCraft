@@ -9,9 +9,9 @@ import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class InviteButton extends AbstractSignButton {
+public class InvitePlayerButton extends AbstractSignButton {
 
-	public InviteButton(ControlPanel panel) {
+	public InvitePlayerButton(ControlPanel panel) {
 		super(panel, "invitePlayerBtn", "invite", 2, 2);
 	}
 	
