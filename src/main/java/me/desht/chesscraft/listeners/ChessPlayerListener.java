@@ -90,7 +90,7 @@ public class ChessPlayerListener implements Listener {
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
-						bv.getControlPanel().signClicked(player, b, bv, event.getAction());
+						bv.getControlPanel().signClicked(event);
 						event.setCancelled(true);
 					}
 				}
@@ -103,7 +103,7 @@ public class ChessPlayerListener implements Listener {
 				} else {
 					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
 					if (bv != null && b.getState() instanceof Sign) {
-						bv.getControlPanel().signClicked(player, b, bv, event.getAction());
+						bv.getControlPanel().signClicked(event);
 						event.setCancelled(true);
 					}
 				}

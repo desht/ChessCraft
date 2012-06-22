@@ -19,6 +19,10 @@ public class TimeControlButton extends AbstractSignButton {
 		tcDefs = new TimeControlDefs();
 	}
 
+	public TimeControlDefs getTcDefs() {
+		return tcDefs;
+	}
+
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();

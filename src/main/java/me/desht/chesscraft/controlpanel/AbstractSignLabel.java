@@ -1,6 +1,7 @@
 package me.desht.chesscraft.controlpanel;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
@@ -16,8 +17,9 @@ import me.desht.dhutils.PersistableLocation;
 
 public abstract class AbstractSignLabel {
 
-	private final static String ENABLED_COLOUR = ChatColor.DARK_BLUE.toString();
-	private final static String DISABLED_COLOUR = ChatColor.DARK_GRAY.toString();
+	public final static String ENABLED_COLOUR = ChatColor.DARK_BLUE.toString();
+	public final static String DISABLED_COLOUR = ChatColor.DARK_GRAY.toString();
+	public final static String INDICATOR_COLOUR = ChatColor.DARK_RED.toString();
 	
 	private final ControlPanel panel;
 	private final PersistableLocation loc;
@@ -78,7 +80,10 @@ public abstract class AbstractSignLabel {
 	public void repaint() {
 		Block block = loc.getBlock();
 		
-		MaterialWithData.get("wall_sign:" + getSignDirection()).applyToBlock(block);
+		byte data = getSignDirection();
+		if (block.getType() != Material.WALL_SIGN || block.getData() != data) {
+			MaterialWithData.get("wall_sign:" + data).applyToBlock(block);
+		}
 		
 		if (block.getState() instanceof Sign) {
 			Sign sign = (Sign) block.getState();
