@@ -154,7 +154,7 @@ ControlPanel:
   chessInvitePrompt: "Type a player name to invite.  Left or right-click cancels."
   createGameBtn: ";Create;Game"
   gameInfoBtn: ";Game;Info"
-  halfmoveClock: "Halfmove Clock"
+  halfmoveClock: "Halfmove;Clock"
   inviteAnyoneBtn: ";Invite;ANYONE"
   invitePlayerBtn: ";Invite;Player"
   noBtn: ";;No"

@@ -22,7 +22,7 @@ public class ResignButton extends AbstractSignButton {
 
 	@Override
 	public boolean isEnabled() {
-		return getGame().getState() == GameState.RUNNING;
+		return getGame() != null && getGame().getState() == GameState.RUNNING;
 	}
 
 }

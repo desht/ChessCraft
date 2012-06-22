@@ -5,24 +5,24 @@ import me.desht.chesscraft.enums.GameState;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class StartButton extends AbstractSignButton {
-	
-	public StartButton(ControlPanel panel) {
-		super(panel, "startGameBtn", "start", 4, 2);
+public class OfferDrawButton extends AbstractSignButton {
+
+	public OfferDrawButton(ControlPanel panel) {
+		super(panel, "offerDrawBtn", "offer.draw", 5, 2);
 	}
-	
+
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
-		
 		if (game != null) {
-			game.start(event.getPlayer().getName());
+			game.offerDraw(event.getPlayer().getName());
 		}
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return getGame() != null && getGame().getState() == GameState.SETTING_UP;
+		ChessGame game = getGame();
+		return game != null && game.getState() == GameState.RUNNING && !game.isAIGame();
 	}
 
 }

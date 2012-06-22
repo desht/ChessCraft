@@ -19,7 +19,6 @@ import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.dhutils.LogUtils;
 
 public class ControlPanel {
 
@@ -66,6 +65,7 @@ public class ControlPanel {
 		createSignButton(new GameInfoButton(this));
 		createSignButton(new InviteAnyoneButton(this));
 		createSignButton(new InvitePlayerButton(this));
+		createSignButton(new OfferDrawButton(this));
 		createSignButton(new PromoteBlackButton(this));
 		createSignButton(new PromoteWhiteButton(this));
 		createSignButton(new ResignButton(this));
@@ -101,8 +101,8 @@ public class ControlPanel {
 	 * @return	The teleport-in location
 	 */
 	public Location getTeleportLocation() {
-		double xOff = (panelBlocks.getUpperX() - panelBlocks.getLowerX()) / 2.0 + 0.5 + signDir.getX() * 3.5;
-		double zOff = (panelBlocks.getUpperZ() - panelBlocks.getLowerZ()) / 2.0 + 0.5 + signDir.getZ() * 3.5;
+		double xOff = (panelBlocks.getUpperX() - panelBlocks.getLowerX()) / 2.0 + 0.5 + signDir.getXadjustment() * 3.5;
+		double zOff = (panelBlocks.getUpperZ() - panelBlocks.getLowerZ()) / 2.0 + 0.5 + signDir.getZadjustment() * 3.5;
 	
 		return new Location(panelBlocks.getWorld(),
 		                    panelBlocks.getLowerX() + xOff,
@@ -172,33 +172,18 @@ public class ControlPanel {
 	 */
 	private Cuboid getPanelPosition() {
 		BoardRotation dir = view.getRotation();
+		BoardRotation dirLeft = dir.getLeft();
 		Location a1 = view.getA1Square();
 
-		int x = a1.getBlockX(), y = a1.getBlockY() + 1, z = a1.getBlockZ();
-
-		// apply applicable rotation (panel on the left-side of board)
-		switch (dir) {
-		case NORTH:
-			x -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-			z += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-			break;
-		case EAST:
-			z -= (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-			x -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-			break;
-		case SOUTH:
-			x += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-			z -= (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-			break;
-		case WEST:
-			z += (4 * view.getSquareSize() - PANEL_WIDTH / 2);
-			x += (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-			break;
-		default:
-			LogUtils.severe("Unexpected BoardOrientation value ", new Exception());
-			return null;
-		}
-
+		int panelOffset = 4 * view.getSquareSize() - PANEL_WIDTH / 2;
+		int frameOffset = (int) Math.ceil((view.getFrameWidth() + .5) / 2);
+		
+		// for the control panel edge, move <panelOffset> blocks in the board's direction, then
+		// <frameOffset> blocks to the left of that.
+		int x = a1.getBlockX() + dir.getXadjustment(panelOffset) + dirLeft.getXadjustment(frameOffset);
+		int y = a1.getBlockY() + 1;
+		int z = a1.getBlockZ() + dir.getZadjustment(panelOffset) + dirLeft.getZadjustment(frameOffset);
+		// then expand the cuboid in the board's direction by the panel's desired width
 		Cuboid panel = new Cuboid(new Location(a1.getWorld(), x, y, z));
 		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
 	}

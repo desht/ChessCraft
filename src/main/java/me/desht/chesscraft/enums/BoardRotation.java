@@ -1,11 +1,14 @@
 package me.desht.chesscraft.enums;
 
+import org.bukkit.entity.Player;
+
 public enum BoardRotation {
 
 	NORTH(-1, 0), // north = -x
 	EAST(0, -1), // east = -z
 	SOUTH(1, 0), // south = +x
 	WEST(0, 1);// west = +z
+	
 	/**
 	 * the increments if moving in this direction
 	 */
@@ -16,14 +19,22 @@ public enum BoardRotation {
 		z = zPositive;
 	}
 
-	public int getX() {
+	public int getXadjustment() {
 		return x;
 	}
 
-	public int getZ() {
+	public int getZadjustment() {
 		return z;
 	}
 
+	public int getXadjustment(int offset) {
+		return x * offset;
+	}
+
+	public int getZadjustment(int offset) {
+		return z * offset;
+	}
+	
 	/**
 	 * this is to the <i>right</i> of the direction
 	 * @return the direction if it is turned right
@@ -62,7 +73,7 @@ public enum BoardRotation {
 		return null; // should not get here..
 	}
 
-	public static BoardRotation getPlayerDirection(org.bukkit.entity.Player p) {
+	public static BoardRotation getPlayerDirection(Player p) {
 		if (p != null) {
 			// get the direction the player is facing
 			double rot = (p.getLocation().getYaw() - 90) % 360;

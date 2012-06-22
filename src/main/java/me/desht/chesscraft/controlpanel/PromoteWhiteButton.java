@@ -5,7 +5,7 @@ import chesspresso.Chess;
 public class PromoteWhiteButton extends PromoteButton {
 
 	public PromoteWhiteButton(ControlPanel panel) {
-		super(panel, null, null, 1, 1, Chess.WHITE);
+		super(panel, "whitePawnPromotionBtn", null, 1, 1, Chess.WHITE);
 	}
 
 }

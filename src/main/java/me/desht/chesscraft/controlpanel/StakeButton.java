@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class StakeButton extends AbstractSignButton {
 
 	public StakeButton(ControlPanel panel) {
-		super(panel, null, "stake", 7, 1);
+		super(panel, "stakeBtn", "stake", 7, 1);
 	}
 	
 	@Override
@@ -41,24 +41,19 @@ public class StakeButton extends AbstractSignButton {
 	
 	@Override
 	protected String[] getCustomSignText() {	
-		String[] res = new String[4];
-		
-		int i = 0;
-		for (String s : getSignText()) {
-			res[i++] = s;
-		}
+		String[] res = getSignText();
 		
 		ChessGame game = getGame();
 		if (game == null) {
 			double stake = getView().getDefaultStake();
 			String[] s = ChessUtils.formatStakeStr(stake).split(" ", 2);
-			res[i] = s[0];
-			res[i+1] = s[1];
+			res[2] = s[0];
+			res[3] = s[1];
 		} else {
 			double stake = game.getStake();
 			String[] s = ChessUtils.formatStakeStr(stake).split(" ", 2);
-			res[i] = s[0];
-			res[i+1] = ChatColor.DARK_RED + s[1];
+			res[2] = s[0];
+			res[3] = ChatColor.DARK_RED + s[1];
 			if (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()) {
 				res[0] = ChatColor.DARK_BLUE + res[0];
 			}

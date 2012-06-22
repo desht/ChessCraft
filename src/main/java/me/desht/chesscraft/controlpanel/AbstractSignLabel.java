@@ -63,7 +63,7 @@ public abstract class AbstractSignLabel {
 
 	protected String[] getSignText() {
 		String[] res = new String[] { "", "", "", "" };
-		
+
 		String label = Messages.getString("ControlPanel." + labelKey);
 		int i = 0;
 		for (String line : label.split(";", 4)) {
@@ -106,36 +106,20 @@ public abstract class AbstractSignLabel {
 	}
 	
 	protected PersistableLocation getSignLocation(int x, int y) {
-		BoardRotation signDir = panel.getView().getRotation();
+		BoardRotation boardRot = panel.getView().getRotation();
+		BoardRotation signRot = boardRot.getRight();
 		Cuboid panelBlocks = panel.getPanelBlocks();
-		
-		int realX = signDir.getX();
-		int realY = panelBlocks.getLowerNE().getBlockY() + y;
-		int realZ = signDir.getZ();
 
-		switch (signDir){
-		case NORTH:
-			realX += panelBlocks.getLowerX();
-			realZ += panelBlocks.getLowerZ() + x;
-			break;
-		case EAST:
-			realX += panelBlocks.getUpperX() - x;
-			realZ += panelBlocks.getLowerZ();
-			break;
-		case SOUTH:
-			realX += panelBlocks.getLowerX();
-			realZ += panelBlocks.getUpperZ() - x;
-			break;
-		case WEST:
-			realX += panelBlocks.getLowerX() + x;
-			realZ += panelBlocks.getLowerZ();
-			break;
-		}
-		return new PersistableLocation(panelBlocks.getWorld(), realX, realY, realZ);
+		Cuboid face = panelBlocks.getFace(boardRot.getDirection().opposite());
+		int blockX = face.getLowerX() + x * boardRot.getXadjustment() + signRot.getXadjustment();
+		int blockY = face.getLowerY() + y;
+		int blockZ = face.getLowerZ() + x * boardRot.getZadjustment() + signRot.getZadjustment();
+		
+		return new PersistableLocation(panelBlocks.getWorld(), blockX, blockY, blockZ);
 	}
 
 	private byte getSignDirection() {
-		switch (panel.getView().getRotation()) {
+		switch (panel.getView().getRotation().getRight()) {
 		case NORTH:
 			return 4;
 		case EAST:

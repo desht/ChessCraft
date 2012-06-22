@@ -13,11 +13,13 @@ public class ClockLabel extends AbstractSignLabel {
 		xPos[Chess.BLACK] = 5;
 	};
 	
+	private final int colour;
 	private TimeControl timeControl;
 	
 	public ClockLabel(ControlPanel panel, int colour) {
 		super(panel, ChessUtils.getColour(colour), xPos[colour], 1);
 		
+		this.colour = colour;
 		timeControl = null;
 	}
 
@@ -36,8 +38,10 @@ public class ClockLabel extends AbstractSignLabel {
 	
 	@Override
 	public String[] getCustomSignText() {
-		String[] res = getSignText();
+		String[] res = new String[] { "", "", "", "" };
 		
+		res[0] = colour == Chess.WHITE ? Messages.getString("Game.white") : Messages.getString("Game.black");
+				
 		if (timeControl == null) {
 			res[2] = AbstractSignLabel.INDICATOR_COLOUR + ChessUtils.milliSecondsToHMS(0);
 		} else {
