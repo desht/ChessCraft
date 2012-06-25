@@ -91,7 +91,7 @@ public class ControlPanel {
 	}
 	
 	public <T extends AbstractSignButton> T getSignButton(Class<T> type) {
-		return type.cast(buttonLocs.get(type.getSimpleName()));
+		return type.cast(buttonNames.get(type.getSimpleName()));
 	}
 	
 	/**
@@ -145,7 +145,17 @@ public class ControlPanel {
 		}
 	}
 	
-	public void updateToMoveIndicator(MaterialWithData mat) {
+	public void updateToMoveIndicator(int toPlay) {
+		MaterialWithData mat;
+		if (toPlay == Chess.WHITE) {
+			mat = getView().getWhiteSquareMaterial();
+		} else if (toPlay == Chess.BLACK) {
+			mat = getView().getBlackSquareMaterial();
+		} else if (toPlay == Chess.NOBODY) {
+			mat = getView().getControlPanelMaterial();
+		} else {
+			return; // should never get here
+		}
 		toMoveIndicator.set(mat);
 	}
 

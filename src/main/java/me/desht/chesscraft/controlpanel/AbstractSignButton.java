@@ -15,11 +15,16 @@ public abstract class AbstractSignButton extends AbstractSignLabel {
 	}
 
 	public void onClicked(PlayerInteractEvent event) {
-		if (!isEnabled()) return;
+		if (!isEnabled() || !isReactive()) return;
 		
 		if (permissionNode != null) PermissionUtils.requirePerms(event.getPlayer(), "chesscraft.commands." + permissionNode);
 		
 		execute(event);
+	}
+	
+	@Override
+	public boolean isReactive() {
+		return true;
 	}
 	
 	public abstract void execute(PlayerInteractEvent event);

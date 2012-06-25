@@ -2,6 +2,7 @@ package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.ChatColor;
@@ -15,7 +16,7 @@ public class StakeButton extends AbstractSignButton {
 	}
 	
 	@Override
-	public void execute(PlayerInteractEvent event) {
+	public void execute(PlayerInteractEvent event) {		
 		double stakeIncr;
 		if (event.getPlayer().isSneaking()) {
 			stakeIncr = ChessCraft.getInstance().getConfig().getDouble("stake.smallIncrement"); //$NON-NLS-1$
@@ -25,20 +26,26 @@ public class StakeButton extends AbstractSignButton {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			stakeIncr = -stakeIncr;
 		}
-		ChessGame game = getGame();
-		if (game == null || (!game.getPlayerWhite().isEmpty() && !game.getPlayerBlack().isEmpty())) {
-			return;
-		}
-		game.adjustStake(event.getPlayer().getName(), stakeIncr);
+		
+		getGame().adjustStake(event.getPlayer().getName(), stakeIncr);
 		
 		repaint();
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return getView().getGame() != null;
+		return getGame() != null;
 	}
 	
+	@Override
+	public boolean isReactive() {
+		ChessGame game = getGame();
+		if (game == null) return false;
+		
+		return game.getState() == GameState.SETTING_UP &&
+				(game.getPlayerBlack().isEmpty() || game.getPlayerWhite().isEmpty());
+	}
+
 	@Override
 	protected String[] getCustomSignText() {	
 		String[] res = getSignText();
@@ -52,11 +59,8 @@ public class StakeButton extends AbstractSignButton {
 		} else {
 			double stake = game.getStake();
 			String[] s = ChessUtils.formatStakeStr(stake).split(" ", 2);
-			res[2] = s[0];
-			res[3] = ChatColor.DARK_RED + s[1];
-			if (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty()) {
-				res[0] = ChatColor.DARK_BLUE + res[0];
-			}
+			res[2] = getIndicatorColour() + s[0];
+			res[3] = getIndicatorColour() + s[1];
 		}
 		
 		return res;

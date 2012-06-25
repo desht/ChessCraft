@@ -37,9 +37,11 @@ public class TimeControlDefs {
 				String spec = map.get("spec");
 				if (label == null) {
 					LogUtils.warning("missing label in " + TIME_CONTROLS_FILE);
+					continue;
 				}
 				if (spec == null) {
 					LogUtils.warning("missing spec in " + TIME_CONTROLS_FILE);
+					continue;
 				}
 				try {
 					defs.add(new TCDef(label, spec));
@@ -60,7 +62,8 @@ public class TimeControlDefs {
 	}
 
 	public void setCustomSpec(String customSpec) {
-		// see if the custom spec is actually one we know about
+		// see if the custom spec is actually one we know about - if it is,
+		// we'll use that spec rather than set up a custom spec
 		for (int i = 0; i < defs.size(); i++) {
 			TCDef def = defs.get(i);
 			if (def.getSpec().equalsIgnoreCase(customSpec)) {

@@ -5,7 +5,6 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
-import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -49,7 +48,8 @@ public abstract class YesNoButton extends AbstractSignButton {
 		Player p = Bukkit.getPlayer(playerName);
 		
 		if (p == null) {
-			LogUtils.warning("unknown player:" + playerName + " (offline?) in game " + game.getName());
+			// could be an AI player
+//			LogUtils.warning("unknown player:" + playerName + " (offline?) in game " + game.getName());
 			return ""; //$NON-NLS-1$
 		} else if (ChessCraft.getResponseHandler().isExpecting(p, ExpectDrawResponse.class)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$

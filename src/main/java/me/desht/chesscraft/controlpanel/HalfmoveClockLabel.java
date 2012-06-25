@@ -6,4 +6,9 @@ public class HalfmoveClockLabel extends CounterLabel {
 		super(panel, "halfmoveClock", 2, 0);
 	}
 
+	@Override
+	public boolean isEnabled() {
+		return getGame() != null;
+	}
+
 }

@@ -146,7 +146,7 @@ ChessUtils:
 ControlPanel:
   acceptDrawBtn: "Согласны;на ничью?"
   acceptSwapBtn: "Согласны;на обмен;сторонами?"
-  blackPawnPromotionBtn: "Черная пешка;Превращение;;&4"
+  blackPawnPromotionBtn: "Черная пешка;Превращение
   boardInfoBtn: ";Доска;Информация"
   chessInviteReminder: "Введите &f/chess invite <имя игрока>&- для приглашения игрока"
   chessInvitePrompt: "Введите имя;игрока для;приглашения."
@@ -165,7 +165,7 @@ ControlPanel:
   timeControl: "Time Control"
   timeElapsed: "Прошло"
   timeRemaining: "Осталось"
-  whitePawnPromotionBtn: "Белая пешка;Превращение;;&4"
+  whitePawnPromotionBtn: "Белая пешка;Превращение
   yesBtn: ";;Да"
 
 Designer:

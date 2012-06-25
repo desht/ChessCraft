@@ -6,4 +6,9 @@ public class PlyCountLabel extends CounterLabel {
 		super(panel, "playNumber", 5, 0);
 	}
 
+	@Override
+	public boolean isEnabled() {
+		return getGame() != null;
+	}
+
 }

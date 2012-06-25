@@ -43,9 +43,9 @@ public class ClockLabel extends AbstractSignLabel {
 		res[0] = colour == Chess.WHITE ? Messages.getString("Game.white") : Messages.getString("Game.black");
 				
 		if (timeControl == null) {
-			res[2] = AbstractSignLabel.INDICATOR_COLOUR + ChessUtils.milliSecondsToHMS(0);
+			res[2] = getIndicatorColour() + ChessUtils.milliSecondsToHMS(0);
 		} else {
-			res[2] = AbstractSignLabel.INDICATOR_COLOUR + timeControl.getClockString();
+			res[2] = getIndicatorColour() + timeControl.getClockString();
 			switch (timeControl.getControlType()) {
 			case NONE:
 				res[3] = Messages.getString("ControlPanel.timeElapsed");

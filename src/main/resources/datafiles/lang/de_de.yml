@@ -142,7 +142,7 @@ ChessUtils:
 ControlPanel:
   acceptDrawBtn: Akzeptierst du ein unentschieden?
   acceptSwapBtn: Akzeptierst du einen Seitenwechsel?
-  blackPawnPromotionBtn: Schwarz Bauer;Aufwertung;;&4
+  blackPawnPromotionBtn: Schwarz Bauer;Aufwertung
   boardInfoBtn: ;Brett;Info
   chessInviteReminder: Schreib &f/chess invite <Spielername>&- um jemanden einzuladen
   createGameBtn: ;Erstelle;Spiel
@@ -160,7 +160,7 @@ ControlPanel:
   timeControl: Zeitkontrolle
   timeElapsed: vergangen
   timeRemaining: verbleibend
-  whitePawnPromotionBtn: Weisser Bauer;Aufwerung;;&4
+  whitePawnPromotionBtn: Weisser Bauer;Aufwerung
   yesBtn: ;;Ja
 Designer:
   inDesignMode: "Brett &6{0}&- ist nun im Entwurfsmodus."

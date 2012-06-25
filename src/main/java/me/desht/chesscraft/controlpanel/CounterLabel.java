@@ -1,7 +1,5 @@
 package me.desht.chesscraft.controlpanel;
 
-import me.desht.dhutils.MiscUtil;
-
 public abstract class CounterLabel extends AbstractSignLabel {
 
 	private int count;
@@ -14,19 +12,14 @@ public abstract class CounterLabel extends AbstractSignLabel {
 		return count;
 	}
 
-	public void setCount(int plyNumber) {
-		this.count = plyNumber;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return getGame() != null;
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 	@Override
 	public String[] getCustomSignText() {
 		String[] res = getSignText();
-		res[2] = MiscUtil.parseColourSpec("&4" + count);
+		res[2] = getIndicatorColour() + count;
 		return res;
 	}
 }

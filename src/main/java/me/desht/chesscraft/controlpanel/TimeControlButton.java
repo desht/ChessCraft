@@ -45,6 +45,11 @@ public class TimeControlButton extends AbstractSignButton {
 	public boolean isEnabled() {
 		return getGame() != null;
 	}
+	
+	@Override
+	public boolean isReactive() {
+		return gameInState(GameState.SETTING_UP);
+	}
 
 	@Override
 	protected String[] getCustomSignText() {

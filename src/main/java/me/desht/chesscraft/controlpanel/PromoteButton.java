@@ -24,7 +24,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 	@Override
 	public String[] getCustomSignText() {
 		String[] label = getSignText();
-		label[3] = label[3] + getPromoStr(colour);
+		label[3] = getIndicatorColour() + getPromoStr(colour);
 		return label;
 	}
 
@@ -36,7 +36,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 	
 	private String getPromoStr(int colour) {
 		if (getGame() == null) {
-			return "?"; //$NON-NLS-1$
+			return ""; //$NON-NLS-1$
 		}
 		return ChessUtils.pieceToStr(getGame().getPromotionPiece(colour));
 	}

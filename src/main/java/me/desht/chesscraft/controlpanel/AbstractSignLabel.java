@@ -10,16 +10,17 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.BoardRotation;
+import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
 
 public abstract class AbstractSignLabel {
 
-	public final static String ENABLED_COLOUR = ChatColor.DARK_BLUE.toString();
-	public final static String DISABLED_COLOUR = ChatColor.DARK_GRAY.toString();
-	public final static String INDICATOR_COLOUR = ChatColor.DARK_RED.toString();
+	private final static String ENABLED_COLOUR = ChatColor.DARK_BLUE.toString();
+	private final static String DISABLED_COLOUR = ChatColor.DARK_GRAY.toString();
+	private final static String INDICATOR_COLOUR = ChatColor.DARK_RED.toString();
+	private static final String NONREACTIVE_COLOUR = "";
 	
 	private final ControlPanel panel;
 	private final PersistableLocation loc;
@@ -47,6 +48,25 @@ public abstract class AbstractSignLabel {
 	
 	public ChessGame getGame() {
 		return getView().getGame();
+	}
+	
+	public boolean isReactive() {
+		return false;
+	}
+	
+	public boolean gameInState(GameState state) {
+		return getGame() != null && getGame().getState() == state;
+	}
+	
+	public String getLabelColour() {
+		if (!isEnabled()) return DISABLED_COLOUR;
+		if (!isReactive()) return NONREACTIVE_COLOUR;
+		return ENABLED_COLOUR;
+	}
+	
+	public String getIndicatorColour() {
+		if (!isEnabled()) return DISABLED_COLOUR;
+		return INDICATOR_COLOUR;
 	}
 	
 	public String[] getLabel() {
@@ -87,17 +107,26 @@ public abstract class AbstractSignLabel {
 		
 		if (block.getState() instanceof Sign) {
 			Sign sign = (Sign) block.getState();
-			boolean isEnabled = isEnabled();
+//			boolean isEnabled = isEnabled();
 			String[] label = getLabel();
+
+			String col = getLabelColour();
+			
 			for (int i = 0; i < 4 && i < label.length; ++i) {
 				if (label[i].equals("=")) continue;				// '=' means leave the line as it is
 				
-				String col = isEnabled ? ENABLED_COLOUR : DISABLED_COLOUR;
-				if (label[i].matches("^&[0-9a-f]")) col = "";	// avoid redundant colour codes
+//				String col = isEnabled ? ENABLED_COLOUR : DISABLED_COLOUR;
+//				
+//				if (label[i].matches("^&[0-9a-f]")) col = "";	// avoid redundant colour codes
+//				
+//				if (!isEnabled) label[i] = label[i].replaceFirst("^&[0-9a-f]", "");	// disabled labels are entirely monochromatic
 				
-				if (!isEnabled) label[i] = label[i].replaceFirst("^&[0-9a-f]", "");	// disabled labels are entirely monochromatic
-				
-				sign.setLine(i, MiscUtil.parseColourSpec(col + label[i]));
+//				sign.setLine(i, MiscUtil.parseColourSpec(col + label[i]));
+				if (label[i].startsWith("\u00a7")) {
+					sign.setLine(i, label[i]);
+				} else {
+					sign.setLine(i, col + label[i]);
+				}
 			}
 			sign.update();
 		} else {

@@ -316,17 +316,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	@Override
 	public void toPlayChanged(int toPlay) {
-		MaterialWithData mat;
-		if (toPlay == Chess.WHITE) {
-			mat = getWhiteSquareMaterial();
-		} else if (toPlay == Chess.BLACK) {
-			mat = getBlackSquareMaterial();
-		} else if (toPlay == Chess.NOBODY) {
-			mat = getControlPanelMaterial();
-		} else {
-			return; // should never get here
-		}
-		controlPanel.updateToMoveIndicator(mat);
+		controlPanel.updateToMoveIndicator(toPlay);
 	}
 
 	//-----------------Chesspresso PositionChangeListener impl. ----------------------

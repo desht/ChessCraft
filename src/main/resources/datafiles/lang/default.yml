@@ -148,7 +148,7 @@ ChessUtils:
 ControlPanel:
   acceptDrawBtn: "Accept Draw?"
   acceptSwapBtn: "Accept Swap?"
-  blackPawnPromotionBtn: "Black Pawn;Promotion;;&4"
+  blackPawnPromotionBtn: "Black Pawn;Promotion"
   boardInfoBtn: ";Board;Info"
   chessInviteReminder: "Type &f/chess invite <playername>&- to invite someone"
   chessInvitePrompt: "Type a player name to invite.  Left or right-click cancels."
@@ -167,7 +167,7 @@ ControlPanel:
   timeControl: "Time Control"
   timeElapsed: "Elapsed"
   timeRemaining: "Remaining"
-  whitePawnPromotionBtn: "White Pawn;Promotion;;&4"
+  whitePawnPromotionBtn: "White Pawn;Promotion"
   yesBtn: ";;Yes"
 
 Designer:

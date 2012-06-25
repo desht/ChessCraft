@@ -17,6 +17,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
 import me.desht.chesscraft.chess.ChessAI.AI_Def;
+import me.desht.chesscraft.chess.TimeControl.ControlType;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -171,7 +172,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		replayMoves();
 
-		if (!tcWhite.getSpec().isEmpty()) {
+		if (tcWhite.getControlType() != ControlType.NONE) {
 			view.getControlPanel().getTcDefs().setCustomSpec(tcWhite.getSpec());
 		}
 		view.setGame(this);
