@@ -20,11 +20,7 @@ f
 
 2c) Alternatively, "git clone https://github.com/desht/ScrollingMenuSign" and build it from source (see https://github.com/desht/ScrollingMenuSign)
 
-3a) Download a copy of WorldEdit 5.3 from http://dev.bukkit.org/server-mods/worldedit/
-
-3b) Run 'mvn install:install-file -DgroupId=com.sk89q -DartifactId=worldedit -Dversion=5.3 -Dpackaging=jar -Dfile=worldedit-5.3.jar'
-
-4) Run 'mvn clean install'
+3) Run 'mvn clean install'
 
 This should give you a copy of ChessCraft.jar under the target/ directory.
 

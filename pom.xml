@@ -15,12 +15,10 @@
 			<id>bukkit-repo</id>
 			<url>http://repo.bukkit.org/content/groups/public</url>
 		</repository>
-<!--
 		<repository>
-			<id>sk89q-mvn2</id>
-			<url>http://mvn2.sk89q.com/repo</url>
+			<id>sk89q-maven</id>
+			<url>http://maven.sk89q.com/repo</url>
 		</repository>
--->
 	</repositories>
 	<build>
 		<finalName>${project.name}</finalName>
@@ -63,11 +61,6 @@
 				      <goal>shade</goal>
 				    </goals>
 				    <configuration>
-				      <artifactSet>
-					<includes>
-					  <include>me.desht:dhutils</include>
-					</includes>
-				      </artifactSet>
 				      <relocations>
 				        <relocation>
 				          <pattern>me.desht.dhutils</pattern>
@@ -135,7 +128,7 @@
 		<dependency>
 			<groupId>me.desht</groupId>
 			<artifactId>dhutils</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>[1.0.0,)</version>
 		</dependency>
 
 	</dependencies>
