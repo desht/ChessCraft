@@ -35,6 +35,7 @@ import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
+import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.dhutils.LogUtils;
@@ -58,6 +59,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final ChessBoard chessBoard;
 	
 	private double defaultStake;
+	
+	private String defaultTcSpec;
+	private boolean lockTcSpec;
+	
 	private ChessGame game = null;			// null indicates board not currently used by any game
 
 	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
@@ -73,6 +78,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard = new ChessBoard(origin, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 		defaultStake = -1.0;
+		defaultTcSpec = "";
+		lockTcSpec = false;
 	}
 
 	public BoardView(ConfigurationSection conf) throws ChessException {
@@ -87,8 +94,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
-		controlPanel = new ControlPanel(this);
 
 		String designerName = conf.getString("designer.setName");
 		String designerPlayerName = conf.getString("designer.playerName");
@@ -97,6 +102,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		
 		defaultStake = conf.getDouble("defaultStake", -1.0);
+		
+		defaultTcSpec = conf.getString("defaultTcSpec", "");
+		lockTcSpec = conf.getBoolean("lockTcSpec", false);
+		
+		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
+		controlPanel = new ControlPanel(this);
 	}
 
 	@Override
@@ -118,6 +129,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		result.put("designer", d);
 		result.put("defaultStake", defaultStake);
+		result.put("defaultTcSpec", defaultTcSpec);
+		result.put("lockTcSpec", lockTcSpec);
 		return result;
 	}
 
@@ -251,6 +264,25 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void setDesigner(PieceDesigner designer) {
 		chessBoard.setDesigner(designer);
+	}
+
+	public String getDefaultTcSpec() {
+		return defaultTcSpec;
+	}
+	
+	public void setDefaultTcSpec(String spec) {
+		TimeControl tc = new TimeControl(spec);		// force validation of the spec
+		defaultTcSpec = tc.getSpec();
+		getControlPanel().getTcDefs().addCustomSpec(defaultTcSpec);
+		getControlPanel().getSignButton(TimeControlButton.class).repaint();
+	}
+
+	public void setLockTcSpec(boolean lock) {
+		lockTcSpec = lock;
+	}
+	
+	public boolean getLockTcSpec() {
+		return lockTcSpec;
 	}
 
 	public void paintAll() {

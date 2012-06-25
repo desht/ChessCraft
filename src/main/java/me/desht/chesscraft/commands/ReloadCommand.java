@@ -5,6 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.chess.TimeControlDefs;
+import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
@@ -52,9 +53,10 @@ public class ReloadCommand extends AbstractCommand {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 		if (reloadTimeControls) {
-			TimeControlDefs.loadDefs();
+			TimeControlDefs.reInit();
 			for (BoardView bv : BoardView.listBoardViews()) {
-				bv.getControlPanel().repaintSignButtons();
+//				bv.getControlPanel().repaintSignButtons();
+				bv.getControlPanel().getSignButton(TimeControlButton.class).reloadDefs();
 			}
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.timeControlsReloaded")); //$NON-NLS-1$
 		}

@@ -26,6 +26,8 @@ public class DirectoryStructure {
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 
+	private enum ExtractWhen { ALWAYS, IF_NOT_EXISTS, IF_NEWER };
+	
 	public static void setup() {
 		pluginDir = ChessCraft.getInstance().getDataFolder();
 
@@ -126,8 +128,8 @@ public class DirectoryStructure {
 	}
 
 	private static void extractResources() {
-		extractResource("/AI_settings.yml", pluginDir); //$NON-NLS-1$
-		extractResource("/timecontrols.yml", pluginDir); //$NON-NLS-1$
+		extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
+		extractResource("/timecontrols.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 
 		extractResource("/datafiles/board_styles/standard.yml", boardStyleDir); //$NON-NLS-1$
 		extractResource("/datafiles/board_styles/open.yml", boardStyleDir); //$NON-NLS-1$
@@ -158,10 +160,10 @@ public class DirectoryStructure {
 	}
 
 	static void extractResource(String from, File toDir) {
-		extractResource(from, toDir, false);
+		extractResource(from, toDir, ExtractWhen.IF_NEWER);
 	}
 
-	static void extractResource(String from, File to, boolean force) {
+	static void extractResource(String from, File to, ExtractWhen when) {
 		File of = to;
 		if (to.isDirectory()) {
 			String fname = new File(from).getName();
@@ -175,10 +177,13 @@ public class DirectoryStructure {
 		                      ", file-last-mod=" + of.lastModified() +
 		                      ", file-exists=" + of.exists() +
 		                      ", jar-last-mod=" +  getJarFile().lastModified() +
-		                      ", force=" + force);
+		                      ", when=" + when);
 
 		// if the file exists and is newer than the JAR, then we'll leave it alone
-		if (of.exists() && of.lastModified() > getJarFile().lastModified() && !force) {
+		if (of.exists() && when == ExtractWhen.IF_NOT_EXISTS) {
+			return;
+		}
+		if (of.exists() && of.lastModified() > getJarFile().lastModified() && when != ExtractWhen.ALWAYS) {
 			return;
 		}
 

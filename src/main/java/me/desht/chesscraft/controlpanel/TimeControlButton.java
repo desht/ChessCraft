@@ -4,7 +4,6 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControlDefs;
 import me.desht.chesscraft.enums.GameState;
 
-import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import chesspresso.Chess;
@@ -21,6 +20,11 @@ public class TimeControlButton extends AbstractSignButton {
 
 	public TimeControlDefs getTcDefs() {
 		return tcDefs;
+	}
+	
+	public void reloadDefs() {
+		tcDefs.reload();
+		repaint();
 	}
 
 	@Override
@@ -48,28 +52,18 @@ public class TimeControlButton extends AbstractSignButton {
 	
 	@Override
 	public boolean isReactive() {
-		return gameInState(GameState.SETTING_UP);
+		return gameInState(GameState.SETTING_UP) && !getView().getLockTcSpec();
 	}
 
 	@Override
 	protected String[] getCustomSignText() {
 		String[] text = getSignText();
 		
-		ChessGame game = getGame();
-		String col;
-		if (game == null) {
-			col = "";
-		} else if (game.getState() == GameState.SETTING_UP) {
-			col = ChatColor.DARK_RED.toString();
-		} else {
-			col = ChatColor.BLACK.toString();
-		}
-		
 		String[] tcText = tcDefs.currentDef().getLabel();
 		int start = tcText.length < 3 ? 2 : 1;
 		
 		for (int l = start, i = 0; l < 4; l++, i++) {
-			text[l] = col + (i < tcText.length ? tcText[i] : "");
+			text[l] = getIndicatorColour() + (i < tcText.length ? tcText[i] : "");
 		}
 		
 		return text;

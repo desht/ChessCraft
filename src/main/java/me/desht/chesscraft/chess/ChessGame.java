@@ -173,7 +173,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		replayMoves();
 
 		if (tcWhite.getControlType() != ControlType.NONE) {
-			view.getControlPanel().getTcDefs().setCustomSpec(tcWhite.getSpec());
+			view.getControlPanel().getTcDefs().addCustomSpec(tcWhite.getSpec());
 		}
 		view.setGame(this);
 	}
@@ -507,6 +507,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public void setTimeControl(String spec) throws ChessException {
 		ensureGameState(GameState.SETTING_UP);
+		if (view.getLockTcSpec()) {
+			throw new ChessException(Messages.getString("Game.timeControlLocked"));
+		}
 		try {
 			tcWhite = new TimeControl(spec);
 			tcBlack = new TimeControl(spec);

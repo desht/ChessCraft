@@ -27,7 +27,7 @@ public class TimeControlCommand extends AbstractCommand {
 		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
 		game.setTimeControl(tcSpec);
 		ControlPanel cp = game.getView().getControlPanel();
-		cp.getTcDefs().setCustomSpec(tcSpec);
+		cp.getTcDefs().addCustomSpec(tcSpec);
 		cp.repaintSignButtons();
 		cp.updateClock(Chess.WHITE, game.getTcWhite());
 		cp.updateClock(Chess.BLACK, game.getTcBlack());

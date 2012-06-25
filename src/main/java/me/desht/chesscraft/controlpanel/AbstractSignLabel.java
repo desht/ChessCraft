@@ -93,6 +93,12 @@ public abstract class AbstractSignLabel {
 		return res;
 	}
 	
+	/**
+	 * Override this in subclasses if the button/label needs some special
+	 * processing to display its text.
+	 * 
+	 * @return
+	 */
 	protected String[] getCustomSignText() {
 		return null;
 	}
@@ -107,21 +113,13 @@ public abstract class AbstractSignLabel {
 		
 		if (block.getState() instanceof Sign) {
 			Sign sign = (Sign) block.getState();
-//			boolean isEnabled = isEnabled();
 			String[] label = getLabel();
 
 			String col = getLabelColour();
 			
 			for (int i = 0; i < 4 && i < label.length; ++i) {
-				if (label[i].equals("=")) continue;				// '=' means leave the line as it is
-				
-//				String col = isEnabled ? ENABLED_COLOUR : DISABLED_COLOUR;
-//				
-//				if (label[i].matches("^&[0-9a-f]")) col = "";	// avoid redundant colour codes
-//				
-//				if (!isEnabled) label[i] = label[i].replaceFirst("^&[0-9a-f]", "");	// disabled labels are entirely monochromatic
-				
-//				sign.setLine(i, MiscUtil.parseColourSpec(col + label[i]));
+				if (label[i].equals("="))
+					continue;				// '=' means leave the line as it is
 				if (label[i].startsWith("\u00a7")) {
 					sign.setLine(i, label[i]);
 				} else {
@@ -134,7 +132,7 @@ public abstract class AbstractSignLabel {
 		}
 	}
 	
-	protected PersistableLocation getSignLocation(int x, int y) {
+	private PersistableLocation getSignLocation(int x, int y) {
 		BoardRotation boardRot = panel.getView().getRotation();
 		BoardRotation signRot = boardRot.getRight();
 		Cuboid panelBlocks = panel.getPanelBlocks();

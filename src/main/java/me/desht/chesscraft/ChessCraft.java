@@ -10,7 +10,6 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
-import me.desht.chesscraft.chess.TimeControlDefs;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.BoardDeletionCommand;
@@ -110,8 +109,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 
 		LogUtils.init(this);
 
-		configManager = new ConfigurationManager(this);
-		configManager.setConfigurationListener(this);
+		configManager = new ConfigurationManager(this, this);
 
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
 
@@ -120,8 +118,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		Messages.init(getConfig().getString("locale", "default"));
 
 		ChessAI.initAINames();
-		
-		TimeControlDefs.loadDefs();
 
 		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
@@ -414,6 +410,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		} else if (key.equalsIgnoreCase("teleporting")) { //$NON-NLS-1$
 			updateAllControlPanels();
 		}
+	}
+
+	@Override
+	public void onVersionChanged(int oldVersion, int newVersion) {
+		// nothing to do right now
 	}
 
 	private static void updateAllControlPanels() {

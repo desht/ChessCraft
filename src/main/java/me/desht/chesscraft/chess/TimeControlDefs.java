@@ -16,13 +16,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class TimeControlDefs {
 	private static final String TIME_CONTROLS_FILE = "timecontrols.yml";
 	
-	private static final List<TCDef> defs = new ArrayList<TCDef>();
+	private static List<TCDef> baseDefs = new ArrayList<TCDef>();
 	
 	private int idx;
-	private String customSpec;
+	private final List<TCDef> allDefs;
+	private final List<TCDef> extraDefs;
 	
-	public static void loadDefs() {
-		defs.clear();
+	private static void loadBaseDefs() {
+		baseDefs.clear();
 		
 		File f = new File(ChessCraft.getInstance().getDataFolder(), TIME_CONTROLS_FILE);
 		Configuration c = YamlConfiguration.loadConfiguration(f);
@@ -44,7 +45,7 @@ public class TimeControlDefs {
 					continue;
 				}
 				try {
-					defs.add(new TCDef(label, spec));
+					baseDefs.add(new TCDef(label, spec));
 				} catch (Exception e) {
 					LogUtils.warning(e.getMessage());
 				}
@@ -52,28 +53,45 @@ public class TimeControlDefs {
 		}
 	}
 	
-	public TimeControlDefs() {
-		idx = 0;
-		customSpec = "";
+	public static void reInit() {
+		baseDefs = null;
 	}
 	
-	public String getCustomSpec() {
-		return customSpec;
+	public TimeControlDefs() {
+		if (baseDefs == null)
+			loadBaseDefs();
+		
+		idx = 0;
+		allDefs = new ArrayList<TCDef>(baseDefs);
+		extraDefs = new ArrayList<TCDef>();
 	}
 
-	public void setCustomSpec(String customSpec) {
-		// see if the custom spec is actually one we know about - if it is,
-		// we'll use that spec rather than set up a custom spec
-		for (int i = 0; i < defs.size(); i++) {
-			TCDef def = defs.get(i);
+	public void reload() {
+		idx = 0;
+		allDefs.clear();
+		for (TCDef def : baseDefs) {
+			allDefs.add(def);
+		}
+		for (TCDef def : extraDefs) {
+			allDefs.add(def);
+		}
+	}
+
+	public void addCustomSpec(String customSpec) {
+		// see if the custom spec. is one we know about already - if it is,
+		// we'll use that spec. rather than add a custom spec.
+		for (int i = 0; i < allDefs.size(); i++) {
+			TCDef def = allDefs.get(i);
 			if (def.getSpec().equalsIgnoreCase(customSpec)) {
 				idx = i;
-				this.customSpec = "";
 				return;
 			}
 		}
 		
-		this.customSpec = customSpec;
+		TCDef tcd = new TCDef("Custom;" + customSpec, customSpec);
+		allDefs.add(tcd);
+		extraDefs.add(tcd);
+		idx = allDefs.size() - 1;
 	}
 
 	/**
@@ -82,15 +100,14 @@ public class TimeControlDefs {
 	 * @return
 	 */
 	public TCDef nextDef() {
-		if (defs.isEmpty()) {
+		if (allDefs.isEmpty()) {
 			return new TCDef("None", "None");
 		}
 		idx++;
-		if (idx >= defs.size()) {
+		if (idx >= allDefs.size()) {
 			idx = 0;
 		}
-		customSpec = "";
-		return defs.get(idx);
+		return allDefs.get(idx);
 	}
 	
 	/**
@@ -98,30 +115,26 @@ public class TimeControlDefs {
 	 * @return
 	 */
 	public TCDef prevDef() {
-		if (defs.isEmpty()) {
+		if (allDefs.isEmpty()) {
 			return new TCDef("None", "None");
 		}
 		idx--;
 		if (idx < 0) {
-			idx = defs.size() - 1;
+			idx = allDefs.size() - 1;
 		}
-		customSpec = "";
-		return defs.get(idx);
+		return allDefs.get(idx);
 	}
 	
 	public TCDef currentDef() {
-		if (defs.isEmpty()) {
+		if (allDefs.isEmpty()) {
 			return new TCDef("None", "None");
-		}
-		if (!customSpec.isEmpty()) {
-			return new TCDef("Custom;" + customSpec, customSpec);
 		}
 		if (idx < 0) {
 			idx = 0;
-		} else if (idx >= defs.size()) {
-			idx = defs.size() - 1;
+		} else if (idx >= allDefs.size()) {
+			idx = allDefs.size() - 1;
 		}
-		return defs.get(idx);
+		return allDefs.get(idx);
 	}
 	
 	public static class TCDef {
