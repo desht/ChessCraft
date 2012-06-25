@@ -94,6 +94,10 @@ public class ControlPanel {
 		return type.cast(buttonNames.get(type.getSimpleName()));
 	}
 	
+	public boolean isSignButton(Location location) {
+		return buttonLocs.containsKey(new PersistableLocation(location));
+	}
+
 	/**
 	 * Get a teleport-in location for this control panel.  Player will be standing in front of the
 	 * control panel, facing it.

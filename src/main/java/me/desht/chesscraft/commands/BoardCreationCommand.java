@@ -12,7 +12,6 @@ import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.entity.Player;
 
 public class BoardCreationCommand extends AbstractCommand {
 
@@ -43,7 +42,7 @@ public class BoardCreationCommand extends AbstractCommand {
 		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
 
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.getResponseHandler().expect((Player) sender, new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
+		ChessCraft.getResponseHandler().expect(sender.getName(), new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
 		
 		return true;
 	}

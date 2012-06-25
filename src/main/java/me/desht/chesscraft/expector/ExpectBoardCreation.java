@@ -6,9 +6,11 @@ import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ExpectBase;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -31,7 +33,13 @@ public class ExpectBoardCreation extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(Player player) {
+	public void doResponse(String playerName) {
+		Player player = Bukkit.getPlayer(playerName);
+		if (player == null) {
+			LogUtils.warning("Board creation: player " + playerName + " gone offline?");
+			return;
+		}
+		
 		BoardView view = new BoardView(boardName, loc, BoardRotation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
 		if (ChessCraft.getWorldEdit() != null) {

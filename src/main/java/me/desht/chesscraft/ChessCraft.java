@@ -339,17 +339,17 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		ResponseHandler respHandler = getResponseHandler();
 
 		Class<? extends ExpectYesNoResponse> c = null;
-		if (respHandler.isExpecting(player, ExpectDrawResponse.class)) {
+		if (respHandler.isExpecting(player.getName(), ExpectDrawResponse.class)) {
 			c = ExpectDrawResponse.class;
-		} else if (respHandler.isExpecting(player, ExpectSwapResponse.class)) {
+		} else if (respHandler.isExpecting(player.getName(), ExpectSwapResponse.class)) {
 			c = ExpectSwapResponse.class;
 		} else {
 			return;
 		}
 
-		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player, c);
+		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player.getName(), c);
 		response.setResponse(isAccepted);
-		respHandler.handleAction(player, c);
+		response.handleAction();
 		response.getGame().getView().getControlPanel().repaintSignButtons();
 	}
 

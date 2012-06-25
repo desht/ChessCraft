@@ -3,8 +3,6 @@ package me.desht.chesscraft.expector;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.dhutils.responsehandler.ExpectBase;
 
-import org.bukkit.entity.Player;
-
 public class ExpectInvitePlayer extends ExpectBase {
 	private String inviteeName;
 	
@@ -20,8 +18,8 @@ public class ExpectInvitePlayer extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(Player player) {
-		ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
-		game.invitePlayer(player.getName(), inviteeName);
+	public void doResponse(String playerName) {
+		ChessGame game = ChessGame.getCurrentGame(playerName, true);
+		game.invitePlayer(playerName, inviteeName);
 	}
 }

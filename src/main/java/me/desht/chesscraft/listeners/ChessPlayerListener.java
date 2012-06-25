@@ -13,12 +13,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -62,12 +60,13 @@ public class ChessPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-
+		String playerName = player.getName();
+		
 		ResponseHandler resp = ChessCraft.getResponseHandler();
 		
-		// a left or right-click cancels any pending player invite response
-		if (resp.isExpecting(player, ExpectInvitePlayer.class)) {
-			resp.cancelAction(player, ExpectInvitePlayer.class);
+		// a left or right-click (even air, where the event is cancelled) cancels any pending player invite response
+		if (resp.isExpecting(playerName, ExpectInvitePlayer.class)) {
+			resp.cancelAction(playerName, ExpectInvitePlayer.class);
 			MiscUtil.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
 			event.setCancelled(true);
 			return;
@@ -82,36 +81,30 @@ public class ChessPlayerListener implements Listener {
 			if (b == null) {
 				return;
 			}
-			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (resp.isExpecting(player, ExpectBoardCreation.class)) {
-					resp.cancelAction(player, ExpectBoardCreation.class);
-					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
-					event.setCancelled(true);
-				} else {
-					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
-					if (bv != null && b.getState() instanceof Sign) {
-						bv.getControlPanel().signClicked(event);
-						event.setCancelled(true);
-					}
-				}
-			} else if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-				if (resp.isExpecting(player, ExpectBoardCreation.class)) {
-					ExpectBoardCreation a = (ExpectBoardCreation) resp.getAction(player, ExpectBoardCreation.class);
+			if (resp.isExpecting(playerName, ExpectBoardCreation.class)) {
+				ExpectBoardCreation a = resp.getAction(playerName, ExpectBoardCreation.class);
+				switch (event.getAction()) {
+				case LEFT_CLICK_BLOCK:
 					a.setLocation(b.getLocation());
-					resp.handleAction(player, ExpectBoardCreation.class);
+					a.handleAction();
+					break;
+				case RIGHT_CLICK_BLOCK:
+					a.cancelAction();
+					break;
+				}
+				event.setCancelled(true);
+			} else {
+				BoardView bv = BoardView.partOfChessBoard(b.getLocation());
+				if (bv != null && bv.getControlPanel().isSignButton(b.getLocation())) {
+					bv.getControlPanel().signClicked(event);
 					event.setCancelled(true);
-				} else {
-					BoardView bv = BoardView.partOfChessBoard(b.getLocation());
-					if (bv != null && b.getState() instanceof Sign) {
-						bv.getControlPanel().signClicked(event);
-						event.setCancelled(true);
-					}
 				}
 			}
+
 		} catch (ChessException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
-			if (resp.isExpecting(player, ExpectBoardCreation.class)) {
-				resp.cancelAction(player, ExpectBoardCreation.class);
+			if (resp.isExpecting(playerName, ExpectBoardCreation.class)) {
+				resp.cancelAction(playerName, ExpectBoardCreation.class);
 				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		}
@@ -225,15 +218,16 @@ public class ChessPlayerListener implements Listener {
 	public void onPlayerChat(PlayerChatEvent event) {
 		Player player = event.getPlayer();
 		ResponseHandler resp = ChessCraft.getResponseHandler();
-		if (resp.isExpecting(event.getPlayer(), ExpectInvitePlayer.class)) {
+		ExpectInvitePlayer ip = resp.getAction(player.getName(), ExpectInvitePlayer.class);
+		
+		if (ip != null) {
 			try {
-				ExpectInvitePlayer ip = (ExpectInvitePlayer) resp.getAction(player, ExpectInvitePlayer.class);
 				ip.setInviteeName(event.getMessage());
 				event.setCancelled(true);
-				resp.handleAction(player, ip.getClass());
+				ip.handleAction();
 			} catch (ChessException e) {
 				MiscUtil.errorMessage(player, e.getMessage());
-				resp.cancelAction(player, ExpectInvitePlayer.class);
+				ip.cancelAction();
 			}
 		}
 	}

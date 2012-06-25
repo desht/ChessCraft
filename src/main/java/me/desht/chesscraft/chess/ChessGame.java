@@ -814,13 +814,15 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
 			// making a move after a draw or swap offer has been made is equivalent to declining the offer
-			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectDrawResponse.class)) {
+			ExpectDrawResponse dr = ChessCraft.getResponseHandler().getAction(playerName, ExpectDrawResponse.class);
+			ExpectSwapResponse sr = ChessCraft.getResponseHandler().getAction(playerName, ExpectSwapResponse.class);
+			if (dr != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
-				ChessCraft.getResponseHandler().cancelAction(player, ExpectDrawResponse.class);
+				dr.cancelAction();
 			}
-			if (ChessCraft.getResponseHandler().isExpecting(player, ExpectSwapResponse.class)) {
+			if (sr != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
-				ChessCraft.getResponseHandler().cancelAction(player, ExpectSwapResponse.class);
+				sr.cancelAction();
 			}
 		}
 
@@ -1320,22 +1322,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException
 	 */
 	public void offerDraw(String playerName) throws ChessException {
-		Player player = Bukkit.getPlayer(playerName);
-		// a null player is OK as long as the player name is in the game,
-		// in which case it's probably an AI player
+	
 		ensurePlayerInGame(playerName);
 		ensurePlayerToMove(playerName);
 		ensureGameState(GameState.RUNNING);
 
 		String otherPlayerName = getOtherPlayer(playerName);
-		Player otherPlayer = Bukkit.getPlayer(otherPlayerName);
-		if (otherPlayer != null) {
-			ChessCraft.getResponseHandler().expect(otherPlayer, new ExpectDrawResponse(this, playerName, otherPlayerName));
-		} else if (ChessAI.isAIPlayer(otherPlayerName)) {
-			// TODO: work how to offer a draw to the AI, if possible
+		if (ChessAI.isAIPlayer(otherPlayerName)) {
+			// TODO: work out how to offer a draw to the AI, if possible
 		} else {
-			throw new ChessException("unknown player '" + otherPlayerName + "'");
+			ChessCraft.getResponseHandler().expect(otherPlayerName, new ExpectDrawResponse(this, playerName, otherPlayerName));
 		}
+		
+		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.drawOfferedYou", otherPlayerName)); //$NON-NLS-1$
 		}
@@ -1352,7 +1351,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException
 	 */
 	public void offerSwap(String playerName) throws ChessException {
-		Player player = Bukkit.getPlayer(playerName);
 		ensurePlayerInGame(playerName);
 
 		String otherPlayerName = getOtherPlayer(playerName);
@@ -1360,14 +1358,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// no other player yet - just swap
 			swapColours();
 		} else {
-			Player otherPlayer = Bukkit.getPlayer(otherPlayerName);
-			if (otherPlayer != null) {
-				ChessCraft.getResponseHandler().expect(otherPlayer, new ExpectSwapResponse(this, playerName, otherPlayerName));
-			} else if (ChessAI.isAIPlayer(otherPlayerName)) {
-				return;
+			if (ChessAI.isAIPlayer(otherPlayerName)) {
+				// TODO: work out how to offer a draw to the AI, if possible
 			} else {
-				throw new ChessException("unknown player '" + otherPlayerName + "'");
+				ChessCraft.getResponseHandler().expect(otherPlayerName, new ExpectSwapResponse(this, playerName, otherPlayerName));
 			}
+			Player player = Bukkit.getPlayer(playerName);	
 			if (player != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.sideSwapOfferedYou", otherPlayerName)); //$NON-NLS-1$
 			} 
