@@ -128,6 +128,7 @@ public class ControlPanel {
 		repaintClocks();
 		halfMoveClockLabel.repaint();
 		plyCountLabel.repaint();
+		updateToMoveIndicator();
 	}
 
 	public void repaintClocks() {
@@ -149,16 +150,20 @@ public class ControlPanel {
 		}
 	}
 	
+	public void updateToMoveIndicator() {
+		int toPlay = Chess.NOBODY;
+		if (view.getGame() != null) {
+			toPlay = view.getGame().getPosition().getToPlay();
+		}
+		updateToMoveIndicator(toPlay);
+	}
+	
 	public void updateToMoveIndicator(int toPlay) {
-		MaterialWithData mat;
+		MaterialWithData mat = getView().getControlPanelMaterial();
 		if (toPlay == Chess.WHITE) {
 			mat = getView().getWhiteSquareMaterial();
 		} else if (toPlay == Chess.BLACK) {
 			mat = getView().getBlackSquareMaterial();
-		} else if (toPlay == Chess.NOBODY) {
-			mat = getView().getControlPanelMaterial();
-		} else {
-			return; // should never get here
 		}
 		toMoveIndicator.set(mat);
 	}
