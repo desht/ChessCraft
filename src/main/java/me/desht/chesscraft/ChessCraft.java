@@ -59,6 +59,8 @@ import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PluginVersionChecker;
+import me.desht.dhutils.PluginVersionListener;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -77,7 +79,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
-public class ChessCraft extends JavaPlugin implements ConfigurationListener {
+public class ChessCraft extends JavaPlugin implements ConfigurationListener, PluginVersionListener {
 
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
@@ -113,6 +115,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
 
+		new PluginVersionChecker(this, this);
+		
 		DirectoryStructure.setup();
 
 		Messages.init(getConfig().getString("locale", "default"));
@@ -386,6 +390,19 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		cmds.registerCommand(new YesCommand());
 	}
 
+	private static void updateAllControlPanels() {
+		for (BoardView bv : BoardView.listBoardViews()) {
+			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintClocks();
+		}
+	}
+
+	public ConfigurationManager getConfigManager() {
+		return configManager;
+	}
+
+	/* ConfigurationListener */
+	
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
 		// do nothing
@@ -412,19 +429,21 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener {
 		}
 	}
 
+	/* PluginVersionListener */
+	
+	@Override
+	public String getPreviousVersion() {
+		return getConfig().getString("version");
+	}
+
+	@Override
+	public void setPreviousVersion(String currentVersion) {
+		getConfig().set("version", getDescription().getVersion());
+		saveConfig();
+	}
+
 	@Override
 	public void onVersionChanged(int oldVersion, int newVersion) {
 		// nothing to do right now
-	}
-
-	private static void updateAllControlPanels() {
-		for (BoardView bv : BoardView.listBoardViews()) {
-			bv.getControlPanel().repaintSignButtons();
-			bv.getControlPanel().repaintClocks();
-		}
-	}
-
-	public ConfigurationManager getConfigManager() {
-		return configManager;
 	}
 }
