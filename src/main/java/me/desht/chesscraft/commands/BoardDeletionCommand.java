@@ -20,18 +20,12 @@ public class BoardDeletionCommand extends AbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
 		BoardView bv = BoardView.getBoardView(args[0]);
 		String boardName = bv.getName();
-		if (bv.getGame() == null) {
-			bv.deletePermanently((Player) player);
-			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$
-		} else {
-			MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.boardCantBeDeleted", //$NON-NLS-1$
-			                                                   boardName, bv.getGame().getName()));
-		}
-
+		bv.deletePermanently((Player) sender);
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$
 		return true;
 	}
 }
