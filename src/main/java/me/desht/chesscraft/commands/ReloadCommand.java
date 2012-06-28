@@ -34,7 +34,7 @@ public class ReloadCommand extends AbstractCommand {
 			reloadConfig = true;
 		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
 			reloadPersisted = true;
-		} else if (args[0].startsWith("p")) { //$NON-NLS-1$
+		} else if (args[0].startsWith("t")) { //$NON-NLS-1$
 			reloadTimeControls = true;
 		} else {
 			showUsage(player);
@@ -53,9 +53,8 @@ public class ReloadCommand extends AbstractCommand {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 		if (reloadTimeControls) {
-			TimeControlDefs.reInit();
+			TimeControlDefs.loadBaseDefs();
 			for (BoardView bv : BoardView.listBoardViews()) {
-//				bv.getControlPanel().repaintSignButtons();
 				bv.getControlPanel().getSignButton(TimeControlButton.class).reloadDefs();
 			}
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.timeControlsReloaded")); //$NON-NLS-1$

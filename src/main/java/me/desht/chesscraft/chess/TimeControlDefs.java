@@ -16,14 +16,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class TimeControlDefs {
 	private static final String TIME_CONTROLS_FILE = "timecontrols.yml";
 	
-	private static List<TCDef> baseDefs = new ArrayList<TCDef>();
+	private static List<TCDef> baseDefs;
 	
 	private int idx;
 	private final List<TCDef> allDefs;
 	private final List<TCDef> extraDefs;
 	
-	private static void loadBaseDefs() {
-		baseDefs.clear();
+	public static void loadBaseDefs() {
+		baseDefs = new ArrayList<TimeControlDefs.TCDef>();
 		
 		File f = new File(ChessCraft.getInstance().getDataFolder(), TIME_CONTROLS_FILE);
 		Configuration c = YamlConfiguration.loadConfiguration(f);
@@ -53,10 +53,6 @@ public class TimeControlDefs {
 		}
 	}
 	
-	public static void reInit() {
-		baseDefs = null;
-	}
-	
 	public TimeControlDefs() {
 		if (baseDefs == null)
 			loadBaseDefs();
@@ -69,6 +65,7 @@ public class TimeControlDefs {
 	public void reload() {
 		idx = 0;
 		allDefs.clear();
+		loadBaseDefs();
 		for (TCDef def : baseDefs) {
 			allDefs.add(def);
 		}
