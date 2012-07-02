@@ -13,7 +13,8 @@ import org.bukkit.entity.Player;
 
 public class TerrainBackup {
 
-	public static void save(Player player, BoardView view) {
+	public static boolean save(Player player, BoardView view) {
+		boolean saved = false;
 		try {
 			TerrainManager tm = new TerrainManager(ChessCraft.getWorldEdit(), player);
 			
@@ -21,9 +22,11 @@ public class TerrainBackup {
 			Location l1 = c.getLowerNE();
 			Location l2 = c.getUpperSW();
 			tm.saveTerrain(new File(DirectoryStructure.getSchematicsDirectory(), view.getName()), l1, l2);
+			saved = true;
 		} catch (Exception e) {
 			LogUtils.warning(e.getMessage());
 		}
+		return saved;
 	}
 
 	public static boolean reload(Player player, BoardView view) {	
