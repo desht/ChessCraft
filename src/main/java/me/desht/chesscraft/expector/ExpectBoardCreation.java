@@ -43,7 +43,7 @@ public class ExpectBoardCreation extends ExpectBase {
 		BoardView view = new BoardView(boardName, loc, BoardRotation.getPlayerDirection(player), style, pieceStyle);
 		BoardView.addBoardView(view);
 		if (ChessCraft.getWorldEdit() != null) {
-			TerrainBackup.save(player, view);
+			TerrainBackup.save(view);
 		}
 		view.save();
 		view.paintAll();

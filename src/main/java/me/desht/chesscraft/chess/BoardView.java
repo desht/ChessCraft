@@ -484,9 +484,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * 
 	 * @param p
 	 */
-	public void deletePermanently(Player p) {
+	public void deletePermanently() {
 		deleteCommon();
-		restoreTerrain(p);
+		restoreTerrain();
 		ChessCraft.getPersistenceHandler().unpersist(this);
 	}
 
@@ -497,12 +497,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		BoardView.removeBoardView(getName());
 	}
 
-	private void restoreTerrain(Player player) {
+	private void restoreTerrain() {
 		boolean restored = false;
 
 		if (ChessCraft.getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
-			restored = TerrainBackup.reload(player, this);
+			restored = TerrainBackup.reload(this);
 		}
 
 		if (!restored) {
