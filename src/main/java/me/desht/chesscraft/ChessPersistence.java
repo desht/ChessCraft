@@ -142,7 +142,7 @@ public class ChessPersistence {
 				// empty config returned - probably due to corrupted save file of some kind
 				return false;
 			}
-			BoardView.addBoardView(bv);
+			BoardView.registerView(bv);
 			return true;
 		} catch (Exception e) {
 			LogUtils.severe("can't load saved board from " + f.getName() + ": " + e.getMessage(), e);

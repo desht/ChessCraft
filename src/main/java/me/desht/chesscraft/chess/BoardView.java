@@ -65,17 +65,17 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	
 	private ChessGame game = null;			// null indicates board not currently used by any game
 
-	public BoardView(String bName, Location origin, String bStyle, String pStyle) throws ChessException {
-		this(bName, origin, null, bStyle, pStyle);
+	public BoardView(String boardName, Location origin, String bStyle, String pStyle) throws ChessException {
+		this(boardName, origin, BoardRotation.getRotation(origin), bStyle, pStyle);
 	}
 
-	public BoardView(String bName, Location origin,
-			BoardRotation dir, String bStyle, String pStyle) throws ChessException {
-		this.name = bName;
+	public BoardView(String boardName, Location origin,
+			BoardRotation rotation, String bStyle, String pStyle) throws ChessException {
+		this.name = boardName;
 		if (BoardView.boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
-		chessBoard = new ChessBoard(origin, dir, bStyle, pStyle);
+		chessBoard = new ChessBoard(origin, rotation, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 		defaultStake = -1.0;
 		defaultTcSpec = "";
@@ -621,7 +621,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoards.put(name, view);
 	}
 
-	public static void addBoardView(BoardView view) {
+	public static void registerView(BoardView view) {
 		addBoardView(view.getName(), view);
 	}
 
@@ -791,5 +791,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		} else {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
+	}
+	
+	/**
+	 * Convenience method to create a new board and do all the associated setup tasks.
+	 * 
+	 * @param boardName
+	 * @param loc
+	 * @param style
+	 * @param pieceStyle
+	 * @return a fully initialised and painted board
+	 */
+	public static BoardView createBoard(String boardName, Location loc, BoardRotation rotation, String style, String pieceStyle) {
+		BoardView view = new BoardView(boardName, loc, rotation, style, pieceStyle);
+		BoardView.registerView(view);
+		if (ChessCraft.getWorldEdit() != null) {
+			TerrainBackup.save(view);
+		}
+		view.save();
+		view.paintAll();
+		
+		return view;
 	}
 }

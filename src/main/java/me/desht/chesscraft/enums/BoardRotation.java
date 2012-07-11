@@ -1,5 +1,6 @@
 package me.desht.chesscraft.enums;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public enum BoardRotation {
@@ -73,24 +74,26 @@ public enum BoardRotation {
 		return null; // should not get here..
 	}
 
-	public static BoardRotation getPlayerDirection(Player p) {
-		if (p != null) {
-			// get the direction the player is facing
-			double rot = (p.getLocation().getYaw() - 90) % 360;
-			if (rot < 0) {
-				rot += 360;
-			}
-			if ((0 <= rot && rot < 45) || (315 <= rot && rot < 360.0)) {
-				return BoardRotation.NORTH;
-			} else if (45 <= rot && rot < 135) {
-				return BoardRotation.EAST;
-			} else if (135 <= rot && rot < 225) {
-				return BoardRotation.SOUTH;
-			} else if (225 <= rot && rot < 315) {
-				return BoardRotation.WEST;
-			}
+	public static BoardRotation getRotation(Location loc) {
+		double rot = (loc.getYaw() - 90) % 360;
+		if (rot < 0) {
+			rot += 360;
 		}
-		return null;
+		if ((0 <= rot && rot < 45) || (315 <= rot && rot < 360.0)) {
+			return BoardRotation.NORTH;
+		} else if (45 <= rot && rot < 135) {
+			return BoardRotation.EAST;
+		} else if (135 <= rot && rot < 225) {
+			return BoardRotation.SOUTH;
+		} else if (225 <= rot && rot < 315) {
+			return BoardRotation.WEST;
+		} else {
+			throw new IllegalArgumentException("impossible rotation: " + rot);
+		}
+	}
+	
+	public static BoardRotation getRotation(Player p) {
+		return getRotation(p.getLocation());
 	}
 
 	public float getYaw() {

@@ -1,8 +1,6 @@
 package me.desht.chesscraft.expector;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.util.ChessUtils;
@@ -40,15 +38,10 @@ public class ExpectBoardCreation extends ExpectBase {
 			return;
 		}
 		
-		BoardView view = new BoardView(boardName, loc, BoardRotation.getPlayerDirection(player), style, pieceStyle);
-		BoardView.addBoardView(view);
-		if (ChessCraft.getWorldEdit() != null) {
-			TerrainBackup.save(view);
-		}
-		view.save();
-		view.paintAll();
+		BoardView view = BoardView.createBoard(boardName, loc, BoardRotation.getRotation(player), style, pieceStyle);
+		
 		MiscUtil.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
-				boardName, ChessUtils.formatLoc(view.getA1Square())));
+				view.getName(), ChessUtils.formatLoc(view.getA1Square())));
 	}
 
 }
