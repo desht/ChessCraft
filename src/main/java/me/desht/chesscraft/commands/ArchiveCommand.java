@@ -18,7 +18,11 @@ public class ArchiveCommand extends AbstractCommand {
 	public ArchiveCommand() {
 		super("chess archive", 0, 1);
 		setPermissionNode("chesscraft.commands.archive");
-		setUsage("/chess archive");
+		setUsage(new String[] {
+				"/chess archive",
+				"/chess archive <game-name>",
+				"/chess archive -this",		
+		});
 	}
 
 	@Override
