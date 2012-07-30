@@ -59,6 +59,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final ChessBoard chessBoard;
 	
 	private double defaultStake;
+	private boolean lockStake;
 	
 	private String defaultTcSpec;
 	private boolean lockTcSpec;
@@ -78,6 +79,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard = new ChessBoard(origin, rotation, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 		defaultStake = -1.0;
+		lockStake = false;
 		defaultTcSpec = "";
 		lockTcSpec = false;
 	}
@@ -102,12 +104,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		
 		defaultStake = conf.getDouble("defaultStake", -1.0);
+		lockStake = conf.getBoolean("lockStake", false);
 		
 		defaultTcSpec = conf.getString("defaultTcSpec", "");
 		lockTcSpec = conf.getBoolean("lockTcSpec", false);
 		
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
+		
+		setDefaultTcSpec(defaultTcSpec);
 	}
 
 	@Override
@@ -129,6 +134,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		result.put("designer", d);
 		result.put("defaultStake", defaultStake);
+		result.put("lockStake", lockStake);
 		result.put("defaultTcSpec", defaultTcSpec);
 		result.put("lockTcSpec", lockTcSpec);
 		return result;
@@ -200,6 +206,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
 			chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
+			setDefaultTcSpec(getDefaultTcSpec());
 		}
 		chessBoard.getFullBoard().sendClientChanges();
 		controlPanel.repaintClocks();
@@ -267,7 +274,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public String getDefaultTcSpec() {
-		return defaultTcSpec;
+		return defaultTcSpec.isEmpty() ? ChessCraft.getInstance().getConfig().getString("time_control.default") : defaultTcSpec;
 	}
 	
 	public void setDefaultTcSpec(String spec) {
@@ -283,6 +290,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	
 	public boolean getLockTcSpec() {
 		return lockTcSpec;
+	}
+
+	public boolean getLockStake() {
+		return lockStake;
+	}
+
+	public void setLockStake(boolean lockStake) {
+		this.lockStake = lockStake;
 	}
 
 	public void paintAll() {
@@ -578,7 +593,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel())); //$NON-NLS-1$
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()))); //$NON-NLS-1$
+		String lockStakeStr = getLockStake() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr)); //$NON-NLS-1$
+		String lockTcStr = getLockTcSpec() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
+		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr)); //$NON-NLS-1$
 		
 		if (chessBoard.getDesigner() != null) {
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));

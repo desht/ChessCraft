@@ -41,6 +41,8 @@ public class StakeButton extends AbstractSignButton {
 		ChessGame game = getGame();
 		if (game == null) return false;
 		
+		if (getView().getLockStake()) return false;
+		
 		return game.getState() == GameState.SETTING_UP &&
 				(game.getPlayerBlack().isEmpty() || game.getPlayerWhite().isEmpty());
 	}

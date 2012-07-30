@@ -58,9 +58,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private final String name;
 	private final BoardView view;
 	private final chesspresso.game.Game cpGame;
+	private final int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
 
 	private String playerWhite, playerBlack;
-	private int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
 	private String invited;
 	private GameState state;
 	private int fromSquare;
@@ -71,7 +71,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private double stake;
 	private ChessAI aiPlayer = null;
 	private ChessAI aiPlayer2 = null; // for testing AI vs AI - will always play Black
-	private int[] tcWarned = new int[2];
+	private final int[] tcWarned = new int[2];
 
 	/**
 	 * Constructor: Creating a new Chess game.
@@ -96,13 +96,17 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		fromSquare = Chess.NO_SQUARE;
 		invited = ""; //$NON-NLS-1$
 		history = new ArrayList<Short>();
-		setTimeControl(ChessCraft.getInstance().getConfig().getString("time_control.default"));
+		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
 		started = finished = 0L;
 		result = Chess.RES_NOT_FINISHED;
-		if (playerName != null) {
-			double defBalance = ChessCraft.economy == null ? 0.0 : ChessCraft.economy.getBalance(playerName);
-			stake = Math.min(view.getDefaultStake(), defBalance);
+		if (playerName != null && ChessCraft.economy != null) {
+			double playerBalance = ChessCraft.economy.getBalance(playerName);
+			double defStake = view.getDefaultStake();
+			if (view.getLockStake() && defStake > playerBalance) {
+				throw new ChessException(Messages.getString("Game.cantAffordToJoin", defStake));
+			}
+			stake = Math.min(defStake, playerBalance);
 		} else {
 			stake = 0.0;
 		}
@@ -378,6 +382,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		
 		ensureGameState(GameState.SETTING_UP);
 
+		if (getView().getLockStake()) {
+			throw new ChessException(Messages.getString("Game.stakeLocked")); //$NON-NLS-1$
+		}
+		
 		if (newStake < 0.0) {
 			throw new ChessException(Messages.getString("Game.noNegativeStakes")); //$NON-NLS-1$
 		}
@@ -505,9 +513,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return remaining <= warning && remaining > warning - tickInt;
 	}
 
-	public void setTimeControl(String spec) throws ChessException {
+	public void setTimeControl(String spec) {
 		ensureGameState(GameState.SETTING_UP);
-		if (view.getLockTcSpec()) {
+		if (view.getLockTcSpec() && tcWhite != null) {
 			throw new ChessException(Messages.getString("Game.timeControlLocked"));
 		}
 		try {

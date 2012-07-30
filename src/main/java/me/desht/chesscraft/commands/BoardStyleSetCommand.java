@@ -94,6 +94,8 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					bv.setDefaultTcSpec(val);
 				} else if (attr.startsWith("locktc")) {
 					bv.setLockTcSpec(Boolean.parseBoolean(val));
+				} else if (attr.startsWith("lockstake")) {
+					bv.setLockStake(Boolean.parseBoolean(val));
 				} else {
 					throw new ChessException("Unknown attribute '" + attr + "'.");
 				}

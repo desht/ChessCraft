@@ -3,16 +3,17 @@ package me.desht.chesscraft;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.base.Joiner;
-
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
 
 public class Messages {
 
@@ -57,11 +58,11 @@ public class Messages {
 		// ensure that the config we're loading has all of the messages that the fallback has
 		// make a note of any missing translations
 		if (fallbackMessages != null && conf.getKeys(true).size() != fallbackMessages.getKeys(true).size()) {
-			List<String> missingKeys = new ArrayList<String>();
+			Map<String,String> missingKeys = new HashMap<String, String>();
 			for (String key : fallbackMessages.getKeys(true)) {
 				if (!conf.contains(key) && !fallbackMessages.isConfigurationSection(key)) {
 					conf.set(key, fallbackMessages.get(key));
-					missingKeys.add(key);
+					missingKeys.put(key, fallbackMessages.get(key).toString());
 				}
 			}
 			conf.set("NEEDS_TRANSLATION", missingKeys);

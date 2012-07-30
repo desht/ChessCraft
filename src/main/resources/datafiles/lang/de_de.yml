@@ -67,17 +67,17 @@ ChessCommandExecutor:
   gameDeleted: Spiel &6{0}&- wurde geloescht.
   gameDeletedAlert: Spiel entfernt von &6{0}&-!
   gameDetail:
-    blackToPlay: Schwarz ist am Zug
-    clock: 'Uhr: Weiss: {0}, Schwarz: {1}'
+    blackToPlay: '&8Schwarz&- ist am Zug'
+    clock: 'Uhr: &fWeiss&-: {0} / &8Schwarz&-: {1}'
     invitation: '&- wurde eingeladen.  Warte auf Antowort.'
     moveHistory: '&eZug Historie:'
     name: '&eSpiel {0} [{1}]:'
     openInvitation: Das Spiel hat eine offene Einladung
     players: '&6{0}&- (Weiss) vs. &6{1}&- (Schwarz) auf Brett &6{2}&-.'
-    stake: 'Einsatz: {0}'
-    whiteToPlay: Weiss ist am Zug
-    halfMoves: '{0,number,integer} halbe Züge gemacht'
-    timeControlType: 'Zeitkontrolle: &6{0}'
+    stake: 'Einsatz: &f{0}'
+    whiteToPlay: '&fWeiss&- ist am Zug'
+    halfMoves: '&f{0,number,integer}&- halbe Züge gemacht'
+    timeControlType: 'Zeitkontrolle: &f{0}'
   goingToSpawn: Kann keinen sicheren Platz finden - gehe zum Spawn Punkt.
   invalidFromSquare: Ungueltig von Quadrat in {0}
   invalidMoveString: Ungueltiger zug string {0}
