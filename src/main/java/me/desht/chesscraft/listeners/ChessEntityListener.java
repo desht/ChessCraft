@@ -13,19 +13,22 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
-public class ChessEntityListener implements Listener {
+public class ChessEntityListener extends ChessListenerBase {
+	
+	public ChessEntityListener(ChessCraft plugin) {
+		super(plugin);
+	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -41,7 +44,7 @@ public class ChessEntityListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityTarget(EntityTargetEvent event) {
 		if (!(event.getTarget() instanceof Player)
-				|| !ChessCraft.getInstance().getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+				|| !plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -57,7 +60,7 @@ public class ChessEntityListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_explosions")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -100,7 +103,7 @@ public class ChessEntityListener implements Listener {
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_misc_damage")) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_misc_damage")) { //$NON-NLS-1$
 			return;
 		}
 
@@ -147,10 +150,10 @@ public class ChessEntityListener implements Listener {
 
 	private boolean isAllowedMonsterAttack(Entity damager) {
 		return !(damager instanceof Player) && damager instanceof LivingEntity
-				&& !ChessCraft.getInstance().getConfig().getBoolean("no_monster_attacks"); //$NON-NLS-1$
+				&& !plugin.getConfig().getBoolean("no_monster_attacks"); //$NON-NLS-1$
 	}
 
 	private boolean isAllowedPlayerAttack(Entity damager) {
-		return damager instanceof Player && !ChessCraft.getInstance().getConfig().getBoolean("no_pvp"); //$NON-NLS-1$
+		return damager instanceof Player && !plugin.getConfig().getBoolean("no_pvp"); //$NON-NLS-1$
 	}
 }

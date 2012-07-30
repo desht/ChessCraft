@@ -1,9 +1,7 @@
 package me.desht.chesscraft;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
@@ -65,9 +63,7 @@ import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -89,12 +85,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private static ChessTickTask tickTask;
 
 	public static Economy economy = null;
-	public static Permission permission = null;
 
-	private final Map<String, Location> lastPos = new HashMap<String, Location>();
-	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
 	private final CommandManager cmds = new CommandManager(this);
 
+	private final PlayerTracker tracker = new PlayerTracker();
+	
 	private ConfigurationManager configManager;
 
 	/*-----------------------------------------------------------------*/
@@ -116,7 +111,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
 
 		new PluginVersionChecker(this, this);
-		
+
 		DirectoryStructure.setup();
 
 		Messages.init(getConfig().getString("locale", "default"));
@@ -136,20 +131,20 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupSMS(pm);
 		setupWorldEdit(pm);
 
-		pm.registerEvents(new ChessPlayerListener(), this);
-		pm.registerEvents(new ChessBlockListener(), this);
-		pm.registerEvents(new ChessEntityListener(), this);
-
+		new ChessPlayerListener(this);
+		new ChessBlockListener(this);
+		new ChessEntityListener(this);
+		
 		registerCommands();
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
 
+		if (ChessCraft.getSMS() != null) SMSIntegration.createMenus();
+
 		persistence.reload();
 
-		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.createMenus();
-		}
-
+		if (ChessCraft.getSMS() != null) SMSIntegration.setAutosave(true);
+		
 		tickTask.start(20L);
 
 		setupMetrics();
@@ -177,7 +172,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		instance = null;
 		economy = null;
-		permission = null;
 		smsPlugin = null;
 		worldEditPlugin = null;
 		persistence = null;
@@ -185,7 +179,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		LogUtils.fine("disabled!");
 	}
-	
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		try {
@@ -225,13 +219,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
 			LogUtils.fine("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
-				LogUtils.warning("No economy plugin detected - economy command costs not available");
-			}
-			if (!setupPermission()) {
-				LogUtils.warning("No permissions plugin detected");
+				LogUtils.warning("No economy plugin detected - game stakes not available");
 			}
 		} else {
-			LogUtils.warning("Vault not loaded: no economy support & superperms-only permission support");
+			LogUtils.warning("Vault not loaded: game stakes not available");
 		}
 	}
 
@@ -271,15 +262,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return (economy != null);
 	}
 
-	private Boolean setupPermission() {
-		RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
-		if (permissionProvider != null) {
-			permission = permissionProvider.getProvider();
-		}
-
-		return (permission != null);
-	}
-
 	public static ChessPersistence getPersistenceHandler() {
 		return persistence;
 	}
@@ -296,44 +278,19 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return worldEditPlugin;
 	}
 
-	/*-----------------------------------------------------------------*/
-
-	public void teleportPlayer(Player player, Location loc) {
-		setLastPos(player, player.getLocation());
-		player.teleport(loc);
-	}
-
-	public Location getLastPos(Player player) {
-		return lastPos.get(player.getName());
-	}
-
-	public void setLastPos(Player player, Location loc) {
-		lastPos.put(player.getName(), loc);
-	}
-
-	/*-----------------------------------------------------------------*/
-
-	public void playerLeft(String who) {
-		loggedOutAt.put(who, System.currentTimeMillis());
-	}
-
-	public void playerRejoined(String who) {
-		loggedOutAt.remove(who);
-	}
-
-	public long getPlayerLeftAt(String who) {
-		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
-	}
-
 	private void setInstance(ChessCraft chessCraft) {
 		instance = chessCraft;
 	}
 
-	/*-----------------------------------------------------------------*/
-
 	public static ChessCraft getInstance() {
 		return instance;
 	}
+
+	public PlayerTracker getPlayerTracker() {
+		return tracker;
+	}
+	
+	/*-----------------------------------------------------------------*/
 
 	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
 		ResponseHandler respHandler = getResponseHandler();
@@ -402,7 +359,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	/* ConfigurationListener */
-	
+
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
 		// do nothing
@@ -430,7 +387,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	/* PluginVersionListener */
-	
+
 	@Override
 	public String getPreviousVersion() {
 		return getConfig().getString("version");

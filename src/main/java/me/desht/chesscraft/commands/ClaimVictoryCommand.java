@@ -33,7 +33,7 @@ public class ClaimVictoryCommand extends AbstractCommand {
 		}
 
 		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
-		long leftAt = ((ChessCraft)plugin).getPlayerLeftAt(other);
+		long leftAt = ((ChessCraft)plugin).getPlayerTracker().getPlayerLeftAt(other);
 		if (leftAt == 0) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline")); //$NON-NLS-1$
 		}

@@ -2,8 +2,8 @@ package me.desht.chesscraft.listeners;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
+
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFormEvent;
@@ -12,11 +12,15 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class ChessBlockListener implements Listener {
+public class ChessBlockListener extends ChessListenerBase {
 
+	public ChessBlockListener(ChessCraft plugin) {
+		super(plugin);
+	}
+	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -28,7 +32,7 @@ public class ChessBlockListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -40,7 +44,7 @@ public class ChessBlockListener implements Listener {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_building", true)) {
+		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
 		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
@@ -52,7 +56,7 @@ public class ChessBlockListener implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("no_burning", true)) {
+		if (!plugin.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
 		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {

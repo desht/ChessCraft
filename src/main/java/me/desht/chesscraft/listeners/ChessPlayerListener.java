@@ -1,13 +1,25 @@
 package me.desht.chesscraft.listeners;
 
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.chess.ChessGame;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectBoardCreation;
+import me.desht.chesscraft.expector.ExpectInvitePlayer;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.responsehandler.ResponseHandler;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +28,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -28,25 +39,15 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import me.desht.chesscraft.blocks.BlockType;
-
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.expector.ExpectBoardCreation;
-import me.desht.chesscraft.expector.ExpectInvitePlayer;
-import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.enums.GameState;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.MessagePager;
-
-public class ChessPlayerListener implements Listener {
+public class ChessPlayerListener extends ChessListenerBase {
 	
+	public ChessPlayerListener(ChessCraft plugin) {
+		super(plugin);
+	}
+
 	// block ids to be considered transparent when calling player.getTargetBlock()
 	private static HashSet<Byte> transparent = new HashSet<Byte>();
 	static {
@@ -165,7 +166,7 @@ public class ChessPlayerListener implements Listener {
 		String who = event.getPlayer().getName();
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				ChessCraft.getInstance().playerRejoined(who);
+				plugin.getPlayerTracker().playerRejoined(who);
 				game.alert(game.getOtherPlayer(who),
 						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
@@ -179,10 +180,10 @@ public class ChessPlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
-		int timeout = ChessCraft.getInstance().getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
+		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
-				ChessCraft.getInstance().playerLeft(who);
+				plugin.getPlayerTracker().playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
 					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$
 				}

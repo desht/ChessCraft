@@ -485,15 +485,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * @param p
 	 */
 	public void deletePermanently() {
+		if (getGame() != null) {
+			throw new ChessException(Messages.getString("ChessCommandExecutor.boardCantBeDeleted", getName(), getGame().getName()));
+		}
 		deleteCommon();
 		restoreTerrain();
 		ChessCraft.getPersistenceHandler().unpersist(this);
 	}
 
 	private void deleteCommon() {
-		if (getGame() != null) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.boardCantBeDeleted", getName(), getGame().getName()));
-		}
 		BoardView.removeBoardView(getName());
 	}
 
@@ -598,7 +598,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			return; // already there
 		}
 		Location loc = getControlPanel().getTeleportLocation();
-		ChessCraft.getInstance().teleportPlayer(player, loc);
+		ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
 	}
 
 	/*----------------------static methods--------------------------------------*/
@@ -775,19 +775,19 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 
 		BoardView bv = partOfChessBoard(player.getLocation());
-		Location prev = ChessCraft.getInstance().getLastPos(player);
+		Location prev = ChessCraft.getInstance().getPlayerTracker().getLastPos(player);
 		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
 			// try to get the player out of this board safely
 			Location loc = bv.findSafeLocationOutside();
 			if (loc != null) {
-				ChessCraft.getInstance().teleportPlayer(player, loc);
+				ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
 			} else {
-				ChessCraft.getInstance().teleportPlayer(player, player.getWorld().getSpawnLocation());
+				ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, player.getWorld().getSpawnLocation());
 				MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
 			}
 		} else if (prev != null) {
 			// go back to previous location
-			ChessCraft.getInstance().teleportPlayer(player, prev);
+			ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, prev);
 		} else {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}

@@ -39,7 +39,7 @@ public class SMSIntegration {
 					canNotify = true;
 				}
 			} catch (Exception e) {
-				LogUtils.warning("Outdated version of ScrollingMenuSign - sign views will not update properly.  Please upgrade to 0.6 or later");
+				LogUtils.warning("Outdated version of ScrollingMenuSign - views will not update properly.  Please upgrade to 0.6 or later");
 			}
 		}
 	}
@@ -50,21 +50,20 @@ public class SMSIntegration {
 		createMenu(TP_GAME, Messages.getString("SMSIntegration.gotoGame")); //$NON-NLS-1$
 		createMenu(GAME_INFO, Messages.getString("SMSIntegration.gameInfo")); //$NON-NLS-1$
 		createMenu(DEL_GAME, Messages.getString("SMSIntegration.deleteGame")); //$NON-NLS-1$
-
-		for (BoardView bv : BoardView.listBoardViews(true)) {
-			boardCreated(bv);
-		}
-
-		// now enable autosaving
-		for (SMSMenu menu : smsHandler.listMenus()) {
-			if (menu.getName().startsWith("cc_")) { //$NON-NLS-1$
-				menu.setAutosave(true);
-			}
-		}
+		
+		setAutosave(false);
 		
 		cleanupOldMenuNames();
 	}
 
+	public static void setAutosave(boolean autosave) {
+		for (SMSMenu menu : smsHandler.listMenus()) {
+			if (menu.getName().startsWith("cc_")) { //$NON-NLS-1$
+				menu.setAutosave(autosave);
+			}
+		}
+	}
+	
 	public static void deleteMenus() {
 		List<String> toDelete = new ArrayList<String>();
 		for (SMSMenu menu : smsHandler.listMenus()) {
@@ -78,14 +77,14 @@ public class SMSIntegration {
 	}
 
 	public static void boardCreated(BoardView bv) {
+		System.out.println("board created: " + bv.getName());
 		addItem(BOARD_INFO, bv.getName(), "/chess list board " + bv.getName()); //$NON-NLS-1$
+		
 		boardNotInUse(bv);
-		if (bv.getGame() != null) {
-			gameCreated(bv.getGame());
-		}
 	}
 
 	public static void boardDeleted(BoardView bv) {
+		System.out.println("board deleted: " + bv.getName());
 		removeItem(BOARD_INFO, bv.getName());
 		if (bv.getGame() == null) {
 			removeItem(CREATE_GAME, bv.getName());
@@ -93,14 +92,17 @@ public class SMSIntegration {
 	}
 
 	public static void boardInUse(BoardView bv) {
+		System.out.println("mark board in use: " + bv.getName());
 		removeItem(CREATE_GAME, bv.getName());
 	}
 
 	public static void boardNotInUse(BoardView bv) {
+		System.out.println("mark board not in use: " + bv.getName());
 		addItem(CREATE_GAME, bv.getName(), "/chess create game - " + bv.getName()); //$NON-NLS-1$
 	}
 
 	public static void gameCreated(ChessGame game) {
+		System.out.println("game created: " + game.getName());
 		addItem(GAME_INFO, game.getName(), "/chess list game " + game.getName()); //$NON-NLS-1$
 		addItem(TP_GAME, game.getName(), "/chess tp " + game.getName()); //$NON-NLS-1$
 		addItem(DEL_GAME, game.getName(), "/chess delete game " + game.getName()); //$NON-NLS-1$
@@ -109,6 +111,7 @@ public class SMSIntegration {
 	}
 
 	public static void gameDeleted(ChessGame game) {
+		System.out.println("game deleted: " + game.getName());
 		removeItem(GAME_INFO, game.getName());
 		removeItem(TP_GAME, game.getName());
 		removeItem(DEL_GAME, game.getName());
@@ -121,12 +124,13 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, ""); //$NON-NLS-1$
+				System.out.println("added " + label + " to " + menuName);
 				if(canNotify){
 					menu.notifyObservers();
 				}
 			} catch (SMSException e) {
 				// shouldn't get here
-				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning(null, e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -136,11 +140,12 @@ public class SMSIntegration {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
+				System.out.println("removed " + label + " from " + menuName);
 				if(canNotify){
 					menu.notifyObservers();
 				}
 			} catch (SMSException e) {
-				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning(null, e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -158,11 +163,8 @@ public class SMSIntegration {
 				menu.removeAllItems();
 			} catch (SMSException e) {
 				// shouldn't get here - we already checked that the menu exists
-				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning(null, e); //$NON-NLS-1$
 			}
-		}
-		if (menu != null) {
-			menu.setAutosave(false);
 		}
 	}
 
@@ -171,7 +173,7 @@ public class SMSIntegration {
 			try {
 				smsHandler.deleteMenu(name);
 			} catch (SMSException e) {
-				LogUtils.warning("No such SMS menu", e); //$NON-NLS-1$
+				LogUtils.warning(null, e); //$NON-NLS-1$
 			}
 		}
 	}
