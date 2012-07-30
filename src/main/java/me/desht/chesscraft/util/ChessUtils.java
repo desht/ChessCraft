@@ -228,7 +228,7 @@ public class ChessUtils {
 	
 	public static String formatStakeStr(double stake) {
 		try {
-			if (ChessCraft.economy != null) {
+			if (ChessCraft.economy != null && ChessCraft.economy.isEnabled()) {
 				return ChessCraft.economy.format(stake);
 			}
 		} catch (Exception e) {
