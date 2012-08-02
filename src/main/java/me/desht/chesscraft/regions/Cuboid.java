@@ -661,6 +661,7 @@ public class Cuboid implements Iterable<Block>, Cloneable {
 		for (int x = getLowerX(); x < getUpperX(); x++) {
 			for (int z = getLowerZ(); z < getUpperZ(); z++) {
 				for (int y = getLowerY(); y < getUpperY(); y++) {
+					// TODO: change to w.b() for MC 1.3
 					w.a(EnumSkyBlock.BLOCK, x, y, z, level);
 				}
 			}
