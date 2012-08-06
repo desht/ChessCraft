@@ -49,6 +49,7 @@ import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
+import me.desht.chesscraft.listeners.ChessWorldListener;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
@@ -134,6 +135,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		new ChessPlayerListener(this);
 		new ChessBlockListener(this);
 		new ChessEntityListener(this);
+		new ChessWorldListener(this);
 		
 		registerCommands();
 

@@ -5,8 +5,10 @@ import me.desht.chesscraft.chess.ChessGame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Map.Entry;
@@ -31,6 +33,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.chesscraft.util.NoteAlert;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
@@ -54,6 +57,8 @@ import org.bukkit.entity.Player;
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 
+	private static final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
+
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
@@ -65,6 +70,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private boolean lockTcSpec;
 	
 	private ChessGame game = null;			// null indicates board not currently used by any game
+
+	private final String worldName;
+	private final String savedGameName;
 
 	public BoardView(String boardName, Location origin, String bStyle, String pStyle) throws ChessException {
 		this(boardName, origin, BoardRotation.getRotation(origin), bStyle, pStyle);
@@ -82,15 +90,17 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		lockStake = false;
 		defaultTcSpec = "";
 		lockTcSpec = false;
+		worldName = chessBoard.getA1Center().getWorld().getName();
+		savedGameName = "";
 	}
 
-	public BoardView(ConfigurationSection conf) throws ChessException {
+	@SuppressWarnings("unchecked")
+	public BoardView(ConfigurationSection conf) {
 		List<?> origin = conf.getList("origin"); //$NON-NLS-1$
+		worldName = (String) origin.get(0);
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
 		BoardRotation dir = BoardRotation.get(conf.getString("direction")); //$NON-NLS-1$
-		@SuppressWarnings("unchecked")
-		Location where = ChessPersistence.thawLocation((List<Object>) origin);
 
 		this.name = conf.getString("name"); //$NON-NLS-1$
 		if (BoardView.boardViewExists(name)) {
@@ -109,10 +119,38 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		defaultTcSpec = conf.getString("defaultTcSpec", "");
 		lockTcSpec = conf.getBoolean("lockTcSpec", false);
 		
+		savedGameName = conf.getString("game", "");
+		
+		Location where;
+		try {
+			where = ChessPersistence.thawLocation((List<Object>) origin);
+		} catch (IllegalArgumentException e) {
+			chessBoard = null;
+			controlPanel = null;
+			return;
+		}
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 		
 		setDefaultTcSpec(defaultTcSpec);
+	}
+
+	/**
+	 * Get the game name from the save file.  This is set even if the game hasn't actually been loaded yet.
+	 *  
+	 * @return
+	 */
+	public String getSavedGameName() {
+		return savedGameName;
+	}
+
+	/**
+	 * Get the world name from the save file.  This is set even if the world is not loaded.
+	 * 
+	 * @return
+	 */
+	public String getWorldName() {
+		return worldName;
 	}
 
 	@Override
@@ -140,7 +178,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return result;
 	}
 
-	public static BoardView deserialize(Map<String, Object> map) throws ChessException {
+	public static BoardView deserialize(Map<String, Object> map) throws ChessException, ChessWorldNotLoadedException {
 		Configuration conf = new MemoryConfiguration();
 
 		for (Entry<String, Object> e : map.entrySet()) {
@@ -830,5 +868,34 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		view.paintAll();
 		
 		return view;
+	}
+
+	/**
+	 * Mark a board as deferred loading - its world wasn't available so we'll record the board
+	 * file name for later.
+	 * 
+	 * @param worldName
+	 * @param f
+	 */
+	public static void deferLoading(String worldName, File f) {
+		if (!deferred.containsKey(worldName)) {
+			deferred.put(worldName, new HashSet<File>());
+		}
+		deferred.get(worldName).add(f);
+	}
+	
+	/**
+	 * Load any defered boards for the given world.
+	 * 
+	 * @param worldName
+	 */
+	public static void loadDeferred(String worldName) {
+		if (!deferred.containsKey(worldName)) {
+			return;
+		}
+		for (File f : deferred.get(worldName)) {
+			ChessCraft.getPersistenceHandler().loadBoard(f);
+		}
+		deferred.get(worldName).clear();
 	}
 }

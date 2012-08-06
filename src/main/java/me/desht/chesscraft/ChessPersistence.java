@@ -87,14 +87,18 @@ public class ChessPersistence {
 	}
 
 	private void loadPersistedData() {
-		int nLoadedBoards = loadBoards();
-		int nLoadedGames = loadGames();
-
+		int nLoaded = 0;
+		
+		// load the boards, and any games on those boards
+		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(ymlFilter)) {
+			nLoaded += loadBoard(f) ? 1 : 0;
+		}
+		
 		for (BoardView bv : BoardView.listBoardViews()) {
 			bv.getControlPanel().repaintSignButtons();
 		}
 
-		LogUtils.fine("loaded " + nLoadedBoards + " saved boards and " + nLoadedGames + " saved games.");
+		LogUtils.fine("loaded " + nLoaded + " saved boards.");
 
 		// load other misc data which isn't tied to any board or game
 		try {
@@ -112,25 +116,20 @@ public class ChessPersistence {
 			}
 		} catch (Exception e) {
 			LogUtils.severe("Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());
-			moveBackup(DirectoryStructure.getPersistFile());
 		}
 	}
 
-	private int loadBoards() {
-		int nLoaded = 0;
-		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(ymlFilter)) {
-			if (loadBoard(f)) {
-				++nLoaded;
-			} else {
-				moveBackup(new File(DirectoryStructure.getBoardPersistDirectory(), f.getName()));
-			}
-		}
-		return nLoaded;
-	}
-	
-	private boolean loadBoard(File f) {
+	/**
+	 * Load one board file, plus the game on that board, if there is one.
+	 * 
+	 * @param f
+	 * @return
+	 */
+	public boolean loadBoard(File f) {
+		LogUtils.fine("loading board: " + f);
 		try {
 			Configuration conf = YamlConfiguration.loadConfiguration(f);
+			
 			BoardView bv;
 			if (conf.contains("board")) {
 				bv = (BoardView) conf.get("board");
@@ -142,7 +141,17 @@ public class ChessPersistence {
 				// empty config returned - probably due to corrupted save file of some kind
 				return false;
 			}
-			BoardView.registerView(bv);
+			if (bv.getChessBoard() != null) {
+				BoardView.registerView(bv);
+				// load the board's game too, if there is one
+				if (!bv.getSavedGameName().isEmpty()) {
+					File gameFile = new File(DirectoryStructure.getGamesPersistDirectory(), bv.getSavedGameName() + ".yml");
+					loadGame(gameFile);
+				}
+			} else {
+				BoardView.deferLoading(bv.getWorldName(), f);
+				LogUtils.info("board loading for board '" + bv.getName() + "' deferred (world not available)");
+			}
 			return true;
 		} catch (Exception e) {
 			LogUtils.severe("can't load saved board from " + f.getName() + ": " + e.getMessage(), e);
@@ -151,32 +160,8 @@ public class ChessPersistence {
 		}
 	}
 
-	protected void saveBoards() {
-		for (BoardView b : BoardView.listBoardViews()) {
-			savePersistable("board", b);
-		}
-	}
-
-	/**
-	 * v0.3 or later saved games - one save file per game in their own
-	 * subdirectory
-	 * 
-	 * @return the number of games that were sucessfully loaded
-	 */
-	private int loadGames() {
-		// TODO: validation - in particular ensure boards aren't used by multiple games
-		int nLoaded = 0;
-		for (File f : DirectoryStructure.getGamesPersistDirectory().listFiles(ymlFilter)) {
-			if (loadGame(f)) {
-				++nLoaded;
-			} else {
-				moveBackup(new File(DirectoryStructure.getGamesPersistDirectory(), f.getName()));
-			}
-		}
-		return nLoaded;
-	}
-
 	private boolean loadGame(File f) {
+		LogUtils.fine("loading game: " + f);
 		try {
 			Configuration conf = YamlConfiguration.loadConfiguration(f);
 			ChessGame game = null;
@@ -197,7 +182,13 @@ public class ChessPersistence {
 		}
 	}
 
-	protected void saveGames() {
+	private void saveBoards() {
+		for (BoardView b : BoardView.listBoardViews()) {
+			savePersistable("board", b);
+		}
+	}
+
+	private void saveGames() {
 		for (ChessGame game : ChessGame.listGames()) {
 			savePersistable("game", game);
 		}
@@ -221,32 +212,6 @@ public class ChessPersistence {
 		}
 	}
 
-	/**
-	 * move to a backup & delete original <br>
-	 * (for if the file is considered corrupt)
-	 * 
-	 * @param original
-	 *            file to backup
-	 */
-	private static void moveBackup(File original) {
-		File backup = getBackupFileName(original.getParentFile(), original.getName());
-	
-		LogUtils.warning("An error occurred while loading " + original.getPath() + ":\n"
-				+ "a backup copy has been saved to " + backup.getPath());
-		original.renameTo(backup);
-	}
-
-	public static File getBackupFileName(File parentFile, String template) {
-		String ext = ".BACKUP.";
-		File backup;
-		int idx = 0;
-	
-		do {
-			backup = new File(parentFile, template + ext + idx);
-			++idx;
-		} while (backup.exists());
-		return backup;
-	}
 	
 	public static void requireSection(Configuration c, String key) throws ChessException {
 		if (!c.contains(key))
