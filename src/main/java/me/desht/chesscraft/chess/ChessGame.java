@@ -581,7 +581,16 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
+	/**
+	 * One player has just invited another player to this game.
+	 * 
+	 * Runs synchronized because it can be called from the AsyncPlayerChatEvent handler.
+	 * 
+	 * @param inviterName
+	 * @param inviteeName
+	 * @throws ChessException
+	 */
+	public synchronized void invitePlayer(String inviterName, String inviteeName) throws ChessException {
 		inviteSanityCheck(inviterName);
 
 		if (inviteeName == null) {
