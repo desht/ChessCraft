@@ -1,5 +1,8 @@
 package me.desht.chesscraft.expector;
 
+import org.bukkit.Bukkit;
+
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.dhutils.responsehandler.ExpectBase;
 
@@ -18,8 +21,15 @@ public class ExpectInvitePlayer extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
-		ChessGame game = ChessGame.getCurrentGame(playerName, true);
-		game.invitePlayer(playerName, inviteeName);
+	public void doResponse(final String playerName) {
+		// run this as sync delayed task because we're not in the main thread at this point
+		// (coming from the AsyncPlayerChatEvent handler)
+		Bukkit.getScheduler().scheduleSyncDelayedTask(ChessCraft.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				ChessGame game = ChessGame.getCurrentGame(playerName, true);
+				game.invitePlayer(playerName, inviteeName);	
+			}
+		});
 	}
 }
