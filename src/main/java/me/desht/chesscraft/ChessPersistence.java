@@ -150,7 +150,7 @@ public class ChessPersistence {
 				}
 			} else {
 				BoardView.deferLoading(bv.getWorldName(), f);
-				LogUtils.info("board loading for board '" + bv.getName() + "' deferred (world not available)");
+				LogUtils.info("board loading for board '" + bv.getName() + "' deferred (world '" + bv.getWorldName() + "' not available)");
 			}
 			return true;
 		} catch (Exception e) {
