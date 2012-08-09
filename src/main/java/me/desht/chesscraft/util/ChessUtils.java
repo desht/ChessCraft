@@ -236,7 +236,7 @@ public class ChessUtils {
 			e.printStackTrace();
 			LogUtils.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
 		}
-		return new DecimalFormat("#0.00").format(stake) + " ";
+		return new DecimalFormat("#0.00").format(stake);
 	}
 	
 } // end class ChessUtils
