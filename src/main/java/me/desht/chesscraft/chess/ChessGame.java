@@ -381,6 +381,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 		
 		ensureGameState(GameState.SETTING_UP);
+		ensurePlayerInGame(playerName);
 
 		if (getView().getLockStake()) {
 			throw new ChessException(Messages.getString("Game.stakeLocked")); //$NON-NLS-1$
@@ -1030,7 +1031,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		handlePayout(rt, p1, p2);
 		Results.getResultsHandler().logResult(this, rt);
-		LogUtils.info(msg);
+//		LogUtils.info(msg);
 	}
 
 	private void handlePayout(GameResult rt, String p1, String p2) {
@@ -1041,7 +1042,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return;
 		}
 
-		if (rt == GameResult.Checkmate || rt == GameResult.Resigned) {
+		switch (rt) {
+		case Checkmate: case Resigned: case Forfeited:
 			// somebody won
 			if (!ChessAI.isAIPlayer(p1)) {
 				double winnings;
@@ -1060,7 +1062,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				alert(p1, Messages.getString("Game.youWon", ChessUtils.formatStakeStr(winnings))); //$NON-NLS-1$
 			}
 			alert(p2, Messages.getString("Game.lostStake", ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
-		} else {
+			break;
+		default:
 			// a draw
 			if (!ChessAI.isAIPlayer(p1)) {
 				ChessCraft.economy.depositPlayer(p1, stake);
@@ -1069,6 +1072,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				ChessCraft.economy.depositPlayer(p2, stake);
 			}
 			alert(Messages.getString("Game.getStakeBack", ChessUtils.formatStakeStr(stake))); //$NON-NLS-1$
+			break;
 		}
 
 		stake = 0.0;
