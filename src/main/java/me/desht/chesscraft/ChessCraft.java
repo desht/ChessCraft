@@ -50,6 +50,7 @@ import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.listeners.ChessWorldListener;
+import me.desht.chesscraft.listeners.FlightListener;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
@@ -92,6 +93,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private final PlayerTracker tracker = new PlayerTracker();
 	
 	private ConfigurationManager configManager;
+	private FlightListener flightListener;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -136,6 +138,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		new ChessBlockListener(this);
 		new ChessEntityListener(this);
 		new ChessWorldListener(this);
+		flightListener = new FlightListener(this);
+		flightListener.setEnabled(getConfig().getBoolean("flying.allowed"));
 		
 		registerCommands();
 
@@ -385,9 +389,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			LogUtils.setLogLevel(newVal.toString());
 		} else if (key.equalsIgnoreCase("teleporting")) { //$NON-NLS-1$
 			updateAllControlPanels();
+		} else if (key.equalsIgnoreCase("flying.allowed")) {
+			flightListener.setEnabled((Boolean) newVal);
 		}
 	}
-
 	/* PluginVersionListener */
 
 	@Override

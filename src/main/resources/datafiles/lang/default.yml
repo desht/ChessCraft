@@ -197,6 +197,14 @@ ExpectYesNoOffer:
   youDeclinedDrawOffer: "You have declined the draw offer."
   youDeclinedSwapOffer: "You have declined the swap offer."
 
+Flight:
+  flightEnabled:
+    - You are close enough to a chess board to fly.
+    - Double-tab Space to toggle flight.
+  flightDisabled: You are no longer close enough to a chess board to fly.
+  flightDisabledByAdmin: Chess board flight has been disabled by a server admin.
+  interactionStopped: You may not interact with the world while flying around a chess board!
+  
 Game:
   boardAlreadyHasGame: "That board already has a game on it."
   boardInDesignMode: "That board is being used for piece designing."
