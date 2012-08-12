@@ -14,18 +14,23 @@ public class ExpectSwapResponse extends ExpectYesNoResponse {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
-		if (accepted) {
-			game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferAccepted", offeree)); //$NON-NLS-1$
-			game.swapColours();
-		} else {
-			game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferDeclined", offeree)); //$NON-NLS-1$
-			Player player = Bukkit.getPlayer(playerName);
-			if (player != null) {
-				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
-			}
-		}
+	public void doResponse(final String playerName) {
+		deferTask(Bukkit.getPlayer(offerer), new Runnable() {
 
+			@Override
+			public void run() {
+				if (accepted) {
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferAccepted", offeree)); //$NON-NLS-1$
+					game.swapColours();
+				} else {
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.swapOfferDeclined", offeree)); //$NON-NLS-1$
+					Player player = Bukkit.getPlayer(playerName);
+					if (player != null) {
+						MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
+					}
+				}
+			}
+		});
 	}
 
 }

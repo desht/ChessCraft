@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ExpectBoardCreation extends ExpectBase {
+public class ExpectBoardCreation extends ExpectChessBase {
 
 	private final String boardName;
 	private final String style;

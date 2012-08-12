@@ -1,9 +1,8 @@
 package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.dhutils.responsehandler.ExpectBase;
 
-public abstract class ExpectYesNoResponse extends ExpectBase {
+public abstract class ExpectYesNoResponse extends ExpectChessBase {
 
 	protected final ChessGame game;
 	protected final String offerer;
@@ -23,5 +22,4 @@ public abstract class ExpectYesNoResponse extends ExpectBase {
 	public ChessGame getGame() {
 		return game;
 	}
-
 }
