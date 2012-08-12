@@ -1231,6 +1231,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void cyclePromotionPiece(String playerName) throws ChessException {
+		ensurePlayerInGame(playerName);
 		int colour = playingAs(playerName);
 		setPromotionPiece(playerName, getNextPromotionPiece(colour));
 	}
@@ -1306,9 +1307,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @return
 	 */
 	public boolean playerCanDelete(CommandSender pl) {
-		if (pl == null) {
-			return false;
-		}
 		if (pl instanceof ConsoleCommandSender) {
 			return true;
 		}
@@ -1330,9 +1328,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Return true if either player in this game is an AI player
+	 * Check if either player in this game is an AI player
 	 * 
-	 * @return
+	 * @return true if either player is an AI, false otherwise
 	 */
 	public boolean isAIGame() {
 		return ChessAI.isAIPlayer(playerWhite) || ChessAI.isAIPlayer(playerBlack);
