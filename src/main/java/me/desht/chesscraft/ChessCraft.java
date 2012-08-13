@@ -50,7 +50,7 @@ import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.listeners.ChessWorldListener;
-import me.desht.chesscraft.listeners.FlightListener;
+import me.desht.chesscraft.listeners.ChessFlightListener;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
@@ -93,7 +93,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private final PlayerTracker tracker = new PlayerTracker();
 	
 	private ConfigurationManager configManager;
-	private FlightListener flightListener;
+	private ChessFlightListener flightListener;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -138,7 +138,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		new ChessBlockListener(this);
 		new ChessEntityListener(this);
 		new ChessWorldListener(this);
-		flightListener = new FlightListener(this);
+		flightListener = new ChessFlightListener(this);
 		flightListener.setEnabled(getConfig().getBoolean("flying.allowed"));
 		
 		registerCommands();
