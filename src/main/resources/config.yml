@@ -50,8 +50,9 @@ log_level: INFO
 mcstats: true
 flying:
     allowed: true
+    captive: true
     auto: false
-    above_board: 50
-    outside_board: 25
+    upper_limit: 50
+    outer_limit: 25
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

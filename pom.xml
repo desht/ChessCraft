@@ -19,6 +19,10 @@
 			<id>sk89q-maven</id>
 			<url>http://maven.sk89q.com/repo</url>
 		</repository>
+		<repository>
+			<id>vault-repo</id>
+			<url>http://ci.herocraftonline.com/plugin/repository/everything</url>
+		</repository>
 	</repositories>
 	<build>
 		<finalName>${project.name}</finalName>

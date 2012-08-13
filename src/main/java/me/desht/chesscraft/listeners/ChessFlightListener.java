@@ -20,6 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class ChessFlightListener extends ChessListenerBase {
 
@@ -28,9 +29,48 @@ public class ChessFlightListener extends ChessListenerBase {
 	// notes if the player is currently allowed to fly due to being on/near a board
 	private final Set<String> allowedToFly = new HashSet<String>();
 	private boolean enabled;
+	private boolean captive;
 
 	public ChessFlightListener(ChessCraft plugin) {
 		super(plugin);
+		enabled = plugin.getConfig().getBoolean("flying.enabled");
+		captive = plugin.getConfig().getBoolean("flying.captive");
+	}
+
+	/**
+	 * Globally enable or disable chessboard flight for all players.
+	 */
+	public void setEnabled(boolean enabled) {
+		if (enabled == this.enabled)
+			return;
+
+		if (enabled) {
+			for (Player player : Bukkit.getOnlinePlayers()) {
+				setFlightAllowed(player, shouldBeAllowedToFly(player.getLocation()));
+			}
+		} else {
+			for (String playerName : allowedToFly) {
+				Player player = Bukkit.getPlayerExact(playerName);
+				if (player != null) {
+					player.setAllowFlight(alreadyAllowedToFly.contains(playerName));
+					MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabledByAdmin"));
+				}
+			}
+			allowedToFly.clear();
+		}
+
+		this.enabled = enabled;
+
+	}
+
+	/**
+	 * Set the "captive" mode.  Captive prevents flying players from flying too far from a
+	 * board.  Non-captive just disables flight if players try to fly too far.
+	 * 
+	 * @param captive
+	 */
+	public void setCaptive(boolean captive) {
+		this.captive = captive;
 	}
 
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -64,8 +104,27 @@ public class ChessFlightListener extends ChessListenerBase {
 		}
 
 		Player player = event.getPlayer();
-		setFlightAllowed(player, shouldBeAllowedToFly(to));
+		boolean flyingNow = allowedToFly.contains(player.getName()) && player.isFlying();
+		boolean shouldBeAllowed = shouldBeAllowedToFly(to); // || alreadyAllowedToFly.contains(player.getName());
+
+		if (captive) {
+			// captive mode - if flying, prevent movement too far from a board
+			if (flyingNow && !shouldBeAllowed && !alreadyAllowedToFly.contains(player.getName())) {
+				event.setCancelled(true);
+			} else {
+				setFlightAllowed(player, shouldBeAllowed);
+			}
+		} else {
+			// otherwise, free movement, but flight cancelled if player moves too far
+			setFlightAllowed(player, shouldBeAllowed);
+		}
 		//		System.out.println("flight allowed = " + player.getAllowFlight() + " in flyers = " + allowedToFly.contains(player.getName()));
+	}
+
+	@EventHandler
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
+		boolean shouldBeAllowed = shouldBeAllowedToFly(event.getTo());
+		setFlightAllowed(event.getPlayer(), shouldBeAllowed);
 	}
 
 	/**
@@ -75,11 +134,11 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * @param event
 	 */
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void flyingInteraction(PlayerInteractEvent event) {
+	public void onFlyingInteraction(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if (allowedToFly.contains(player.getName()) && !alreadyAllowedToFly.contains(player.getName()) && player.isFlying()) {
-			if (BoardView.partOfChessBoard(event.getClickedBlock().getLocation()) == null) {
-				if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				if (BoardView.partOfChessBoard(event.getClickedBlock().getLocation()) == null) {
 					MiscUtil.errorMessage(player, Messages.getString("Flight.interactionStopped"));
 					event.setCancelled(true);
 				}
@@ -94,8 +153,8 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * @return
 	 */
 	public boolean shouldBeAllowedToFly(Location loc) {
-		int above = plugin.getConfig().getInt("flying.above_board");
-		int outside = plugin.getConfig().getInt("flying.outside_board");
+		int above = plugin.getConfig().getInt("flying.upper_limit");
+		int outside = plugin.getConfig().getInt("flying.outer_limit");
 
 		for (BoardView bv: BoardView.listBoardViews()) {
 			Cuboid c = bv.getOuterBounds();
@@ -109,7 +168,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	/**
 	 * Mark the player as being allowed to fly or not.  If the player was previously allowed to fly by
-	 * some other means, he can continue to fly even if flying is being disabled in a ChessCraft context.
+	 * some other means, he can continue to fly even if chess board flying is being disabled.
 	 * 
 	 * @param player
 	 * @param flying
@@ -120,7 +179,6 @@ public class ChessFlightListener extends ChessListenerBase {
 		if (flying && allowedToFly.contains(playerName) || !flying && !allowedToFly.contains(playerName))
 			return;
 
-//		System.out.println("setflightallowed: " + flying);
 		// note if the player is already allowed to fly (by some other means)
 		if (player.getAllowFlight() && !allowedToFly.contains(playerName)) {
 			alreadyAllowedToFly.add(playerName);
@@ -128,7 +186,6 @@ public class ChessFlightListener extends ChessListenerBase {
 			alreadyAllowedToFly.remove(playerName);
 		}
 
-//		System.out.println("player.setAllowFlight: " + (flying || alreadyAllowedToFly.contains(playerName)));
 		player.setAllowFlight(flying || alreadyAllowedToFly.contains(playerName));
 
 		if (flying) {
@@ -144,34 +201,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			// from a chessboard
 			Location loc = player.getLocation();
 			player.setFallDistance(player.getWorld().getHighestBlockYAt(loc) - loc.getBlockY());
-//			System.out.println("player falling: falldist now = " + player.getFallDistance());
 		}
-	}
-
-	/**
-	 * Globally enable or disable chessboard flight for all players.
-	 */
-	public void setEnabled(boolean enabled) {
-		if (enabled == this.enabled)
-			return;
-
-		if (enabled) {
-			for (Player player : Bukkit.getOnlinePlayers()) {
-				setFlightAllowed(player, shouldBeAllowedToFly(player.getLocation()));
-			}
-		} else {
-			for (String playerName : allowedToFly) {
-				Player player = Bukkit.getPlayerExact(playerName);
-				if (player != null) {
-					player.setAllowFlight(alreadyAllowedToFly.contains(playerName));
-					MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabledByAdmin"));
-				}
-			}
-			allowedToFly.clear();
-		}
-
-		this.enabled = enabled;
-
 	}
 
 }
