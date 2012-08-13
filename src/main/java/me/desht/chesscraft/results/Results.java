@@ -19,7 +19,8 @@ import me.desht.dhutils.LogUtils;
 
 public class Results {
 	private static Results results = null;	// this is a singleton class
-	private ResultsDB db;
+	
+	private final ResultsDB db;
 	private final List<ResultEntry> entries = new ArrayList<ResultEntry>();
 	private final Map<String, ResultViewBase> views = new HashMap<String, ResultViewBase>();
 
@@ -27,12 +28,30 @@ public class Results {
 	 * Create the singleton results handler - only called from getResultsHandler once
 	 */
 	private Results() {
-		db = new ResultsDB();
-		loadEntries();
-		registerView("ladder", new Ladder(this));
-		registerView("league", new League(this));
+		db = initResultsDB();
+//		try {
+//			db = new ResultsDB();
+//			loadEntries();
+//			registerView("ladder", new Ladder(this));
+//			registerView("league", new League(this));
+//		} catch (Exception e) {
+//			LogUtils.warning(e.getMessage());
+//		}
 	}
 
+	private ResultsDB initResultsDB() {
+		try {
+			ResultsDB rdb = new ResultsDB();
+			loadEntries();
+			registerView("ladder", new Ladder(this));
+			registerView("league", new League(this));
+			return rdb;
+		} catch (Exception e) {
+			LogUtils.warning(e.getMessage());
+			return null;
+		}
+	}
+	
 	/**
 	 * Register a new view type
 	 * 
@@ -48,13 +67,27 @@ public class Results {
 	 * 
 	 * @return	The results handler
 	 */
-	public static Results getResultsHandler() {
+	public synchronized static Results getResultsHandler() {
 		if (results == null) {
 			results = new Results();
 		}
 		return results;
 	}
 
+	/**
+	 * Check that the results handler has been initialised sucessfully.
+	 * 
+	 * @return	true if the results handler is OK, false otherwise
+	 */
+	public synchronized static boolean resultsHandlerOK() {
+		return results != null;
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+	
 	/**
 	 * Get the database handler for the results
 	 * 

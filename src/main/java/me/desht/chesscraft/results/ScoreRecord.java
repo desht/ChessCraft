@@ -5,8 +5,8 @@ package me.desht.chesscraft.results;
  *
  */
 public class ScoreRecord {
-	private String player;
-	private int score;
+	private final String player;
+	private final int score;
 	
 	/**
 	 * Create a new score record

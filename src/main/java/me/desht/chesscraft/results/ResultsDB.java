@@ -16,21 +16,25 @@ import me.desht.dhutils.LogUtils;
 
 public class ResultsDB {
 
-	private Connection connection;
+	private final Connection connection;
 	
 	private final Map<String, PreparedStatement> statementCache = new HashMap<String, PreparedStatement>();
 
-	ResultsDB() {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
-			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-			setupTables();
-		} catch (ClassNotFoundException e) {
-			LogUtils.warning("SQLite not available, result logging disabled: " + e.getMessage());
-		} catch (SQLException e) {
-			LogUtils.warning("SQLite connection failed, result logging disabled: " + e.getMessage());
-		}
+	ResultsDB() throws ClassNotFoundException, SQLException {
+		Class.forName("org.sqlite.JDBC");
+		File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
+		connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+		setupTables();
+//		try {
+//			Class.forName("org.sqlite.JDBC");
+//			File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
+//			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+//			setupTables();
+//		} catch (ClassNotFoundException e) {
+//			LogUtils.warning("SQLite not available, result logging disabled: " + e.getMessage());
+//		} catch (SQLException e) {
+//			LogUtils.warning("SQLite connection failed, result logging disabled: " + e.getMessage());
+//		}
 	}
 	
 	public Connection getConnection() {

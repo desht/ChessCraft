@@ -20,8 +20,8 @@ import me.desht.dhutils.LogUtils;
  * this and implement the addResult() and getInitialScore() methods.
  */
 public abstract class ResultViewBase {
-	private Results handler;
-	private String viewType;
+	private final Results handler;
+	private final String viewType;
 	private Map<String, Integer> scoreMap = null;
 	
 	ResultViewBase(Results handler, String viewType) {
@@ -34,6 +34,10 @@ public abstract class ResultViewBase {
 	 * view parameters have been changed.
 	 */
 	public void rebuild() {
+		if (!Results.resultsHandlerOK()) {
+			return;
+		}
+		
 		try {
 			// we build the new results in an internal map, and then write them to the DB
 			// in a single transaction - much better performance this way

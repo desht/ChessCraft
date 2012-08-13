@@ -12,11 +12,11 @@ import me.desht.dhutils.LogUtils;
 
 public class ResultEntry {
 
-	private String playerWhite, playerBlack;
-	private String gameName;
-	private long startTime, endTime;
-	private GameResult result;
-	private String pgnResult;
+	private final String playerWhite, playerBlack;
+	private final String gameName;
+	private final long startTime, endTime;
+	private final GameResult result;
+	private final String pgnResult;
 
 	ResultEntry(ChessGame game, GameResult rt) {
 		playerWhite = game.getPlayerWhite();
