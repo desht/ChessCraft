@@ -258,6 +258,14 @@ Game:
   yourMove: "轮到你移子了 &f({0})&-."
   youWon: "你赢了 {0}!"
 
+Flight:
+  flightDisabledByAdmin: 棋盘内飞行功能已被服务器管理员禁用.
+  flightDisabled: 你已远离棋盘, 不能使用飞行功能.
+  flightEnabled:
+    - 你已足够靠近棋盘以飞行.
+    - 双击空格键进行飞行.
+  interactionStopped: 你在棋盘周围飞行的时候不能与其余世界互动!
+
 MessageBuffer:
   header: "| 第{0,number,integer}-{1,number,integer} 行 , 共 {2,number,integer} 行 (当前第 {3,number,integer}/{4,number,integer}页) |"
   footer: "| 使用 /chess page [#|n|p] 查看其它页 |"
