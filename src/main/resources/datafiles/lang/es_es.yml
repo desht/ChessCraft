@@ -141,7 +141,7 @@ ChessUtils:
 ControlPanel:
   acceptDrawBtn: "Aceptas tablas?"
   acceptSwapBtn: "Acceptas cambio de lado?"
-  blackPawnPromotionBtn: "Peon negro;Promocion
+  blackPawnPromotionBtn: "Peon negro;Promocion"
   boardInfoBtn: ";Mesa;Informacion"
   chessInviteReminder: "Escribe &f/chess invite <nombredejugador>&- para invitar a alguien"
   createGameBtn: ";Crear;Partida"
@@ -156,7 +156,7 @@ ControlPanel:
   stakeBtn: "Estaca;;"
   startGameBtn: ";Empezar;Partida"
   teleportOutBtn: ";Teletransporte;Fuera"
-  whitePawnPromotionBtn: "Peon Blanco;Promocion
+  whitePawnPromotionBtn: "Peon Blanco;Promocion"
   yesBtn: ";;Si"
 
 ExpectBoardCreation:
