@@ -27,6 +27,7 @@ public class Messages {
 		DirectoryStructure.extractResource("/datafiles/lang/es_es.yml", langDir);
 		DirectoryStructure.extractResource("/datafiles/lang/de_de.yml", langDir);
 		DirectoryStructure.extractResource("/datafiles/lang/ru_ru.yml", langDir);
+		DirectoryStructure.extractResource("/datafiles/lang/zh_cn.yml", langDir);
 
 		try {
 			fallbackMessages = loadMessageFile("default");
