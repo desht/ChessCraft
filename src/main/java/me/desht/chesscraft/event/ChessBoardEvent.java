@@ -1,4 +1,4 @@
-package me.desht.chesscraft.events;
+package me.desht.chesscraft.event;
 
 import me.desht.chesscraft.chess.BoardView;
 

@@ -16,7 +16,6 @@ import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.SMSIntegration;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
@@ -24,8 +23,8 @@ import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.events.ChessBoardCreatedEvent;
-import me.desht.chesscraft.events.ChessBoardDeletedEvent;
+import me.desht.chesscraft.event.ChessBoardCreatedEvent;
+import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
 import me.desht.chesscraft.regions.Cuboid;
@@ -669,11 +668,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public static void addBoardView(String name, BoardView view) {
-
-		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.boardCreated(view);	// TODO: use event here too
-		}
-
 		chessBoards.put(name, view);
 		
 		Bukkit.getPluginManager().callEvent(new ChessBoardCreatedEvent(view));
@@ -688,9 +682,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		BoardView bv;
 		try {
 			bv = getBoardView(name);
-			if (ChessCraft.getSMS() != null) {
-				SMSIntegration.boardDeleted(bv);  // TODO: use event here too
-			}
 			chessBoards.remove(name);
 			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
 		} catch (ChessException e) {
@@ -700,14 +691,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public static void removeAllBoardViews() {
-
 		for (BoardView bv : listBoardViews()) {
 			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
-			if (ChessCraft.getSMS() != null) {
-				SMSIntegration.boardDeleted(bv);	// TODO: use event here too
-			}
 		}
-
 		chessBoards.clear();
 	}
 

@@ -81,10 +81,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
-	private static ScrollingMenuSign smsPlugin;
 	private static ResponseHandler responseHandler;
 	private static ChessPersistence persistence;
-	private static ChessTickTask tickTask;
 
 	public static Economy economy = null;
 
@@ -94,6 +92,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	
 	private ConfigurationManager configManager;
 	private ChessFlightListener flightListener;
+	private SMSIntegration sms;
+	private ChessTickTask tickTask;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -145,11 +145,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
 
-		if (ChessCraft.getSMS() != null) SMSIntegration.createMenus();
-
 		persistence.reload();
 
-		if (ChessCraft.getSMS() != null) SMSIntegration.setAutosave(true);
+		if (sms != null)
+			sms.setAutosave(true);
 		
 		tickTask.start(20L);
 
@@ -178,7 +177,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		instance = null;
 		economy = null;
-		smsPlugin = null;
+//		smsPlugin = null;
 		worldEditPlugin = null;
 		persistence = null;
 		responseHandler = null;
@@ -236,8 +235,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		try {
 			Plugin p = pm.getPlugin("ScrollingMenuSign");
 			if (p != null && p instanceof ScrollingMenuSign) {
-				smsPlugin = (ScrollingMenuSign) p;
-				SMSIntegration.setup(smsPlugin);
+				sms = new SMSIntegration((ScrollingMenuSign) p);
 				LogUtils.fine("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 			} else {
 				LogUtils.fine("ScrollingMenuSign plugin not detected.");
@@ -275,11 +273,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public static ResponseHandler getResponseHandler() {
 		return responseHandler;
 	}
-
-	public static ScrollingMenuSign getSMS() {
-		return smsPlugin;
-	}
-
+	
 	public static WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}
@@ -380,7 +374,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal,
 			Object newVal) {
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
-			ChessCraft.tickTask.start(0L);
+			tickTask.start(0L);
 		} else if (key.equalsIgnoreCase("locale")) { //$NON-NLS-1$
 			Messages.setMessageLocale(newVal.toString());
 			// redraw control panel signs in the right language

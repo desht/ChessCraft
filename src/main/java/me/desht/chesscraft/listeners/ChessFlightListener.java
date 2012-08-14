@@ -9,8 +9,8 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.events.ChessBoardCreatedEvent;
-import me.desht.chesscraft.events.ChessBoardDeletedEvent;
+import me.desht.chesscraft.event.ChessBoardCreatedEvent;
+import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.dhutils.MiscUtil;
 

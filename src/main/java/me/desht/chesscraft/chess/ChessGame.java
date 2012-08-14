@@ -15,19 +15,21 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.SMSIntegration;
 import me.desht.chesscraft.chess.ChessAI.AI_Def;
 import me.desht.chesscraft.chess.TimeControl.ControlType;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
+import me.desht.chesscraft.event.ChessGameCreatedEvent;
+import me.desht.chesscraft.event.ChessGameDeletedEvent;
+import me.desht.chesscraft.event.ChessGameStateChangedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.Duration;
-import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
@@ -333,6 +335,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				aiPlayer2 = null;
 			}
 		}
+		Bukkit.getPluginManager().callEvent(new ChessGameStateChangedEvent(this));
 		getView().getControlPanel().repaintSignButtons();
 	}
 
@@ -1486,12 +1489,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (game != null) {
 			if (!chessGames.containsKey(gameName)) {
 				chessGames.put(gameName, game);
+				Bukkit.getPluginManager().callEvent(new ChessGameCreatedEvent(game));
 			} else {
 				throw new ChessException("trying to register duplicate game " + gameName);
 			}
-		}
-		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.gameCreated(game);
 		}
 	}
 
@@ -1508,9 +1509,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			currentGame.remove(p);
 		}
 		chessGames.remove(gameName);
-		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.gameDeleted(game);
-		}
+		Bukkit.getPluginManager().callEvent(new ChessGameDeletedEvent(game));
 	}
 
 	public static boolean checkGame(String name) {

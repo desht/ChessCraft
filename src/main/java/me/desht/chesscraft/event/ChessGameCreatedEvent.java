@@ -1,14 +1,15 @@
-package me.desht.chesscraft.events;
+package me.desht.chesscraft.event;
 
-import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.ChessGame;
 
 import org.bukkit.event.HandlerList;
 
-public class ChessBoardCreatedEvent extends ChessBoardEvent {
+public class ChessGameCreatedEvent extends ChessGameEvent {
+
 	private static final HandlerList handlers = new HandlerList();
 
-	public ChessBoardCreatedEvent(BoardView boardView) {
-		super(boardView);
+	public ChessGameCreatedEvent(ChessGame game) {
+		super(game);
 	}
 
 	@Override
@@ -19,5 +20,4 @@ public class ChessBoardCreatedEvent extends ChessBoardEvent {
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-
 }
