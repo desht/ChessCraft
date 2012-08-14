@@ -1,12 +1,16 @@
 package me.desht.chesscraft.listeners;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.events.ChessBoardCreatedEvent;
+import me.desht.chesscraft.events.ChessBoardDeletedEvent;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.dhutils.MiscUtil;
 
@@ -28,6 +32,9 @@ public class ChessFlightListener extends ChessListenerBase {
 	private final Set<String> alreadyAllowedToFly = new HashSet<String>();
 	// notes if the player is currently allowed to fly due to being on/near a board
 	private final Set<String> allowedToFly = new HashSet<String>();
+	// cache of the regions in which board flight is allowed
+	private final List<Cuboid> flightRegions = new ArrayList<Cuboid>();
+	
 	private boolean enabled;
 	private boolean captive;
 
@@ -92,6 +99,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
+		long now = System.nanoTime();
 		if (!enabled)
 			return;
 
@@ -118,6 +126,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			// otherwise, free movement, but flight cancelled if player moves too far
 			setFlightAllowed(player, shouldBeAllowed);
 		}
+		System.out.println("move handler: " + (System.nanoTime() - now) + " ns");
 		//		System.out.println("flight allowed = " + player.getAllowFlight() + " in flyers = " + allowedToFly.contains(player.getName()));
 	}
 
@@ -146,6 +155,35 @@ public class ChessFlightListener extends ChessListenerBase {
 		}
 	}
 
+	@EventHandler
+	public void onBoardCreated(ChessBoardCreatedEvent event) {
+		recalculateFlightRegions();
+	}
+	
+	@EventHandler
+	public void onBoardDeleted(ChessBoardDeletedEvent event) {
+		recalculateFlightRegions();
+	}
+
+	/**
+	 * Cache the regions in which flight is allowed.  We do this to avoid calculation in the
+	 * code which is (frequently) called from the PlayerMoveEvent handler.
+	 */
+	public void recalculateFlightRegions() {
+		
+		int above = plugin.getConfig().getInt("flying.upper_limit");
+		int outside = plugin.getConfig().getInt("flying.outer_limit");
+		
+		flightRegions.clear();
+		
+		for (BoardView bv : BoardView.listBoardViews()) {
+			Cuboid c = bv.getOuterBounds();
+			c = c.expand(Direction.Up, Math.max(5, (c.getSizeY() * above) / 100));
+			c = c.outset(Direction.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
+			flightRegions.add(c);
+		}
+	}
+	
 	/**
 	 * Check if the player may fly (in a ChessCraft context) given their current position.
 	 * 
@@ -153,19 +191,13 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * @return
 	 */
 	public boolean shouldBeAllowedToFly(Location loc) {
-		int above = plugin.getConfig().getInt("flying.upper_limit");
-		int outside = plugin.getConfig().getInt("flying.outer_limit");
-
-		for (BoardView bv: BoardView.listBoardViews()) {
-			Cuboid c = bv.getOuterBounds();
-			c = c.expand(Direction.Up, (c.getSizeY() * above) / 100)
-					.outset(Direction.Horizontal, (c.getSizeX() * outside) / 100);
+		for (Cuboid c : flightRegions) {
 			if (c.contains(loc))
 				return true;
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Mark the player as being allowed to fly or not.  If the player was previously allowed to fly by
 	 * some other means, he can continue to fly even if chess board flying is being disabled.

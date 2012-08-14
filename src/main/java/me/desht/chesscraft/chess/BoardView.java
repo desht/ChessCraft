@@ -1,47 +1,40 @@
 package me.desht.chesscraft.chess;
 
-import me.desht.chesscraft.chess.ChessGame;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
-import chesspresso.Chess;
-import chesspresso.move.Move;
-import chesspresso.position.ImmutablePosition;
-import chesspresso.position.PositionChangeListener;
-import chesspresso.position.PositionListener;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.SMSIntegration;
-import me.desht.chesscraft.blocks.TerrainBackup;
-
-import me.desht.chesscraft.regions.Cuboid;
-import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.chesscraft.util.NoteAlert;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
 import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.chess.ChessBoard;
+import me.desht.chesscraft.blocks.TerrainBackup;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
+import me.desht.chesscraft.events.ChessBoardCreatedEvent;
+import me.desht.chesscraft.events.ChessBoardDeletedEvent;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
+import me.desht.chesscraft.regions.Cuboid;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.NoteAlert;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -54,6 +47,12 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
+import chesspresso.Chess;
+import chesspresso.move.Move;
+import chesspresso.position.ImmutablePosition;
+import chesspresso.position.PositionChangeListener;
+import chesspresso.position.PositionListener;
+
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
 	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 
@@ -62,13 +61,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
-	
+
 	private double defaultStake;
 	private boolean lockStake;
-	
+
 	private String defaultTcSpec;
 	private boolean lockTcSpec;
-	
+
 	private ChessGame game = null;			// null indicates board not currently used by any game
 
 	private final String worldName;
@@ -112,15 +111,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (designerName != null && !designerName.isEmpty()) {
 			setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
 		}
-		
+
 		defaultStake = conf.getDouble("defaultStake", -1.0);
 		lockStake = conf.getBoolean("lockStake", false);
-		
+
 		defaultTcSpec = conf.getString("defaultTcSpec", "");
 		lockTcSpec = conf.getBoolean("lockTcSpec", false);
-		
+
 		savedGameName = conf.getString("game", "");
-		
+
 		Location where;
 		try {
 			where = ChessPersistence.thawLocation((List<Object>) origin);
@@ -131,7 +130,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
-		
+
 		setDefaultTcSpec(defaultTcSpec);
 	}
 
@@ -223,7 +222,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public ChessGame getGame() {
 		return game;
 	}
-	
+
 	public double getDefaultStake() {
 		return defaultStake >= 0.0 ? defaultStake : ChessCraft.getInstance().getConfig().getDouble("stake.default", 0.0);
 	}
@@ -314,7 +313,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public String getDefaultTcSpec() {
 		return defaultTcSpec.isEmpty() ? ChessCraft.getInstance().getConfig().getString("time_control.default") : defaultTcSpec;
 	}
-	
+
 	public void setDefaultTcSpec(String spec) {
 		TimeControl tc = new TimeControl(spec);		// force validation of the spec
 		defaultTcSpec = tc.getSpec();
@@ -325,7 +324,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public void setLockTcSpec(boolean lock) {
 		lockTcSpec = lock;
 	}
-	
+
 	public boolean getLockTcSpec() {
 		return lockTcSpec;
 	}
@@ -493,7 +492,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public boolean isPartOfBoard(Location loc) {
 		return isPartOfBoard(loc, 0);
 	}
-	
+
 	public boolean isControlPanel(Location loc) {
 		// outsetting the cuboid allows the signs on the panel to be targeted too
 		return controlPanel.getPanelBlocks().outset(Direction.Horizontal, 1).contains(loc);
@@ -635,7 +634,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr)); //$NON-NLS-1$
 		String lockTcStr = getLockTcSpec() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr)); //$NON-NLS-1$
-		
+
 		if (chessBoard.getDesigner() != null) {
 			pager.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
@@ -645,7 +644,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 				pager.add(ChatColor.YELLOW + s);
 			}
 		}
-		
+
 		pager.showPage();
 	}
 
@@ -670,11 +669,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public static void addBoardView(String name, BoardView view) {
+
 		if (ChessCraft.getSMS() != null) {
-			SMSIntegration.boardCreated(view);
+			SMSIntegration.boardCreated(view);	// TODO: use event here too
 		}
 
 		chessBoards.put(name, view);
+		
+		Bukkit.getPluginManager().callEvent(new ChessBoardCreatedEvent(view));
+
 	}
 
 	public static void registerView(BoardView view) {
@@ -682,23 +685,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public static void removeBoardView(String name) {
-		if (ChessCraft.getSMS() != null) {
-			BoardView bv;
-			try {
-				bv = getBoardView(name);
-				SMSIntegration.boardDeleted(bv);
-			} catch (ChessException e) {
-				LogUtils.warning("removeBoardView: unknown board name " + name);
+		BoardView bv;
+		try {
+			bv = getBoardView(name);
+			if (ChessCraft.getSMS() != null) {
+				SMSIntegration.boardDeleted(bv);  // TODO: use event here too
 			}
+			chessBoards.remove(name);
+			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
+		} catch (ChessException e) {
+			LogUtils.warning("removeBoardView: unknown board name " + name);
 		}
 
-		chessBoards.remove(name);
 	}
 
 	public static void removeAllBoardViews() {
-		if (ChessCraft.getSMS() != null) {
-			for (BoardView bv : listBoardViews()) {
-				SMSIntegration.boardDeleted(bv);
+
+		for (BoardView bv : listBoardViews()) {
+			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
+			if (ChessCraft.getSMS() != null) {
+				SMSIntegration.boardDeleted(bv);	// TODO: use event here too
 			}
 		}
 
@@ -848,7 +854,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * Convenience method to create a new board and do all the associated setup tasks.
 	 * 
@@ -866,7 +872,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		view.save();
 		view.paintAll();
-		
+
 		return view;
 	}
 
@@ -883,9 +889,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		deferred.get(worldName).add(f);
 	}
-	
+
 	/**
-	 * Load any defered boards for the given world.
+	 * Load any deferred boards for the given world.
 	 * 
 	 * @param worldName
 	 */
