@@ -99,7 +99,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerMove(PlayerMoveEvent event) {
-		long now = System.nanoTime();
+//		long now = System.nanoTime();
 		if (!enabled)
 			return;
 
@@ -126,7 +126,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			// otherwise, free movement, but flight cancelled if player moves too far
 			setFlightAllowed(player, shouldBeAllowed);
 		}
-		System.out.println("move handler: " + (System.nanoTime() - now) + " ns");
+//		System.out.println("move handler: " + (System.nanoTime() - now) + " ns");
 		//		System.out.println("flight allowed = " + player.getAllowFlight() + " in flyers = " + allowedToFly.contains(player.getName()));
 	}
 
