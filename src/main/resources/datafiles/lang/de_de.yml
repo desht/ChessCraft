@@ -44,6 +44,9 @@ ChessCommandExecutor:
     squareSize: 'Feldgrösse: &f{0,number,integer} ({1}/{2})'
     struts: 'Einfassungsgestänge: &f{0}'
     boardOrientation: 'Brettorientierung: &f{0}'
+    locked: (gesichert)
+    defaultStake: 'Standard Einsatz: &f{0} {1}'
+    defaultTimeControl: 'Standard Zeitkontrolle: &f{0} {1}'
   boardList: '&6{0}&-: loc=&f{1}&- Stil=&6{2}&- Spiel=&6{3}&-'
   boardRedrawn: Brett &6{0}&- wurde neu entworfen.
   boardStyleChanged: Brett &6{0}&- Stil wurde geändert.
@@ -93,6 +96,7 @@ ChessCommandExecutor:
   noCurrentGames: Es gibt zur Zeit keine Spiele.
   noGame: (none)
   noPendingInvitation: Du hast zur Zeit keine laufenden Einlaudungen.
+  noTeleporting: Sich zu oder von Spielbrettern porten ist zur Zeit nicht erlaubt.
   notFromConsole: Dieser Befehl kann nicht von der Konsole ausgeführt werden.
   notOnChessboard: Nicht auf einem Schachbrett!
   otherPlayerMustBeOffline: Du kannst dies nur tun wenn der andere Spieler offline ist.
@@ -109,6 +113,7 @@ ChessCommandExecutor:
   stakeChanged: Einsatz fuer dieses Spiel ist nun {0}.
   teleportDestObstructed: Teleport Ziel gesperrt!
   timeControlSet: Zeitkontrolle für dieses Spiel gesetzt zu {0} ({1})
+  timeControlsReloaded: Die Zeitkontrolldefinitionen wurden neu geladen.
   typeYesOrNo: Schreibe &f/chess yes&- um zu akzeptieren, oder &f/chess no&- um abzulehnen.
 ChessConfig:
   invalidBoolean: 'Ungültiger boolean Wert: {0} (benutze true/yes oder false/no)'
@@ -127,6 +132,7 @@ ChessPlayerListener:
   notYourTurn: Du bist nicht am Zug!
   pieceSelected: '&f{0}&- auf &f{1}&- ausgewählt. Linksklick um zu ziehen.'
   playerBack: '{0} ist zurueck im Spiel!'
+  playerInviteCancelled: '&6Player Einladung abgebrochen.'
   playerQuit: '{0} ausgeschieden.  Wenn sie nicht innerhalb von {1,number,integer}
     Sekunden zurückkommen, kannst du &f/chess win&- schreiben um zu gewinnen.'
   squareMessage: Quadrat &6[{0}]&-, Brett &6{1}
@@ -144,6 +150,7 @@ ControlPanel:
   acceptSwapBtn: Akzeptierst du einen Seitenwechsel?
   blackPawnPromotionBtn: Schwarz Bauer;Aufwertung
   boardInfoBtn: ;Brett;Info
+  chessInvitePrompt: 'Schreib den Spielernamen um einzuladen.  Links- oder Rectsklick um abzubrechen.'
   chessInviteReminder: Schreib &f/chess invite <Spielername>&- um jemanden einzuladen
   createGameBtn: ;Erstelle;Spiel
   gameInfoBtn: ;Spiel;Info
@@ -163,7 +170,11 @@ ControlPanel:
   whitePawnPromotionBtn: Weisser Bauer;Aufwerung
   yesBtn: ;;Ja
 Designer:
+  cleared: 'Der aktuelle Figurenstil wurde gelöscht.'
+  gameRunning: 'Du kannst nicht auf einem Spielbrett entwerfen, bei dem ein Spiel im Gange ist.'
   inDesignMode: "Brett &6{0}&- ist nun im Entwurfsmodus."
+  mustBeInDesignMode: 'Du musst zuerst im Entwurfsmodus sein. Nutze &f/chess design&-.'
+  notOnBoard: Du stehst nicht auf einem Schachbrett.
   outOfDesignMode: "Brett &6{0}&- ist nicht mehr im Entwurfsmodus."
   styleSaved:
   - "Persoenlicher Figurenstil &6{0}&- gespeichert."
@@ -191,6 +202,7 @@ Game:
   autoDeleteNotStarted: Spiel automatisch entfernt (startete nicht innerhalb {0}).
   autoDeleteRunning: Spiel automatisch entfernt (kein Zug gemacht innerhalb {0}).
   black: Schwarz
+  boardInDesignMode: Das Spielbrett wird zum Figurenstilentwurf genutzt.
   cantAffordToStart: '{0} kann es sich nicht leisten zu spielen! (brauche {1})'
   cantAffordToJoin: Du kannst dir den Einsatz fuer dieses Spiel nicht leisten (brauche {0})!
   cantWriteArchive: 'Kann kein PGN Archiv schreiben {0}: {1}'
@@ -234,6 +246,7 @@ Game:
   - Spiel gestartet! Du spielst &f{0}&-.
   - Um eine Figur zu bewegen, schaue sie an während du {1} hältst, und mache einen linksklick.
   startPrompt: Starte das Spiel indem du &f/game start&- schreibst.
+  timeControlLocked: 'Die Zeitkontrolle für dieses Spiel ist gesichert und darf nicht verändert werden.'
   timeControlWarning: Du hast noch {0,number,integer} Sekunden Zeit um einen Zug zu machen!
   white: Weiss
   youAreInvited: Du wurdest von &6{0}&- zu diesem Spiel eingeladen.
