@@ -389,6 +389,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			flightListener.setCaptive((Boolean) newVal);
 		} else if (key.equalsIgnoreCase("flying.upper_limit") || key.equalsIgnoreCase("flying.outer_limit")) {
 			flightListener.recalculateFlightRegions();
+		} else if (key.equalsIgnoreCase("flying.fly_speed") || key.equalsIgnoreCase("flying.walk_speed")) {
+			flightListener.updateSpeeds();
 		}
 	}
 	

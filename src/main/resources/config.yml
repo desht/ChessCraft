@@ -54,5 +54,7 @@ flying:
     auto: false
     upper_limit: 50
     outer_limit: 25
+    fly_speed: 0.1
+    walk_speed: 0.2
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3
