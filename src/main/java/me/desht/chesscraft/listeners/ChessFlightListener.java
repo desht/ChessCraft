@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.util.Vector;
 
 public class ChessFlightListener extends ChessListenerBase {
 
@@ -37,6 +38,9 @@ public class ChessFlightListener extends ChessListenerBase {
 	private final Map<String,PreviousSpeed> allowedToFly = new HashMap<String,PreviousSpeed>();
 	// cache of the regions in which board flight is allowed
 	private final List<Cuboid> flightRegions = new ArrayList<Cuboid>();
+	// notes when a player was last messaged about flight, to reduce spam
+	private final Map<String,Long> lastMessagedIn = new HashMap<String,Long>();
+	private final Map<String,Long> lastMessagedOut = new HashMap<String,Long>();
 	
 	private boolean enabled;
 	private boolean captive;
@@ -66,7 +70,7 @@ public class ChessFlightListener extends ChessListenerBase {
 						player.setAllowFlight(false);
 					} else {
 						// restore previous flight/walk speed
-						allowedToFly.get(playerName).restore();
+						allowedToFly.get(playerName).restoreSpeeds();
 					}
 					player.setAllowFlight(alreadyAllowedToFly.contains(playerName));
 					MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabledByAdmin"));
@@ -231,15 +235,28 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		player.setAllowFlight(flying || alreadyAllowedToFly.contains(playerName));
 
+		long now = System.currentTimeMillis();
+		
 		if (flying) {
 			allowedToFly.put(playerName, new PreviousSpeed(player));
 			player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 			player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
-			MiscUtil.alertMessage(player, Messages.getString("Flight.flightEnabled"));
+			if (plugin.getConfig().getBoolean("flying.auto")) {
+				player.setFlying(true);
+			}
+			long last = lastMessagedIn.containsKey(playerName) ? lastMessagedIn.get(playerName) : 0;
+			if (now - last > 5000) {
+				MiscUtil.alertMessage(player, Messages.getString("Flight.flightEnabled"));
+				lastMessagedIn.put(playerName, System.currentTimeMillis());
+			}
 		} else {
-			allowedToFly.get(playerName).restore();
+			allowedToFly.get(playerName).restoreSpeeds();
 			allowedToFly.remove(playerName);
-			MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabled"));
+			long last = lastMessagedOut.containsKey(playerName) ? lastMessagedOut.get(playerName) : 0;
+			if (now - last > 5000) {
+				MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabled"));
+				lastMessagedOut.put(playerName, System.currentTimeMillis());
+			}
 		}
 
 		if (!player.getAllowFlight()) {
@@ -274,7 +291,7 @@ public class ChessFlightListener extends ChessListenerBase {
 //			System.out.println("previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 		
-		public void restore() {
+		public void restoreSpeeds() {
 			Player p = Bukkit.getPlayerExact(playerName);
 			if (p == null)
 				return;
