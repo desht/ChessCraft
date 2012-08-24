@@ -3,7 +3,6 @@ package me.desht.chesscraft.expector;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 

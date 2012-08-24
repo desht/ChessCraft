@@ -38,6 +38,20 @@ public class ResultEntry {
 		pgnResult = pgnRes;
 	}
 
+	ResultEntry(ResultSet rs) throws SQLException {
+		try {
+			playerWhite = rs.getString("playerwhite");
+			playerBlack = rs.getString("playerBlack");
+			gameName = rs.getString("gameName");
+			startTime = rs.getDate("startTime").getTime();
+			endTime = rs.getDate("endTime").getTime();
+			result = GameResult.valueOf(rs.getString("result"));
+			pgnResult = rs.getString("pgnResult");
+		} catch (SQLException e) {
+			throw e;
+		}
+	}
+
 	public String getPlayerWhite() {
 		return playerWhite;
 	}
@@ -83,20 +97,6 @@ public class ResultEntry {
 			return playerWhite;
 		} else {
 			return null;
-		}
-	}
-
-	public ResultEntry(ResultSet rs) throws SQLException {
-		try {
-			playerWhite = rs.getString("playerwhite");
-			playerBlack = rs.getString("playerBlack");
-			gameName = rs.getString("gameName");
-			startTime = rs.getDate("startTime").getTime();
-			endTime = rs.getDate("endTime").getTime();
-			result = GameResult.valueOf(rs.getString("result"));
-			pgnResult = rs.getString("pgnResult");
-		} catch (SQLException e) {
-			throw e;
 		}
 	}
 

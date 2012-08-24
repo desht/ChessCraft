@@ -15,9 +15,6 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.dhutils.LogUtils;
-
-import org.bukkit.Location;
-
 import chesspresso.Chess;
 
 /**

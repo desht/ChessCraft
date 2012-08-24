@@ -6,9 +6,9 @@ import me.desht.chesscraft.ChessCraft;
 
 public class League extends ResultViewBase {
 
-	private final int WIN_POINTS = 2;
-	private final int LOSS_POINTS = 0;
-	private final int DRAW_POINTS = 1;
+	private static final int WIN_POINTS = 2;
+	private static final int LOSS_POINTS = 0;
+	private static final int DRAW_POINTS = 1;
 	
 	public League(Results handler) {
 		super(handler, "league");

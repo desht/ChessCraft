@@ -12,7 +12,7 @@ import me.desht.chesscraft.results.ResultEntry;
  */
 public class Ladder extends ResultViewBase {
 
-	private final int INITIAL_POS = 1000;
+	private static final int INITIAL_POS = 1000;
 
 	/**
 	 * Create a new Ladder object.

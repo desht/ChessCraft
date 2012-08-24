@@ -1,14 +1,13 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ListBoardCommand extends AbstractCommand {
 

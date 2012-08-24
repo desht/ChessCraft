@@ -17,7 +17,7 @@ import me.desht.dhutils.LogUtils;
 public class ResultsDB {
 
 	private final Connection connection;
-	
+
 	private final Map<String, PreparedStatement> statementCache = new HashMap<String, PreparedStatement>();
 
 	ResultsDB() throws ClassNotFoundException, SQLException {
@@ -25,22 +25,12 @@ public class ResultsDB {
 		File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
 		connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 		setupTables();
-//		try {
-//			Class.forName("org.sqlite.JDBC");
-//			File dbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
-//			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-//			setupTables();
-//		} catch (ClassNotFoundException e) {
-//			LogUtils.warning("SQLite not available, result logging disabled: " + e.getMessage());
-//		} catch (SQLException e) {
-//			LogUtils.warning("SQLite connection failed, result logging disabled: " + e.getMessage());
-//		}
 	}
-	
+
 	public Connection getConnection() {
 		return connection;
 	}
-	
+
 	public void shutdown() {
 		try {
 			if (!connection.getAutoCommit()) {
@@ -92,7 +82,7 @@ public class ResultsDB {
 			throw e;
 		}
 	}
-	
+
 	private boolean tableExists(String table) throws SQLException {
 		DatabaseMetaData dbm = connection.getMetaData();
 		ResultSet tables = dbm.getTables(null , null, table, null);
