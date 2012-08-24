@@ -615,8 +615,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		pager.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
-		                                      ChessUtils.formatLoc(bounds.getLowerNE()),
-		                                      ChessUtils.formatLoc(bounds.getUpperSW())));
+		                                      MiscUtil.formatLocation(bounds.getLowerNE()),
+		                                      MiscUtil.formatLocation(bounds.getUpperSW())));
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().toString())); //$NON-NLS-1$
 		pager.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$

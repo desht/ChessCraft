@@ -40,7 +40,7 @@ public class ExpectBoardCreation extends ExpectChessBase {
 		BoardView view = BoardView.createBoard(boardName, loc, BoardRotation.getRotation(player), style, pieceStyle);
 		
 		MiscUtil.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
-				view.getName(), ChessUtils.formatLoc(view.getA1Square())));
+				view.getName(), MiscUtil.formatLocation(view.getA1Square())));
 	}
 
 }

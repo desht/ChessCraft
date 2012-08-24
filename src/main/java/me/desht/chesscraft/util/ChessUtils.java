@@ -10,9 +10,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
@@ -59,12 +56,6 @@ public class ChessUtils {
 		long mins = (l - (hrs * 3600)) / 60;
 	
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
-	}
-
-	public static String formatLoc(Location loc) {
-		String str = "<" + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + "," //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ loc.getWorld().getName() + ">"; //$NON-NLS-1$
-		return str;
 	}
 
 	public static String pieceToStr(int piece) {
@@ -188,29 +179,6 @@ public class ChessUtils {
 		return p[n];
 	}
 	
-	public static List<String> splitQuotedString(String s) {
-		List<String> matchList = new ArrayList<String>();
-
-		Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
-		Matcher regexMatcher = regex.matcher(s);
-
-		while (regexMatcher.find()) {
-			if (regexMatcher.group(1) != null) {
-				// Add double-quoted string without the quotes
-				matchList.add(regexMatcher.group(1));
-			} else if (regexMatcher.group(2) != null) {
-				// Add single-quoted string without the quotes
-				matchList.add(regexMatcher.group(2));
-			} else {
-				// Add unquoted word
-				matchList.add(regexMatcher.group());
-			}
-		}
-
-		return matchList;
-	}
-
-
 	public static int getWandId() {
 		String wand = ChessCraft.getInstance().getConfig().getString("wand_item"); //$NON-NLS-1$
 		if (wand.equalsIgnoreCase("*")) {
