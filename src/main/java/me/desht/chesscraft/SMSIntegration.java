@@ -53,6 +53,7 @@ public class SMSIntegration implements Listener {
 		BoardView bv = event.getBoardView();
 
 		addItem(BOARD_INFO, bv.getName(), "/chess list board " + bv.getName()); //$NON-NLS-1$
+		addItem(CREATE_GAME, bv.getName(), "/chess create game - " + bv.getName()); //$NON-NLS-1$
 	}
 
 	@EventHandler
@@ -60,9 +61,7 @@ public class SMSIntegration implements Listener {
 		BoardView bv = event.getBoardView();
 
 		removeItem(BOARD_INFO, bv.getName());
-		if (bv.getGame() == null) {
-			removeItem(CREATE_GAME, bv.getName());
-		}
+		removeItem(CREATE_GAME, bv.getName());
 	}
 
 	@EventHandler
