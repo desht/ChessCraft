@@ -43,14 +43,14 @@ public class GetcfgCommand extends AbstractCommand {
 		return true;
 	}
 
-	public static List<String> getPluginConfiguration() {
+	public List<String> getPluginConfiguration() {
 		return getPluginConfiguration(null);
 	}
 
-	public static List<String> getPluginConfiguration(String section) {
+	public List<String> getPluginConfiguration(String section) {
 		ArrayList<String> res = new ArrayList<String>();
 		Configuration config = ChessCraft.getInstance().getConfig();
-		ConfigurationSection cs = config.getDefaultSection();
+		ConfigurationSection cs = config.getRoot();
 		
 		Set<String> items;
 		if (section == null) {
