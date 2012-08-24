@@ -54,8 +54,8 @@ public class StakeButton extends AbstractSignButton {
 		ChessGame game = getGame();
 		double stake = game == null ? getView().getDefaultStake() : game.getStake();
 		String[] s =  ChessUtils.formatStakeStr(stake).split(" ", 2);
-		res[2] = s[0];
-		res[3] = s.length > 1 ? s[1] : "";
+		res[2] = getIndicatorColour() + s[0];
+		res[3] = s.length > 1 ? getIndicatorColour() + s[1] : "";
 		
 		return res;
 	}
