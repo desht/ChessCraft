@@ -63,7 +63,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		Player player = event.getPlayer();
 		String playerName = player.getName();
 		
-		ResponseHandler resp = ChessCraft.getResponseHandler();
+		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 		
 		// a left or right-click (even air, where the event is cancelled) cancels any pending player invite response
 		if (resp.isExpecting(playerName, ExpectInvitePlayer.class)) {
@@ -218,7 +218,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 	@EventHandler(ignoreCancelled = true, priority=EventPriority.HIGH)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
-		ResponseHandler resp = ChessCraft.getResponseHandler();
+		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 		ExpectInvitePlayer ip = resp.getAction(player.getName(), ExpectInvitePlayer.class);
 		
 		if (ip != null) {

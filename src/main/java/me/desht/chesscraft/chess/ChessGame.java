@@ -31,6 +31,7 @@ import me.desht.dhutils.Duration;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.responsehandler.ResponseHandler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -838,8 +839,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
 			// making a move after a draw or swap offer has been made is equivalent to declining the offer
-			ExpectDrawResponse dr = ChessCraft.getResponseHandler().getAction(playerName, ExpectDrawResponse.class);
-			ExpectSwapResponse sr = ChessCraft.getResponseHandler().getAction(playerName, ExpectSwapResponse.class);
+			ResponseHandler resp = ChessCraft.getInstance().responseHandler;
+			ExpectDrawResponse dr = resp.getAction(playerName, ExpectDrawResponse.class);
+			ExpectSwapResponse sr = resp.getAction(playerName, ExpectSwapResponse.class);
 			if (dr != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
 				dr.cancelAction();
@@ -1260,6 +1262,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else if (getState() == GameState.FINISHED) {
 			long elapsed = System.currentTimeMillis() - finished;
 			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.finished", "30 mins"));
+			System.out.println("got timeout: " + timeout.toString());
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
@@ -1358,7 +1361,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (ChessAI.isAIPlayer(otherPlayerName)) {
 			// TODO: work out how to offer a draw to the AI, if possible
 		} else {
-			ChessCraft.getResponseHandler().expect(otherPlayerName, new ExpectDrawResponse(this, playerName, otherPlayerName));
+			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectDrawResponse(this, playerName, otherPlayerName));
 		}
 		
 		Player player = Bukkit.getPlayer(playerName);
@@ -1388,7 +1391,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			if (ChessAI.isAIPlayer(otherPlayerName)) {
 				// TODO: work out how to offer a draw to the AI, if possible
 			} else {
-				ChessCraft.getResponseHandler().expect(otherPlayerName, new ExpectSwapResponse(this, playerName, otherPlayerName));
+				ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectSwapResponse(this, playerName, otherPlayerName));
 			}
 			Player player = Bukkit.getPlayer(playerName);	
 			if (player != null) {

@@ -42,7 +42,7 @@ public class BoardCreationCommand extends AbstractCommand {
 		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
 
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.getResponseHandler().expect(sender.getName(), new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
+		ChessCraft.getInstance().responseHandler.expect(sender.getName(), new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
 		
 		return true;
 	}

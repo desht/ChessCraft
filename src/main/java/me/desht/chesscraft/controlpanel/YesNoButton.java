@@ -51,9 +51,9 @@ public abstract class YesNoButton extends AbstractSignButton {
 			// could be an AI player
 //			LogUtils.warning("unknown player:" + playerName + " (offline?) in game " + game.getName());
 			return ""; //$NON-NLS-1$
-		} else if (ChessCraft.getResponseHandler().isExpecting(playerName, ExpectDrawResponse.class)) {
+		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectDrawResponse.class)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (ChessCraft.getResponseHandler().isExpecting(playerName, ExpectSwapResponse.class)) {
+		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectSwapResponse.class)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$

@@ -56,6 +56,7 @@ import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.Duration;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
@@ -81,15 +82,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
-	private static ResponseHandler responseHandler;
 	private static ChessPersistence persistence;
-
+	
+	public final ResponseHandler responseHandler = new ResponseHandler();
+	
 	public static Economy economy = null;
 
 	private final CommandManager cmds = new CommandManager(this);
 
 	private final PlayerTracker tracker = new PlayerTracker();
-	
+
 	private ConfigurationManager configManager;
 	private ChessFlightListener flightListener;
 	private SMSIntegration sms;
@@ -123,7 +125,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
-		responseHandler = new ResponseHandler();
 
 		// This is just here so the results DB stuff gets loaded at startup
 		// time - easier to test that way.  Remove it for production.
@@ -140,7 +141,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		new ChessWorldListener(this);
 		flightListener = new ChessFlightListener(this);
 		flightListener.setEnabled(getConfig().getBoolean("flying.allowed"));
-		
+
 		registerCommands();
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
@@ -149,7 +150,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		if (sms != null)
 			sms.setAutosave(true);
-		
+
 		tickTask.start(20L);
 
 		setupMetrics();
@@ -177,10 +178,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		instance = null;
 		economy = null;
-//		smsPlugin = null;
 		worldEditPlugin = null;
 		persistence = null;
-		responseHandler = null;
 
 		LogUtils.fine("disabled!");
 	}
@@ -270,10 +269,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return persistence;
 	}
 
-	public static ResponseHandler getResponseHandler() {
-		return responseHandler;
-	}
-	
 	public static WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}
@@ -289,11 +284,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public PlayerTracker getPlayerTracker() {
 		return tracker;
 	}
-	
+
 	/*-----------------------------------------------------------------*/
 
 	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
-		ResponseHandler respHandler = getResponseHandler();
+		ResponseHandler respHandler = getInstance().responseHandler;
 
 		Class<? extends ExpectYesNoResponse> c = null;
 		if (respHandler.isExpecting(player.getName(), ExpectDrawResponse.class)) {
@@ -362,7 +357,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
-		// do nothing
+		if (key.startsWith("auto_delete.") || key.startsWith("timeout")) {
+			try {
+				new Duration(val);
+			} catch (NumberFormatException e) {
+				throw new DHUtilsException("Invalid duration: " + val);
+			}
+		}
 	}
 
 	@Override
@@ -393,7 +394,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			flightListener.updateSpeeds();
 		}
 	}
-	
+
 	/* PluginVersionListener */
 
 	@Override
