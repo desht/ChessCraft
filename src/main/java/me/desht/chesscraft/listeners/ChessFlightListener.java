@@ -245,7 +245,10 @@ public class ChessFlightListener extends ChessListenerBase {
 		if (!player.getAllowFlight()) {
 			// prevent fall damage so players don't fall to their death by flying too far from a chessboard
 			Location loc = player.getLocation();
-			player.setFallDistance(player.getWorld().getHighestBlockYAt(loc) - loc.getBlockY());
+			int dist = player.getWorld().getHighestBlockYAt(loc) - loc.getBlockY();
+			if (dist < -1) {
+				player.setFallDistance(dist);
+			}
 		}
 	}
 
@@ -268,7 +271,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			playerName = p.getName();
 			flySpeed = p.getFlySpeed();
 			walkSpeed = p.getWalkSpeed();
-			System.out.println("previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
+//			System.out.println("previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 		
 		public void restore() {
