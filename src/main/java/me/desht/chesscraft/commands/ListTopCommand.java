@@ -1,15 +1,14 @@
 package me.desht.chesscraft.commands;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.results.ScoreRecord;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ListTopCommand extends AbstractCommand {
 
@@ -21,7 +20,8 @@ public class ListTopCommand extends AbstractCommand {
 	
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		if (!Results.resultsHandlerOK()) {
+		Results results = Results.getResultsHandler();
+		if (results == null) {
 			throw new ChessException("Results are not available.");
 		}
 		int n = 5;
@@ -36,16 +36,14 @@ public class ListTopCommand extends AbstractCommand {
 		if (args.length > 1) {
 			viewName = args[1];
 		}
-		boolean includeAI = true;
+		boolean excludeAI = false;
 		if (args.length > 2 && args[2].equals("-ai")) {
-			includeAI = false;
+			excludeAI = true;
 		}
 		
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		int row = 1;
-		for (ScoreRecord sr : Results.getResultsHandler().getView(viewName).getScores(n)) {
-			if (!includeAI && ChessAI.isAIPlayer(sr.getPlayer()))
-				continue;
+		for (ScoreRecord sr : results.getView(viewName).getScores(n, excludeAI)) {
 			pager.add(Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
 			row++;
 		}

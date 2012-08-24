@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.desht.chesscraft.chess.ChessAI;
 import me.desht.dhutils.LogUtils;
 
 /**
@@ -72,7 +73,7 @@ public abstract class ResultViewBase {
 	 * @return	A list of score records (player, score)
 	 */
 	public List<ScoreRecord> getScores() {
-		return getScores(0);
+		return getScores(0, false);
 	}
 	
 	/**
@@ -81,15 +82,17 @@ public abstract class ResultViewBase {
 	 * @param n	The number of players to return
 	 * @return	A list of score records (player, score)
 	 */
-	public List<ScoreRecord> getScores(int n) {
+	public List<ScoreRecord> getScores(int n, boolean excludeAI) {
 		List<ScoreRecord> res = new ArrayList<ScoreRecord>();
 		
 		try {
+			String ex = excludeAI ? " WHERE player NOT LIKE '" + ChessAI.AI_PREFIX + "%'" : "";
 			Statement stmt = handler.getConnection().createStatement();
-			StringBuilder query = new StringBuilder("SELECT player, score FROM " + viewType + " ORDER BY score DESC");
+			StringBuilder query = new StringBuilder("SELECT player, score FROM " + viewType + ex + " ORDER BY score DESC");
 			if (n > 0) {
 				query.append(" LIMIT ").append(n);
 			}
+			System.out.println("execute: " + query);
 			ResultSet rs = stmt.executeQuery(query.toString());
 			while (rs.next()) {
 				res.add(new ScoreRecord(rs.getString(1), rs.getInt(2)));

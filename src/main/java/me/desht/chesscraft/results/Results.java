@@ -26,30 +26,14 @@ public class Results {
 
 	/**
 	 * Create the singleton results handler - only called from getResultsHandler once
+	 * @throws SQLException 
+	 * @throws ClassNotFoundException 
 	 */
-	private Results() {
-		db = initResultsDB();
-//		try {
-//			db = new ResultsDB();
-//			loadEntries();
-//			registerView("ladder", new Ladder(this));
-//			registerView("league", new League(this));
-//		} catch (Exception e) {
-//			LogUtils.warning(e.getMessage());
-//		}
-	}
-
-	private ResultsDB initResultsDB() {
-		try {
-			ResultsDB rdb = new ResultsDB();
-			loadEntries();
-			registerView("ladder", new Ladder(this));
-			registerView("league", new League(this));
-			return rdb;
-		} catch (Exception e) {
-			LogUtils.warning(e.getMessage());
-			return null;
-		}
+	private Results() throws ClassNotFoundException, SQLException {
+		db = new ResultsDB();
+		loadEntries();
+		registerView("ladder", new Ladder(this));
+		registerView("league", new League(this));
 	}
 	
 	/**
@@ -69,7 +53,11 @@ public class Results {
 	 */
 	public synchronized static Results getResultsHandler() {
 		if (results == null) {
-			results = new Results();
+			try {
+				results = new Results();
+			} catch (Exception e) {
+				LogUtils.warning(e.getMessage());
+			}
 		}
 		return results;
 	}
@@ -103,7 +91,9 @@ public class Results {
 	 */
 	public static void shutdown() {
 		if (results != null) {
-			results.db.shutdown();
+			if (results.db != null) {
+				results.db.shutdown();
+			}
 			results = null;
 		}
 	}
