@@ -9,6 +9,8 @@ import java.util.Set;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.blocks.BlockType;
+import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
@@ -190,8 +192,11 @@ public class ChessFlightListener extends ChessListenerBase {
 		
 		for (BoardView bv : BoardView.listBoardViews()) {
 			Cuboid c = bv.getOuterBounds();
-			c = c.expand(Direction.Up, Math.max(5, (c.getSizeY() * above) / 100));
-			c = c.outset(Direction.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
+			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
+			if (BlockType.canPassThrough(mat.getId())) {
+				c = c.expand(Direction.Up, Math.max(5, (c.getSizeY() * above) / 100));
+				c = c.outset(Direction.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
+			}
 			flightRegions.add(c);
 		}
 	}

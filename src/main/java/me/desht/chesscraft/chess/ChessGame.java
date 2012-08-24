@@ -1261,8 +1261,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			}
 		} else if (getState() == GameState.FINISHED) {
 			long elapsed = System.currentTimeMillis() - finished;
-			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.finished", "30 mins"));
-			System.out.println("got timeout: " + timeout.toString());
+			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.finished", "30 sec"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
 				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
