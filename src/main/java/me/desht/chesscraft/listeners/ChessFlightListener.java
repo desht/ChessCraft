@@ -92,23 +92,28 @@ public class ChessFlightListener extends ChessListenerBase {
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onPlayerJoined(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-//		System.out.println("player joined, mode = " + player.getGameMode() + ", board allowed = " + chessBoardFlightAllowed(player.getLocation()));
-//		System.out.println("flight allowed = " + player.getAllowFlight());
 		setFlightAllowed(player, chessBoardFlightAllowed(player.getLocation()));
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerLeft(PlayerQuitEvent event) {
-		System.out.println("player quit");
 		String playerName = event.getPlayer().getName();
 		allowedToFly.remove(playerName);
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onGameModeChange(PlayerGameModeChangeEvent event) {
-		Player player = event.getPlayer();
-		if (event.getNewGameMode() != GameMode.CREATIVE)
-			event.getPlayer().setAllowFlight(allowedToFly.containsKey(player.getName()));
+		final Player player = event.getPlayer();
+		if (event.getNewGameMode() != GameMode.CREATIVE && allowedToFly.containsKey(player.getName())) {
+			// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
+			// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+				@Override
+				public void run() {
+					player.setAllowFlight(true);
+				}
+			});
+		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -130,7 +135,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		boolean boardFlightAllowed = chessBoardFlightAllowed(to); // || alreadyAllowedToFly.contains(player.getName());
 		boolean otherFlightAllowed = gameModeAllowsFlight(player);
 
-//		System.out.println("move: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed);
+//		LogUtils.fine("move: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed);
 		if (captive) {
 			// captive mode - if flying, prevent movement too far from a board
 			if (flyingNow && !boardFlightAllowed && !otherFlightAllowed) {
@@ -151,16 +156,24 @@ public class ChessFlightListener extends ChessListenerBase {
 		if (!enabled)
 			return;
 		
-		Location from = event.getFrom();
-		Location to = event.getTo();
-
-		// we only care if the player has actually moved to a different block
-		if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ()) {
-			return;
-		}
-//		System.out.println("player teleport: " + event.getFrom() + " => " + event.getTo());
-		boolean boardFlightAllowed = chessBoardFlightAllowed(event.getTo());
-		setFlightAllowed(event.getPlayer(), boardFlightAllowed || gameModeAllowsFlight(event.getPlayer()));
+		final Player player = event.getPlayer();
+		final boolean boardFlightAllowed = chessBoardFlightAllowed(event.getTo());
+		final boolean otherFlightAllowed = gameModeAllowsFlight(player);
+		final boolean crossWorld = event.getTo().getWorld() != event.getFrom().getWorld();
+		LogUtils.fine("teleport: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed + ", crossworld = " + crossWorld);
+		// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
+		// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+				if (crossWorld) {
+					// Player flight seems to be automatically disabled when the world changes, so in that case we
+					// force a re-enablement.  Without this, the following call to setFlightAllowed() would be ignored.
+					setFlightAllowed(player, false);
+				}
+				setFlightAllowed(player, boardFlightAllowed || otherFlightAllowed);		
+			}
+		});
 	}
 
 	/**
@@ -230,7 +243,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	/**
 	 * Mark the player as being allowed to fly or not.  If the player was previously allowed to fly by
-	 * some other means, he can continue to fly even if chess board flying is being disabled.
+	 * virtue of creative mode, he can continue to fly even if chess board flying is being disabled.
 	 * 
 	 * @param player
 	 * @param flying
