@@ -104,13 +104,16 @@ public class ChessFlightListener extends ChessListenerBase {
 	@EventHandler(ignoreCancelled = true)
 	public void onGameModeChange(PlayerGameModeChangeEvent event) {
 		final Player player = event.getPlayer();
+		final boolean isFlying = player.isFlying();
 		if (event.getNewGameMode() != GameMode.CREATIVE && allowedToFly.containsKey(player.getName())) {
+			// If switching away from creative mode and on/near a board, allow flight to continue.
 			// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
 			// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				@Override
 				public void run() {
 					player.setAllowFlight(true);
+					player.setFlying(isFlying);
 				}
 			});
 		}
@@ -141,14 +144,13 @@ public class ChessFlightListener extends ChessListenerBase {
 			if (flyingNow && !boardFlightAllowed && !otherFlightAllowed) {
 				event.setCancelled(true);
 			} else {
-				setFlightAllowed(player, boardFlightAllowed || otherFlightAllowed);
+				setFlightAllowed(player, boardFlightAllowed);
 			}
 		} else {
 			// otherwise, free movement, but flight cancelled if player moves too far
-			setFlightAllowed(player, boardFlightAllowed || otherFlightAllowed);
+			setFlightAllowed(player, boardFlightAllowed);
 		}
 		//		System.out.println("move handler: " + (System.nanoTime() - now) + " ns");
-		//		System.out.println("flight allowed = " + player.getAllowFlight() + " in flyers = " + allowedToFly.contains(player.getName()));
 	}
 
 	@EventHandler
@@ -210,7 +212,6 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * code which is (frequently) called from the PlayerMoveEvent handler.
 	 */
 	public void recalculateFlightRegions() {
-
 		int above = plugin.getConfig().getInt("flying.upper_limit");
 		int outside = plugin.getConfig().getInt("flying.outer_limit");
 
@@ -317,7 +318,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			playerName = p.getName();
 			flySpeed = p.getFlySpeed();
 			walkSpeed = p.getWalkSpeed();
-			//			System.out.println("previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
+			LogUtils.fine("player " + playerName + ": store previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 
 		public void restoreSpeeds() {
@@ -326,6 +327,7 @@ public class ChessFlightListener extends ChessListenerBase {
 				return;
 			p.setFlySpeed(flySpeed);
 			p.setWalkSpeed(walkSpeed);
+			LogUtils.fine("player " + playerName + " restore previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 	}
 }
