@@ -99,7 +99,10 @@ public class ChessFlightListener extends ChessListenerBase {
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerLeft(PlayerQuitEvent event) {
 		String playerName = event.getPlayer().getName();
-		allowedToFly.remove(playerName);
+		if (allowedToFly.containsKey(playerName)) {
+			allowedToFly.get(playerName).restoreSpeeds();
+			allowedToFly.remove(playerName);
+		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -125,7 +128,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		//		long now = System.nanoTime();
 		if (!enabled)
 			return;
-
+		
 		Location from = event.getFrom();
 		Location to = event.getTo();
 
@@ -302,12 +305,29 @@ public class ChessFlightListener extends ChessListenerBase {
 		return player.getGameMode() == GameMode.CREATIVE;
 	}
 
+	/**
+	 * Update current fly/walk speeds for all players currently enjoying board flight mode.  Called when
+	 * the fly/walk speeds are changed in config.
+	 */
 	public void updateSpeeds() {
 		for (String playerName : allowedToFly.keySet()) {
 			Player player = Bukkit.getPlayerExact(playerName);
 			if (player != null) {
 				player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 				player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
+			}
+		}
+	}
+	
+	/**
+	 * Restore previous fly/walk speeds for all players who have a modified speed.  Called when the
+	 * plugin is disabled.
+	 */
+	public void restoreSpeeds() {
+		for (String playerName : allowedToFly.keySet()) {
+			Player player = Bukkit.getPlayerExact(playerName);
+			if (player != null) {
+				allowedToFly.get(playerName).restoreSpeeds();
 			}
 		}
 	}

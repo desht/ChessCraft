@@ -162,6 +162,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public void onDisable() {
 		tickTask.cancel();
 
+		flightListener.restoreSpeeds();
+		
 		ChessAI.clearAIs();
 		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
