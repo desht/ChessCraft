@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.util.Vector;
 
 public class ChessFlightListener extends ChessListenerBase {
 
@@ -143,6 +144,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			// captive mode - if flying, prevent movement too far from a board
 			if (flyingNow && !boardFlightAllowed && !otherFlightAllowed) {
 				event.setCancelled(true);
+				player.setVelocity(new Vector(0, 0, 0));
 			} else {
 				setFlightAllowed(player, boardFlightAllowed);
 			}
@@ -160,9 +162,10 @@ public class ChessFlightListener extends ChessListenerBase {
 		
 		final Player player = event.getPlayer();
 		final boolean boardFlightAllowed = chessBoardFlightAllowed(event.getTo());
-		final boolean otherFlightAllowed = gameModeAllowsFlight(player);
 		final boolean crossWorld = event.getTo().getWorld() != event.getFrom().getWorld();
-		LogUtils.fine("teleport: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed + ", crossworld = " + crossWorld);
+		
+		LogUtils.fine("teleport: boardflight = " + boardFlightAllowed + ", crossworld = " + crossWorld);
+		
 		// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
 		// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -173,7 +176,7 @@ public class ChessFlightListener extends ChessListenerBase {
 					// force a re-enablement.  Without this, the following call to setFlightAllowed() would be ignored.
 					setFlightAllowed(player, false);
 				}
-				setFlightAllowed(player, boardFlightAllowed || otherFlightAllowed);		
+				setFlightAllowed(player, boardFlightAllowed);
 			}
 		});
 	}
@@ -257,7 +260,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		if (flying && currentlyAllowed || !flying && !currentlyAllowed)
 			return;
 
-		LogUtils.fine("set flight allowed " + player.getName() + " = " + flying);
+		LogUtils.fine("set chess board flight allowed " + player.getName() + " = " + flying);
 
 		player.setAllowFlight(flying || gameModeAllowsFlight(player));
 
@@ -271,7 +274,7 @@ public class ChessFlightListener extends ChessListenerBase {
 				player.setFlying(true);
 			}
 			long last = lastMessagedIn.containsKey(playerName) ? lastMessagedIn.get(playerName) : 0;
-			if (now - last > 5000) {
+			if (now - last > 5000  && player.getGameMode() != GameMode.CREATIVE) {
 				MiscUtil.alertMessage(player, Messages.getString("Flight.flightEnabled"));
 				lastMessagedIn.put(playerName, System.currentTimeMillis());
 			}
@@ -279,7 +282,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			allowedToFly.get(playerName).restoreSpeeds();
 			allowedToFly.remove(playerName);
 			long last = lastMessagedOut.containsKey(playerName) ? lastMessagedOut.get(playerName) : 0;
-			if (now - last > 5000) {
+			if (now - last > 5000 && player.getGameMode() != GameMode.CREATIVE) {
 				MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabled"));
 				lastMessagedOut.put(playerName, System.currentTimeMillis());
 			}
