@@ -25,6 +25,7 @@ import me.desht.chesscraft.event.ChessGameStateChangedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.Duration;
@@ -1400,6 +1401,52 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
 		}
 		getView().getControlPanel().repaintSignButtons();
+	}
+
+	/**
+	 * Have the given player offer to undo the last move they made.
+	 * 
+	 * @param playerName	Name of the player making the offer
+	 * @throws ChessException
+	 */
+	public void offerUndoMove(String playerName) {
+		ensurePlayerInGame(playerName);
+		ensureGameState(GameState.RUNNING);
+		
+		String otherPlayerName = getOtherPlayer(playerName);
+		if (otherPlayerName.isEmpty())
+			throw new ChessException("No other player?");
+		
+		if (ChessAI.isAIPlayer(otherPlayerName)) {
+			if (getStake() > 0.0) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.undoAIWithStake"));
+			}
+			// playing AI for no stake - just undo the last move
+			undoMove(playerName);
+		} else {
+			// playing another human - we need to ask them if it's OK to undo
+			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectUndoResponse(this, playerName, otherPlayerName));
+			Player player = Bukkit.getPlayer(playerName);	
+			if (player != null) {
+				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.undoOfferedYou", otherPlayerName)); //$NON-NLS-1$
+			} 
+			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.undoOfferedOther", playerName)); //$NON-NLS-1$ 
+			alert(otherPlayerName, Messages.getString("ChessCommandExecutor.typeYesOrNo")); //$NON-NLS-1$
+			
+			getView().getControlPanel().repaintSignButtons();
+		}
+	}
+
+	/**
+	 * Undo the most recent moves until it's the turn of the given player again
+	 * 
+	 * @param playerName
+	 */
+	public void undoMove(String playerName) {
+		ensurePlayerInGame(playerName);
+		ensureGameState(GameState.RUNNING);
+	
+		alert("STUB: undo for player " + playerName);
 	}
 
 	/**

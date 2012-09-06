@@ -73,6 +73,7 @@ public class ControlPanel {
 		createSignButton(new StartButton(this));
 		createSignButton(new TeleportButton(this));
 		createSignButton(new TimeControlButton(this));
+		createSignButton(new UndoButton(this));
 		createSignButton(new WhiteNoButton(this));
 		createSignButton(new WhiteYesButton(this));
 	}

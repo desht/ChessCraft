@@ -108,6 +108,10 @@ ChessCommandExecutor:
   sideSwapOfferedOther: "&6{0}&- has offered to swap sides."
   sideSwapOfferedYou: "You have offered to swap sides with &6{0}&-."
   stakeChanged: "Stake for this game is now {0}."
+  undoOfferedOther: "&6{0}&- wishes to undo their last move."
+  undoOfferedYou: "You have asked &6{0}&- if you may undo your last move."
+  undoAIWithStake: "You may not undo moves when playing for a stake against the computer"
+  stakeChanged: "Stake for this game is now {0}."
   teleportDestObstructed: "Teleport destination obstructed!"
   timeControlSet: "Time control for this game set to {0} ({1})"
   timeControlsReloaded: "Time control definitions have been reloaded."
@@ -169,6 +173,7 @@ ControlPanel:
   timeControl: "Time Control"
   timeElapsed: "Elapsed"
   timeRemaining: "Remaining"
+  undoBtn: ";Undo;Last Move"
   whitePawnPromotionBtn: "White Pawn;Promotion"
   yesBtn: ";;Yes"
 

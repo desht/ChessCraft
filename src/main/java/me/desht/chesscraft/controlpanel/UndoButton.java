@@ -1,26 +1,27 @@
 package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.enums.GameState;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class GameInfoButton extends AbstractSignButton {
+public class UndoButton extends AbstractSignButton {
 
-	public GameInfoButton(ControlPanel panel) {
-		super(panel, "gameInfoBtn", "list.game", 0, 1);
+	public UndoButton(ControlPanel panel) {
+		super(panel, "undoBtn", "chesscraft.commands.undo", 7, 2);
 	}
 
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		if (game != null) {
-			game.showGameDetail(event.getPlayer());
+			game.offerUndoMove(event.getPlayer().getName());
 		}
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return getGame() != null;
+		return gameInState(GameState.RUNNING);
 	}
 
 }

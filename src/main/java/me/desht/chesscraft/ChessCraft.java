@@ -45,6 +45,7 @@ import me.desht.chesscraft.commands.YesCommand;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
@@ -297,6 +298,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			c = ExpectDrawResponse.class;
 		} else if (respHandler.isExpecting(player.getName(), ExpectSwapResponse.class)) {
 			c = ExpectSwapResponse.class;
+		} else if (respHandler.isExpecting(player.getName(), ExpectUndoResponse.class)) {
+			c = ExpectUndoResponse.class;
 		} else {
 			return;
 		}

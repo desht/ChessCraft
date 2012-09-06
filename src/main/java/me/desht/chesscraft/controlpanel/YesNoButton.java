@@ -5,6 +5,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectUndoResponse;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -55,6 +56,8 @@ public abstract class YesNoButton extends AbstractSignButton {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
 		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectSwapResponse.class)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
+		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectUndoResponse.class)) {
+			return Messages.getString("ControlPanel.acceptUndoBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$
 		}

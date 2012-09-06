@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class TeleportButton extends AbstractSignButton {
 
 	public TeleportButton(ControlPanel panel) {
-		super(panel, "teleportOutBtn", "teleport", 0, 1);
+		super(panel, "teleportOutBtn", "teleport", 4, 0);
 	}
 
 	@Override
