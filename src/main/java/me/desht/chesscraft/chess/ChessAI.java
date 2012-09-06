@@ -189,7 +189,21 @@ public class ChessAI {
 			setAIThinking();
 		}
 	}
+	
+	/**
+	 * Go back one move in the AI game state.
+	 */
+	public void undoLastMove() {
+		jChecsGame.goPrevious();
+	}
 
+	/**
+	 * Inform the AI that the other player has made the given move.  We assume the move is legal, since 
+	 * it's already been validated by Chesspresso.
+	 * 
+	 * @param fromIndex
+	 * @param toIndex
+	 */
 	void userHasMoved(int fromIndex, int toIndex) {
 		if (!userToMove) {
 			return;
@@ -199,7 +213,6 @@ public class ChessAI {
 			Square from = Square.valueOf(fromIndex);
 			Square to = Square.valueOf(toIndex);
 
-			// we're assuming the move is legal (it should be - it's already been validated by Chesspresso)
 			Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
 			LogUtils.fine("ChessAI: userHasMoved: " + m);
 			jChecsGame.moveFromCurrent(m);
@@ -210,6 +223,11 @@ public class ChessAI {
 		setUserToMove(false);
 	}
 
+	/**
+	 * Called when the AI has come up with its next move.
+	 * 
+	 * @param m		the AI's move
+	 */
 	private void aiHasMoved(Move m) {
 		if (userToMove) {
 			return;

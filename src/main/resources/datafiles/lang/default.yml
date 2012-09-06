@@ -239,6 +239,7 @@ Game:
   joinPrompt: "Type &f/chess join&- to join the game."
   joinPromptGlobal: "Type &f/chess join {0}&- to join the game."
   lostStake: "You lost your stake of {0}."
+  moveUndone: "The last move has been undone.  &f{0}&- to play."
   newTimeControlPhase: "New time control phase started: &6{0}&-."
   noActiveGame: "No active game - set one with &f/chess game <name>&-."
   noNegativeStakes: "Negative stakes are not permitted!"

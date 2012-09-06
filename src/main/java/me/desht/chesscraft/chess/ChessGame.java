@@ -828,8 +828,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		short realMove = validateMove(move);
 
-		// At this point we know the move is a valid move, so go ahead and make the necessary changes...
-
+		// At this point we know the move is valid, so go ahead and make the necessary changes...
 		getPosition().doMove(realMove);	// the board view will repaint itself at this point
 		lastMoved = System.currentTimeMillis();
 		history.add(realMove);
@@ -839,10 +838,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		Player player = Bukkit.getPlayer(playerName);
 		if (player != null) {
-			// making a move after a draw or swap offer has been made is equivalent to declining the offer
+			// making a move after a draw/swap/undo offer has been made is equivalent to declining the offer
 			ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 			ExpectDrawResponse dr = resp.getAction(playerName, ExpectDrawResponse.class);
 			ExpectSwapResponse sr = resp.getAction(playerName, ExpectSwapResponse.class);
+			ExpectUndoResponse ur = resp.getAction(playerName, ExpectUndoResponse.class);
 			if (dr != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
 				dr.cancelAction();
@@ -850,6 +850,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			if (sr != null) {
 				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
 				sr.cancelAction();
+			}
+			if (ur != null) {
+				MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedUndoOffer")); //$NON-NLS-1$
+				ur.cancelAction();
 			}
 		}
 
@@ -1445,8 +1449,36 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public void undoMove(String playerName) {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.RUNNING);
-	
-		alert("STUB: undo for player " + playerName);
+		
+		if (isPlayerToMove(playerName)) {
+			// need to undo two moves - first the other player's last move
+			cpGame.getPosition().undoMove();
+			if (aiPlayer != null) aiPlayer.undoLastMove();
+			if (aiPlayer2 != null) aiPlayer2.undoLastMove();	
+			history.remove(history.size() - 1);
+		}
+		// now undo the undoer's last move
+		cpGame.getPosition().undoMove();
+		if (aiPlayer != null) aiPlayer.undoLastMove();
+		if (aiPlayer2 != null) aiPlayer2.undoLastMove();
+		history.remove(history.size() - 1);
+		
+		switch (getPosition().getToPlay()) {
+		case Chess.WHITE:
+			tcBlack.setActive(false);
+			tcWhite.setActive(true);
+			break;
+		case Chess.BLACK:
+			tcBlack.setActive(true);
+			tcWhite.setActive(false);
+			break;
+		}
+		updateChessClocks(true);
+//		getView().getControlPanel().repaint();
+		
+		autoSave();
+		
+		alert(Messages.getString("Game.moveUndone", ChessUtils.getColour(getPosition().getToPlay())));
 	}
 
 	/**
