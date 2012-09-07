@@ -92,7 +92,7 @@ public abstract class ResultViewBase {
 			if (n > 0) {
 				query.append(" LIMIT ").append(n);
 			}
-			System.out.println("execute: " + query);
+			LogUtils.fine("execute SQL: " + query);
 			ResultSet rs = stmt.executeQuery(query.toString());
 			while (rs.next()) {
 				res.add(new ScoreRecord(rs.getString(1), rs.getInt(2)));
