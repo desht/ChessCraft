@@ -128,9 +128,7 @@ public class ChessAI {
 	 * long as nowhere else has taken a reference to it).
 	 */
 	public void delete() {
-		if (aiTask != -1) {
-			Bukkit.getScheduler().cancelTask(aiTask);
-		}
+		stopAIThinking();
 		jChecsGame.getPlayer(isWhiteAI).setEngine(null);
 		runningAI.remove(aiSettings.name.toLowerCase());
 	}
@@ -147,6 +145,8 @@ public class ChessAI {
 		userToMove = move;
 		if (!userToMove) {
 			setAIThinking();
+		} else {
+			stopAIThinking();
 		}
 	}
 
@@ -170,6 +170,16 @@ public class ChessAI {
 		}, wait * 20L);
 	}
 
+	/**
+	 * Stop the AI from calculating its next move.
+	 */
+	private void stopAIThinking() {
+		if (aiTask != -1) {
+			Bukkit.getScheduler().cancelTask(aiTask);
+			aiTask = -1;
+		}
+	}
+	
 	/**
 	 * Replay a list of moves into the jchecsGame object.  Called when a game is restored
 	 * from persisted data.

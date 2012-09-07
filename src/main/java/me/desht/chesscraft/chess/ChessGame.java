@@ -1442,7 +1442,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Undo the most recent moves until it's the turn of the given player again
+	 * Undo the most recent moves until it's the turn of the given player again.  Not
+	 * supported for AI vs AI games, only human vs human or human vs AI.  The undoer 
+	 * must be human.
 	 * 
 	 * @param playerName
 	 */
@@ -1452,16 +1454,20 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		
 		if (isPlayerToMove(playerName)) {
 			// need to undo two moves - first the other player's last move
-			cpGame.getPosition().undoMove();
 			if (aiPlayer != null) aiPlayer.undoLastMove();
-			if (aiPlayer2 != null) aiPlayer2.undoLastMove();	
+			cpGame.getPosition().undoMove();
 			history.remove(history.size() - 1);
 		}
 		// now undo the undoer's last move
+		if (aiPlayer != null) {
+			aiPlayer.setUserToMove(true);
+			aiPlayer.undoLastMove();
+		}
 		cpGame.getPosition().undoMove();
-		if (aiPlayer != null) aiPlayer.undoLastMove();
-		if (aiPlayer2 != null) aiPlayer2.undoLastMove();
 		history.remove(history.size() - 1);
+		
+		Move m = cpGame.getLastMove();
+		getView().getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());
 		
 		switch (getPosition().getToPlay()) {
 		case Chess.WHITE:
