@@ -101,7 +101,7 @@ permissions:
     description: Allows you to create chess games
     default: true
   chesscraft.commands.game:
-    description: Allows you to check or set your currently active game.
+    description: Allows you to check or set your currently active game
     default: true
   chesscraft.commands.invite:
     description: Allows you to invite a player to a game
@@ -137,7 +137,7 @@ permissions:
     description: Allows you to claim victory by default if the opposing player went offline
     default: true
   chesscraft.commands.list.board:
-    description: Allows you to list chessboards that have been created
+    description: Allows you to list chess boards that have been created
     default: true
   chesscraft.commands.list.game:
     description: Allows you to list chess games that have been created
@@ -166,4 +166,6 @@ permissions:
   chesscraft.commands.board.save:
     description: Allows you to save updated board style parameters
     default: op
-      
+  chesscraft.commands.undo:
+    description: Allows you to try to undo the last move you made
+    default: true

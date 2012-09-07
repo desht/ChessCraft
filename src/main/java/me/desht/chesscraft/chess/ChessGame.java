@@ -267,10 +267,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private chesspresso.game.Game setupChesspressoGame() {
 		chesspresso.game.Game cpg = new chesspresso.game.Game();
 
+		String site = getView().getName() + ", " + Bukkit.getServerName() + Messages.getString("Game.sitePGN");
+		
 		// seven tag roster
 		cpg.setTag(PGN.TAG_EVENT, getName());
-		cpg.setTag(PGN.TAG_SITE, getView().getName() + Messages.getString("Game.sitePGN")); //$NON-NLS-1$
-		cpg.setTag(PGN.TAG_DATE, ChessUtils.dateToPGNDate(started));
+		cpg.setTag(PGN.TAG_SITE, site); //$NON-NLS-1$
+		cpg.setTag(PGN.TAG_DATE, ChessUtils.dateToPGNDate(created));
 		cpg.setTag(PGN.TAG_ROUND, "?"); //$NON-NLS-1$
 		cpg.setTag(PGN.TAG_WHITE, getPlayerWhite());
 		cpg.setTag(PGN.TAG_BLACK, getPlayerBlack());
@@ -567,7 +569,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		getView().getControlPanel().repaintSignButtons();
 		alert(otherPlayer, Messages.getString("Game.playerJoined", playerName)); //$NON-NLS-1$
 		clearInvitation();
-
+		
 		if (!playerWhite.isEmpty() && !playerBlack.isEmpty()) {
 			if (ChessCraft.getInstance().getConfig().getBoolean("autostart", true)) {
 				start(playerName);
@@ -681,6 +683,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			addAIPlayer(null);
 			alert(playerName, Messages.getString("Game.playerJoined", aiPlayer.getName())); //$NON-NLS-1$
 		}
+
+		cpGame.setTag(PGN.TAG_WHITE, getPlayerWhite());
+		cpGame.setTag(PGN.TAG_BLACK, getPlayerBlack());
 
 		// just in case stake.max got adjusted after game creation...
 		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
@@ -1356,7 +1361,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException
 	 */
 	public void offerDraw(String playerName) throws ChessException {
-	
 		ensurePlayerInGame(playerName);
 		ensurePlayerToMove(playerName);
 		ensureGameState(GameState.RUNNING);
@@ -1452,6 +1456,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.RUNNING);
 		
+		if (history.size() == 0) return;
+		if (history.size() == 1 && playerName.equals(getPlayerBlack())) return;
+				
 		if (isPlayerToMove(playerName)) {
 			// need to undo two moves - first the other player's last move
 			if (aiPlayer != null) aiPlayer.undoLastMove();
@@ -1465,9 +1472,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 		cpGame.getPosition().undoMove();
 		history.remove(history.size() - 1);
-		
+
 		Move m = cpGame.getLastMove();
-		getView().getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());
+		if (m != null) {
+			getView().getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());
+		} else {
+			getView().getChessBoard().highlightSquares(Chess.NO_SQUARE, Chess.NO_SQUARE);
+		}
 		
 		switch (getPosition().getToPlay()) {
 		case Chess.WHITE:
@@ -1480,7 +1491,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			break;
 		}
 		updateChessClocks(true);
-//		getView().getControlPanel().repaint();
+		getView().getControlPanel().repaint();
 		
 		autoSave();
 		

@@ -8,7 +8,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class UndoButton extends AbstractSignButton {
 
 	public UndoButton(ControlPanel panel) {
-		super(panel, "undoBtn", "chesscraft.commands.undo", 7, 2);
+		super(panel, "undoBtn", "undo", 7, 2);
 	}
 
 	@Override
