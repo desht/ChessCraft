@@ -16,6 +16,7 @@ import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
@@ -90,6 +91,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					a.handleAction();
 					break;
 				case RIGHT_CLICK_BLOCK:
+					MiscUtil.alertMessage(player,  Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					a.cancelAction();
 					break;
 				}
@@ -108,6 +110,8 @@ public class ChessPlayerListener extends ChessListenerBase {
 				resp.cancelAction(playerName, ExpectBoardCreation.class);
 				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
+		} catch (DHUtilsException e) {
+			MiscUtil.errorMessage(player, e.getMessage());			
 		}
 	}
 
