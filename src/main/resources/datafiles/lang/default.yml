@@ -154,6 +154,7 @@ ChessUtils:
 ControlPanel:
   acceptDrawBtn: "Accept Draw?"
   acceptSwapBtn: "Accept Swap?"
+  acceptUndoBtn: "Accept Undo?"
   blackPawnPromotionBtn: "Black Pawn;Promotion"
   boardInfoBtn: ";Board;Info"
   chessInviteReminder: "Type &f/chess invite <playername>&- to invite someone"
@@ -197,10 +198,13 @@ ExpectBoardCreation:
 ExpectYesNoOffer:
   drawOfferAccepted: "Your draw offer has been accepted by &6{0}&-."
   drawOfferDeclined: "Your draw offer has been declined by &6{0}&-."
+  undoOfferAccepted: "Your undo offer has been accepted by &6{0}&-."
+  undoOfferDeclined: "Your undo offer has been declined by &6{0}&-."
   swapOfferAccepted: "Your swap offer has been accepted by &6{0}&-."
   swapOfferDeclined: "Your swap offer has been declined by &6{0}&-."
   youDeclinedDrawOffer: "You have declined the draw offer."
   youDeclinedSwapOffer: "You have declined the swap offer."
+  youDeclinedUndoOffer: "You have declined the undo offer."
 
 Flight:
   flightEnabled:

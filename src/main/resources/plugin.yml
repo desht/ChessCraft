@@ -18,6 +18,7 @@ commands:
       /chess join [<gamename>]
       /chess start
       /chess move <move>
+      /chess undo
       /chess resign
       /chess promote <N|B|R|Q>
       /chess win

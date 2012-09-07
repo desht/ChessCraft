@@ -13,6 +13,8 @@ import me.desht.dhutils.LogUtils;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.google.common.base.Joiner;
+
 public class TimeControlDefs {
 	private static final String TIME_CONTROLS_FILE = "timecontrols.yml";
 	
@@ -157,6 +159,11 @@ public class TimeControlDefs {
 		
 		public TimeControl createTimeControl() {
 			return new TimeControl(spec);
+		}
+		
+		@Override
+		public String toString() {
+			return "TCDef[label='" + Joiner.on(";").join(label) + "' spec='" + spec + "']";
 		}
 	}
 }

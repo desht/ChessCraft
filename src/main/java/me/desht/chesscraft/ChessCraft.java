@@ -41,6 +41,7 @@ import me.desht.chesscraft.commands.StakeCommand;
 import me.desht.chesscraft.commands.StartCommand;
 import me.desht.chesscraft.commands.TeleportCommand;
 import me.desht.chesscraft.commands.TimeControlCommand;
+import me.desht.chesscraft.commands.UndoCommand;
 import me.desht.chesscraft.commands.YesCommand;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
@@ -344,6 +345,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		cmds.registerCommand(new StartCommand());
 		cmds.registerCommand(new TeleportCommand());
 		cmds.registerCommand(new TimeControlCommand());
+		cmds.registerCommand(new UndoCommand());
 		cmds.registerCommand(new YesCommand());
 	}
 
