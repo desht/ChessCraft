@@ -523,17 +523,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Remove the board from the global list of boards, but don't remove its data
-	 * from disk.  Called when the plugin is being disabled or persisted data is being reloaded.
+	 * from disk or alter any terrain.  Called when the plugin is being disabled or persisted
+	 * data is being reloaded - don't call otherwise, or else board materials may be 
+	 * vulnerable to mining!
 	 */
 	public void deleteTemporary() {
 		deleteCommon();
 	}
 
 	/**
-	 * Permanently delete a board, restoring the terrain behind it.  (Restoring the
-	 * terrain requires a player).
-	 * 
-	 * @param p
+	 * Permanently delete a board, purging its data from disk and restoring the terrain behind it.
 	 */
 	public void deletePermanently() {
 		if (getGame() != null) {
@@ -551,6 +550,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private void restoreTerrain() {
 		boolean restored = false;
 
+		// signs can get dropped otherwise
+		getControlPanel().removeSigns();
+		
 		if (ChessCraft.getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
 			restored = TerrainBackup.reload(this);
@@ -559,8 +561,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (!restored) {
 			// we couldn't restore the original terrain - just set the board to air
 			chessBoard.clearAll();
-			chessBoard.getFullBoard().sendClientChanges();
 		}
+		
+		chessBoard.getFullBoard().outset(Direction.Horizontal, 16).initLighting();
+		chessBoard.getFullBoard().outset(Direction.Horizontal, 16).sendClientChanges();
 	}
 
 	/**

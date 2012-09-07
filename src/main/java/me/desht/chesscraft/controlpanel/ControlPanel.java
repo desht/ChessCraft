@@ -91,6 +91,10 @@ public class ControlPanel {
 		return getSignButton(TimeControlButton.class).getTcDefs();
 	}
 	
+	public void removeSigns() {
+		panelBlocks.shift(signDir.getDirection(), 1).clear(true);
+	}
+
 	public <T extends AbstractSignButton> T getSignButton(Class<T> type) {
 		return type.cast(buttonNames.get(type.getSimpleName()));
 	}
