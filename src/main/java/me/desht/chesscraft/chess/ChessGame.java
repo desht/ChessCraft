@@ -45,6 +45,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
+import chesspresso.game.Game;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.pgn.PGN;
@@ -61,7 +62,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private final String name;
 	private final BoardView view;
-	private final chesspresso.game.Game cpGame;
+	private final Game cpGame;
 	private final int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
 
 	private String playerWhite, playerBlack;
@@ -265,7 +266,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	private chesspresso.game.Game setupChesspressoGame() {
-		chesspresso.game.Game cpg = new chesspresso.game.Game();
+		Game cpg = new chesspresso.game.Game();
 
 		String site = getView().getName() + ", " + Bukkit.getServerName() + Messages.getString("Game.sitePGN");
 		
@@ -293,7 +294,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public final Position getPosition() {
+	public Game getChesspressoGame() {
+		return cpGame;
+	}
+	
+	public Position getPosition() {
 		return cpGame.getPosition();
 	}
 
@@ -1472,30 +1477,16 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 		cpGame.getPosition().undoMove();
 		history.remove(history.size() - 1);
-
-		Move m = cpGame.getLastMove();
-		if (m != null) {
-			getView().getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());
-		} else {
-			getView().getChessBoard().highlightSquares(Chess.NO_SQUARE, Chess.NO_SQUARE);
-		}
 		
-		switch (getPosition().getToPlay()) {
-		case Chess.WHITE:
-			tcBlack.setActive(false);
-			tcWhite.setActive(true);
-			break;
-		case Chess.BLACK:
-			tcBlack.setActive(true);
-			tcWhite.setActive(false);
-			break;
-		}
+		int toPlay = getPosition().getToPlay();
+		tcWhite.setActive(toPlay == Chess.WHITE);
+		tcBlack.setActive(toPlay == Chess.BLACK);
 		updateChessClocks(true);
 		getView().getControlPanel().repaint();
 		
 		autoSave();
 		
-		alert(Messages.getString("Game.moveUndone", ChessUtils.getColour(getPosition().getToPlay())));
+		alert(Messages.getString("Game.moveUndone", ChessUtils.getColour(toPlay)));
 	}
 
 	/**

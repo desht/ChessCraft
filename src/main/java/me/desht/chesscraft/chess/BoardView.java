@@ -426,7 +426,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	@Override
 	public void notifyMoveUndone(ImmutablePosition position) {
-		// Ignored
+		// Repaint the last-move indicators
+		Move m = getGame().getChesspressoGame().getLastMove();
+		if (m != null) {
+			getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());
+		} else {
+			getChessBoard().highlightSquares(Chess.NO_SQUARE, Chess.NO_SQUARE);
+		}
+		
+		getControlPanel().updatePlyCount(getGame().getChesspressoGame().getCurrentPly());
 	}
 
 	// -------------------------------------------------------------------------------
