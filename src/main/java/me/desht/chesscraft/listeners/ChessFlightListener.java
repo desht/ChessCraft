@@ -92,6 +92,9 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onPlayerJoined(PlayerJoinEvent event) {
+		if (!enabled)
+			return;
+		
 		Player player = event.getPlayer();
 		setFlightAllowed(player, chessBoardFlightAllowed(player.getLocation()));
 	}
