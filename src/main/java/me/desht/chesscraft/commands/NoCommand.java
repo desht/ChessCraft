@@ -1,7 +1,7 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
@@ -18,7 +18,7 @@ public class NoCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
-		ChessCraft.handleYesNoResponse((Player)sender, false);
+		ExpectYesNoResponse.handleYesNoResponse((Player)sender, false);
 		return true;
 	}
 

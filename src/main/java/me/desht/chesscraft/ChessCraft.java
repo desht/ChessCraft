@@ -44,15 +44,11 @@ import me.desht.chesscraft.commands.TimeControlCommand;
 import me.desht.chesscraft.commands.UndoCommand;
 import me.desht.chesscraft.commands.YesCommand;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.expector.ExpectDrawResponse;
-import me.desht.chesscraft.expector.ExpectSwapResponse;
-import me.desht.chesscraft.expector.ExpectUndoResponse;
-import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
+import me.desht.chesscraft.listeners.ChessFlightListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.listeners.ChessWorldListener;
-import me.desht.chesscraft.listeners.ChessFlightListener;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
@@ -72,7 +68,6 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -291,26 +286,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	/*-----------------------------------------------------------------*/
 
-	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
-		ResponseHandler respHandler = getInstance().responseHandler;
-
-		Class<? extends ExpectYesNoResponse> c = null;
-		if (respHandler.isExpecting(player.getName(), ExpectDrawResponse.class)) {
-			c = ExpectDrawResponse.class;
-		} else if (respHandler.isExpecting(player.getName(), ExpectSwapResponse.class)) {
-			c = ExpectSwapResponse.class;
-		} else if (respHandler.isExpecting(player.getName(), ExpectUndoResponse.class)) {
-			c = ExpectUndoResponse.class;
-		} else {
-			return;
-		}
-
-		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player.getName(), c);
-		response.setResponse(isAccepted);
-		response.handleAction();
-		response.getGame().getView().getControlPanel().repaintSignButtons();
-	}
-
 	private void registerCommands() {
 		cmds.registerCommand(new ArchiveCommand());
 		cmds.registerCommand(new BoardCreationCommand());
@@ -347,13 +322,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		cmds.registerCommand(new TimeControlCommand());
 		cmds.registerCommand(new UndoCommand());
 		cmds.registerCommand(new YesCommand());
-	}
-
-	private static void updateAllControlPanels() {
-		for (BoardView bv : BoardView.listBoardViews()) {
-			bv.getControlPanel().repaintSignButtons();
-			bv.getControlPanel().repaintClocks();
-		}
 	}
 
 	public ConfigurationManager getConfigManager() {
@@ -399,6 +367,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			flightListener.recalculateFlightRegions();
 		} else if (key.equalsIgnoreCase("flying.fly_speed") || key.equalsIgnoreCase("flying.walk_speed")) {
 			flightListener.updateSpeeds();
+		}
+	}
+
+	private void updateAllControlPanels() {
+		for (BoardView bv : BoardView.listBoardViews()) {
+			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintClocks();
 		}
 	}
 

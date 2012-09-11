@@ -6,6 +6,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectUndoResponse;
+import me.desht.chesscraft.expector.ExpectYesNoResponse;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public abstract class YesNoButton extends AbstractSignButton {
 
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		ChessCraft.handleYesNoResponse(event.getPlayer(), yesOrNo);
+		ExpectYesNoResponse.handleYesNoResponse(event.getPlayer(), yesOrNo);
 	}
 
 	@Override
