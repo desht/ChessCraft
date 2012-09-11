@@ -64,9 +64,6 @@ public class BoardStyleSetCommand extends AbstractCommand {
 				} else if (attr.startsWith("struts")) {
 					style.setStrutsMaterial(MaterialWithData.get(val));
 					styleHasChanged = true;
-				} else if (attr.startsWith("highlightdefault")) {
-					style.setHighlightMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
 				} else if (attr.startsWith("highlightwhite")) {
 					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
 					styleHasChanged = true;
@@ -75,6 +72,11 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					styleHasChanged = true;
 				} else if (attr.startsWith("highlightstyle")) {
 					style.setHighlightStyle(HighlightStyle.getStyle(val));
+					styleHasChanged = true;
+				} else if (attr.startsWith("highlight")) {
+					style.setHighlightMaterial(MaterialWithData.get(val));
+					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
+					style.setHighlightBlackSquareMaterial(MaterialWithData.get(val));
 					styleHasChanged = true;
 				} else if (attr.startsWith("lightlevel")) {
 					style.setLightLevel(Integer.parseInt(val));

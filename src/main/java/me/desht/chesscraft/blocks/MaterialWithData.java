@@ -66,11 +66,19 @@ public class MaterialWithData implements Cloneable {
 			if (matAndData[1].matches("^[0-9]+$")) {
 				data = Byte.parseByte(matAndData[1]);
 			} else if (matId == BlockID.CLOTH) {
+				// First look for the dye color string in the WorldEdit ClothColor class
+				// and if that fails, check for a Bukkit DyeColor
+				// and if that fails, just throw an IllegalArgumentException
 				ClothColor cc = ClothColor.lookup(matAndData[1]);
 				if (cc == null) {
-					throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
+					DyeColor dc = DyeColor.valueOf(matAndData[1].toUpperCase());
+					if (dc == null) {
+						throw new IllegalArgumentException("unknown dye colour: " + matAndData[1]);
+					}
+					data = (byte) dc.getData();
+				} else {
+					data = (byte) cc.getID();
 				}
-				data = (byte) cc.getID();
 			} else {
 				throw new IllegalArgumentException("invalid data specification: " + matAndData[1]);
 			}
