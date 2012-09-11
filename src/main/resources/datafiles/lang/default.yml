@@ -50,7 +50,7 @@ ChessCommandExecutor:
   boardList: "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-"
   boardRedrawn: "Board &6{0}&- has been redrawn."
   boardStyleChanged: "Board &6{0}&- style changed."
-  boardStyleSuggestSave: "Use &f/chess board save [<new-name>]&- to save changes."
+  boardStyleSuggestSave: "Use &f/chess board save [<new-style-name>]&- to save changes."
   boardStyleSaved: "Board &6{0}&- style saved as &6{1}&-."
   boardStyleBadParam: "Invalid style parameter value &6{0}&-."
   cantAffordStake: "You can't afford that stake!"
