@@ -560,28 +560,18 @@ public class ChessBoard {
 	 */
 	public Cuboid getSquare(int row, int col) {
 		if (row < 0 || col < 0 || row > 7 || col > 7) {
-			LogUtils.warning("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");
-			return null;
+			throw new ChessException("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");	
 		}
-		Cuboid sq = null;
+		
+		Cuboid sq = new Cuboid(a1Corner.getLocation());
+		
 		int s = boardStyle.getSquareSize();
-		switch (rotation) {
-		case NORTH:
-			sq = new Cuboid(a1Corner.getLocation().add(s * -row, 0, s * -col));
-			sq = sq.expand(Direction.North, s - 1).expand(Direction.East, s - 1);
-			break;
-		case EAST:
-			sq = new Cuboid(a1Corner.getLocation().add(s * col, 0, s * -row));
-			sq = sq.expand(Direction.East, s - 1).expand(Direction.South, s - 1);
-			break;
-		case SOUTH:
-			sq = new Cuboid(a1Corner.getLocation().add(s * row, 0, s * col));
-			sq = sq.expand(Direction.South, s - 1).expand(Direction.West, s - 1);
-			break;
-		case WEST:
-			sq = new Cuboid(a1Corner.getLocation().add(s * -col, 0, s * row));
-			sq = sq.expand(Direction.West, s - 1).expand(Direction.North, s - 1);
-		}
+		Direction dir = rotation.getDirection();
+		Direction dirRight = rotation.getRight().getDirection();
+		
+		sq = sq.shift(dir, row * s).shift(dirRight, col * s);
+		sq = sq.expand(dir, s - 1).expand(dirRight, s - 1);
+		
 		return sq;
 	}
 
