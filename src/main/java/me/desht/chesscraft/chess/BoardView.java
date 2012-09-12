@@ -302,7 +302,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public boolean isDesigning() {
-		return chessBoard.isDesiging();
+		return chessBoard.isDesigning();
 	}
 
 	public void setDesigner(PieceDesigner designer) {

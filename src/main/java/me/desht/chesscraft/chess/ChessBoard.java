@@ -214,7 +214,7 @@ public class ChessBoard {
 		return rotation;
 	}
 
-	public boolean isDesiging() {
+	public boolean isDesigning() {
 		return designer != null;
 	}
 
