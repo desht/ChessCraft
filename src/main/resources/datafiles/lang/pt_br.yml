@@ -1,284 +1,281 @@
-BoardView:
-  boardExists: "Ja existe um tabuleiro com esse nome."
-  boardTooHigh: "A altura do tabuleiro é muito alta - O telhado tem que ser mais baixo."
-  boardWouldIntersect: "O tabuleiro interseciona com o tabuleiro {0}."
-  noFreeBoards: "Nao ha tabuleiros disponiveis para criar um jogo."
-  noSuchBoard: "Nenhum tabuleiro {0}."
-
-ChessAI:
-  AIbusy: "O oponente virtual está ocupado"
-  AIdisabled: "O oponente virtual foi desativado"
-  AIloadError: "Falha ao carregar oponente virtual"
-  AInotFound: "Oponente virtual nao encontrado"
-  AIunexpectedException: "Unexpected Exception in AI: {0}"
-  computer: "Computador"
-  human: "Humano"
-  noAvailableAIs:
-    - "Nao há oponentes virtuais disponiveis para jogo"
-    - "(todos {0,number,integer} estao em um jogo)."
-  noFreeAI: "Nenhum oponente virtual livre encontrado"
-
-ChessCommandExecutor:
-  activeGameChanged: "Seu jogo agora é &6{0}&-."
-  activeGameIs: "Seu jogo atual é &6{0}&-."
-  AIdefsReloaded: "Definiçoes de oponente virtual recarregadas."
-  AIList: "&6{0}&-: &f{1}:{2,number,integer}"
-  AIpayout: "payout={0,number,integer}%"
-  algebraicNotation: "&5 (standard algebraic notation)"
-  allBoardsRedrawn: "Todos os tabuleiros foram redesenhados."
-  boardCantBeDeleted: "Impossivel deletar o tabuleiro &6{0}&- - esta sendo usado pelo jogo &6{1}&-."
-  boardCreationPrompt:
-    - "Clique esquerdo em um bloco: criar tabuleiro &6{0}&-. Clique direito: cancelar."
-    - "O bloco selecionado será o centro do quadrado A1 do tabuleiro."
-  boardDeleted: "Tabuleiro &6{0}&- removido."
-  boardDetail:
-    board: "&eTabuleiro {0}:"
-    boardStyle: "Estilo de tabuleiro: &f{0}"
-    enclosure: "Cerca: &f{0}"
-    frameWidth: "Largura do frame: &f{0,number,integer} ({1})"
-    game: "Jogo: &f{0}"
-    height: "Altura: &f{0,number,integer}"
-    lightLevel: "Nivel de luz: &f{0,number,integer}"
-    boardExtents: "Extensoes do tabuleiro: &f{0} - {1}"
-    pieceStyle: "Estilo de peça: &f{0}"
-    squareSize: "Tamanho do quadrado: &f{0,number,integer} ({1}/{2})"
-    struts: "Suportes da cerca: &f{0}"
-    boardOrientation: "orientaçao do tabuleiro: &f{0}"
-    defaultStake: "Estaca padrão: &f{0} {1}"
-    defaultTimeControl: "Controle de tempo padrão: &f{0} {1}"
-    locked: (locked)
-  boardList: "&6{0}&-: loc=&f{1}&- style=&6{2}&- game=&6{3}&-"
-  boardRedrawn: "O tabuleiro &6{0}&- foi redesenhado."
-  boardStyleChanged: "O tabuleiro &6{0}&- foi re-estilizado."
-  boardStyleSuggestSave: "Use &f/chess board save [<new-style-name>]&- para salvar as alterações."
-  boardStyleSaved: "Tabuleiro &6{0}&- estilo salvo como &6{1}&-."
-  boardStyleBadParam: "Valor do parametro de estilo invalido &6{0}&-."
-  cantAffordStake: "Voce nao pode pagar a aposta!"
-  canTeleport: "Voce pode teleportar para o seu jogo com &f/chess tp {0}"
-  chessSaved: "Os tabuleiros e os jogos foram salvos."
-  configKeySet: "{0} foi mudado para: {1}"
-  configReloaded: "Configuração (config.yml) foi recarregada"
-  designMode: "O tabuleiro está design mode (set &6{0}&-)."
-  drawOfferedOther: "&6{0}&- ofereceu um empate."
-  drawOfferedYou: "Voce ofereceu um empate á &6{0}&-."
-  gameCreated:
-    - "Jogo &6{0}&- foi criado em &6{1}&-."
-    - "Agora digite (ou use as placas do tabuleiro):"
-    - "&5*&- &f/chess invite <playername>&- para convidar alguem"
-    - "&5*&- &f/chess invite&- para convidar todos"
-    - "&5*&- just &f/chess start&- para jogar com um oponente aleatório"
-  gameDeleted: "Jogo &6{0}&- foi removido."
-  gameDeletedAlert: "Jogo removido por &6{0}&-!"
-  gameDetail:
-    blackToPlay: "&8Preto&- jogue"
-    clock: "Pontos: &fBranco&-: {0}, &8Preto&-: {1}"
-    invitation: "&- foi convidado.  Aguardando resposta."
-    moveHistory: "&eMove history:"
-    name: "&eJogo {0} [{1}]:"
-    openInvitation: "Jogo em convite aberto"
-    players: "&6{0}&- (Branco) vs. &6{1}&- (Preto) no tabuleiro &6{2}&-."
-    stake: "Aposta: &f{0}"
-    whiteToPlay: "&fBranco&- jogue"
-    halfMoves: "&f{0,number,integer}&- Movido"
-    timeControlType: "Controle de tempo: &f{0}"
-  goingToSpawn: "Nao há lugar seguro para te enviar - enviando para o spawn."
-  invalidFromSquare: "Quadrado de inicio invalido em {0}"
-  invalidMoveString: "Movimento invalido {0}"
-  invalidNumeric: "Valor numerico invalido: {0}"
-  invalidToSquare: "Quadrado de destino invalido em {0}"
-  invited: " convidado: &6{0}&-"
-  joinedGame: "Voce entrou no jogo &6{0}&- como &f{1}&-."
-  needToWait: "Voce precisa esperar {0,number,integer} segundos mais."
-  noActiveGame: "Voce nao tem nenhum jogo ativo. Use &f/chess game <name>&- para iniciar um."
-  noBoards: "Aqui nao tem nenhum tabuleiro."
-  noCurrentGames: "Aqui nao tem nenhum jogo."
-  noGame: "(nenhum)"
-  noPendingInvitation: "Voce nao tem convites pendentes agora."
-  noTeleporting: "Teleportar entre tabuleiros nao é permitido agora."
-  notFromConsole: "Esse comando nao pode ser executado do console."
-  notOnChessboard: "Nao esta em um tabuleiro de xadrez!"
-  otherPlayerMustBeOffline: "Voce so pode fazer isso se o outro player estiver offline."
-  persistedReloaded: "Forçado jogos e tabuleiros foram recarregadas."
-  PGNarchiveWritten: "Escrever arquivo PNG para {0}"
-  positionUpdatedFEN:
-    - "Posiçao de jogo para &6{0}&- foi atualizada. {1} jogue."
-    - "&4NOTA: &-Historico de movimentos invalidados, este jogo nao pode ser guardado."
-  promotionPieceSet: "Peça de promoçao para o jogo &6{0}&- foi mudado para &6{1}&-."
-  scoreRecord: "&e{0,number,integer}) &6{1}&-: &f{2}&-"
-  sideSwapOfferedOther: "&6{0}&- ofereceu troca de lados."
-  sideSwapOfferedYou: "Voce ofereceu troca de lados com &6{0}&-."
-  stakeChanged: "Aposta para esse jogo agora é {0}."
-  teleportDestObstructed: "Destino de teleporte obstruido!"
-  timeControlSet: "Controle de tempo para esse jogo foi mudado para {0} ({1})"
-  timeControlsReloaded: "Definiçoes de controle de tempo foram recarregadas."
-  typeYesOrNo: "Digite &f/chess yes&- para aceitar, ou &f/chess no&- para recusar."
-
-ChessConfig:
-  invalidBoolean: "valor boolean invalido: {0} (use true/yes ou false/no)"
-  invalidInteger: "valor integer invalido: {0}"
-  invalidFloat: "Invalido floating-point valor: {0}"
-  invalidDuration: "Duraçao invalida: {0}"
-  noSuchKey: 
-    - "Nenhuma key de configuraçao: {0}"
-    - "Use &f/chess getcfg&- para listar as keys validas"
- 
-ChessEntityListener:
-  goingToSpawn: "Impossivel achar um lugar para te deixar - indo para o spawn."
-
-ChessPlayerListener:
-  boardCreationCancelled: "Craiçao de tabuleiro cancelada."
-  currentGames: "Seus jogos atuais: {0}"
-  moveCancelled: "Movimento cancelado."
-  notYourTurn: "Nao é a sua vez!"
-  pieceSelected: "&f{0}&- em &f{1}&- selecionada. Clique esquerdo para mover."
-  playerBack: "{0} voltou no jogo!"
-  playerInviteCancelled: "&6Convite cancelado."
-  playerQuit: "{0} saiu.  Se ele/ela nao entrar em {1,number,integer} segundos, voce pode digitar &f/chess win&- para ganhar o jogo."
-  squareMessage: "Quadrado &6[{0}]&-, tabuleiro &6{1}"
-  youPlayed: "Voce jogou &f{0}&-."
-
-ChessUtils:
-  bishop: "Bispo"
-  king: "Rei"
-  knight: "Cavalo"
-  pawn: "Peão"
-  queen: "Rainha"
-  rook: "Torre"
-  anything: "Alguma coisa"
-
+# 
 # Button text definitions may contain a semicolon (;).  This indicates a line break on the sign text.
+BoardView:
+  boardExists: Ja existe um tabuleiro com esse nome.
+  boardTooHigh: A altura do tabuleiro é muito alta - O telhado tem que ser mais baixo.
+  boardWouldIntersect: O tabuleiro interseciona com o tabuleiro {0}.
+  noFreeBoards: Nao ha tabuleiros disponiveis para criar um jogo.
+  noSuchBoard: Nenhum tabuleiro {0}.
+ChessAI:
+  AIbusy: O oponente virtual está ocupado
+  AIdisabled: O oponente virtual foi desativado
+  AIloadError: Falha ao carregar oponente virtual
+  AInotFound: Oponente virtual nao encontrado
+  AIunexpectedException: 'Unexpected Exception in AI: {0}'
+  computer: Computador
+  human: Humano
+  noAvailableAIs:
+  - Nao há oponentes virtuais disponiveis para jogo
+  - (todos {0,number,integer} estao em um jogo).
+  noFreeAI: Nenhum oponente virtual livre encontrado
+ChessCommandExecutor:
+  activeGameChanged: Seu jogo agora é &6{0}&-.
+  activeGameIs: Seu jogo atual é &6{0}&-.
+  AIdefsReloaded: Definiçoes de oponente virtual recarregadas.
+  AIList: '&6{0}&-: &f{1}:{2,number,integer}'
+  AIpayout: payout={0,number,integer}%
+  algebraicNotation: '&5 (standard algebraic notation)'
+  allBoardsRedrawn: Todos os tabuleiros foram redesenhados.
+  boardCantBeDeleted: Impossivel deletar o tabuleiro &6{0}&- - esta sendo usado pelo jogo &6{1}&-.
+  boardCreationPrompt:
+  - 'Clique esquerdo em um bloco: criar tabuleiro &6{0}&-. Clique direito: cancelar.'
+  - O bloco selecionado será o centro do quadrado A1 do tabuleiro.
+  boardDeleted: Tabuleiro &6{0}&- removido.
+  boardDetail:
+    board: '&eTabuleiro {0}:'
+    boardStyle: 'Estilo de tabuleiro: &f{0}'
+    enclosure: 'Cerca: &f{0}'
+    frameWidth: 'Largura da borda: &f{0,number,integer} ({1})'
+    game: 'Jogo: &f{0}'
+    height: 'Altura: &f{0,number,integer}'
+    lightLevel: 'Nivel de luz: &f{0,number,integer}'
+    boardExtents: 'Extensoes do tabuleiro: &f{0} - {1}'
+    pieceStyle: 'Estilo de peca: &f{0}'
+    squareSize: 'Tamanho do quadrado: &f{0,number,integer} ({1}/{2})'
+    struts: 'Suportes da cerca: &f{0}'
+    boardOrientation: 'Orientacao do tabuleiro: &f{0}'
+    defaultStake: 'Aposta padrao: &f{0} {1}'
+    defaultTimeControl: 'Tempo limite padrao: &f{0} {1}'
+    locked: (bloqueado)
+  boardList: '&6{0}&-: loc=&f{1}&- estilo=&6{2}&- jogo=&6{3}&-'
+  boardRedrawn: O tabuleiro &6{0}&- foi redesenhado.
+  boardStyleChanged: O tabuleiro &6{0}&- foi re-estilizado.
+  boardStyleSuggestSave: Use &f/chess board save [<novo-nome-do-estilo>]&- para salvar as alterações.
+  boardStyleSaved: Tabuleiro &6{0}&- estilo salvo como &6{1}&-.
+  boardStyleBadParam: Valor do parametro de estilo invalido &6{0}&-.
+  cantAffordStake: Voce nao pode pagar a aposta!
+  canTeleport: Voce pode teleportar para o seu jogo com &f/chess tp {0}
+  chessSaved: Os tabuleiros e os jogos foram salvos.
+  configKeySet: '{0} foi mudado para: {1}'
+  configReloaded: Configuração (config.yml) foi recarregada
+  designMode: O tabuleiro está design mode (set &6{0}&-).
+  drawOfferedOther: '&6{0}&- ofereceu um empate.'
+  drawOfferedYou: Voce ofereceu um empate á &6{0}&-.
+  gameCreated:
+  - Jogo &6{0}&- foi criado em &6{1}&-.
+  - 'Agora digite (ou use as placas do tabuleiro):'
+  - '&5*&- &f/chess invite <Nomedojogador>&- para convidar alguem'
+  - '&5*&- &f/chess invite&- para convidar todos'
+  - '&5*&- just &f/chess start&- para jogar com um oponente aleatório'
+  gameDeleted: Jogo &6{0}&- foi removido.
+  gameDeletedAlert: Jogo removido por &6{0}&-!
+  gameDetail:
+    blackToPlay: '&8Preto&- jogue'
+    clock: 'Pontos: &fBranco&-: {0}, &8Preto&-: {1}'
+    invitation: '&- foi convidado.  Aguardando resposta.'
+    moveHistory: '&eMove history:'
+    name: '&eJogo {0} [{1}]:'
+    openInvitation: Jogo em convite aberto
+    players: '&6{0}&- (Branco) vs. &6{1}&- (Preto) no tabuleiro &6{2}&-.'
+    stake: 'Aposta: &f{0}'
+    whiteToPlay: '&fBranco&- jogue'
+    halfMoves: '&f{0,number,integer}&- Movido'
+    timeControlType: 'Tempo limite: &f{0}'
+  goingToSpawn: Nao há lugar seguro para te enviar - enviando para o spawn.
+  invalidFromSquare: Quadrado de inicio invalido em {0}
+  invalidMoveString: Movimento invalido {0}
+  invalidNumeric: 'Valor numerico invalido: {0}'
+  invalidToSquare: Quadrado de destino invalido em {0}
+  invited: ' convidado: &6{0}&-'
+  joinedGame: Voce entrou no jogo &6{0}&- como &f{1}&-.
+  needToWait: Voce precisa esperar {0,number,integer} segundos mais.
+  noActiveGame: Voce nao tem nenhum jogo ativo. Use &f/chess game <name>&- para iniciar um.
+  noBoards: Aqui nao tem nenhum tabuleiro.
+  noCurrentGames: Aqui nao tem nenhum jogo.
+  noGame: (nenhum)
+  noPendingInvitation: Voce nao tem convites pendentes agora.
+  noTeleporting: Teleportar entre tabuleiros nao é permitido agora.
+  notFromConsole: Esse comando nao pode ser executado do console.
+  notOnChessboard: Nao esta em um tabuleiro de xadrez!
+  otherPlayerMustBeOffline: Voce so pode fazer isso se o outro player estiver offline.
+  persistedReloaded: Forçados, jogos e tabuleiros foram recarregadas.
+  PGNarchiveWritten: Escrever arquivo PNG para {0}
+  positionUpdatedFEN:
+  - Posiçao de jogo para &6{0}&- foi atualizada. {1} jogue.
+  - '&4NOTA: &-Historico de movimentos invalidados, este jogo nao pode ser guardado.'
+  promotionPieceSet: Peça de promoçao para o jogo &6{0}&- foi mudado para &6{1}&-.
+  scoreRecord: '&e{0,number,integer}) &6{1}&-: &f{2}&-'
+  sideSwapOfferedOther: '&6{0}&- ofereceu troca de lados.'
+  sideSwapOfferedYou: Voce ofereceu troca de lados com &6{0}&-.
+  stakeChanged: Aposta para esse jogo agora é {0}.
+  teleportDestObstructed: Destino de teleporte obstruido!
+  timeControlSet: Controle de tempo para esse jogo foi mudado para {0} ({1})
+  timeControlsReloaded: Definiçoes de controle de tempo foram recarregadas.
+  typeYesOrNo: Digite &f/chess yes&- para aceitar, ou &f/chess no&- para recusar.
+  undoOfferedOther: '&6{0}&- deseja desfazer seu ultimo movimento.'
+  undoOfferedYou: Voce pediu á &6{0}&- se voce pode desfazer seu ultimo movimento.
+  undoAIWithStake: Voce nao pode desfazer seus movimentos quando está jogando contra o computador em uma aposta.
+ChessConfig:
+  invalidBoolean: 'valor boolean invalido: {0} (use true/yes ou false/no)'
+  invalidInteger: 'valor integer invalido: {0}'
+  invalidFloat: 'valor floating-point invalido: {0}'
+  invalidDuration: 'Duraçao invalida: {0}'
+  noSuchKey:
+  - 'Nenhuma key de configuraçao: {0}'
+  - Use &f/chess getcfg&- para listar as keys validas
+ChessEntityListener:
+  goingToSpawn: Impossivel achar um lugar para te deixar - indo para o spawn.
+ChessPlayerListener:
+  boardCreationCancelled: Craiçao de tabuleiro cancelada.
+  currentGames: 'Seus jogos atuais: {0}'
+  moveCancelled: Movimento cancelado.
+  notYourTurn: Nao é a sua vez!
+  pieceSelected: '&f{0}&- em &f{1}&- selecionada. Clique esquerdo para mover.'
+  playerBack: '{0} voltou no jogo!'
+  playerInviteCancelled: '&6Convite cancelado.'
+  playerQuit: '{0} saiu.  Se ele/ela nao entrar em {1,number,integer} segundos, voce
+    pode digitar &f/chess win&- para ganhar o jogo.'
+  squareMessage: Quadrado &6[{0}]&-, tabuleiro &6{1}
+  youPlayed: Voce jogou &f{0}&-.
+ChessUtils:
+  bishop: Bispo
+  king: Rei
+  knight: Cavalo
+  pawn: Peao
+  queen: Rainha
+  rook: Torre
+  anything: Alguma coisa
 ControlPanel:
-  acceptDrawBtn: "Aceita empate?"
-  acceptSwapBtn: "Aceita troca;de lados;do tabuleiro?"
-  blackPawnPromotionBtn: "Promover;o peão preto"
-  boardInfoBtn: ";Informaçoes;do tabuleiro"
-  chessInviteReminder: "Digite &f/chess invite <nome de alguem>&- para convidar alguem"
-  chessInvitePrompt: "Digite o nome de alguem para convidar.  Cliques esquerdo ou direito cancelarao."
-  createGameBtn: ";Criar;novo jogo"
-  gameInfoBtn: ";Informaçoes;do jogo"
-  halfmoveClock: "Placar de; movimentos"
-  inviteAnyoneBtn: ";Convidar;alguem"
-  invitePlayerBtn: ";Convidar;Jogador"
-  noBtn: ";;Nao"
-  offerDrawBtn: ";Oferecer;Empate"
-  playNumber: "Numero;de jogadas"
-  resignBtn: ";Desistir"
-  stakeBtn: "Aposta;;"
-  startGameBtn: ";Iniciar;Jogo"
-  teleportOutBtn: ";Teleportar;para fora"
-  timeControl: "Tempo"
-  timeElapsed: "Passado"
-  timeRemaining: "Restante"
-  whitePawnPromotionBtn: "Promover;o peão branco"
-  yesBtn: ";;Sim"
-
+  acceptDrawBtn: Aceita empate?
+  acceptSwapBtn: Aceita troca;de lados;do tabuleiro?
+  blackPawnPromotionBtn: Promover;o peao preto
+  boardInfoBtn: ;Informaçoes;do tabuleiro
+  chessInviteReminder: Digite &f/chess invite <nome de alguem>&- para convidar alguem.
+  chessInvitePrompt: Digite o nome de alguem para convidar.  Cliques esquerdo ou direito cancelarao o convite.
+  createGameBtn: ;Criar;novo jogo
+  gameInfoBtn: ;Informaçoes;do jogo
+  halfmoveClock: Placar de; movimentos
+  inviteAnyoneBtn: ;Convidar;todos
+  invitePlayerBtn: ;Convidar;jogador;especifico
+  noBtn: ;;Nao
+  offerDrawBtn: ;Oferecer;Empate
+  playNumber: Numero;de jogadas
+  resignBtn: ;Desistir
+  stakeBtn: Aposta;;
+  startGameBtn: ;Iniciar;Jogo
+  teleportOutBtn: ;Teleportar;para fora
+  timeControl: Tempo
+  timeElapsed: Passado
+  timeRemaining: Restante
+  whitePawnPromotionBtn: Promover;o peao branco
+  yesBtn: ;;Sim
+  acceptUndoBtn: Permitir o;outro jogador;a desfazer;um movimento?
+  undoBtn: Desfazer;Ultimo;Movimento
 Designer:
-  inDesignMode: "Tabuleiro &6{0}&- esta em Design Mode."
-  outOfDesignMode: "Tabuleiro &6{0}&- nao esta em Design Mode."
+  inDesignMode: Tabuleiro &6{0}&- esta em Design Mode.
+  outOfDesignMode: Tabuleiro &6{0}&- nao esta em Design Mode.
   styleSaved:
-  - "Estilo customizado de peça &6{0}&- salvo."
-  - "Use &f/chess board set piecestyle {0}&- quando estiver em um tabuleiro adequado."
+  - Estilo customizado de peça &6{0}&- salvo.
+  - Use &f/chess board set piecestyle {0}&- quando estiver em um tabuleiro adequado.
   styleLoaded:
-  - "estilo de peça &6{0}&- carregado.  Agora voce pode fazer alteraçoes."
-  - "Use &f/chess design save [<new-style-name>] para guarda-lo."
-  mustBeInDesignMode: "Voce precisa estar em modo Design primeiro.  Use &f/chess design&-."
-  gameRunning: "Voce nao pode designar em um tabuleiro enquanto está jogando."
-  notOnBoard: "Voce nao esta em um tabuleiro."
-  cleared: "O design da peça foi limpo."
-  
+  - estilo de peça &6{0}&- carregado.  Agora voce pode fazer alteraçoes.
+  - Use &f/chess design save [<novo-nome-do-estilo>] para guarda-lo.
+  mustBeInDesignMode: Voce precisa estar em modo Design primeiro.  Use &f/chess design&-.
+  gameRunning: Voce nao pode designar em um tabuleiro enquanto está jogando.
+  notOnBoard: Voce nao esta em um tabuleiro.
+  cleared: O design da peça foi limpo.
 ExpectBoardCreation:
-  boardCreated: "Tabuleiro &6{0}&- foi criado em {1}."
-
+  boardCreated: Tabuleiro &6{0}&- foi criado em {1}.
 ExpectYesNoOffer:
-  drawOfferAccepted: "Sua oferta de empate foi aceita por &6{0}&-."
-  drawOfferDeclined: "Sua oferta de empate foi recusada por &6{0}&-."
-  swapOfferAccepted: "Sua oferta de troca foi aceita por &6{0}&-."
-  swapOfferDeclined: "Sua oferta de troca foi recusada por &6{0}&-."
-  youDeclinedDrawOffer: "Voce recusou o empate."
-  youDeclinedSwapOffer: "Voce recusou a troca."
-
+  drawOfferAccepted: Sua oferta de empate foi aceita por &6{0}&-.
+  drawOfferDeclined: Sua oferta de empate foi recusada por &6{0}&-.
+  swapOfferAccepted: Sua oferta de troca foi aceita por &6{0}&-.
+  swapOfferDeclined: Sua oferta de troca foi recusada por &6{0}&-.
+  youDeclinedDrawOffer: Voce recusou o empate.
+  youDeclinedSwapOffer: Voce recusou a troca.
+  undoOfferAccepted: Sua oferta para desfazer o movimento foi aceita por&6{0}&-.
+  undoOfferDeclined: Sua oferta para desfazer o movimento foi recusada por &6{0}&-.
+  youDeclinedUndoOffer: Voce recusou a oferta para desfazer um movimento.
 Flight:
   flightEnabled:
-    - Voce esta perto o suficiente de um tabuleiro para voar.
-    - Clique duas vezes Espaço para voar.
+  - Voce esta perto o suficiente de um tabuleiro para voar.
+  - Clique duas vezes Espaço para voar.
   flightDisabled: Voce nao esta perto o suficiente de um tabuleiro para voar.
   flightDisabledByAdmin: O voo de borda foi desativado por um admin.
-  interactionStopped: You may not interact with the world while flying around a chess board!
-  
+  interactionStopped: Voce nao pode interagir com o mundo enquanto está voando em volta do tabuleiro!
 Game:
-  boardAlreadyHasGame: "Esse tabuleiro ja esta em um jogo."
-  boardInDesignMode: "Esse tabuleiro está sendo usado para design."
-  sitePGN: " in Minecraftia"
-  AIisBusy: "Esse oponente virtual está ocupado jogando outro jogo."
-  alertPrefix: "&6:: &-Jogo &6{0}&-: "
-  archiveExists: "Arquivo {0} existe - nao sera substituido."
-  abandoned: "&6{0}&- empatou com &6{1}&- (jogo abandonado) num jogo de xadrez!"
-  autoDeleteFinished: "Auto-deletamento concluido."
-  autoDeleteNotStarted: "Jogo auto-deletado (nao iniciado dentro {0})."
-  autoDeleteRunning: "Jogo auto-deletado (nenhum movimento dentro {0})."
-  black: "Preto"
-  cantAffordToStart: "{0} nao pode dar ao luxo de jogar! (precisa de {1})"
-  cantAffordToJoin: "Voce nao pode pagar a aposta para esse jogo (precisa de {0})!"
-  cantWriteArchive: "Impossivel escrever arquivo PNG {0}: {1}"
-  check: " &5+++&dVocê está em xeque&5+++"
-  checkmated: "&6{0}&- deu xequemate em &6{1}&- num jogo de xadrez!"
-  drawAgreed: "&6{0}&- empatou com &6{1}&- (empate aceito) num jogo de xadrez!"
-  fiftyMoveRule: "&6{0}&- empatou com &6{1}&- (regra dos 50 movimentos) num jogo de xadrez!"
-  forfeited: "&6{0}&- ganhou de &6{1}&- (perdeu) num jogo de xadrez!"
-  gameHasStake: "Esse jogo tem uma aposta de &f{0}&-."
-  gameIsFull: "Esse jogo já tem 2 jogadores."
-  getStakeBack: "Voce pegou sua aposta de {0} de volta."
-  invalidPromoPiece: "Peça de promoçao invalida: {0}."
-  inviteSent: "Um convite foi enviado para &6{0}&-."
-  inviteWithdrawn: "Seu convite foi abandonado."
-  joinPrompt: "Digite &f/chess join&- para entrar no jogo."
-  joinPromptGlobal: "Digitem &f/chess join {0}&- para entrar no jogo."
-  lostStake: "Voce perdeu a aposta de {0}."
-  newTimeControlPhase: "Nova fase de controle de tempo iniciada: &6{0}&-."
-  noActiveGame: "nenhum jogo ativo - inicie um com &f/chess game <nome>&-."
-  noNegativeStakes: "Apostas negativas nao sao permitidas!"
-  noSuchGame: "Nenhum jogo &6{0}&-."
-  notInGame: "Voce nao esta nesse jogo!"
-  notInvited: "Voce nao tem convite para esse jogo."
-  notStarted: "Esse jogo ainda nao começou."
-  notYourTurn: "Nao é sua vez."
-  nowPlayingBlack: "Troca de lados!  Voce agora esta do lado preto."
-  nowPlayingWhite: "Troca de lados!  Voce agora esta do lado branco."
-  openInviteCreated: "&6{0}&e criou um convite livre para um jogo."
-  paidStake: "Voce pagou a aposta de {0}."
-  playerJoined: "&6{0}&- entrou no seu jogo."
-  playerNotOnline: "Jogador {0} nao esta online."
-  playerPlayedMove: "&6{0}&- jogou [{1}].  Sua vez."
-  resigned: "&6{0}&- ganhou de &6{1}&- (desistiu) num jogo de xadrez!"
-  shouldBeState: "O jogo precisa estar em estado {0}."
-  stakeCantBeChanged: "A aposta nao pode ser trocada quando os dois jogadores estiverem online."
-  stakeLocked: "A aposta para esse jogo esta bloqueada e nao sera mudada."
-  stakeTooHigh: "A aposta maxima é {0,number,currency}."
-  stalemated: "&6{0}&- empatou com &6{1}&- (sem saida) em um jogo de xadrez!"
+  boardAlreadyHasGame: Esse tabuleiro ja esta em um jogo.
+  boardInDesignMode: Esse tabuleiro está sendo usado para design.
+  sitePGN: ' em Minecraftia'
+  AIisBusy: Esse oponente virtual está ocupado jogando outro jogo.
+  alertPrefix: '&6:: &-Jogo &6{0}&-: '
+  archiveExists: Arquivo {0} existe - nao sera substituido.
+  abandoned: '&6{0}&- empatou com &6{1}&- (jogo abandonado) num jogo de xadrez!'
+  autoDeleteFinished: Auto-deletamento concluido.
+  autoDeleteNotStarted: Jogo auto-deletado (nao iniciado dentro de {0}).
+  autoDeleteRunning: Jogo auto-deletado (nenhum movimento dentro de {0}).
+  black: Preto
+  cantAffordToStart: '{0} nao pode dar ao luxo de jogar! (precisa de {1})'
+  cantAffordToJoin: Voce nao pode pagar a aposta para esse jogo (precisa de {0})!
+  cantWriteArchive: 'Impossivel escrever arquivo PNG {0}: {1}'
+  check: ' &5+++&dVocê está em xeque&5+++'
+  checkmated: '&6{0}&- deu xequemate em &6{1}&- num jogo de xadrez!'
+  drawAgreed: '&6{0}&- empatou com &6{1}&- (empate aceito) num jogo de xadrez!'
+  fiftyMoveRule: '&6{0}&- empatou com &6{1}&- (regra dos 50 movimentos) num jogo de
+    xadrez!'
+  forfeited: '&6{0}&- ganhou de &6{1}&- (perdeu) num jogo de xadrez!'
+  gameHasStake: Esse jogo tem uma aposta de &f{0}&-.
+  gameIsFull: Esse jogo já tem 2 jogadores.
+  getStakeBack: Voce pegou sua aposta de {0} de volta.
+  invalidPromoPiece: 'Peça de promoçao invalida: {0}.'
+  inviteSent: Um convite foi enviado para &6{0}&-.
+  inviteWithdrawn: Seu convite foi abandonado.
+  joinPrompt: Digite &f/chess join&- para entrar no jogo.
+  joinPromptGlobal: Digitem &f/chess join {0}&- para entrar no jogo.
+  lostStake: Voce perdeu a aposta de {0}.
+  newTimeControlPhase: 'Nova fase de controle de tempo iniciada: &6{0}&-.'
+  noActiveGame: nenhum jogo ativo - inicie um com &f/chess game <nome>&-.
+  noNegativeStakes: Apostas negativas nao sao permitidas!
+  noSuchGame: Nenhum jogo &6{0}&-.
+  notInGame: Voce nao esta nesse jogo!
+  notInvited: Voce nao tem convite para esse jogo.
+  notStarted: Esse jogo ainda nao começou.
+  notYourTurn: Nao é sua vez.
+  nowPlayingBlack: Troca de lados!  Voce agora esta do lado preto.
+  nowPlayingWhite: Troca de lados!  Voce agora esta do lado branco.
+  openInviteCreated: '&6{0}&e convidou todos do servidor para um jogo.'
+  paidStake: Voce pagou a aposta de {0}.
+  playerJoined: '&6{0}&- entrou no seu jogo.'
+  playerNotOnline: Jogador {0} nao esta online.
+  playerPlayedMove: '&6{0}&- jogou [{1}].  Sua vez.'
+  resigned: '&6{0}&- ganhou de &6{1}&- (desistiu) num jogo de xadrez!'
+  shouldBeState: O jogo precisa estar em estado {0}.
+  stakeCantBeChanged: A aposta nao pode ser trocada quando os dois jogadores estiverem online.
+  stakeLocked: A aposta para esse jogo esta bloqueada e nao sera mudada.
+  stakeTooHigh: A aposta maxima é {0,number,currency}.
+  stalemated: '&6{0}&- empatou com &6{1}&- (sem saida) em um jogo de xadrez!'
   started:
-    - "Jogo iniciado!  Voce esta jogando &f{0}&-."
-    - "Para mover uma peça, olhe para ela segurando AR {1}, e clique com esquerdo."
-  startPrompt: "Inicie o jogo com &f/game start&-."
-  timeControlLocked: "O tempo para esse jogo esta bloqueado e nao sera mudado."
-  timeControlWarning: "Voce tem {0,number,integer} segundos para mexer!"
-  white: "Branco"
-  youAreInvited: "Voce foi convidado para um jogo por &6{0}&-."
-  yourMove: "É sua vez &f({0})&-."
-  youWon: "Voce ganhou. {0}!"
-
+  - Jogo iniciado!  Voce esta jogando &f{0}&-.
+  - Para mover uma peça, olhe para ela sem nada na mao ({1}), e clique com esquerdo.
+  startPrompt: Inicie o jogo com &f/game start&-.
+  timeControlLocked: O tempo para esse jogo esta bloqueado e nao sera mudado.
+  timeControlWarning: Voce tem {0,number,integer} segundos para mexer!
+  white: Branco
+  youAreInvited: Voce foi convidado para um jogo por &6{0}&-.
+  yourMove: E sua vez &f({0})&-.
+  youWon: Voce ganhou. {0}!
+  moveUndone: Seu ultimo movimento foi desfeito.  &f{0}&- , sua vez.
 MessageBuffer:
-  header: "| {0,number,integer}-{1,number,integer} of {2,number,integer} lines (page {3,number,integer}/{4,number,integer}) |"
-  footer: "| Use /chess page [#|n|p] para ver outras paginas de ajuda |"
-
-# these messages need to be 15 characters max. (including colour codes) because they are displayed on signs
+  header: '| {0,number,integer}-{1,number,integer} of {2,number,integer} lines (page
+    {3,number,integer}/{4,number,integer}) |'
+  footer: '| Use /chess page [#|n|p] para ver outras paginas de ajuda |'
 SMSIntegration:
-  boardInfo: "&1Informaçoes;do tabuleiro "
-  createGame: "&1Criar jogo"
-  gotoGame: "&1Ir para jogo"
-  gameInfo: "&1Informaçoes;do jogo"
-  deleteGame: "&4*Deletar jogo"
-
+  boardInfo: '&1Informacoes;do tabuleiro '
+  createGame: '&1Criar jogo'
+  gotoGame: '&1Ir para jogo'
+  gameInfo: '&1Informacoes;do jogo'
+  deleteGame: '&4*Deletar jogo'
 TerrainBackup:
-  cantDeleteTerrain: "Impossivel deletar {0}"
-  cantRestoreTerrain: "O backup de terreno nao pode ser reguardado: {0}"
-  cantWriteTerrain: "O backup de terreno nao pode ser reescrito: {0}"
+  cantDeleteTerrain: Impossivel deletar {0}
+  cantRestoreTerrain: 'O backup de terreno nao pode ser reguardado: {0}'
+  cantWriteTerrain: 'O backup de terreno nao pode ser reescrito: {0}'
