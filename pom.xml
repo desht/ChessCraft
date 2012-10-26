@@ -65,6 +65,7 @@
 				      <goal>shade</goal>
 				    </goals>
 				    <configuration>
+				      <minimizeJar>true</minimizeJar>
 				      <relocations>
 				        <relocation>
 				          <pattern>me.desht.dhutils</pattern>
