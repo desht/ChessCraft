@@ -19,8 +19,9 @@ public class TeleportCommand extends AbstractCommand {
 		setPermissionNode("chesscraft.commands.teleport");
 		setUsage(new String[] {
 				"/chess tp [<game-name>]",
-				"/chess tp <board-name> -b"
+				"/chess tp -b <board-name>"
 		});
+		setOptions("b");
 	}
 
 	@Override
@@ -38,13 +39,13 @@ public class TeleportCommand extends AbstractCommand {
 			BoardView.teleportOut(player);
 			break;
 		case 1:
-			ChessGame.getGame(args[0]).summonPlayer(player);
-			break;
-		case 2:
-			if (args[1].startsWith("-b")) {
+			if (getBooleanOption("b")) {
 				PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.board");
 				BoardView.getBoardView(args[0]).summonPlayer(player);
+			} else {
+				ChessGame.getGame(args[0]).summonPlayer(player);
 			}
+			break;
 		}
 		return true;
 	}

@@ -1,14 +1,12 @@
 package me.desht.chesscraft.commands;
 
-import java.util.Map;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -19,7 +17,8 @@ public class BoardCreationCommand extends AbstractCommand {
 		super("chess b c", 1, 3);
 		addAlias("chess c b");	// backwards compat
 		setPermissionNode("chesscraft.commands.create.board");
-		setUsage("/chess board create <board-name> [-style <style-name>]");
+		setUsage("/chess board create <board-name> [-style <style-name>] [-pstyle <style-name>]");
+		setOptions(new String[] { "style:s", "pstyle:s" });
 	}
 
 	@Override
@@ -32,11 +31,9 @@ public class BoardCreationCommand extends AbstractCommand {
 			showUsage(sender);
 			return true;
 		}
-		
-		Map<String, String> options = parseCommandOptions(args, 1);
 
-		String boardStyleName = options.get("style"); //$NON-NLS-1$
-		String pieceStyleName = options.get("pstyle"); //$NON-NLS-1$
+		String boardStyleName = getStringOption("style"); //$NON-NLS-1$
+		String pieceStyleName = getStringOption("pstyle"); //$NON-NLS-1$
 		
 		// this will throw an exception if the styles are in any way invalid or incompatible
 		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
