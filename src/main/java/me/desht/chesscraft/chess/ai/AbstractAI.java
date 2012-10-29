@@ -203,9 +203,11 @@ public abstract class AbstractAI implements Runnable {
 	}
 
 	/**
-	 * Called when the AI has come up with its next move.
+	 * Called when the AI has come up with its next move.  Square indices always use the
+	 * Chesspresso sqi representation.
 	 * 
-	 * @param m		the AI's move
+	 * @param fromSqi	the square the AI is moving from
+	 * @param toSqi		the square the AI is moving to.
 	 */
 	protected void aiHasMoved(int fromSqi, int toSqi) {
 		if (!active) {

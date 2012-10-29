@@ -78,7 +78,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private int result;
 	private double stake;
 	private AbstractAI aiPlayer = null;
-	private AbstractAI aiPlayer2 = null; // for testing AI vs AI - will always play Black
+	private AbstractAI aiPlayer2 = null; // for AI vs AI - always plays Black
 	private final int[] tcWarned = new int[2];
 
 	/**
@@ -255,17 +255,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		// set chess clock activity appropriately
 		tcWhite.setActive(getPosition().getToPlay() == Chess.WHITE);
 		tcBlack.setActive(!tcWhite.isActive());
-
-		// now check for if AI needs to start
-//		if (getPosition().getToPlay() == Chess.WHITE && AIFactory.isAIPlayer(playerWhite)) {
-//			aiPlayer.setActive(true); // tell ai to start thinking
-//		} else if (getPosition().getToPlay() == Chess.BLACK && AIFactory.isAIPlayer(playerBlack)) {
-//			if (AIFactory.isAIPlayer(playerWhite)) {
-//				aiPlayer2.setActive(true);
-//			} else {
-//				aiPlayer.setActive(true);
-//			}
-//		}
 	}
 
 	private Game setupChesspressoGame() {
@@ -489,9 +478,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		updateChessClocks(false);
 	}
 
-	private void updateChessClocks(boolean updateBoth) {
-		updateChessClock(Chess.WHITE, tcWhite, updateBoth);
-		updateChessClock(Chess.BLACK, tcBlack, updateBoth);
+	private void updateChessClocks(boolean force) {
+		updateChessClock(Chess.WHITE, tcWhite, force);
+		updateChessClock(Chess.BLACK, tcBlack, force);
 	}
 
 	/**
@@ -499,11 +488,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * 
 	 * @param colour	Colour of the player's clock
 	 * @param tc		The clock to update
+	 * @param force		Force an update even if the clock is not active
 	 */
-	private void updateChessClock(int colour, TimeControl tc, boolean updateBoth) {
+	private void updateChessClock(int colour, TimeControl tc, boolean force) {
 		tc.tick();
 
-		if (tc.isActive() || updateBoth) {
+		if (tc.isActive() || force) {
 			getView().getControlPanel().updateClock(colour, tc);
 			String playerName = colour == Chess.WHITE ? playerWhite : playerBlack;
 			if (tc.getRemainingTime() <= 0) {

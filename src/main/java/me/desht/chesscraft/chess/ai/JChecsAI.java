@@ -14,6 +14,10 @@ import fr.free.jchecs.core.MoveGenerator;
 import fr.free.jchecs.core.Player;
 import fr.free.jchecs.core.Square;
 
+/**
+ * @author des
+ * 
+ */
 public class JChecsAI extends AbstractAI {
 
 	private final Game jChecsGame;
@@ -30,7 +34,7 @@ public class JChecsAI extends AbstractAI {
 	 * @return
 	 */
 	private Game initGame() {
-		Game jChecsGame = new fr.free.jchecs.core.Game();
+		Game jChecsGame = new Game();
 
 		Player human = jChecsGame.getPlayer(!isWhite());
 		human.setName(Messages.getString("ChessAI.human"));
@@ -51,11 +55,17 @@ public class JChecsAI extends AbstractAI {
 		return jChecsGame;
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.chesscraft.chess.ai.AbstractAI#shutdown()
+	 */
 	@Override
 	public void shutdown() {
 		jChecsGame.getPlayer(isWhite()).setEngine(null);
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.chesscraft.chess.ai.AbstractAI#run()
+	 */
 	@Override
 	public void run() {
 		try {
@@ -68,11 +78,17 @@ public class JChecsAI extends AbstractAI {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.chesscraft.chess.ai.AbstractAI#undoLastMove()
+	 */
 	@Override
 	public void undoLastMove() {
 		jChecsGame.goPrevious();
 	}
 
+	/* (non-Javadoc)
+	 * @see me.desht.chesscraft.chess.ai.AbstractAI#movePiece(int, int)
+	 */
 	@Override
 	protected void movePiece(int fromSqi, int toSqi) {
 		// conveniently, Chesspresso & jChecs use the same row/column/sqi conventions

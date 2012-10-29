@@ -6,15 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
-
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
@@ -22,11 +17,17 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
- * @author des
+ * @author desht
  *
- * This class is responsible for creating and managing the AI instances.
+ * This class is responsible for creating and managing the AI definitions and instances.
  * 
  */
 public class AIFactory {
@@ -141,7 +142,7 @@ public class AIFactory {
 	public AIDefinition getAIDefinition(String aiName, boolean force) {
 		AIDefinition def = getAIDefinition(aiName);
 		if (def == null && force) {
-			throw new ChessException(Messages.getString("Game.playerNotOnline"));
+			throw new ChessException(Messages.getString("ChessAI.AInotFound"));
 		}
 		return def;
 	}
@@ -222,6 +223,10 @@ public class AIFactory {
 				throw new ChessException("internal error while creating AI " + name);
 			}
 		}
+		
+		public String getImplClassName() {
+			return aiImplClass.getSimpleName();
+		}
 
 		public String getName() {
 			return name;
@@ -229,6 +234,15 @@ public class AIFactory {
 		
 		public String getDisplayName() {
 			return AI_PREFIX + name;
+		}
+		
+		public List<String> getDetails() {
+			List<String> res = new ArrayList<String>();
+			res.add("AI " + getDisplayName() + " (" + getImplClassName() + ") :");
+			for (String k : MiscUtil.asSortedList(params.getKeys(false))) {
+				res.add(ChatColor.DARK_RED + "* " + ChatColor.WHITE + k + ": " + ChatColor.YELLOW + params.get(k));
+			}
+			return res;
 		}
 		
 		public String getEngine() {
