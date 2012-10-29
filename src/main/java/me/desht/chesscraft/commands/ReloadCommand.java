@@ -3,8 +3,8 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.chess.TimeControlDefs;
+import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -45,7 +45,7 @@ public class ReloadCommand extends AbstractCommand {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
-			ChessAI.initAINames();
+			AIFactory.instance.loadAIDefinitions();
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {

@@ -2,16 +2,16 @@ package me.desht.chesscraft.commands;
 
 import java.util.LinkedList;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.ChessAI;
-import me.desht.chesscraft.chess.ChessAI.AI_Def;
+import me.desht.chesscraft.chess.ai.AIFactory;
+import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MinecraftChatStr;
 import me.desht.dhutils.commands.AbstractCommand;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
 public class ListAICommand extends AbstractCommand {
 
@@ -26,20 +26,21 @@ public class ListAICommand extends AbstractCommand {
 		
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		LinkedList<String> lines = new LinkedList<String>();
-		for (AI_Def ai : ChessAI.listAIs(true)) {
+		for (AIDefinition aiDef : AIFactory.instance.listAIDefinitions(true)) {
 			StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList", //$NON-NLS-1$
-			                                                        ai.getName(), ai.getEngine(), ai.getSearchDepth()));
+			                                                        aiDef.getName(), aiDef.getEngine(),
+			                                                        aiDef.getParams().getInt("depth", 0)));
 			if (ChessCraft.economy != null) {
 				sb.append(sender != null ? "<l>" : ", "); //$NON-NLS-1$ //$NON-NLS-2$
-				sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (ai.getPayoutMultiplier() * 100))); //$NON-NLS-1$
+				sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (aiDef.getPayoutMultiplier() * 100))); //$NON-NLS-1$
 			}
 
-			if (ai.getComment() != null && sender != null && ((lines.size() + 1) % MessagePager.getPageSize()) == 0) {
+			if (aiDef.getComment() != null && sender != null && ((lines.size() + 1) % MessagePager.getPageSize()) == 0) {
 				lines.add(""); // ensure description and comment are on the same page  $NON-NLS-1$
 			}
 			lines.add(sb.toString());
-			if (ai.getComment() != null) {
-				lines.add("  &2 - " + ai.getComment()); //$NON-NLS-1$
+			if (aiDef.getComment() != null) {
+				lines.add("  &2 - " + aiDef.getComment()); //$NON-NLS-1$
 			}
 		}
 		lines = MinecraftChatStr.alignTags(lines, true);

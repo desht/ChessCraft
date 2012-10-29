@@ -26,8 +26,8 @@ no_monster_attacks: true
 ai:
     max_ai_games: 3
     min_move_wait: 1
-    name_prefix: '[AI]'
-    use_opening_book: false
+    name_format: '[AI]<NAME>'
+    use_opening_book: true
 locale: default
 ladder:
     initial_position: 1000

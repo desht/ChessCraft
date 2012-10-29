@@ -5,9 +5,9 @@ import java.util.List;
 
 import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.chess.ChessAI;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
+import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.BoardDeletionCommand;
@@ -112,13 +112,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
 
+		AIFactory.init();
+		
 		new PluginVersionChecker(this, this);
 
 		DirectoryStructure.setup();
 
 		Messages.init(getConfig().getString("locale", "default"));
-
-		ChessAI.initAINames();
 
 		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
@@ -161,7 +161,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		flightListener.restoreSpeeds();
 		
-		ChessAI.clearAIs();
+		AIFactory.instance.clearDown();
 		for (ChessGame game : ChessGame.listGames()) {
 			game.clockTick();
 		}

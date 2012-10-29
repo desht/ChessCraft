@@ -173,7 +173,7 @@ public class DirectoryStructure {
 			return;
 		}
 
-		LogUtils.fine("extractResource: file=" + of +
+		LogUtils.finer("extractResource: file=" + of +
 		                      ", file-last-mod=" + of.lastModified() +
 		                      ", file-exists=" + of.exists() +
 		                      ", jar-last-mod=" +  getJarFile().lastModified() +
@@ -187,7 +187,7 @@ public class DirectoryStructure {
 			return;
 		}
 
-		LogUtils.fine("extractResource: " + from + " -> " + of);
+		LogUtils.fine("extracting resource: " + from + " -> " + of);
 
 		OutputStream out = null;
 		try {

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.desht.chesscraft.chess.ChessAI;
+import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.dhutils.LogUtils;
 
 /**
@@ -86,7 +86,7 @@ public abstract class ResultViewBase {
 		List<ScoreRecord> res = new ArrayList<ScoreRecord>();
 		
 		try {
-			String ex = excludeAI ? " WHERE player NOT LIKE '" + ChessAI.AI_PREFIX + "%'" : "";
+			String ex = excludeAI ? " WHERE player NOT LIKE '" + AIFactory.AI_PREFIX + "%'" : "";
 			Statement stmt = handler.getConnection().createStatement();
 			StringBuilder query = new StringBuilder("SELECT player, score FROM " + viewType + ex + " ORDER BY score DESC");
 			if (n > 0) {
