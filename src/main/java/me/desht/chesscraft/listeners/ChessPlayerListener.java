@@ -9,6 +9,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -169,11 +170,14 @@ public class ChessPlayerListener extends ChessListenerBase {
 		StringBuilder games = new StringBuilder();
 		String who = event.getPlayer().getName();
 		for (ChessGame game : ChessGame.listGames()) {
-			if (game.isPlayerInGame(who)) {
+			int colour = game.getPlayerColour(who);
+			if (colour != Chess.NOBODY) {
 				plugin.getPlayerTracker().playerRejoined(who);
-				game.alert(game.getOtherPlayerName(who),
-						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
-				games.append(" ").append(game.getName()); //$NON-NLS-1$
+				ChessPlayer other = game.getPlayer(ChessUtils.otherColour(colour));
+				if (other != null) {
+					other.alert(Messages.getString("ChessPlayerListener.playerBack", who));
+				}
+				games.append(" ").append(game.getName());
 			}
 		}
 		if (games.length() > 0) {
