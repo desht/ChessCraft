@@ -27,7 +27,7 @@ public class ClaimVictoryCommand extends AbstractCommand {
 
 		game.ensureGameState(GameState.RUNNING);
 
-		String other = game.getOtherPlayer(sender.getName());
+		String other = game.getOtherPlayerName(sender.getName());
 		if (other.isEmpty()) {
 			return true;
 		}

@@ -19,7 +19,7 @@ public class InvitePlayerButton extends AbstractSignButton {
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		
-		if (game != null && (game.getPlayerWhite().isEmpty() || game.getPlayerBlack().isEmpty())) {
+		if (game != null && (game.getWhitePlayerName().isEmpty() || game.getBlackPlayerName().isEmpty())) {
 			ChessCraft.getInstance().responseHandler.expect(event.getPlayer().getName(), new ExpectInvitePlayer());
 			MiscUtil.statusMessage(event.getPlayer(), Messages.getString("ControlPanel.chessInvitePrompt")); //$NON-NLS-1$
 		}
@@ -31,8 +31,8 @@ public class InvitePlayerButton extends AbstractSignButton {
 		
 		if (game == null) return false;
 		
-		boolean hasWhite = !game.getPlayerWhite().isEmpty();
-		boolean hasBlack = !game.getPlayerBlack().isEmpty();
+		boolean hasWhite = !game.getWhitePlayerName().isEmpty();
+		boolean hasBlack = !game.getBlackPlayerName().isEmpty();
 		
 		return game.getState() == GameState.SETTING_UP && (!hasWhite || !hasBlack);
 	}

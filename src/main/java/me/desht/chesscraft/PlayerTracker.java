@@ -25,7 +25,7 @@ public class PlayerTracker {
 		return lastPos.get(player.getName());
 	}
 
-	public void setLastPos(Player player, Location loc) {
+	private void setLastPos(Player player, Location loc) {
 		lastPos.put(player.getName(), loc);
 	}
 

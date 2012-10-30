@@ -26,8 +26,8 @@ public class InviteAnyoneButton extends AbstractSignButton {
 		
 		if (game == null) return false;
 		
-		boolean hasWhite = !game.getPlayerWhite().isEmpty();
-		boolean hasBlack = !game.getPlayerBlack().isEmpty();
+		boolean hasWhite = !game.getWhitePlayerName().isEmpty();
+		boolean hasBlack = !game.getBlackPlayerName().isEmpty();
 		
 		return game.getState() == GameState.SETTING_UP && (!hasWhite || !hasBlack);
 	}

@@ -171,7 +171,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
 				plugin.getPlayerTracker().playerRejoined(who);
-				game.alert(game.getOtherPlayer(who),
+				game.alert(game.getOtherPlayerName(who),
 						Messages.getString("ChessPlayerListener.playerBack", who)); //$NON-NLS-1$
 				games.append(" ").append(game.getName()); //$NON-NLS-1$
 			}
@@ -187,6 +187,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
 		for (ChessGame game : ChessGame.listGames()) {
 			if (game.isPlayerInGame(who)) {
+				game.playerLeft(who);
 				plugin.getPlayerTracker().playerLeft(who);
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
 					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$

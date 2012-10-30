@@ -44,7 +44,7 @@ public class StakeButton extends AbstractSignButton {
 		if (getView().getLockStake()) return false;
 		
 		return game.getState() == GameState.SETTING_UP &&
-				(game.getPlayerBlack().isEmpty() || game.getPlayerWhite().isEmpty());
+				(game.getBlackPlayerName().isEmpty() || game.getWhitePlayerName().isEmpty());
 	}
 
 	@Override

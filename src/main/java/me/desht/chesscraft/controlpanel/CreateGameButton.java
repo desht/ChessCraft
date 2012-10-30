@@ -4,6 +4,8 @@ import me.desht.chesscraft.chess.ChessGame;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import chesspresso.Chess;
+
 public class CreateGameButton extends AbstractSignButton {
 
 	public CreateGameButton(ControlPanel panel) {
@@ -12,7 +14,7 @@ public class CreateGameButton extends AbstractSignButton {
 	
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		ChessGame.createGame(event.getPlayer(), null, getView());
+		ChessGame.createGame(event.getPlayer(), null, getView(), Chess.WHITE);
 	}
 
 	@Override

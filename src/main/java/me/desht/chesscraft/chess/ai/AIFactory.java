@@ -38,14 +38,14 @@ public class AIFactory {
 	 * colors, if wanted.
 	 */
 	public static final String AI_PREFIX = ChatColor.WHITE.toString();
-	
+
 	private static final String DEFS_FILE = "AI_settings.yml";
 
 	private final HashMap<String, AbstractAI> runningAIs = new HashMap<String, AbstractAI>();
 	private final Map<String, AIDefinition> allAIs = new HashMap<String, AIDefinition>();
 
 	public static final AIFactory instance = new AIFactory();
-	
+
 	public AIFactory() {
 		loadAIDefinitions();
 	}
@@ -53,7 +53,7 @@ public class AIFactory {
 	public AbstractAI getNewAI(ChessGame game, String aiName, boolean isWhiteAI) {
 		return getNewAI(game, aiName, false, isWhiteAI);
 	}
-	
+
 	public AbstractAI getNewAI(ChessGame game, String aiName, boolean forceNew, boolean isWhiteAI) {
 		if (!forceNew) {
 			int max = ChessCraft.getInstance().getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
@@ -63,7 +63,7 @@ public class AIFactory {
 				throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", max)); //$NON-NLS-1$
 			}
 		}
-		
+
 		AIDefinition aiDef = getAIDefinition(aiName);
 		if (aiDef == null) {
 			throw new ChessException(Messages.getString("ChessAI.AInotFound")); //$NON-NLS-1$
@@ -72,14 +72,14 @@ public class AIFactory {
 		}
 		AbstractAI ai = aiDef.createInstance(game, isWhiteAI);
 		runningAIs.put(aiName, ai);
-		
+
 		return ai;
 	}
-	
+
 	void deleteAI(AbstractAI ai) {
 		runningAIs.remove(ai.getName());
 	}
-	
+
 	/**
 	 * Check if the given AI name is available (i.e. not in a game).
 	 * 
@@ -89,7 +89,7 @@ public class AIFactory {
 	public boolean isAvailable(String aiName) {
 		return !runningAIs.containsKey(aiName);
 	}
-	
+
 	/**
 	 * Clear down all running AIs. Called on disable.
 	 */
@@ -98,7 +98,7 @@ public class AIFactory {
 			e.getValue().delete();
 		}
 	}
-	
+
 	public List<AIDefinition> listAIDefinitions() {
 		return listAIDefinitions(true);
 	}
@@ -114,7 +114,7 @@ public class AIFactory {
 			return new ArrayList<AIDefinition>(allAIs.values());
 		}
 	}
-	
+
 	/**
 	 * Return the AI definition for the given AI name.  If a null name is passed, return a 
 	 * random available AI.
@@ -123,21 +123,10 @@ public class AIFactory {
 	 * @return
 	 */
 	public AIDefinition getAIDefinition(String aiName) {
-		if (aiName == null) {
-			// get a random free AI
-			List<AIDefinition> free = new ArrayList<AIDefinition>();
-			for (String k : allAIs.keySet()) {
-				if (isAvailable(k)) {
-					free.add(allAIs.get(k));
-				}
-			}
-			return free.size() > 0 ? free.get(new Random().nextInt(free.size())) : null;
-		} else {
-			if (aiName.startsWith(AI_PREFIX)) {
-				aiName = aiName.substring(AI_PREFIX.length());
-			}
-			return allAIs.get(aiName);
+		if (aiName.startsWith(AI_PREFIX)) {
+			aiName = aiName.substring(AI_PREFIX.length());
 		}
+		return allAIs.get(aiName);
 	}
 	public AIDefinition getAIDefinition(String aiName, boolean force) {
 		AIDefinition def = getAIDefinition(aiName);
@@ -145,6 +134,25 @@ public class AIFactory {
 			throw new ChessException(Messages.getString("ChessAI.AInotFound"));
 		}
 		return def;
+	}
+
+	/**
+	 * Get the name of a random free AI.
+	 * 
+	 * @return
+	 * @throws ChessException if there are no free AIs
+	 */
+	public String getFreeAIName() {
+		List<String> free = new ArrayList<String>();
+		for (String k : allAIs.keySet()) {
+			if (isAvailable(k)) {
+				free.add(k);
+			}
+		}
+		if (free.size() == 0)
+			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAIs.size()));
+		
+		return free.get(new Random().nextInt(free.size()));
 	}
 
 	public void loadAIDefinitions() {
@@ -162,7 +170,7 @@ public class AIFactory {
 			LogUtils.severe("AI Loading Error: AI section missing from " + aiFile); //$NON-NLS-1$
 			return;
 		}
-		
+
 		allAIs.clear();
 		for (String a : n.getKeys(false)) {
 			ConfigurationSection d = n.getConfigurationSection(a);
@@ -182,7 +190,7 @@ public class AIFactory {
 				}
 			}
 		}
-		
+
 		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions from " + DEFS_FILE);
 	}
 
@@ -208,10 +216,10 @@ public class AIFactory {
 			for (String k : d.getKeys(false)) {
 				params.set(k, d.get(k));
 			}
-			
+
 			LogUtils.finer("loaded " + aiImplClass.getName() + " for AI " + name);
 		}
-		
+
 		public AbstractAI createInstance(ChessGame game, boolean isWhiteAI) {
 			try {
 				Constructor<? extends AbstractAI> ctor = aiImplClass.getDeclaredConstructor(String.class, ChessGame.class, Boolean.class, ConfigurationSection.class);
@@ -223,7 +231,7 @@ public class AIFactory {
 				throw new ChessException("internal error while creating AI " + name);
 			}
 		}
-		
+
 		public String getImplClassName() {
 			return aiImplClass.getSimpleName();
 		}
@@ -231,11 +239,11 @@ public class AIFactory {
 		public String getName() {
 			return name;
 		}
-		
+
 		public String getDisplayName() {
 			return AI_PREFIX + name;
 		}
-		
+
 		public List<String> getDetails() {
 			List<String> res = new ArrayList<String>();
 			res.add("AI " + getDisplayName() + " (" + getImplClassName() + ") :");
@@ -244,19 +252,19 @@ public class AIFactory {
 			}
 			return res;
 		}
-		
+
 		public String getEngine() {
 			return getParams().getString("engine");
 		}
-		
+
 		public double getPayoutMultiplier() {
 			return getParams().getDouble("payout_multiplier", 1.0);
 		}
-		
+
 		public String getComment() {
 			return getParams().getString("comment");
 		}
-		
+
 		public ConfigurationSection getParams() {
 			return params;
 		}

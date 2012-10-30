@@ -43,7 +43,9 @@ public class TeleportCommand extends AbstractCommand {
 				PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.board");
 				BoardView.getBoardView(args[0]).summonPlayer(player);
 			} else {
-				ChessGame.getGame(args[0]).summonPlayer(player);
+				ChessGame game = ChessGame.getGame(args[0]);
+				game.getView().summonPlayer(player);
+				ChessGame.setCurrentGame(player.getName(), game);
 			}
 			break;
 		}

@@ -3,10 +3,12 @@ package me.desht.chesscraft.controlpanel;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
+import me.desht.dhutils.responsehandler.ResponseHandler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,18 +48,21 @@ public abstract class YesNoButton extends AbstractSignButton {
 		ChessGame game = getGame();
 		if (game == null) return "";
 		
-		String playerName = game.getPlayer(colour);
-		Player p = Bukkit.getPlayer(playerName);
+		ChessPlayer player = game.getPlayer(colour);
+		if (player == null || !player.isHuman())
+			return "";
 		
+		Player p = Bukkit.getPlayer(player.getName());
+		
+		ResponseHandler rh = ChessCraft.getInstance().responseHandler;
 		if (p == null) {
-			// could be an AI player
-//			LogUtils.warning("unknown player:" + playerName + " (offline?) in game " + game.getName());
+			// gone offline, perhaps?
 			return ""; //$NON-NLS-1$
-		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectDrawResponse.class)) {
+		} else if (rh.isExpecting(p.getName(), ExpectDrawResponse.class)) {
 			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectSwapResponse.class)) {
+		} else if (rh.isExpecting(p.getName(), ExpectSwapResponse.class)) {
 			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
-		} else if (ChessCraft.getInstance().responseHandler.isExpecting(playerName, ExpectUndoResponse.class)) {
+		} else if (rh.isExpecting(p.getName(), ExpectUndoResponse.class)) {
 			return Messages.getString("ControlPanel.acceptUndoBtn"); //$NON-NLS-1$
 		} else {
 			return ""; //$NON-NLS-1$

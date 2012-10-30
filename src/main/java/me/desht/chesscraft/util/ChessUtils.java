@@ -24,15 +24,19 @@ public class ChessUtils {
 
 	public static String getColour(int c) {
 		switch (c) {
-		case Chess.WHITE:
-			return Messages.getString("Game.white"); //$NON-NLS-1$
-		case Chess.BLACK:
-			return Messages.getString("Game.black"); //$NON-NLS-1$
-		default:
-			return "???"; //$NON-NLS-1$
+		case Chess.WHITE: return Messages.getString("Game.white"); //$NON-NLS-1$
+		case Chess.BLACK: return Messages.getString("Game.black"); //$NON-NLS-1$
+		default: throw new IllegalArgumentException("Invalid colour: " + c);
 		}
 	}
 
+	public static int otherColour(int c) {
+		switch (c) {
+		case Chess.WHITE: return Chess.BLACK;
+		case Chess.BLACK: return Chess.WHITE;
+		default: throw new IllegalArgumentException("Invalid colour: " + c);
+		}
+	}
 	/**
 	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
 	 * month wrong :( )
@@ -47,11 +51,11 @@ public class ChessUtils {
 
 	public static String milliSecondsToHMS(long l) {
 		l /= 1000;
-	
+
 		long secs = l % 60;
 		long hrs = l / 3600;
 		long mins = (l - (hrs * 3600)) / 60;
-	
+
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
 
@@ -175,7 +179,7 @@ public class ChessUtils {
 		// actually has the most recent cost counts
 		return p[n];
 	}
-	
+
 	public static int getWandId() {
 		String wand = ChessCraft.getInstance().getConfig().getString("wand_item"); //$NON-NLS-1$
 		if (wand.equalsIgnoreCase("*")) {
@@ -184,13 +188,13 @@ public class ChessUtils {
 		MaterialWithData mat = MaterialWithData.get(wand);
 		return mat == null ? 0 : mat.getId();
 	}
-	
+
 	public static String getWandDescription() {
 		int id = getWandId();
-		
+
 		return id < 0 ? Messages.getString("ChessUtils.anything") : MaterialWithData.get(id).toString();
 	}
-	
+
 	public static String formatStakeStr(double stake) {
 		try {
 			if (ChessCraft.economy != null && ChessCraft.economy.isEnabled()) {
@@ -203,6 +207,6 @@ public class ChessUtils {
 		}
 		return new DecimalFormat("#0.00").format(stake);
 	}
-	
+
 } // end class ChessUtils
 

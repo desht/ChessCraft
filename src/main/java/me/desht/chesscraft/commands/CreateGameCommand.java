@@ -8,6 +8,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
 
+import chesspresso.Chess;
+
 public class CreateGameCommand extends AbstractCommand {
 
 	public CreateGameCommand() {
@@ -23,7 +25,7 @@ public class CreateGameCommand extends AbstractCommand {
 		String gameName = args.length >= 1 ? args[0] : null;
 		String boardName = args.length >= 2 ? args[1] : null;
 		
-		ChessGame.createGame((Player) sender, gameName, boardName);
+		ChessGame.createGame((Player) sender, gameName, boardName, Chess.WHITE);
 		
 		return true;
 	}

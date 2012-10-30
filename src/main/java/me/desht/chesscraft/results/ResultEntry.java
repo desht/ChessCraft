@@ -19,8 +19,8 @@ public class ResultEntry {
 	private final String pgnResult;
 
 	ResultEntry(ChessGame game, GameResult rt) {
-		playerWhite = game.getPlayerWhite();
-		playerBlack = game.getPlayerBlack();
+		playerWhite = game.getWhitePlayerName();
+		playerBlack = game.getBlackPlayerName();
 		gameName = game.getName();
 		startTime = game.getStarted();
 		endTime = game.getFinished();

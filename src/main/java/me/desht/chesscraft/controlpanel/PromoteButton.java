@@ -31,7 +31,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 	@Override
 	public boolean isEnabled() {
 		ChessGame game = getGame();
-		return game != null && !game.getPlayer(colour).isEmpty();
+		return game != null && !game.getPlayerName(colour).isEmpty();
 	}
 	
 	private String getPromoStr(int colour) {

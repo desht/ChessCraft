@@ -40,8 +40,8 @@ public class ListGameCommand extends AbstractCommand {
 			}
 			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
-			String white = game.getPlayerWhite().isEmpty() ? "?" : game.getPlayerWhite(); //$NON-NLS-1$
-			String black = game.getPlayerBlack().isEmpty() ? "?" : game.getPlayerBlack(); //$NON-NLS-1$
+			String white = game.getWhitePlayerName().isEmpty() ? "?" : game.getWhitePlayerName(); //$NON-NLS-1$
+			String black = game.getBlackPlayerName().isEmpty() ? "?" : game.getBlackPlayerName(); //$NON-NLS-1$
 			StringBuilder info = new StringBuilder(": &f" + curMoveW + white + " (W) v " + curMoveB + black + " (B) "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			info.append("&e[").append(game.getState()).append("]"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (game.getInvited().length() > 0) {

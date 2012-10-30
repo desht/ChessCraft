@@ -590,27 +590,26 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard.reloadStyles();
 	}
 
-	public void playMovedAlert(String playerName) {
+	public void playMovedAlert(Player player) {
 		if (ChessCraft.getInstance().getConfig().getBoolean("effects.move_alert")) {
 			List<Note> notes = new ArrayList<Note>();
 			notes.add(new Note(16));
-			audibleAlert(playerName, notes, 5L);
+			audibleAlert(player, notes, 5L);
 		}
 	}
 
-	public void playCheckAlert(String playerName) {
+	public void playCheckAlert(Player player) {
 		if (ChessCraft.getInstance().getConfig().getBoolean("effects.check_alert")) {
 			List<Note> notes = new ArrayList<Note>();
 			notes.add(new Note(24));
 			notes.add(new Note(16));
 			notes.add(new Note(24));
 			notes.add(new Note(16));
-			audibleAlert(playerName, notes, 5L);
+			audibleAlert(player, notes, 5L);
 		}
 	}
 
-	public void audibleAlert(String playerName, List<Note> notes, long delay) {
-		Player player = Bukkit.getPlayer(playerName);
+	public void audibleAlert(Player player, List<Note> notes, long delay) {
 		if (player != null) {
 			// put a fake note block a couple of blocks below the player
 			Location loc = player.getLocation().clone().add(0, -2, 0);

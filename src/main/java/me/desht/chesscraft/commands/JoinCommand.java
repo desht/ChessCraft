@@ -41,7 +41,7 @@ public class JoinCommand extends AbstractCommand {
 
 		ChessGame game = ChessGame.getGame(gameName);
 		ChessGame.setCurrentGame(player.getName(), game);
-		int playingAs = game.playingAs(player.getName());
+		int playingAs = game.getPlayerColour(player.getName());
 		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
 		                                                    game.getName(), ChessUtils.getColour(playingAs)));
 		
