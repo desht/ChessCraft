@@ -18,7 +18,7 @@ import fr.free.jchecs.core.Square;
  * @author des
  * 
  */
-public class JChecsAI extends AbstractAI {
+public class JChecsAI extends ChessAI {
 
 	private final Game jChecsGame;
 

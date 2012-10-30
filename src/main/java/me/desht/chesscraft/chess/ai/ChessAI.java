@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess.ai;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
 import me.desht.chesscraft.ChessCraft;
@@ -14,7 +15,15 @@ import me.desht.dhutils.LogUtils;
  * @author desht
  *
  */
-public abstract class AbstractAI implements Runnable {
+public abstract class ChessAI implements Runnable {
+	/*
+	 * Special character ensures AI name cannot (easily) be faked/hacked, also
+	 * adds another level of AI name visibility. Users/admins should NOT be given
+	 * control of this prefix - use something else to enable changing AI name
+	 * colors, if wanted.
+	 */
+	public static final String AI_PREFIX = ChatColor.WHITE.toString();
+
 	private boolean active = false;
 	private int aiTask = -1;
 	private boolean hasFailed = false;
@@ -27,7 +36,7 @@ public abstract class AbstractAI implements Runnable {
 	protected final ConfigurationSection params;
 	protected final String gameDetails;
 
-	AbstractAI(String name, ChessGame chessCraftGame, boolean isWhite, ConfigurationSection params) {
+	ChessAI(String name, ChessGame chessCraftGame, boolean isWhite, ConfigurationSection params) {
 		this.name = name;
 		this.chessCraftGame = chessCraftGame;
 		this.isWhite = isWhite;
@@ -66,7 +75,7 @@ public abstract class AbstractAI implements Runnable {
 	 * @return
 	 */
 	public String getName() {
-		return AIFactory.AI_PREFIX + name;
+		return ChessAI.AI_PREFIX + name;
 	}
 	
 	/**
@@ -76,7 +85,7 @@ public abstract class AbstractAI implements Runnable {
 	 */
 	public String getDisplayName() {
 		String fmt = ChessCraft.getInstance().getConfig().getString("ai.name_format", "[AI]<NAME>").replace("<NAME>", name);
-		return AIFactory.AI_PREFIX + fmt;
+		return ChessAI.AI_PREFIX + fmt;
 	}
 	
 	public boolean isWhite() {
@@ -238,4 +247,10 @@ public abstract class AbstractAI implements Runnable {
 		chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 		hasFailed = true;
 	}
+	
+
+	public static boolean isAIPlayer(String playerName) {
+		return playerName.startsWith(AI_PREFIX);
+	}
+
 }

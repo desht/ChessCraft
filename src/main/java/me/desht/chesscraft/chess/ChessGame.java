@@ -17,6 +17,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.TimeControl.ControlType;
 import me.desht.chesscraft.chess.ai.AIFactory;
+import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.chess.player.AIChessPlayer;
 import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.chess.player.HumanChessPlayer;
@@ -124,7 +125,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (name == null) {
 			String aiName = AIFactory.instance.getFreeAIName();
 			return new AIChessPlayer(aiName, this, colour);
-		} else if (AIFactory.isAIPlayer(name)) {
+		} else if (ChessAI.isAIPlayer(name)) {
 			return new AIChessPlayer(name, this, colour);
 		} else if (name.isEmpty()) {
 			// this could happen if a game is saved in the setting up phase
@@ -623,7 +624,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			alert(inviterName, Messages.getString("Game.inviteSent", invited)); //$NON-NLS-1$
 		} else {
 			// no human by this name, try to add an AI of the given name
-			addPlayer(AIFactory.AI_PREFIX + inviteeName);
+			addPlayer(ChessAI.AI_PREFIX + inviteeName);
 		}
 	}
 
@@ -1084,7 +1085,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void alert(String playerName, String message) {
-		if (playerName.isEmpty() || AIFactory.isAIPlayer(playerName)) {
+		if (playerName.isEmpty() || ChessAI.isAIPlayer(playerName)) {
 			return;
 		}
 		Player p = Bukkit.getServer().getPlayer(playerName);

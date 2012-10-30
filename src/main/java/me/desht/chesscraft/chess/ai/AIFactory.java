@@ -31,17 +31,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * 
  */
 public class AIFactory {
-	/*
-	 * Special character ensures AI name cannot (easily) be faked/hacked, also
-	 * adds another level of AI name visibility. Users/admins should NOT be given
-	 * control of this prefix - use something else to enable changing AI name
-	 * colors, if wanted.
-	 */
-	public static final String AI_PREFIX = ChatColor.WHITE.toString();
-
 	private static final String DEFS_FILE = "AI_settings.yml";
 
-	private final HashMap<String, AbstractAI> runningAIs = new HashMap<String, AbstractAI>();
+	private final HashMap<String, ChessAI> runningAIs = new HashMap<String, ChessAI>();
 	private final Map<String, AIDefinition> allAIs = new HashMap<String, AIDefinition>();
 
 	public static final AIFactory instance = new AIFactory();
@@ -50,11 +42,11 @@ public class AIFactory {
 		loadAIDefinitions();
 	}
 
-	public AbstractAI getNewAI(ChessGame game, String aiName, boolean isWhiteAI) {
+	public ChessAI getNewAI(ChessGame game, String aiName, boolean isWhiteAI) {
 		return getNewAI(game, aiName, false, isWhiteAI);
 	}
 
-	public AbstractAI getNewAI(ChessGame game, String aiName, boolean forceNew, boolean isWhiteAI) {
+	public ChessAI getNewAI(ChessGame game, String aiName, boolean forceNew, boolean isWhiteAI) {
 		if (!forceNew) {
 			int max = ChessCraft.getInstance().getConfig().getInt("ai.max_ai_games"); //$NON-NLS-1$
 			if (max == 0) {
@@ -70,13 +62,13 @@ public class AIFactory {
 		} else if (runningAIs.containsKey(aiDef.getName())) {
 			throw new ChessException(Messages.getString("ChessAI.AIbusy")); //$NON-NLS-1$
 		}
-		AbstractAI ai = aiDef.createInstance(game, isWhiteAI);
+		ChessAI ai = aiDef.createInstance(game, isWhiteAI);
 		runningAIs.put(aiName, ai);
 
 		return ai;
 	}
 
-	void deleteAI(AbstractAI ai) {
+	void deleteAI(ChessAI ai) {
 		runningAIs.remove(ai.getName());
 	}
 
@@ -94,7 +86,7 @@ public class AIFactory {
 	 * Clear down all running AIs. Called on disable.
 	 */
 	public void clearDown() {
-		for (Entry<String, AbstractAI> e : runningAIs.entrySet()) {
+		for (Entry<String, ChessAI> e : runningAIs.entrySet()) {
 			e.getValue().delete();
 		}
 	}
@@ -123,8 +115,8 @@ public class AIFactory {
 	 * @return
 	 */
 	public AIDefinition getAIDefinition(String aiName) {
-		if (aiName.startsWith(AI_PREFIX)) {
-			aiName = aiName.substring(AI_PREFIX.length());
+		if (aiName.startsWith(ChessAI.AI_PREFIX)) {
+			aiName = aiName.substring(ChessAI.AI_PREFIX.length());
 		}
 		return allAIs.get(aiName);
 	}
@@ -193,17 +185,13 @@ public class AIFactory {
 
 		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions from " + DEFS_FILE);
 	}
-
-	public static boolean isAIPlayer(String playerName) {
-		return playerName.startsWith(AI_PREFIX);
-	}
-
+	
 	public static void init() {
 	}
 
 	public class AIDefinition {
 		private final ConfigurationSection params;
-		private final Class<? extends AbstractAI> aiImplClass;
+		private final Class<? extends ChessAI> aiImplClass;
 		private final String name;
 
 		public AIDefinition(String name, ConfigurationSection d) throws ClassNotFoundException {
@@ -211,7 +199,7 @@ public class AIFactory {
 			this.params = new MemoryConfiguration();
 
 			String className = d.getString("class", "me.desht.chesscraft.chess.ai.JChecsAI");
-			aiImplClass = Class.forName(className).asSubclass(AbstractAI.class);
+			aiImplClass = Class.forName(className).asSubclass(ChessAI.class);
 
 			for (String k : d.getKeys(false)) {
 				params.set(k, d.get(k));
@@ -220,9 +208,9 @@ public class AIFactory {
 			LogUtils.finer("loaded " + aiImplClass.getName() + " for AI " + name);
 		}
 
-		public AbstractAI createInstance(ChessGame game, boolean isWhiteAI) {
+		public ChessAI createInstance(ChessGame game, boolean isWhiteAI) {
 			try {
-				Constructor<? extends AbstractAI> ctor = aiImplClass.getDeclaredConstructor(String.class, ChessGame.class, Boolean.class, ConfigurationSection.class);
+				Constructor<? extends ChessAI> ctor = aiImplClass.getDeclaredConstructor(String.class, ChessGame.class, Boolean.class, ConfigurationSection.class);
 				return ctor.newInstance(name, game, isWhiteAI, params);
 			} catch (Exception e) {
 				LogUtils.warning("Caught " + e.getClass().getName() + " while loading AI " + name);
@@ -241,7 +229,7 @@ public class AIFactory {
 		}
 
 		public String getDisplayName() {
-			return AI_PREFIX + name;
+			return ChessAI.AI_PREFIX + name;
 		}
 
 		public List<String> getDetails() {

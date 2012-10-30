@@ -6,7 +6,7 @@ import chesspresso.move.Move;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ai.AIFactory;
-import me.desht.chesscraft.chess.ai.AbstractAI;
+import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -14,7 +14,7 @@ import me.desht.dhutils.LogUtils;
 
 public class AIChessPlayer extends ChessPlayer {
 
-	private final AbstractAI ai;
+	private final ChessAI ai;
 	
 	public AIChessPlayer(String name, ChessGame game, int colour) {
 		super(name, game, colour);
