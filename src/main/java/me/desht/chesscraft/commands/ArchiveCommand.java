@@ -16,7 +16,7 @@ import org.bukkit.plugin.Plugin;
 public class ArchiveCommand extends AbstractCommand {
 
 	public ArchiveCommand() {
-		super("chess archive", 0, 1);
+		super("chess a", 0, 1);
 		setPermissionNode("chesscraft.commands.archive");
 		setUsage(new String[] {
 				"/chess archive",
