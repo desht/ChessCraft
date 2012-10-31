@@ -144,7 +144,7 @@ public class AIFactory {
 		if (free.size() == 0)
 			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAIs.size()));
 		
-		return free.get(new Random().nextInt(free.size()));
+		return ChessAI.AI_PREFIX + free.get(new Random().nextInt(free.size()));
 	}
 
 	public void loadAIDefinitions() {
