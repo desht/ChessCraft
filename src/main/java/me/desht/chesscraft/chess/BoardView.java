@@ -444,7 +444,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
 	private void pieceRidingCheck(int fromSqi, int toSqi) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("piece_riding")) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("effects.piece_riding")) {
 			return;
 		}
 		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
