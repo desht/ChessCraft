@@ -579,6 +579,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 	
+	/**
+	 * Add the given player (human or AI) to the first empty slot (white or black, in order)
+	 * found in the game.
+	 * 
+	 * @param playerName
+	 * @throws ChessException if the player may not join for any reason
+	 */
 	private void fillEmptyPlayerSlot(String playerName) {
 		int colour;
 		if (players[Chess.WHITE] != null) {
@@ -586,11 +593,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			colour = Chess.WHITE;
 		}
+		ChessPlayer chessPlayer = createPlayer(playerName, colour);
+		chessPlayer.validateInvited("Game.notInvited");
+		chessPlayer.validateAffordability("Game.cantAffordToJoin");
+		players[colour] = chessPlayer;
+
 		int otherColour = ChessUtils.otherColour(colour);
-		players[colour] = createPlayer(playerName, colour);
-		players[colour].validateInvited("Game.notInvited");
-		players[colour].validateAffordability("Game.cantAffordToJoin");
-		
 		if (players[otherColour] != null)
 			players[otherColour].alert(Messages.getString("Game.playerJoined", players[colour].getDisplayName()));
 		
