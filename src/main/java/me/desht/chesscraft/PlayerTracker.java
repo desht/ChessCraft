@@ -3,6 +3,8 @@ package me.desht.chesscraft;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.chesscraft.util.ChessUtils;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -18,7 +20,9 @@ public class PlayerTracker {
 	
 	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
+		ChessUtils.playEffect(player.getLocation(), "teleport_out");
 		player.teleport(loc);
+		ChessUtils.playEffect(player.getLocation(), "teleport_in");
 	}
 
 	public Location getLastPos(Player player) {
@@ -40,5 +44,4 @@ public class PlayerTracker {
 	public long getPlayerLeftAt(String who) {
 		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
 	}
-
 }

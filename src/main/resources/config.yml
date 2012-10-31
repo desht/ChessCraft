@@ -42,10 +42,17 @@ time_control:
 designer:
     auto_load: true
 effects:
-    capture_explosion: true
-    check_alert: true
-    move_alert: true
+    piece_captured: $explosion
+    piece_selected: note.hat
+    piece_unselected: note.bass
+    piece_moved: random.pop
+    check: random.orb
+    game_lost: mob.endermen.death
+    game_won: random.levelup
+    teleport_from: effect/smoke/4
+    teleport_to: effect/ender_signal
     piece_riding: true
+    volume: 1.0
 log_level: INFO
 mcstats: true
 flying:

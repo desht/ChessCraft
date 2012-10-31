@@ -982,6 +982,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (p1.equalsIgnoreCase(p2)) {
 			return;
 		}
+		
+		if (result == Chess.RES_WHITE_WINS) {
+			players[Chess.WHITE].playEffect("game_won");
+			players[Chess.BLACK].playEffect("game_lost");
+		} else if (result == Chess.RES_BLACK_WINS) {
+			players[Chess.BLACK].playEffect("game_won");
+			players[Chess.WHITE].playEffect("game_lost");
+		}
 
 		handlePayout();
 		if (Results.resultsHandlerOK()) {

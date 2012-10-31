@@ -35,15 +35,17 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void promptForNextMove() {
+		Player p = getBukkitPlayer();
+		if (p == null)
+			return;
+		
 		alert(Messages.getString("Game.playerPlayedMove",
 		                         ChessUtils.getDisplayColour(getOtherColour()),
 		                         getGame().getPosition().getLastMove().getSAN()));
 		
 		if (getGame().getPosition().isCheck()) {
-			getGame().getView().playCheckAlert(getBukkitPlayer());
+			playEffect("check");
 			alert(Messages.getString("Game.check"));
-		} else {
-			getGame().getView().playMovedAlert(getBukkitPlayer());
 		}
 	}
 
@@ -173,6 +175,14 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void checkPendingMove() {
 		// do nothing here
+	}
+
+	@Override
+	public void playEffect(String effect) {
+		Player p = getBukkitPlayer();
+		if (p != null) {
+			ChessUtils.playEffect(p.getLocation(), effect);
+		}
 	}
 
 }

@@ -146,7 +146,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 							Location tpLoc = bv.getControlPanel().getTeleportLocation();
 							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(Direction.Horizontal, 4);
 							if (!zone.contains(player.getLocation()) && bv.isPartOfBoard(player.getLocation())) {
-								player.teleport(tpLoc);
+								teleportPlayer(player, tpLoc);
 							}
 						}
 					}
@@ -157,7 +157,8 @@ public class ChessPlayerListener extends ChessListenerBase {
 		} catch (IllegalMoveException e) {
 			// targetBlock must be non-null at this point
 			cancelMove(targetBlock.getLocation());
-			MiscUtil.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$ $NON-NLS-2$ 
+			MiscUtil.errorMessage(player, e.getMessage() + ". " + Messages.getString("ChessPlayerListener.moveCancelled"));
+			ChessUtils.playEffect(player.getLocation(), "piece_unselected");
 		} catch (IllegalStateException e) {
 			// player.getTargetBlock() throws this exception occasionally - it appears
 			// to be harmless, so we'll ignore it
@@ -277,12 +278,14 @@ public class ChessPlayerListener extends ChessListenerBase {
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
 					MiscUtil.statusMessage(player,
 							Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
+					ChessUtils.playEffect(player.getLocation(), "piece_selected");
 				}
 			} else {
 				if (sqi == game.getFromSquare()) {
 					// cancel a selected piece
 					game.setFromSquare(Chess.NO_SQUARE);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
+					ChessUtils.playEffect(player.getLocation(), "piece_unselected");
 				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
 					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
@@ -308,7 +311,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			Location dest = b1.getLocation();
 			dest.setYaw(player.getLocation().getYaw());
 			dest.setPitch(player.getLocation().getPitch());
-			player.teleport(dest);
+			teleportPlayer(player, dest);
 		}
 	}
 
@@ -330,9 +333,15 @@ public class ChessPlayerListener extends ChessListenerBase {
 				Location newLoc = loc.clone().add(0, 1.0, 0);
 				newLoc.setPitch(player.getLocation().getPitch());
 				newLoc.setYaw(player.getLocation().getYaw());
-				player.teleport(newLoc);
+				teleportPlayer(player, newLoc);
 			}
 		}
+	}
+	
+	private void teleportPlayer(Player player, Location dest) {
+		ChessUtils.playEffect(player.getLocation(), "teleport_from");
+		player.teleport(dest);
+		ChessUtils.playEffect(dest, "teleport_to");
 	}
 
 	private long lastAnimationEvent(Player player) {

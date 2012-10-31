@@ -74,4 +74,6 @@ public abstract class ChessPlayer {
 	public abstract void undoLastMove();
 	
 	public abstract void checkPendingMove();
+
+	public abstract void playEffect(String effect);
 }

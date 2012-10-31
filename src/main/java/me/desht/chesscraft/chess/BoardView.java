@@ -29,7 +29,6 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.chesscraft.util.NoteAlert;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
@@ -38,7 +37,6 @@ import me.desht.dhutils.PermissionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Note;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -414,9 +412,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		int fromSqi = Move.getFromSqi(move);
 		int toSqi = Move.getToSqi(move);
 
-		if (Move.isCapturing(move) && ChessCraft.getInstance().getConfig().getBoolean("effects.capture_explosion")) {
-			Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
-			chessBoard.getA1Center().getWorld().createExplosion(loc, 0.0f);
+		Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
+		if (Move.isCapturing(move)) {
+			ChessUtils.playEffect(loc, "piece_captured");
+		} else {
+			getGame().getPlayer(Chess.WHITE).playEffect("piece_moved");
+			getGame().getPlayer(Chess.BLACK).playEffect("piece_moved");
 		}
 
 		pieceRidingCheck(fromSqi, toSqi);
@@ -443,7 +444,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
 	private void pieceRidingCheck(int fromSqi, int toSqi) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("effects.piece_riding")) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("piece_riding")) {
 			return;
 		}
 		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
@@ -588,34 +589,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void reloadStyle() throws ChessException {
 		chessBoard.reloadStyles();
-	}
-
-	public void playMovedAlert(Player player) {
-		if (ChessCraft.getInstance().getConfig().getBoolean("effects.move_alert")) {
-			List<Note> notes = new ArrayList<Note>();
-			notes.add(new Note(16));
-			audibleAlert(player, notes, 5L);
-		}
-	}
-
-	public void playCheckAlert(Player player) {
-		if (ChessCraft.getInstance().getConfig().getBoolean("effects.check_alert")) {
-			List<Note> notes = new ArrayList<Note>();
-			notes.add(new Note(24));
-			notes.add(new Note(16));
-			notes.add(new Note(24));
-			notes.add(new Note(16));
-			audibleAlert(player, notes, 5L);
-		}
-	}
-
-	public void audibleAlert(Player player, List<Note> notes, long delay) {
-		if (player != null) {
-			// put a fake note block a couple of blocks below the player
-			Location loc = player.getLocation().clone().add(0, -2, 0);
-			NoteAlert a = new NoteAlert(player, loc, delay, notes);
-			a.start();
-		}
 	}
 
 	public void showBoardDetail(CommandSender sender) {

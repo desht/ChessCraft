@@ -147,4 +147,9 @@ public class AIChessPlayer extends ChessPlayer {
 			}
 		}
 	}
+
+	@Override
+	public void playEffect(String effect) {
+		// do nothing
+	}
 }
