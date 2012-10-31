@@ -45,7 +45,6 @@ public class TeleportCommand extends AbstractCommand {
 			} else {
 				ChessGame game = ChessGame.getGame(args[0]);
 				game.getView().summonPlayer(player);
-				ChessGame.setCurrentGame(player.getName(), game);
 			}
 			break;
 		}

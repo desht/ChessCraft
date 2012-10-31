@@ -263,6 +263,8 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
+		
+		ChessGame.setCurrentGame(player.getName(), game);
 
 		int sqi = game.getView().getSquareAt(loc);
 		if (game.isPlayerToMove(player.getName())) {

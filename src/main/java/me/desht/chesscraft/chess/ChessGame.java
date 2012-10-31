@@ -65,18 +65,20 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private final String name;
 	private final BoardView view;
 	private final Game cpGame;
+	private final long created;
+	
 	private final int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
-
-	private ChessPlayer[] players = new ChessPlayer[2];
+	private final int tcWarned[] = new int[2];
+	private final ChessPlayer[] players = new ChessPlayer[2];
+	private final List<Short> history = new ArrayList<Short>();
+	
 	private String invited;
 	private GameState state;
 	private int fromSquare;
-	private long created, started, finished, lastMoved;
+	private long started, finished, lastMoved;
 	private TimeControl tcWhite, tcBlack;
-	private List<Short> history;
 	private int result;
 	private double stake;
-	private final int[] tcWarned = new int[2];
 
 	/**
 	 * Constructor: Creating a new Chess game.
@@ -84,9 +86,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param name	Name of the game
 	 * @param view	The board on which to create the game
 	 * @param playerName	Name of the player who is setting up the game
+	 * @param colour	Colour the game creator will play (Chess.WHITE or Chess.BLACK)
 	 * @throws ChessException	If the game can't be created for any reason
 	 */
-	public ChessGame(String name, BoardView view, String playerName, int colour) throws ChessException {
+	public ChessGame(String name, BoardView view, String playerName, int colour) {
 		this.view = view;
 		this.name = name;
 		if (view.getGame() != null) {
@@ -96,11 +99,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.boardInDesignMode")); //$NON-NLS-1$
 		}
 		players[Chess.WHITE] = players[Chess.BLACK] = null;
-		players[colour] = new HumanChessPlayer(playerName, this, colour);
+		if (playerName != null) {
+			players[colour] = new HumanChessPlayer(playerName, this, colour);
+		}
 		state = GameState.SETTING_UP;
 		fromSquare = Chess.NO_SQUARE;
-		invited = ""; //$NON-NLS-1$
-		history = new ArrayList<Short>();
+		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
 		started = finished = 0L;
@@ -142,7 +146,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException	If the game can't be created for any reason
 	 * @throws IllegalMoveException	If the game data contains an illegal Chess move
 	 */
-	public ChessGame(ConfigurationSection map) throws ChessException, IllegalMoveException {
+	public ChessGame(ConfigurationSection map) throws IllegalMoveException {
 		view = BoardView.getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
@@ -158,7 +162,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		fromSquare = Chess.NO_SQUARE;
 		invited = map.getString("invited"); //$NON-NLS-1$
 		List<Integer> hTmp = map.getIntegerList("moves"); //$NON-NLS-1$
-		history = new ArrayList<Short>();
 		for (int m : hTmp) {
 			history.add((short) m);
 		}
@@ -212,7 +215,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return map;
 	}
 
-	public static ChessGame deserialize(Map <String,Object> map) throws ChessException, IllegalMoveException {
+	public static ChessGame deserialize(Map <String,Object> map) throws IllegalMoveException {
 		Configuration conf = new MemoryConfiguration();
 		for (Entry<String, Object> e : map.entrySet()) {
 			conf.set(e.getKey(), e.getValue());
@@ -378,7 +381,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param newStake		The stake being set
 	 * @throws ChessException	if the stake is out of range or not affordable or the game isn't in setup phase
 	 */
-	public void setStake(String playerName, double newStake) throws ChessException {
+	public void setStake(String playerName, double newStake) {
 		if (ChessCraft.economy == null) {
 			return;
 		}
@@ -417,7 +420,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param adjustment	amount to adjust by (may be negative)
 	 * @throws ChessException	if the new stake is out of range or not affordable or the game isn't in setup phase
 	 */
-	public void adjustStake(String playerName, double adjustment) throws ChessException {
+	public void adjustStake(String playerName, double adjustment) {
 		if (ChessCraft.economy == null) {
 			return;
 		}
@@ -451,7 +454,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return promotionPiece[colour];
 	}
 
-	public void setPromotionPiece(String playerName, int piece) throws ChessException {
+	public void setPromotionPiece(String playerName, int piece) {
 		ensurePlayerInGame(playerName);
 
 		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT) {
@@ -554,7 +557,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param playerName
 	 * @throws ChessException
 	 */
-	public void addPlayer(String playerName) throws ChessException {
+	public void addPlayer(String playerName) {
 		ensureGameState(GameState.SETTING_UP);
 		
 		if (isFull()) {
@@ -600,7 +603,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param inviteeName
 	 * @throws ChessException
 	 */
-	public void invitePlayer(String inviterName, String inviteeName) throws ChessException {
+	public void invitePlayer(String inviterName, String inviteeName) {
 		inviteSanityCheck(inviterName);
 
 		if (inviteeName == null) {
@@ -628,7 +631,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public void inviteOpen(String inviterName) throws ChessException {
+	public void inviteOpen(String inviterName) {
 		inviteSanityCheck(inviterName);
 		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
@@ -638,7 +641,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		invited = OPEN_INVITATION; //$NON-NLS-1$
 	}
 
-	private void inviteSanityCheck(String inviterName) throws ChessException {
+	private void inviteSanityCheck(String inviterName) {
 		ensurePlayerInGame(inviterName);
 		ensureGameState(GameState.SETTING_UP);
 
@@ -666,7 +669,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param playerName	Player who is starting the game
 	 * @throws ChessException	if anything goes wrong
 	 */
-	public void start(String playerName) throws ChessException {
+	public void start(String playerName) {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.SETTING_UP);
 
@@ -714,12 +717,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		autoSave();
 	}
 
-	public void summonPlayers() throws ChessException {
+	public void summonPlayers() {
 		players[Chess.WHITE].summonToGame();
 		players[Chess.BLACK].summonToGame();
 	}
 
-	public void resign(String playerName) throws ChessException {
+	public void resign(String playerName) {
 		if (state != GameState.RUNNING) {
 			throw new ChessException(Messages.getString("Game.notStarted")); //$NON-NLS-1$
 		}
@@ -741,7 +744,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(winner, loser, GameResult.Resigned);
 	}
 
-	public void winByDefault(String playerName) throws ChessException {
+	public void winByDefault(String playerName) {
 		ensurePlayerInGame(playerName);
 
 		setState(GameState.FINISHED);
@@ -759,7 +762,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(winner, loser, GameResult.Forfeited);
 	}
 
-	public void drawn(GameResult res) throws ChessException {
+	public void drawn(GameResult res) {
 		ensureGameState(GameState.RUNNING);
 
 		setState(GameState.FINISHED);
@@ -768,7 +771,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(getWhitePlayerName(), getBlackPlayerName(), res);
 	}
 
-	public void drawn() throws ChessException {
+	public void drawn() {
 		drawn(GameResult.DrawAgreed);
 	}
 
@@ -1119,7 +1122,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return playerName.equalsIgnoreCase(getPlayerToMove());
 	}
 
-	public File writePGN(boolean force) throws ChessException {
+	public File writePGN(boolean force) {
 		File f = makePGNFile();
 		if (f.exists() && !force) {
 			throw new ChessException(Messages.getString("Game.archiveExists", f.getName())); //$NON-NLS-1$
@@ -1170,7 +1173,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public void cyclePromotionPiece(String playerName) throws ChessException {
+	public void cyclePromotionPiece(String playerName) {
 		ensurePlayerInGame(playerName);
 		int colour = getPlayerColour(playerName);
 		setPromotionPiece(playerName, getNextPromotionPiece(colour));
@@ -1215,19 +1218,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public void ensurePlayerInGame(String playerName) throws ChessException {
+	public void ensurePlayerInGame(String playerName) {
 		if (!playerName.equals(getWhitePlayerName()) && !playerName.equals(getBlackPlayerName())) {
 			throw new ChessException(Messages.getString("Game.notInGame")); //$NON-NLS-1$
 		}
 	}
 
-	public void ensurePlayerToMove(String playerName) throws ChessException {
+	public void ensurePlayerToMove(String playerName) {
 		if (!playerName.equals(getPlayerToMove())) {
 			throw new ChessException(Messages.getString("Game.notYourTurn")); //$NON-NLS-1$
 		}
 	}
 
-	public void ensureGameState(GameState state) throws ChessException {
+	public void ensureGameState(GameState state) {
 		if (getState() != state) {
 			throw new ChessException(Messages.getString("Game.shouldBeState", state)); //$NON-NLS-1$
 		}
@@ -1281,7 +1284,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
 	 */
-	public void offerDraw(String playerName) throws ChessException {
+	public void offerDraw(String playerName) {
 		ensurePlayerInGame(playerName);
 		ensurePlayerToMove(playerName);
 		ensureGameState(GameState.RUNNING);
@@ -1301,7 +1304,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
 	 */
-	public void offerSwap(String playerName) throws ChessException {
+	public void offerSwap(String playerName) {
 		ensurePlayerInGame(playerName);
 
 		String otherPlayerName = getOtherPlayerName(playerName);
@@ -1454,7 +1457,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	
 	/*--------------------------------------------------------------------------------*/
 
-	public static void addGame(String gameName, ChessGame game) throws ChessException {
+	public static void addGame(String gameName, ChessGame game) {
 		if (game != null) {
 			if (!chessGames.containsKey(gameName)) {
 				chessGames.put(gameName, game);
@@ -1465,7 +1468,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	public static void removeGame(String gameName) throws ChessException {
+	public static void removeGame(String gameName) {
 		ChessGame game = getGame(gameName);
 
 		List<String> toRemove = new ArrayList<String>();
@@ -1502,7 +1505,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return listGames(false);
 	}
 
-	public static ChessGame getGame(String name) throws ChessException {
+	public static ChessGame getGame(String name) {
 		if (!chessGames.containsKey(name)) {
 			if (chessGames.size() > 0) {
 				// try "fuzzy" search
@@ -1533,7 +1536,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return chessGames.get(name);
 	}
 
-	public static void setCurrentGame(String playerName, String gameName) throws ChessException {
+	public static void setCurrentGame(String playerName, String gameName) {
 		ChessGame game = getGame(gameName);
 		setCurrentGame(playerName, game);
 	}
@@ -1542,11 +1545,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		currentGame.put(playerName, game);
 	}
 
-	public static ChessGame getCurrentGame(String playerName) throws ChessException {
+	public static ChessGame getCurrentGame(String playerName) {
 		return getCurrentGame(playerName, false);
 	}
 
-	public static ChessGame getCurrentGame(String playerName, boolean verify) throws ChessException {
+	public static ChessGame getCurrentGame(String playerName, boolean verify) {
 		ChessGame game = currentGame.get(playerName);
 		if (verify && game == null) {
 			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
@@ -1565,6 +1568,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return res;
 	}
 
+	/**
+	 * Create a unique game name based on the player's name.
+	 * 
+	 * @param playerName
+	 * @return
+	 */
 	public static String makeGameName(String playerName) {
 		String res;
 		int n = 1;
@@ -1584,7 +1593,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @return	The game object
 	 * @throws ChessException	if there is any problem creating the game
 	 */
-	public static ChessGame createGame(Player player, String gameName, String boardName, int colour) throws ChessException {
+	public static ChessGame createGame(Player player, String gameName, String boardName, int colour) {
 		BoardView bv;
 		if (boardName == null) {
 			bv = BoardView.getFreeBoard();

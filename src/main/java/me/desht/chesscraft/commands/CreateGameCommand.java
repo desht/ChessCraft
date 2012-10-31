@@ -13,9 +13,10 @@ import chesspresso.Chess;
 public class CreateGameCommand extends AbstractCommand {
 
 	public CreateGameCommand() {
-		super("chess c g", 0, 2);
+		super("chess c g", 0, 3);
 		setPermissionNode("chesscraft.commands.create.game");
-		setUsage("/chess create [<game-name>] [<board-name>]");
+		setUsage("/chess create [-black] [<game-name>] [<board-name>]");
+		setOptions("black");
 	}
 
 	@Override
@@ -25,7 +26,7 @@ public class CreateGameCommand extends AbstractCommand {
 		String gameName = args.length >= 1 ? args[0] : null;
 		String boardName = args.length >= 2 ? args[1] : null;
 		
-		ChessGame.createGame((Player) sender, gameName, boardName, Chess.WHITE);
+		ChessGame.createGame((Player) sender, gameName, boardName, getBooleanOption("black") ? Chess.BLACK : Chess.WHITE);
 		
 		return true;
 	}

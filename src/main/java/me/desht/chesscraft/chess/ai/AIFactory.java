@@ -129,7 +129,7 @@ public class AIFactory {
 	}
 
 	/**
-	 * Get the name of a random free AI.
+	 * Get the name of a random free and enabled AI.
 	 * 
 	 * @return
 	 * @throws ChessException if there are no free AIs
@@ -137,7 +137,7 @@ public class AIFactory {
 	public String getFreeAIName() {
 		List<String> free = new ArrayList<String>();
 		for (String k : allAIs.keySet()) {
-			if (isAvailable(k)) {
+			if (isAvailable(k) && allAIs.get(k).isEnabled()) {
 				free.add(k);
 			}
 		}
@@ -164,19 +164,17 @@ public class AIFactory {
 		}
 
 		allAIs.clear();
-		for (String a : n.getKeys(false)) {
-			ConfigurationSection d = n.getConfigurationSection(a);
+		for (String aiName : n.getKeys(false)) {
+			ConfigurationSection conf = n.getConfigurationSection(aiName);
 			if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
-				for (String name : d.getString("funName", a).split(",")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if ((name = name.trim()).length() > 0) {
-						AIDefinition def;
+				for (String alias : conf.getString("funName", aiName).split(",")) {
+					if ((alias = alias.trim()).length() > 0) {
 						try {
-							def = new AIDefinition(name, d);
-							allAIs.put(name.toLowerCase(), def);
+							allAIs.put(alias.toLowerCase(), new AIDefinition(alias, conf));
 						} catch (ClassNotFoundException e) {
-							LogUtils.warning("unknown class '" + d.getString("class") + "' for AI [" + name + "]: skipped");
+							LogUtils.warning("unknown class '" + conf.getString("class") + "' for AI [" + alias + "]: skipped");
 						} catch (ClassCastException e) {
-							LogUtils.warning("class '" + d.getString("class") + "'for AI [" + name + "] is not a AbstractAI subclass: skipped");
+							LogUtils.warning("class '" + conf.getString("class") + "'for AI [" + alias + "] is not a AbstractAI subclass: skipped");
 						}
 					}
 				}
@@ -194,15 +192,15 @@ public class AIFactory {
 		private final Class<? extends ChessAI> aiImplClass;
 		private final String name;
 
-		public AIDefinition(String name, ConfigurationSection d) throws ClassNotFoundException {
+		public AIDefinition(String name, ConfigurationSection conf) throws ClassNotFoundException {
 			this.name = name;
 			this.params = new MemoryConfiguration();
 
-			String className = d.getString("class", "me.desht.chesscraft.chess.ai.JChecsAI");
+			String className = conf.getString("class", "me.desht.chesscraft.chess.ai.JChecsAI");
 			aiImplClass = Class.forName(className).asSubclass(ChessAI.class);
 
-			for (String k : d.getKeys(false)) {
-				params.set(k, d.get(k));
+			for (String k : conf.getKeys(false)) {
+				params.set(k, conf.get(k));
 			}
 
 			LogUtils.finer("loaded " + aiImplClass.getName() + " for AI " + name);
@@ -253,6 +251,10 @@ public class AIFactory {
 			return getParams().getString("comment");
 		}
 
+		public boolean isEnabled() {
+			return getParams().getBoolean("enabled");
+		}
+		
 		public ConfigurationSection getParams() {
 			return params;
 		}

@@ -664,6 +664,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		Location loc = getControlPanel().getTeleportLocation();
 		ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
+		if (game != null)
+			ChessGame.setCurrentGame(player.getName(), game);
 	}
 
 	/*----------------------static methods--------------------------------------*/
