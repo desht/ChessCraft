@@ -240,7 +240,7 @@ Game:
   paidStake: "你支付了赌注金额： {0}."
   playerJoined: "&6{0}&- 加入了你的比赛."
   playerNotOnline: "玩家 {0} 不在线."
-  playerPlayedMove: "&6{0}&- 已移子 [{1}].  轮到你了."
+  playerPlayedMove: "{0} 已移子 [{1}].  轮到你了."
   resigned: "&6{0}&- 在一局国际象棋比赛中击败了 &6{1}&- (认输)!"
   shouldBeState: "Game should be in state {0}."
   stakeCantBeChanged: "一旦双方的玩家都已加入, 赌注便不能再被更改了."

@@ -29,6 +29,11 @@ public class ChessUtils {
 		default: throw new IllegalArgumentException("Invalid colour: " + c);
 		}
 	}
+	
+	public static String getDisplayColour(int c) {
+		String s = c == Chess.WHITE ? "&f" : "&8";
+		return s + getColour(c) + "&-";
+	}
 
 	public static int otherColour(int c) {
 		switch (c) {
