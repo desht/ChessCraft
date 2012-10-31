@@ -95,7 +95,7 @@ public class ChessPersistence {
 		}
 		
 		for (BoardView bv : BoardView.listBoardViews()) {
-			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintControls();
 		}
 
 		LogUtils.fine("loaded " + nLoaded + " saved boards.");

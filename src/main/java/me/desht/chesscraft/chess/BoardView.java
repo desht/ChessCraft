@@ -246,7 +246,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		chessBoard.getFullBoard().sendClientChanges();
 		controlPanel.repaintClocks();
-		controlPanel.repaintSignButtons();
+		controlPanel.repaintControls();
 	}
 
 	public Location getA1Square() {
@@ -338,7 +338,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void paintAll() {
 		chessBoard.paintAll();
-		controlPanel.repaint();
+		controlPanel.repaintAll();
 		if (game != null) {
 			chessBoard.paintChessPieces(game.getPosition());
 		}

@@ -28,9 +28,18 @@ public abstract class ExpectYesNoResponse extends ExpectChessBase {
 		return game;
 	}
 	
+	/**
+	 * The given player has just typed "yes" or "no" (or used a Yes/No button).  Work out to what offer they're
+	 * responding to, and carry out the associated action.
+	 * 
+	 * @param player
+	 * @param isAccepted
+	 * @throws ChessException
+	 */
 	public static void handleYesNoResponse(Player player, boolean isAccepted) throws ChessException {
 		ResponseHandler respHandler = ChessCraft.getInstance().responseHandler;
 
+		// TODO: code smell!
 		Class<? extends ExpectYesNoResponse> c = null;
 		if (respHandler.isExpecting(player.getName(), ExpectDrawResponse.class)) {
 			c = ExpectDrawResponse.class;
@@ -45,6 +54,6 @@ public abstract class ExpectYesNoResponse extends ExpectChessBase {
 		ExpectYesNoResponse response = (ExpectYesNoResponse) respHandler.getAction(player.getName(), c);
 		response.setResponse(isAccepted);
 		response.handleAction();
-		response.getGame().getView().getControlPanel().repaintSignButtons();
+		response.getGame().getView().getControlPanel().repaintControls();
 	}
 }

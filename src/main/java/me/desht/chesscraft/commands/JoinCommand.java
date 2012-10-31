@@ -43,7 +43,7 @@ public class JoinCommand extends AbstractCommand {
 		ChessGame.setCurrentGame(player.getName(), game);
 		int playingAs = game.getPlayerColour(player.getName());
 		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
-		                                                    game.getName(), ChessUtils.getColour(playingAs)));
+		                                                    game.getName(), ChessUtils.getDisplayColour(playingAs)));
 		
 		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) { //$NON-NLS-1$
 			game.summonPlayers();

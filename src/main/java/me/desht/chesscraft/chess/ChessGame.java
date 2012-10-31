@@ -339,7 +339,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			finished = System.currentTimeMillis();
 		}
 		Bukkit.getPluginManager().callEvent(new ChessGameStateChangedEvent(this));
-		getView().getControlPanel().repaintSignButtons();
+		getView().getControlPanel().repaintControls();
 	}
 
 	public int getFromSquare() {
@@ -567,7 +567,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		
 		fillEmptyPlayerSlot(playerName);
 		
-		getView().getControlPanel().repaintSignButtons();
+		getView().getControlPanel().repaintControls();
 		clearInvitation();
 
 		if (isFull()) {
@@ -688,7 +688,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
 		if (max >= 0 && stake > max) {
 			stake = max;
-			view.getControlPanel().repaintSignButtons();
+			view.getControlPanel().repaintControls();
 		}
 		
 		players[Chess.WHITE].validateAffordability("Game.cantAffordToStart");
@@ -1294,7 +1294,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[colour].statusMessage(Messages.getString("ChessCommandExecutor.drawOfferedYou", players[otherColour].getName()));
 		players[otherColour].drawOffered();
 		
-		getView().getControlPanel().repaintSignButtons();
+		getView().getControlPanel().repaintControls();
 	}
 
 	/**
@@ -1317,7 +1317,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.swapOfferedYou", players[otherColour].getName()));
 			players[otherColour].swapOffered();
 		}
-		getView().getControlPanel().repaintSignButtons();
+		getView().getControlPanel().repaintControls();
 	}
 
 	/**
@@ -1341,7 +1341,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.undoOfferedYou", otherPlayerName));
 			
-			getView().getControlPanel().repaintSignButtons();
+			getView().getControlPanel().repaintControls();
 		} else {
 			if (getStake() > 0.0) {
 				throw new ChessException(Messages.getString("ChessCommandExecutor.undoAIWithStake"));
@@ -1383,11 +1383,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		tcWhite.setActive(toPlay == Chess.WHITE);
 		tcBlack.setActive(toPlay == Chess.BLACK);
 		updateChessClocks(true);
-		getView().getControlPanel().repaint();
+		getView().getControlPanel().repaintAll();
 
 		autoSave();
 
-		alert(Messages.getString("Game.moveUndone", ChessUtils.getColour(toPlay)));
+		alert(Messages.getString("Game.moveUndone", ChessUtils.getDisplayColour(toPlay)));
 	}
 
 	/**
@@ -1614,7 +1614,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ChessGame game = new ChessGame(gameName, bv, playerName, colour);
 		ChessGame.addGame(gameName, game);
 		ChessGame.setCurrentGame(playerName, game);
-		bv.getControlPanel().repaintSignButtons();
+		bv.getControlPanel().repaintControls();
 
 		game.autoSave();
 

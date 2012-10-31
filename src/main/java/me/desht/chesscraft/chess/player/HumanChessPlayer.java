@@ -36,7 +36,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void promptForNextMove() {
 		alert(Messages.getString("Game.playerPlayedMove",
-		                         ChessUtils.getColour(getOtherColour()),
+		                         ChessUtils.getDisplayColour(getOtherColour()),
 		                         getGame().getPosition().getLastMove().getSAN()));
 		
 		if (getGame().getPosition().isCheck()) {

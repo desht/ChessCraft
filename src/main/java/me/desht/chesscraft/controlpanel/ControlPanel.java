@@ -125,10 +125,14 @@ public class ControlPanel {
 		return panelBlocks;
 	}
 
-	public void repaint() {
+	public void repaintAll() {
 		panelBlocks.setFast(view.getControlPanelMaterial());
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
+		repaintControls();
+	}
+
+	public void repaintControls() {
 		repaintSignButtons();
 		repaintClocks();
 		halfMoveClockLabel.repaint();

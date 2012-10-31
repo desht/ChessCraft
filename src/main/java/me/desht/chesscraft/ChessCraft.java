@@ -372,7 +372,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void updateAllControlPanels() {
 		for (BoardView bv : BoardView.listBoardViews()) {
-			bv.getControlPanel().repaintSignButtons();
+			bv.getControlPanel().repaintControls();
 			bv.getControlPanel().repaintClocks();
 		}
 	}

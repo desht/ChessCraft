@@ -155,13 +155,13 @@ public abstract class ChessAI implements Runnable {
 	 */
 	public void userHasMoved(int fromSqi, int toSqi) {
 		if (active) {
-			LogUtils.warning(gameDetails + ": userHasMoved() called while AI is active?");
+			LogUtils.warning(gameDetails + "userHasMoved() called while AI is active?");
 			return;
 		}
 		
 		try {
 			movePiece(fromSqi, toSqi);
-			LogUtils.fine(gameDetails + ": userHasMoved: " + fromSqi + "->" + toSqi);
+			LogUtils.fine(gameDetails + "userHasMoved: " + fromSqi + "->" + toSqi);
 		} catch (Exception e) {
 			// oops
 			aiHasFailed(e);

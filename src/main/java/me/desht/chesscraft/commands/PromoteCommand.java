@@ -29,7 +29,7 @@ public class PromoteCommand extends AbstractCommand {
 		game.setPromotionPiece(player.getName(), piece);
 		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.promotionPieceSet", //$NON-NLS-1$
 		                                                    game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
-		game.getView().getControlPanel().repaintSignButtons();
+		game.getView().getControlPanel().repaintControls();
 
 		return true;
 	}

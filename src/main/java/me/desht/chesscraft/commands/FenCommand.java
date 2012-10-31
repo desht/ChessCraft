@@ -27,7 +27,7 @@ public class FenCommand extends AbstractCommand {
 		game.setFen(combine(args, 1));
 
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$ 
-		                                                    game.getName(), ChessUtils.getColour(game.getPosition().getToPlay())));
+		                                                    game.getName(), ChessUtils.getDisplayColour(game.getPosition().getToPlay())));
 		return true;
 	}
 

@@ -30,7 +30,7 @@ public class StakeCommand extends AbstractCommand {
 			ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
 			double amount = Double.parseDouble(stakeStr);
 			game.setStake(player.getName(), amount);
-			game.getView().getControlPanel().repaintSignButtons();
+			game.getView().getControlPanel().repaintControls();
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", ChessUtils.formatStakeStr(amount))); //$NON-NLS-1$
 		} catch (NumberFormatException e) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", stakeStr)); //$NON-NLS-1$
