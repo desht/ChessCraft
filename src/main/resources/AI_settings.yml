@@ -1,124 +1,158 @@
-# definition file for all available AIs
-# there are only 17 total possible, so don't try to add any more
+# Definition file for all available AIs.
 #
-# engines: (minimum, maximum, default)
-#     AlphaBeta   (3, 6, 5)
-#     MiniMax     (1, 4, 3)
-#     MiniMax++   (2, 5, 4)
-#     NegaScout   (3, 6, 5) (default)
-#     Random      (1, 1, 1)
-# added a few comments for an idea for relative difficulty
+# "class" is the AI implementation being used.  Must be one of "JChecsAI", "XBoardAI"
+#  "JChecsAI" is the built-in AI engine
+#  "XBoardAI" allows the use of external engines via the XBoard/WinBoard protocol
 #
-# "funName" is the displayed name in-Game
-#   can also be used by a player to invite this AI to their game
-#   if you want more of one type available, funName can be comma-delimited to add more AI
-# e.g. funName: "Bob, George, Moe" gives 3 AI of that type
-# !! Names CANNOT be repeated, or only the last of that name will be available !!
-# if funName is null, will be the definition node (e.g. ai01)
+# "aliases" is a list of displayed AI names
+#  Aliases can also be used by a player to invite this AI to their game
+#  You can have multiple aliases for each AI definition
+#  e.g. aliases: [ Bob, George, Moe ] gives 3 AI of that type
+#  If no aliases are specified, AI name will be the definition node (e.g. ai01)
 #
 # "comment" is an optional comment which will be shown to players if they list the AI's
 #
 # "payout_multiplier" applies if Economy support is enabled.  Default is 1.0 - it could be
 #   raised for tougher engines and lowered for weaker engines.
+#
+# All other parameters are engine-specific; see the website for full documentation:
+#  http://dev.bukkit.org/server-mods/chesscraft/pages/ai
 
 AI:
   ai01:
-    # decent engine.. not to be underestimated, even at this low depth
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "AlphaBeta"
     depth: 3
     enabled: true
-    comment: Decent. Don't underestimate.
+    comment: AlphaBeta search, depth 3
   ai02:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "AlphaBeta"
     depth: 4
     enabled: true
+    comment: AlphaBeta search, depth 4
   ai03:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "AlphaBeta"
     depth: 5
     enabled: true
+    comment: AlphaBeta search, depth 5
   ai04:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "AlphaBeta"
     depth: 6
     enabled: true
+    comment: AlphaBeta search, depth 6
   ai05:
     #this depth is quite easy
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "MiniMax"
     depth: 1
     enabled: true
-    comment: Not too tough.
+    comment: MiniMax search, depth 1
   ai06:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "MiniMax"
     depth: 2
     enabled: true
+    comment: MiniMax search, depth 2
   ai07:
-    # fair competitor, but sometimes confused (if has the upper-hand)
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "MiniMax"
     depth: 3
     enabled: true
-    comment: Fair, but sometimes get confused.
+    comment: MiniMax search, depth 3
   ai08:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "MiniMax"
     depth: 4
     enabled: true
-#  ai09:
-#    funName:
-#    engine: "MiniMax++"
-#    depth: 2
-#    enabled: true
-#  ai10:
-#    #improved over ai07
-#    funName:
-#    engine: "MiniMax++"
-#    depth: 3
-#    enabled: true
-#  ai11:
-#    funName:
-#    engine: "MiniMax++"
-#    depth: 4
-#    enabled: true
-#  ai12:
-#    funName:
-#    engine: "MiniMax++"
-#    depth: 5
-#    enabled: false
+    comment: MiniMax search, depth 4
+  ai09:
+    aliases:
+    class: JChecsAI
+    engine: "MiniMax++"
+    depth: 2
+    enabled: false
+    comment: MiniMax++ Disabled due to instability
+  ai10:
+    #improved over ai07
+    aliases:
+    class: JChecsAI
+    engine: "MiniMax++"
+    depth: 3
+    enabled: false
+    comment: MiniMax++ Disabled due to instability
+  ai11:
+    aliases:
+    class: JChecsAI
+    engine: "MiniMax++"
+    depth: 4
+    enabled: false
+    comment: MiniMax++ Disabled due to instability
+  ai12:
+    aliases:
+    class: JChecsAI
+    engine: "MiniMax++"
+    depth: 5
+    enabled: false
+    comment: MiniMax++ Disabled due to instability
   ai13:
-    # good, but sometimes confused (if has the upper-hand)
-    # once could've had a 1-move mate that it instead waited another 6 moves
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "NegaScout"
     depth: 3
     enabled: true
-    comment: Good, but sometimes get confused.
+    comment: NegaScout search, depth 3
   ai14:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "NegaScout"
     depth: 4
     enabled: true
+    comment: NegaScout search, depth 4
   ai15:
     # quite good
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "NegaScout"
     depth: 5
+    comment: NegaScout search, depth 5
     enabled: true
   ai16:
-    funName:
+    aliases:
+    class: JChecsAI
     engine: "NegaScout"
     depth: 6
     enabled: true
+    comment: NegaScout search, depth 6
   ai17:
-    # idiotic..
-    # probably shouldn't be allowed to play against such stupidity
-    funName:
+    class: JChecsAI
+    aliases:
     engine: "Random"
     depth: 1
     enabled: false
     payout_multiplier: 0.0
-    comment: Completely stupid.
+    comment: Random mover.  Completely stupid.
+  xb1:
+    aliases: [ GnuChess ]
+    class: XBoardAI
+    command: gnuchess xboard
+    enabled: true
+    payout_multiplier: 1.1
+    comment: "GnuChess 5.07 (quite strong: ELO ~2300)"
+  xb2:
+    aliases: [ Crafty]
+    class: XBoardAI
+    command: crafty xboard
+    enabled: true
+    payout_multiplier: 1.5
+    comment: "Crafty Chess Engine (VERY strong! ELO ~2600)"

@@ -36,7 +36,7 @@ public abstract class ChessAI implements Runnable {
 	protected final ConfigurationSection params;
 	protected final String gameDetails;
 
-	ChessAI(String name, ChessGame chessCraftGame, boolean isWhite, ConfigurationSection params) {
+	ChessAI(String name, ChessGame chessCraftGame, Boolean isWhite, ConfigurationSection params) {
 		this.name = name;
 		this.chessCraftGame = chessCraftGame;
 		this.isWhite = isWhite;
@@ -66,8 +66,9 @@ public abstract class ChessAI implements Runnable {
 	 * 
 	 * @param fromSqi	Square being moved from
 	 * @param toSqi		Square being move to
+	 * @param otherPlayer	true if this is the other player moving, false if it's us
 	 */
-	protected abstract void movePiece(int fromSqi, int toSqi);
+	protected abstract void movePiece(int fromSqi, int toSqi, boolean otherPlayer);
 	
 	/**
 	 * Get the AI's canonical name.  This is dependent only on the internal prefix.
@@ -88,6 +89,10 @@ public abstract class ChessAI implements Runnable {
 		return ChessAI.AI_PREFIX + fmt;
 	}
 	
+	public ChessGame getChessCraftGame() {
+		return chessCraftGame;
+	}
+
 	public boolean isWhite() {
 		return isWhite;
 	}
@@ -160,7 +165,7 @@ public abstract class ChessAI implements Runnable {
 		}
 		
 		try {
-			movePiece(fromSqi, toSqi);
+			movePiece(fromSqi, toSqi, true);
 			LogUtils.fine(gameDetails + "userHasMoved: " + fromSqi + "->" + toSqi);
 		} catch (Exception e) {
 			// oops
@@ -181,7 +186,7 @@ public abstract class ChessAI implements Runnable {
 		for (short move : moves) {
 			int from = chesspresso.move.Move.getFromSqi(move);
 			int to   = chesspresso.move.Move.getToSqi(move);
-			movePiece(from, to);
+			movePiece(from, to, !active);
 			active = !active;
 		}
 		LogUtils.fine(gameDetails + "ChessAI: replayed " + moves.size() + " moves: AI to move = " + active);
@@ -225,7 +230,7 @@ public abstract class ChessAI implements Runnable {
 		}
 
 		setActive(false);
-		movePiece(fromSqi, toSqi);
+		movePiece(fromSqi, toSqi, false);
 		LogUtils.fine(gameDetails + "aiHasMoved: " + fromSqi + "->" + toSqi);
 
 		// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
@@ -248,7 +253,6 @@ public abstract class ChessAI implements Runnable {
 		hasFailed = true;
 	}
 	
-
 	public static boolean isAIPlayer(String playerName) {
 		return playerName.startsWith(AI_PREFIX);
 	}

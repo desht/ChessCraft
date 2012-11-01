@@ -20,7 +20,7 @@ ChessCommandExecutor:
   activeGameChanged: Dein aktives Spiel ist nun &6{0}&-.
   activeGameIs: Dein aktives Spiel ist &6{0}&-.
   AIdefsReloaded: AI Definitionen wurden neu geladen.
-  AIList: '&6{0}&-: &f{1}:{2,number,integer}'
+  AIList: '&6{0}&- ({1})&- {2}'
   AIpayout: payout={0,number,integer}%
   algebraicNotation: '&5 (standard algebraic notation)'
   allBoardsRedrawn: Alle Bretter wurden neu entworfen.

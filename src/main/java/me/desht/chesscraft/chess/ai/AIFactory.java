@@ -1,6 +1,8 @@
 package me.desht.chesscraft.chess.ai;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +33,32 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * 
  */
 public class AIFactory {
-	private static final String DEFS_FILE = "AI_settings.yml";
+	private static final String AI_DEFS_FILE = "AI_settings.yml";
+	private static final String AI_RESOURCE = "/AI_settings.yml";
+	private static final String AI_HEADER = 
+			"Definition file for all available AIs.\n" +
+					"\n" +
+					"'class' is the AI implementation being used.  Must be one of 'JChecsAI', 'XBoardAI'\n" +
+					"  'JChecsAI' is the built-in AI engine\n" +
+					"  'XBoardAI' allows the use of external engines via the XBoard/WinBoard protocol\n" +
+					"\n" +
+					"'aliases' is a list of displayed AI names\n" +
+					"  Aliases can also be used by a player to invite this AI to their game\n" +
+					"  You can have multiple aliases for each AI definition\n" +
+					"  e.g. 'aliases: [ Larry, Curly, Moe ]' gives 3 AI of that type\n" +
+					"  If no aliases are specified, the AI name will be the definition node (e.g. ai01)\n" +
+					"\n" +
+					"'comment' is an optional comment which will be shown to players if they list the AI's\n" +
+					"\n" +
+					"'payout_multiplier' applies if Economy support is enabled.  Default is 1.0 - it could be\n" +
+					"  raised for tougher engines and lowered for weaker engines.\n" +
+					"\n" +
+					"All other parameters are engine-specific; see the website for full documentation:\n" +
+					" http://dev.bukkit.org/server-mods/chesscraft/pages/ai";
 
 	private final HashMap<String, ChessAI> runningAIs = new HashMap<String, ChessAI>();
 	private final Map<String, AIDefinition> allAIs = new HashMap<String, AIDefinition>();
+	private final Map<String, AIDefinition> allAliases = new HashMap<String, AIDefinition>();
 
 	public static final AIFactory instance = new AIFactory();
 
@@ -96,14 +120,14 @@ public class AIFactory {
 	}
 	public List<AIDefinition> listAIDefinitions(boolean isSorted) {
 		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(allAIs.keySet());
+			SortedSet<String> sorted = new TreeSet<String>(allAliases.keySet());
 			List<AIDefinition> res = new ArrayList<AIDefinition>();
 			for (String name : sorted) {
-				res.add(allAIs.get(name));
+				res.add(allAliases.get(name));
 			}
 			return res;
 		} else {
-			return new ArrayList<AIDefinition>(allAIs.values());
+			return new ArrayList<AIDefinition>(allAliases.values());
 		}
 	}
 
@@ -143,47 +167,90 @@ public class AIFactory {
 		}
 		if (free.size() == 0)
 			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAIs.size()));
-		
+
 		return ChessAI.AI_PREFIX + free.get(new Random().nextInt(free.size()));
 	}
 
 	public void loadAIDefinitions() {
-		File aiFile = new File(DirectoryStructure.getPluginDirectory(), DEFS_FILE); //$NON-NLS-1$
-
-		if (!aiFile.exists()) {
-			LogUtils.severe("AI Loading Error: file not found: " + aiFile); //$NON-NLS-1$
-			return;
-		}
-
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(aiFile);
-
-		ConfigurationSection n = config.getConfigurationSection("AI"); //$NON-NLS-1$
-		if (n == null) {
-			LogUtils.severe("AI Loading Error: AI section missing from " + aiFile); //$NON-NLS-1$
-			return;
-		}
+		YamlConfiguration config;
 
 		allAIs.clear();
-		for (String aiName : n.getKeys(false)) {
-			ConfigurationSection conf = n.getConfigurationSection(aiName);
-			if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
-				for (String alias : conf.getString("funName", aiName).split(",")) {
-					if ((alias = alias.trim()).length() > 0) {
-						try {
-							allAIs.put(alias.toLowerCase(), new AIDefinition(alias, conf));
-						} catch (ClassNotFoundException e) {
-							LogUtils.warning("unknown class '" + conf.getString("class") + "' for AI [" + alias + "]: skipped");
-						} catch (ClassCastException e) {
-							LogUtils.warning("class '" + conf.getString("class") + "'for AI [" + alias + "] is not a AbstractAI subclass: skipped");
-						}
-					}
-				}
-			}
+		allAliases.clear();
+
+		// first pull in the core definitions from the JAR file resource...
+		try {
+			InputStream in = DirectoryStructure.openResourceNoCache(AI_RESOURCE);
+			config = YamlConfiguration.loadConfiguration(in);
+			mergeAIDefs(config);
+		} catch (Exception e) {
+			LogUtils.severe("Can't load AI definitions: " + e.getMessage());
+			return;
 		}
 
-		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions from " + DEFS_FILE);
+		// now merge in (overriding) any definitions from the external file
+		File aiFile = new File(DirectoryStructure.getPluginDirectory(), AI_DEFS_FILE);
+		if (aiFile.exists()) {
+			config = YamlConfiguration.loadConfiguration(aiFile);
+			mergeAIDefs(config);
+		} else {
+			LogUtils.warning("File not found (will try to create): " + aiFile);
+		}
+
+		// finally, saved the merged AI list to the external file
+		try {
+			YamlConfiguration newConfig = new YamlConfiguration();
+			newConfig.options().header(AI_HEADER);
+			ConfigurationSection aiNode = newConfig.createSection("AI");
+			for (Entry<String,AIDefinition> e : allAIs.entrySet()) {
+				aiNode.set(e.getKey(), e.getValue().getParams());
+			}
+			newConfig.save(aiFile);
+		} catch (IOException e) {	
+			LogUtils.severe("Can't save AI definitions to " + AI_DEFS_FILE + ": " + e.getMessage());
+		}
+
+		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions");
 	}
-	
+
+	private void mergeAIDefs(ConfigurationSection topLevel) {
+		ConfigurationSection aiNode = topLevel.getConfigurationSection("AI");
+		if (aiNode == null) {
+			LogUtils.severe("Can't load AI definitions: 'AI' section missing from " + AI_DEFS_FILE);
+			return;
+		}
+		for (String aiName : aiNode.getKeys(false)) {
+			ConfigurationSection conf = aiNode.getConfigurationSection(aiName);
+			List<String> aliases = getAliases(aiName, conf);
+			AIDefinition aiDef;
+			try {
+				aiDef = new AIDefinition(aiName, conf);
+				allAIs.put(aiName.toLowerCase(), aiDef);
+				for (String alias : aliases) {
+					allAliases.put(alias, aiDef);
+				}
+			} catch (ClassNotFoundException e) {
+				LogUtils.warning("unknown class '" + conf.getString("class") + "' for AI [" + aiName + "]: skipped");
+			} catch (ClassCastException e) {
+				LogUtils.warning("class '" + conf.getString("class") + "'for AI [" + aiName + "] is not a AbstractAI subclass: skipped");
+			}
+		}
+	}
+
+	private List<String> getAliases(String aiName, ConfigurationSection conf) {
+		List<String> res;
+		if (conf.contains("funName")) {
+			res = new ArrayList<String>();
+			res.add(conf.getString("funName"));
+			conf.set("funName", null);
+		}
+		res = conf.getStringList("aliases");
+		if (res == null || res.isEmpty()) {
+			res = new ArrayList<String>();
+			res.add(aiName);
+		}
+		return res;
+	}
+
 	public static void init() {
 	}
 
@@ -197,6 +264,8 @@ public class AIFactory {
 			this.params = new MemoryConfiguration();
 
 			String className = conf.getString("class", "me.desht.chesscraft.chess.ai.JChecsAI");
+			if (className.indexOf('.') == -1)
+				className = "me.desht.chesscraft.chess.ai." + className;
 			aiImplClass = Class.forName(className).asSubclass(ChessAI.class);
 
 			for (String k : conf.getKeys(false)) {
@@ -254,7 +323,7 @@ public class AIFactory {
 		public boolean isEnabled() {
 			return getParams().getBoolean("enabled");
 		}
-		
+
 		public ConfigurationSection getParams() {
 			return params;
 		}

@@ -22,7 +22,7 @@ ChessCommandExecutor:
   activeGameChanged: "你当前的棋局变更为 &6{0}&-."
   activeGameIs: "你当前参与的棋局是 &6{0}&-."
   AIdefsReloaded: "AI配置文件已重载."
-  AIList: "&6{0}&-: &f{1}:{2,number,integer}"
+  AIList: "&6{0}&- ({1})&- {2}"
   AIpayout: "支付={0,number,integer}%"
   algebraicNotation: "&5 (标准代数记谱法)"
   allBoardsRedrawn: "所有棋盘已被重绘."

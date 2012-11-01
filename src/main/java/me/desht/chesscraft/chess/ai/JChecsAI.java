@@ -90,7 +90,7 @@ public class JChecsAI extends ChessAI {
 	 * @see me.desht.chesscraft.chess.ai.AbstractAI#movePiece(int, int)
 	 */
 	@Override
-	protected void movePiece(int fromSqi, int toSqi) {
+	protected void movePiece(int fromSqi, int toSqi, boolean otherPlayer) {
 		// conveniently, Chesspresso & jChecs use the same row/column/sqi conventions
 		Square from = Square.valueOf(fromSqi);
 		Square to = Square.valueOf(toSqi);
