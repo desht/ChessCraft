@@ -3,6 +3,7 @@ package me.desht.chesscraft.controlpanel;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.util.ChessUtils;
 
 public abstract class PromoteButton extends AbstractSignButton {
@@ -16,15 +17,21 @@ public abstract class PromoteButton extends AbstractSignButton {
 
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		getGame().cyclePromotionPiece(event.getPlayer().getName());
+		int playerColour = getGame().getPlayerColour(event.getPlayer().getName());
+		if (playerColour != colour)
+			return;
 		
+		ChessPlayer p = getGame().getPlayer(playerColour);
+		if (p != null) {
+			p.cyclePromotionPiece();
+		}
 		repaint();
 	}
 
 	@Override
 	public String[] getCustomSignText() {
 		String[] label = getSignText();
-		label[3] = getIndicatorColour() + getPromoStr(colour);
+		label[3] = getIndicatorColour() + getPromoStr();
 		return label;
 	}
 
@@ -34,9 +41,9 @@ public abstract class PromoteButton extends AbstractSignButton {
 		return game != null && !game.getPlayerName(colour).isEmpty();
 	}
 	
-	private String getPromoStr(int colour) {
+	private String getPromoStr() {
 		if (getGame() == null) {
-			return ""; //$NON-NLS-1$
+			return "";
 		}
 		return ChessUtils.pieceToStr(getGame().getPromotionPiece(colour));
 	}

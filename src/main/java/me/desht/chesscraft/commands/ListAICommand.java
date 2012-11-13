@@ -10,7 +10,6 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MinecraftChatStr;
 import me.desht.dhutils.commands.AbstractCommand;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;

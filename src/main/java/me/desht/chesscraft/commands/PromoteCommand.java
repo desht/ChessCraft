@@ -25,8 +25,11 @@ public class PromoteCommand extends AbstractCommand {
 		notFromConsole(player);
 
 		ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
+		game.ensurePlayerInGame(player.getName());
+		
 		int piece = Chess.charToPiece(Character.toUpperCase(args[0].charAt(0)));
-		game.setPromotionPiece(player.getName(), piece);
+		int colour = game.getPlayerColour(player.getName());
+		game.getPlayer(colour).setPromotionPiece(piece);
 		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.promotionPieceSet", //$NON-NLS-1$
 		                                                    game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
 		game.getView().getControlPanel().repaintControls();

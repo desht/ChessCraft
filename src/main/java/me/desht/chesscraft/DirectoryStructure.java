@@ -129,7 +129,8 @@ public class DirectoryStructure {
 	}
 
 	private static void extractResources() {
-		extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
+		extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NEWER); //$NON-NLS-1$
+		extractResource("/AI.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 		extractResource("/timecontrols.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 
 		extractResource("/datafiles/board_styles/standard.yml", boardStyleDir); //$NON-NLS-1$

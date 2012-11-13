@@ -6,9 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
+import chesspresso.Chess;
+
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.dhutils.LogUtils;
 
 /**
@@ -29,6 +32,8 @@ public abstract class ChessAI implements Runnable {
 	private boolean hasFailed = false;
 	private boolean pendingMove = false;
 	private int pendingFrom, pendingTo;
+	private boolean ready = false;
+	private boolean drawOffered = false;
 	
 	private final String name;
 	private final ChessGame chessCraftGame;
@@ -54,11 +59,18 @@ public abstract class ChessAI implements Runnable {
 	 * Called when the AI has to calculate its next move.
 	 */
 	public abstract void run();
-	
+
 	/**
 	 * Perform the implementation-specfic steps needed to undo the AI's last move.
 	 */
 	public abstract void undoLastMove();
+
+	/**
+	 * Offer a draw to the AI.
+	 * 
+	 * @throws ChessException if the AI implementation doesn't support being offered draws.
+	 */
+	public abstract void offerDraw();
 	
 	/**
 	 * Perform the implementation-specfic steps needed to update the AI's internal game model with
@@ -69,7 +81,7 @@ public abstract class ChessAI implements Runnable {
 	 * @param otherPlayer	true if this is the other player moving, false if it's us
 	 */
 	protected abstract void movePiece(int fromSqi, int toSqi, boolean otherPlayer);
-	
+
 	/**
 	 * Get the AI's canonical name.  This is dependent only on the internal prefix.
 	 * 
@@ -78,7 +90,7 @@ public abstract class ChessAI implements Runnable {
 	public String getName() {
 		return ChessAI.AI_PREFIX + name;
 	}
-	
+
 	/**
 	 * Get the AI's displayed name.  This may vary depending on the "ai.name_format" config setting.
 	 * 
@@ -88,15 +100,23 @@ public abstract class ChessAI implements Runnable {
 		String fmt = ChessCraft.getInstance().getConfig().getString("ai.name_format", "[AI]<NAME>").replace("<NAME>", name);
 		return ChessAI.AI_PREFIX + fmt;
 	}
-	
+
 	public ChessGame getChessCraftGame() {
 		return chessCraftGame;
+	}
+
+	protected boolean isDrawOffered() {
+		return drawOffered;
+	}
+
+	protected void setDrawOffered(boolean drawOffered) {
+		this.drawOffered = drawOffered;
 	}
 
 	public boolean isWhite() {
 		return isWhite;
 	}
-	
+
 	public boolean getPendingMove() {
 		return pendingMove;
 	}
@@ -104,7 +124,7 @@ public abstract class ChessAI implements Runnable {
 	public void clearPendingMove() {
 		this.pendingMove = false;
 	}
-	
+
 	public int getPendingFrom() {
 		return pendingFrom;
 	}
@@ -121,6 +141,25 @@ public abstract class ChessAI implements Runnable {
 		hasFailed = failed;
 	}
 
+	protected void setReady() {
+		ready = true;
+	}
+	
+	public boolean isReady() {
+		return ready;
+	}
+	
+	/**
+	 * Check if it's the AI's move.  Note this does not necessarily mean the AI is actively thinking
+	 * right now, just that it's the AI's move.
+	 * 
+	 * @return
+	 */
+	public boolean toMove() {
+		int toMove = getChessCraftGame().getPosition().getToPlay();
+		return isWhite && toMove == Chess.WHITE || !isWhite && toMove == Chess.BLACK;
+	}
+	
 	/**
 	 * Delete a running AI instance.  Called when a game is finished, deleted, or the plugin is disabled.
 	 */
@@ -129,7 +168,7 @@ public abstract class ChessAI implements Runnable {
 		AIFactory.instance.deleteAI(this);
 		shutdown();
 	}
-	
+
 	/**
 	 * Set the AI-active state.  Will cause either the launch or termination of the AI calculation thread.
 	 *   
@@ -142,14 +181,14 @@ public abstract class ChessAI implements Runnable {
 		this.active = active;
 
 		LogUtils.fine(gameDetails + "active => " + active);
-		
+
 		if (active) {
 			startThinking();
 		} else {
 			stopThinking();
 		}
 	}
-	
+
 	/**
 	 * Inform the AI that the other player has made the given move.  We are assuming the move is legal,
 	 * since it's already been validated by Chesspresso in the ChessGame object.  This also sets this AI to active,
@@ -163,7 +202,7 @@ public abstract class ChessAI implements Runnable {
 			LogUtils.warning(gameDetails + "userHasMoved() called while AI is active?");
 			return;
 		}
-		
+
 		try {
 			movePiece(fromSqi, toSqi, true);
 			LogUtils.fine(gameDetails + "userHasMoved: " + fromSqi + "->" + toSqi);
@@ -171,7 +210,7 @@ public abstract class ChessAI implements Runnable {
 			// oops
 			aiHasFailed(e);
 		}
-		
+
 		setActive(true);
 	}
 
@@ -194,7 +233,7 @@ public abstract class ChessAI implements Runnable {
 			startThinking();
 		}
 	}
-	
+
 	/**
 	 * Tell the AI to start thinking.  This will call a run() method, implemented in subclasses, 
 	 * which will analyze the current board position and culminate by calling aiHasMoved() with the
@@ -229,6 +268,11 @@ public abstract class ChessAI implements Runnable {
 			return;
 		}
 
+		if (isDrawOffered()) {
+			// making a move effectively rejects any pending draw offer
+			rejectDrawOffer();
+		}
+		
 		setActive(false);
 		movePiece(fromSqi, toSqi, false);
 		LogUtils.fine(gameDetails + "aiHasMoved: " + fromSqi + "->" + toSqi);
@@ -241,6 +285,33 @@ public abstract class ChessAI implements Runnable {
 		pendingMove = true;
 	}
 
+	protected void acceptDrawOffer() {
+		ChessGame game = getChessCraftGame();
+		ChessPlayer other = getOtherChessPlayer();
+		if (other != null) {
+			other.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getName()));
+		}
+		game.drawn();
+	}
+	
+	protected void rejectDrawOffer() {
+		setDrawOffered(false);
+		ChessPlayer other = getOtherChessPlayer();
+		if (other != null) {
+			other.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getName()));
+		}
+	}
+	
+	public ChessPlayer getChessPlayer() {
+		int colour = isWhite ? Chess.WHITE : Chess.BLACK;
+		return getChessCraftGame().getPlayer(colour);
+	}
+	
+	public ChessPlayer getOtherChessPlayer() {
+		int colour = isWhite ? Chess.BLACK : Chess.WHITE;
+		return getChessCraftGame().getPlayer(colour);
+	}
+	
 	/**
 	 * Something has gone horribly wrong.  Need to abandon this game.
 	 * 
@@ -252,7 +323,7 @@ public abstract class ChessAI implements Runnable {
 		chessCraftGame.alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 		hasFailed = true;
 	}
-	
+
 	public static boolean isAIPlayer(String playerName) {
 		return playerName.startsWith(AI_PREFIX);
 	}

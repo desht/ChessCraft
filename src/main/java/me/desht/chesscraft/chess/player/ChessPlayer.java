@@ -1,13 +1,14 @@
 package me.desht.chesscraft.chess.player;
 
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.util.ChessUtils;
+import chesspresso.Chess;
 
 public abstract class ChessPlayer {
 	private final String name;
 	private final ChessGame game;
 	
 	private int colour;
+	private int promotionPiece;
 	
 	public ChessPlayer(String name, ChessGame game, int colour) {
 		if (name == null) throw new NullPointerException("ChessPlayer: name must not be null");
@@ -15,6 +16,7 @@ public abstract class ChessPlayer {
 		this.name = name;
 		this.game = game;
 		this.colour = colour;
+		this.promotionPiece = Chess.QUEEN;
 	}
 	
 	public String getName() {
@@ -26,7 +28,7 @@ public abstract class ChessPlayer {
 	}
 	
 	public int getOtherColour() {
-		return ChessUtils.otherColour(colour);
+		return Chess.otherPlayer(colour);
 	}
 	
 	public void setColour(int colour) {
@@ -37,6 +39,30 @@ public abstract class ChessPlayer {
 		return game;
 	}
 	
+	public void setPromotionPiece(int promotionPiece) {
+		this.promotionPiece = promotionPiece;
+	}
+
+	public int getPromotionPiece() {
+		return promotionPiece;
+	}
+
+	public int cyclePromotionPiece() {
+		switch (promotionPiece) {
+		case Chess.QUEEN:
+			promotionPiece = Chess.KNIGHT; break;
+		case Chess.KNIGHT:
+			promotionPiece = Chess.BISHOP; break;
+		case Chess.BISHOP:
+			promotionPiece = Chess.ROOK; break;
+		case Chess.ROOK:
+			promotionPiece = Chess.QUEEN; break;
+		default:
+			promotionPiece = Chess.QUEEN; break;
+		}
+		return promotionPiece;
+	}
+
 	public abstract void validateAffordability(String error);
 	
 	public abstract void validateInvited(String error);

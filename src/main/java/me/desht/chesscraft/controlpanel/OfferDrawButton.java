@@ -22,7 +22,7 @@ public class OfferDrawButton extends AbstractSignButton {
 	@Override
 	public boolean isEnabled() {
 		ChessGame game = getGame();
-		return game != null && game.getState() == GameState.RUNNING && !game.isAIGame();
+		return game != null && game.getState() == GameState.RUNNING;
 	}
 
 }

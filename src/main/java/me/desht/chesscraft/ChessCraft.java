@@ -111,12 +111,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		configManager = new ConfigurationManager(this, this);
 
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
-
-		AIFactory.init();
 		
 		new PluginVersionChecker(this, this);
 
 		DirectoryStructure.setup();
+
+		AIFactory.init();
 
 		Messages.init(getConfig().getString("locale", "default"));
 

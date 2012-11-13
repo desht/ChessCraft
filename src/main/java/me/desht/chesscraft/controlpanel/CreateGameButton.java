@@ -22,7 +22,7 @@ public class CreateGameButton extends AbstractSignButton {
 			ChessGame.createGame(event.getPlayer(), null, getView(), colour);
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			// cycle between "White" and "Black"
-			colour = ChessUtils.otherColour(colour);
+			colour = Chess.otherPlayer(colour);
 			repaint();
 		}
 	}

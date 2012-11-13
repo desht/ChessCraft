@@ -67,7 +67,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private final Game cpGame;
 	private final long created;
 	
-	private final int promotionPiece[] = {Chess.QUEEN, Chess.QUEEN};
 	private final int tcWarned[] = new int[2];
 	private final ChessPlayer[] players = new ChessPlayer[2];
 	private final List<Short> history = new ArrayList<Short>();
@@ -177,8 +176,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		finished = map.getLong("finished", state == GameState.FINISHED ? System.currentTimeMillis() : 0);
 		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
 		result = map.getInt("result"); //$NON-NLS-1$
-		promotionPiece[Chess.WHITE] = map.getInt("promotionWhite"); //$NON-NLS-1$
-		promotionPiece[Chess.BLACK] = map.getInt("promotionBlack"); //$NON-NLS-1$
+		players[Chess.WHITE].setPromotionPiece(map.getInt("promotionWhite"));
+		players[Chess.BLACK].setPromotionPiece(map.getInt("promotionBlack"));
 		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
 
 		cpGame = setupChesspressoGame();
@@ -206,8 +205,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		map.put("finished", finished); //$NON-NLS-1$
 		map.put("lastMoved", lastMoved); //$NON-NLS-1$
 		map.put("result", result); //$NON-NLS-1$
-		map.put("promotionWhite", promotionPiece[Chess.WHITE]); //$NON-NLS-1$
-		map.put("promotionBlack", promotionPiece[Chess.BLACK]); //$NON-NLS-1$
+		map.put("promotionWhite", getPromotionPiece(Chess.WHITE)); //$NON-NLS-1$
+		map.put("promotionBlack", getPromotionPiece(Chess.BLACK)); //$NON-NLS-1$
 		map.put("tcWhite", tcWhite); //$NON-NLS-1$
 		map.put("tcBlack", tcBlack); //$NON-NLS-1$
 		map.put("stake", stake); //$NON-NLS-1$
@@ -373,6 +372,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public double getStake() {
 		return stake;
 	}
+	
+	public int getPromotionPiece(int colour) {
+		return getPlayer(colour) == null ? Chess.QUEEN : getPlayer(colour).getPromotionPiece();
+	}
 
 	/**
 	 * A player is trying to adjust the stake for this game.
@@ -448,23 +451,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public TimeControl getTcBlack() {
 		return tcBlack;
-	}
-
-	public int getPromotionPiece(int colour) {
-		return promotionPiece[colour];
-	}
-
-	public void setPromotionPiece(String playerName, int piece) {
-		ensurePlayerInGame(playerName);
-
-		if (piece != Chess.QUEEN && piece != Chess.ROOK && piece != Chess.BISHOP && piece != Chess.KNIGHT) {
-			throw new ChessException(Messages.getString("Game.invalidPromoPiece", Chess.pieceToChar(piece))); //$NON-NLS-1$
-		}
-		if (playerName.equals(getWhitePlayerName())) {
-			promotionPiece[Chess.WHITE] = piece;
-		} else if (playerName.equals(getBlackPlayerName())) {
-			promotionPiece[Chess.BLACK] = piece;
-		}
 	}
 
 	/**
@@ -598,7 +584,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		chessPlayer.validateAffordability("Game.cantAffordToJoin");
 		players[colour] = chessPlayer;
 
-		int otherColour = ChessUtils.otherColour(colour);
+		int otherColour = Chess.otherPlayer(colour);
 		if (players[otherColour] != null)
 			players[otherColour].alert(Messages.getString("Game.playerJoined", players[colour].getDisplayName()));
 		
@@ -887,7 +873,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				&& (Chess.sqiToRow(sqiTo) == 7 || Chess.sqiToRow(sqiTo) == 0)) {
 			// Promotion?
 			boolean capturing = getPosition().getPiece(sqiTo) != Chess.NO_PIECE;
-			move = Move.getPawnMove(sqiFrom, sqiTo, capturing, promotionPiece[toPlay]);
+			move = Move.getPawnMove(sqiFrom, sqiTo, capturing, getPromotionPiece(toPlay));
 		} else if (getPosition().getPiece(sqiFrom) == Chess.PAWN && getPosition().getPiece(sqiTo) == Chess.NO_PIECE) {
 			// En passant?
 			int toCol = Chess.sqiToCol(sqiTo);
@@ -907,6 +893,32 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		throw new IllegalMoveException(move);
 	}
 
+	/**
+	 * Given a move in SAN format, try to find the Chesspresso Move for that SAN move in the 
+	 * current position.
+	 * 
+	 * @param moveSAN	the move in SAN format
+	 * @return	the Move object, or null if not found (i.e the supplied move was not legal)
+	 */
+	public Move getMoveFromSAN(String moveSAN) {
+		Position tempPos = new Position(getPosition().getFEN());
+		
+		for (short aMove : getPosition().getAllMoves()) {
+			try {
+				tempPos.doMove(aMove);
+				Move m = tempPos.getLastMove();
+				LogUtils.finer("getMoveFromSAN: check supplied move: " + moveSAN + " vs possible: " + m.getSAN());
+				if (moveSAN.equals(m.getSAN()))
+					return m;
+				tempPos.undoMove();
+			} catch (IllegalMoveException e) {
+				// shouldn't happen
+				return null;
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Handle chess clock switching when a move has been made.
 	 */
@@ -1032,7 +1044,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	private void winner(int winner) {
-		int loser = ChessUtils.otherColour(winner);
+		int loser = Chess.otherPlayer(winner);
 		double winnings = stake * players[loser].getPayoutMultiplier();
 		players[winner].depositFunds(winnings);
 		players[winner].alert(Messages.getString("Game.youWon", ChessUtils.formatStakeStr(winnings)));
@@ -1127,7 +1139,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public String getPlayerNotToMove() {
-		return players[ChessUtils.otherColour(getPosition().getToPlay())].getName();
+		return players[Chess.otherPlayer(getPosition().getToPlay())].getName();
 	}
 
 	public boolean isPlayerInGame(String playerName) {
@@ -1168,31 +1180,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return f;
 	}
 
-	public void setFen(String fen) {
+	public void setPositionFEN(String fen) {
 		getPosition().set(new Position(fen));
 		// manually overriding the position invalidates the move history
 		getHistory().clear();
-	}
-
-	private int getNextPromotionPiece(int colour) {
-		switch (promotionPiece[colour]) {
-		case Chess.QUEEN:
-			return Chess.KNIGHT;
-		case Chess.KNIGHT:
-			return Chess.BISHOP;
-		case Chess.BISHOP:
-			return Chess.ROOK;
-		case Chess.ROOK:
-			return Chess.QUEEN;
-		default:
-			return Chess.QUEEN;
-		}
-	}
-
-	public void cyclePromotionPiece(String playerName) {
-		ensurePlayerInGame(playerName);
-		int colour = getPlayerColour(playerName);
-		setPromotionPiece(playerName, getNextPromotionPiece(colour));
 	}
 
 	/**
@@ -1282,18 +1273,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Check if either player in this game is an AI player
-	 * 
-	 * @return true if either player is an AI, false otherwise
-	 */
-	public boolean isAIGame() {
-		if (players[Chess.WHITE] != null && !players[Chess.WHITE].isHuman()) return true;
-		if (players[Chess.BLACK] != null && !players[Chess.BLACK].isHuman()) return true;
-		
-		return false;
-	}
-
-	/**
 	 * Have the given player offer a draw.
 	 * 
 	 * @param playerName 	Name of the player making the offer
@@ -1306,7 +1285,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensureGameState(GameState.RUNNING);
 
 		int colour = getPlayerColour(playerName);
-		int otherColour = ChessUtils.otherColour(colour);
+		int otherColour = Chess.otherPlayer(colour);
 		players[colour].statusMessage(Messages.getString("ChessCommandExecutor.drawOfferedYou", players[otherColour].getName()));
 		players[otherColour].drawOffered();
 		
@@ -1329,7 +1308,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			swapColours();
 		} else {
 			int colour = getPlayerColour(playerName);
-			int otherColour = ChessUtils.otherColour(colour);
+			int otherColour = Chess.otherPlayer(colour);
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.swapOfferedYou", players[otherColour].getName()));
 			players[otherColour].swapOffered();
 		}
@@ -1347,7 +1326,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensureGameState(GameState.RUNNING);
 
 		int colour = getPlayerColour(playerName);
-		int otherColour = ChessUtils.otherColour(colour);
+		int otherColour = Chess.otherPlayer(colour);
 		
 		if (players[otherColour].isHuman()) {
 			// playing another human - we need to ask them if it's OK to undo
@@ -1382,7 +1361,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (history.size() == 1 && playerName.equals(getBlackPlayerName())) return;
 
 		int colour = getPlayerColour(playerName);
-		int otherColour = ChessUtils.otherColour(colour);
+		int otherColour = Chess.otherPlayer(colour);
 		
 		if (getPosition().getToPlay() == colour) {
 			// need to undo two moves - first the other player's last move

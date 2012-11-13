@@ -174,7 +174,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			int colour = game.getPlayerColour(who);
 			if (colour != Chess.NOBODY) {
 				plugin.getPlayerTracker().playerRejoined(who);
-				ChessPlayer other = game.getPlayer(ChessUtils.otherColour(colour));
+				ChessPlayer other = game.getPlayer(Chess.otherPlayer(colour));
 				if (other != null) {
 					other.alert(Messages.getString("ChessPlayerListener.playerBack", who));
 				}

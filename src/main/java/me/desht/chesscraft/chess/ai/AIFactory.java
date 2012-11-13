@@ -1,7 +1,6 @@
 package me.desht.chesscraft.chess.ai;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,32 +33,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * 
  */
 public class AIFactory {
-	private static final String AI_DEFS_FILE = "AI_settings.yml";
-	private static final String AI_RESOURCE = "/AI_settings.yml";
-	private static final String AI_HEADER = 
-			"Definition file for all available AIs.\n" +
-					"\n" +
-					"'class' is the AI implementation being used.  Must be one of 'JChecsAI', 'XBoardAI'\n" +
-					"  'JChecsAI' is the built-in AI engine\n" +
-					"  'XBoardAI' allows the use of external engines via the XBoard/WinBoard protocol\n" +
-					"\n" +
-					"'aliases' is a list of displayed AI names\n" +
-					"  Aliases can also be used by a player to invite this AI to their game\n" +
-					"  You can have multiple aliases for each AI definition\n" +
-					"  e.g. 'aliases: [ Larry, Curly, Moe ]' gives 3 AI of that type\n" +
-					"  If no aliases are specified, the AI name will be the definition node (e.g. ai01)\n" +
-					"\n" +
-					"'comment' is an optional comment which will be shown to players if they list the AI's\n" +
-					"\n" +
-					"'payout_multiplier' applies if Economy support is enabled.  Default is 1.0 - it could be\n" +
-					"  raised for tougher engines and lowered for weaker engines.\n" +
-					"\n" +
-					"All other parameters are engine-specific; see the website for full documentation:\n" +
-					" http://dev.bukkit.org/server-mods/chesscraft/pages/ai";
+	private static final String AI_ALIASES_FILE = "AI.yml";
+	private static final String AI_CORE_DEFS = "/AI_settings.yml";
 
 	private final HashMap<String, ChessAI> runningAIs = new HashMap<String, ChessAI>();
-	private final Map<String, AIDefinition> allAIs = new HashMap<String, AIDefinition>();
 	private final Map<String, AIDefinition> allAliases = new HashMap<String, AIDefinition>();
+	private final Map<String, AIDefinition> coreDefs = new HashMap<String, AIDefinition>();
 
 	public static final AIFactory instance = new AIFactory();
 
@@ -132,8 +112,7 @@ public class AIFactory {
 	}
 
 	/**
-	 * Return the AI definition for the given AI name.  If a null name is passed, return a 
-	 * random available AI.
+	 * Return the AI definition for the given AI name.
 	 * 
 	 * @param aiName
 	 * @return
@@ -142,7 +121,11 @@ public class AIFactory {
 		if (aiName.startsWith(ChessAI.AI_PREFIX)) {
 			aiName = aiName.substring(ChessAI.AI_PREFIX.length());
 		}
-		return allAIs.get(aiName);
+		if (allAliases.containsKey(aiName)) {
+			return allAliases.get(aiName);
+		} else {
+			return coreDefs.get(aiName);
+		}
 	}
 	public AIDefinition getAIDefinition(String aiName, boolean force) {
 		AIDefinition def = getAIDefinition(aiName);
@@ -160,97 +143,62 @@ public class AIFactory {
 	 */
 	public String getFreeAIName() {
 		List<String> free = new ArrayList<String>();
-		for (String k : allAIs.keySet()) {
-			if (isAvailable(k) && allAIs.get(k).isEnabled()) {
+		for (String k : allAliases.keySet()) {
+			if (isAvailable(k) && allAliases.get(k).isEnabled()) {
 				free.add(k);
 			}
 		}
 		if (free.size() == 0)
-			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAIs.size()));
+			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAliases.size()));
 
 		return ChessAI.AI_PREFIX + free.get(new Random().nextInt(free.size()));
 	}
 
 	public void loadAIDefinitions() {
-		YamlConfiguration config;
+		YamlConfiguration coreAIdefs;
 
-		allAIs.clear();
 		allAliases.clear();
 
 		// first pull in the core definitions from the JAR file resource...
 		try {
-			InputStream in = DirectoryStructure.openResourceNoCache(AI_RESOURCE);
-			config = YamlConfiguration.loadConfiguration(in);
-			mergeAIDefs(config);
+			InputStream in = DirectoryStructure.openResourceNoCache(AI_CORE_DEFS);
+			coreAIdefs = YamlConfiguration.loadConfiguration(in);
 		} catch (Exception e) {
 			LogUtils.severe("Can't load AI definitions: " + e.getMessage());
 			return;
 		}
 
-		// now merge in (overriding) any definitions from the external file
-		File aiFile = new File(DirectoryStructure.getPluginDirectory(), AI_DEFS_FILE);
-		if (aiFile.exists()) {
-			config = YamlConfiguration.loadConfiguration(aiFile);
-			mergeAIDefs(config);
-		} else {
-			LogUtils.warning("File not found (will try to create): " + aiFile);
-		}
-
-		// finally, saved the merged AI list to the external file
-		try {
-			YamlConfiguration newConfig = new YamlConfiguration();
-			newConfig.options().header(AI_HEADER);
-			ConfigurationSection aiNode = newConfig.createSection("AI");
-			for (Entry<String,AIDefinition> e : allAIs.entrySet()) {
-				aiNode.set(e.getKey(), e.getValue().getParams());
+		// now load the aliases file
+		File aiAliasesFile = new File(DirectoryStructure.getPluginDirectory(), AI_ALIASES_FILE);
+		Configuration aliasesConf = YamlConfiguration.loadConfiguration(aiAliasesFile);
+		for (String alias : aliasesConf.getKeys(false)) {
+			ConfigurationSection aliasConf = aliasesConf.getConfigurationSection(alias);
+			String ai = aliasConf.getString("ai");
+			if (!coreAIdefs.contains(ai)) {
+				LogUtils.warning("AI aliases file " + aiAliasesFile + " refers to non-existent AI definition: " + alias);
+				continue;
 			}
-			newConfig.save(aiFile);
-		} catch (IOException e) {	
-			LogUtils.severe("Can't save AI definitions to " + AI_DEFS_FILE + ": " + e.getMessage());
-		}
-
-		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions");
-	}
-
-	private void mergeAIDefs(ConfigurationSection topLevel) {
-		ConfigurationSection aiNode = topLevel.getConfigurationSection("AI");
-		if (aiNode == null) {
-			LogUtils.severe("Can't load AI definitions: 'AI' section missing from " + AI_DEFS_FILE);
-			return;
-		}
-		for (String aiName : aiNode.getKeys(false)) {
-			ConfigurationSection conf = aiNode.getConfigurationSection(aiName);
-			List<String> aliases = getAliases(aiName, conf);
-			AIDefinition aiDef;
-			try {
-				aiDef = new AIDefinition(aiName, conf);
-				allAIs.put(aiName.toLowerCase(), aiDef);
-				for (String alias : aliases) {
-					allAliases.put(alias, aiDef);
+			ConfigurationSection core = coreAIdefs.getConfigurationSection(ai);
+			for (String key : core.getKeys(false)) {
+				if (!aliasConf.contains(key)) {
+					aliasConf.set(key, core.get(key));
 				}
+			}
+			
+			try {
+				AIDefinition aiDef = new AIDefinition(alias, aliasConf);
+				allAliases.put(alias, aiDef);
+				coreDefs.put(ai, aiDef);
 			} catch (ClassNotFoundException e) {
-				LogUtils.warning("unknown class '" + conf.getString("class") + "' for AI [" + aiName + "]: skipped");
+				LogUtils.warning("unknown class '" + aliasConf.getString("class") + "' for AI [" + alias + "]: skipped");
 			} catch (ClassCastException e) {
-				LogUtils.warning("class '" + conf.getString("class") + "'for AI [" + aiName + "] is not a AbstractAI subclass: skipped");
+				LogUtils.warning("class '" + aliasConf.getString("class") + "'for AI [" + alias + "] is not a AbstractAI subclass: skipped");
 			}
 		}
-	}
 
-	private List<String> getAliases(String aiName, ConfigurationSection conf) {
-		List<String> res;
-		if (conf.contains("funName")) {
-			res = new ArrayList<String>();
-			res.add(conf.getString("funName"));
-			conf.set("funName", null);
-		}
-		res = conf.getStringList("aliases");
-		if (res == null || res.isEmpty()) {
-			res = new ArrayList<String>();
-			res.add(aiName);
-		}
-		return res;
+		LogUtils.fine("Loaded " + allAliases.size() + " AI definitions");
 	}
-
+	
 	public static void init() {
 	}
 
@@ -321,7 +269,7 @@ public class AIFactory {
 		}
 
 		public boolean isEnabled() {
-			return getParams().getBoolean("enabled");
+			return getParams().getBoolean("enabled", true);
 		}
 
 		public ConfigurationSection getParams() {
