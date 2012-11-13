@@ -4,6 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -43,7 +44,7 @@ public class TeleportCommand extends AbstractCommand {
 				PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.board");
 				BoardView.getBoardView(args[0]).summonPlayer(player);
 			} else {
-				ChessGame game = ChessGame.getGame(args[0]);
+				ChessGame game = ChessGameManager.getManager().getGame(args[0], true);
 				game.getView().summonPlayer(player);
 			}
 			break;

@@ -1,6 +1,6 @@
 package me.desht.chesscraft.controlpanel;
 
-import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.event.block.Action;
@@ -19,7 +19,7 @@ public class CreateGameButton extends AbstractSignButton {
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-			ChessGame.createGame(event.getPlayer(), null, getView(), colour);
+			ChessGameManager.getManager().createGame(event.getPlayer(), null, getView(), colour);
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			// cycle between "White" and "Black"
 			colour = Chess.otherPlayer(colour);

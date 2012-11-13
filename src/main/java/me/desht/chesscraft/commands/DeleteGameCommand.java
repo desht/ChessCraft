@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -20,7 +21,7 @@ public class DeleteGameCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		String gameName = args[0];
-		ChessGame game = ChessGame.getGame(gameName);
+		ChessGame game = ChessGameManager.getManager().getGame(gameName);
 		gameName = game.getName();
 		
 		// bypass permission check if player is deleting their own game and it's still in setup phase

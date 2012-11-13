@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.dhutils.commands.AbstractCommand;
 
 public class UndoCommand extends AbstractCommand {
@@ -18,7 +19,7 @@ public class UndoCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		notFromConsole(sender);
 
-		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
 		
 		game.offerUndoMove(sender.getName());
 		

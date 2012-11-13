@@ -9,6 +9,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.GameState;
@@ -170,7 +171,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
 		String who = event.getPlayer().getName();
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			int colour = game.getPlayerColour(who);
 			if (colour != Chess.NOBODY) {
 				plugin.getPlayerTracker().playerRejoined(who);
@@ -190,7 +191,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		String who = event.getPlayer().getName();
 		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			if (game.isPlayerInGame(who)) {
 				game.playerLeft(who);
 				plugin.getPlayerTracker().playerLeft(who);
@@ -265,7 +266,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			return;
 		}
 		
-		ChessGame.setCurrentGame(player.getName(), game);
+		ChessGameManager.getManager().setCurrentGame(player.getName(), game);
 
 		int sqi = game.getView().getSquareAt(loc);
 		if (game.isPlayerToMove(player.getName())) {

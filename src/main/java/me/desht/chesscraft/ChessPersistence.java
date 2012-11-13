@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 
@@ -33,7 +34,7 @@ public class ChessPersistence {
 	}
 
 	public void reload() {
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.deleteTemporary();
 		}
 		for (BoardView view : BoardView.listBoardViews()) {
@@ -76,7 +77,7 @@ public class ChessPersistence {
 		saveBoards();
 
 		YamlConfiguration conf = new YamlConfiguration();
-		for (Entry<String,String> e : ChessGame.getCurrentGames().entrySet()) {
+		for (Entry<String,String> e : ChessGameManager.getManager().getCurrentGames().entrySet()) {
 			conf.set("current_games." + e.getKey(), e.getValue());
 		}
 		try {
@@ -107,7 +108,7 @@ public class ChessPersistence {
 			if (current != null) {
 				for (String player : current.getKeys(false)) {
 					try {
-						ChessGame.setCurrentGame(player, current.getString(player));
+						ChessGameManager.getManager().setCurrentGame(player, current.getString(player));
 					} catch (ChessException e) {
 						LogUtils.warning("can't set current game for player " + player + ": "
 								+ e.getMessage());
@@ -173,7 +174,7 @@ public class ChessPersistence {
 				LogUtils.info("migrated v4-format game save " + f.getName() + " to v5-format");
 			}
 			if (game != null) {
-				ChessGame.addGame(game.getName(), game);
+				ChessGameManager.getManager().registerGame(game);
 			}
 			return game != null;
 		} catch (Exception e) {
@@ -189,7 +190,7 @@ public class ChessPersistence {
 	}
 
 	private void saveGames() {
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			savePersistable("game", game);
 		}
 	}

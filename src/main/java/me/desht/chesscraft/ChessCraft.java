@@ -6,6 +6,7 @@ import java.util.List;
 import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.commands.ArchiveCommand;
@@ -162,12 +163,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		flightListener.restoreSpeeds();
 		
 		AIFactory.instance.clearDown();
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.clockTick();
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		for (ChessGame game : ChessGame.listGames()) {
+		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.deleteTemporary();
 		}
 		for (BoardView view : BoardView.listBoardViews()) {
@@ -209,7 +210,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			});
 			metrics.createGraph("Games in Progress").addPlotter(new Plotter() {
 				@Override
-				public int getValue() { return ChessGame.listGames().size(); }
+				public int getValue() { return ChessGameManager.getManager().listGames().size(); }
 			});
 			metrics.start();
 		} catch (IOException e) {

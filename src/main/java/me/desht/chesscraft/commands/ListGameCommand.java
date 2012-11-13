@@ -7,6 +7,7 @@ import chesspresso.Chess;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -21,22 +22,22 @@ public class ListGameCommand extends AbstractCommand {
 	
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		if (ChessGame.listGames().isEmpty()) {
+		if (ChessGameManager.getManager().listGames().isEmpty()) {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
 			return true;
 		}
 		
 		if (args.length >= 1) {
-			ChessGame.getGame(args[0]).showGameDetail(sender);
+			ChessGameManager.getManager().getGame(args[0]).showGameDetail(sender);
 			return true;
 		}
 	
 		MessagePager pager = MessagePager.getPager(sender).clear();
-		for (ChessGame game : ChessGame.listGames(true)) {
+		for (ChessGame game : ChessGameManager.getManager().listGames(true)) {
 			String name = game.getName();
 			String curGameMarker = "  "; //$NON-NLS-1$
 			if (sender != null) {
-				curGameMarker = game == ChessGame.getCurrentGame(sender.getName()) ? "+ " : "  "; //$NON-NLS-1$ //$NON-NLS-2$
+				curGameMarker = game == ChessGameManager.getManager().getCurrentGame(sender.getName()) ? "+ " : "  "; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 			String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? "&4*&-" : ""; //$NON-NLS-1$ //$NON-NLS-2$

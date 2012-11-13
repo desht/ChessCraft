@@ -5,6 +5,7 @@ import java.io.File;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -39,11 +40,11 @@ public class ArchiveCommand extends AbstractCommand {
 					game = bv.getGame();
 				}
 			} else {
-				game = ChessGame.getGame(args[0]);
+				game = ChessGameManager.getManager().getGame(args[0]);
 			}
 		} else {
 			notFromConsole(player);
-			game = ChessGame.getCurrentGame(player.getName());
+			game = ChessGameManager.getManager().getCurrentGame(player.getName());
 		}
 		if (game == null) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.noActiveGame"));

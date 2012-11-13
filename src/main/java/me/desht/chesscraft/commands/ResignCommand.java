@@ -1,6 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -21,9 +22,9 @@ public class ResignCommand extends AbstractCommand {
 		
 		ChessGame game = null;
 		if (args.length >= 1) {
-			game = ChessGame.getGame(args[0]);
+			game = ChessGameManager.getManager().getGame(args[0]);
 		} else {
-			game = ChessGame.getCurrentGame(player.getName(), true);
+			game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
 		}
 		
 		if (game != null) {

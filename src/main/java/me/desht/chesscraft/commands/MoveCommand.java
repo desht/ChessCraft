@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -24,7 +25,7 @@ public class MoveCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
 
-		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
 
 		int from, to;
 		

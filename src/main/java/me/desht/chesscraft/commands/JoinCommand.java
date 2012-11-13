@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -22,13 +23,15 @@ public class JoinCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		notFromConsole(player);
 
+		ChessGameManager cMgr = ChessGameManager.getManager();
+		
 		String gameName = null;
 		if (args.length >= 1) {
 			gameName = args[0];
-			ChessGame.getGame(gameName).addPlayer(player.getName());
+			cMgr.getGame(gameName).addPlayer(player.getName());
 		} else {
 			// find a game (or games) with an invitation for us
-			for (ChessGame game : ChessGame.listGames()) {
+			for (ChessGame game : cMgr.listGames()) {
 				if (game.getInvited().equalsIgnoreCase(player.getName())) {
 					game.addPlayer(player.getName());
 					gameName = game.getName();
@@ -39,8 +42,8 @@ public class JoinCommand extends AbstractCommand {
 			}
 		}
 
-		ChessGame game = ChessGame.getGame(gameName);
-		ChessGame.setCurrentGame(player.getName(), game);
+		ChessGame game = cMgr.getGame(gameName);
+		cMgr.setCurrentGame(player.getName(), game);
 		int playingAs = game.getPlayerColour(player.getName());
 		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
 		                                                    game.getName(), ChessUtils.getDisplayColour(playingAs)));
