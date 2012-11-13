@@ -22,7 +22,7 @@ ChessCommandExecutor:
   activeGameChanged: "Ваша активная партия сейчас &6{0}&-."
   activeGameIs: "Ваша активная партия &6{0}&-."
   AIdefsReloaded: "ИИ были перезагружены."
-  AIList: "&6{0}&-: &f{1}:{2,number,integer}"
+  AIList: "&6{0}&- ({1})&- {2}"
   AIpayout: "payout={0,number,integer}%"
   algebraicNotation: "&5 (стандартная алгебраическая запись)"
   allBoardsRedrawn: "Все доски были перерисованы."

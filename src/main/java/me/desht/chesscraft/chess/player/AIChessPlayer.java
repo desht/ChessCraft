@@ -107,7 +107,7 @@ public class AIChessPlayer extends ChessPlayer {
 
 	@Override
 	public void drawOffered() {
-		// do nothing here
+		ai.offerDraw();
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -19,9 +19,9 @@ public class StartCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		notFromConsole(player);
 		if (args.length >= 2) {
-			ChessGame.getGame(args[0]).start(player.getName());
+			ChessGameManager.getManager().getGame(args[0]).start(player.getName());
 		} else {
-			ChessGame.getCurrentGame(player.getName(), true).start(player.getName());
+			ChessGameManager.getManager().getCurrentGame(player.getName(), true).start(player.getName());
 		}
 		return true;
 	}

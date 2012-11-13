@@ -1,6 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -19,7 +20,7 @@ public class OfferSwapCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		notFromConsole(player);
 		
-		ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
 		game.offerSwap(player.getName());
 		
 		return true;

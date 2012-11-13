@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -10,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
 
 public class MoveCommand extends AbstractCommand {
 
@@ -23,19 +25,28 @@ public class MoveCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
 
-		ChessGame game = ChessGame.getCurrentGame(sender.getName(), true);
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
 
-		String move = combine(args, 0).replaceFirst(" ", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		if (move.length() != 4) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidMoveString", move)); //$NON-NLS-1$ 
-		}
-		int from = Chess.strToSqi(move.substring(0, 2));
-		if (from == Chess.NO_SQUARE) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidFromSquare", move)); //$NON-NLS-1$
-		}
-		int to = Chess.strToSqi(move.substring(2, 4));
-		if (to == Chess.NO_SQUARE) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidToSquare", move)); //$NON-NLS-1$
+		int from, to;
+		
+		String move = combine(args, 0).replaceFirst(" ", "").toLowerCase(); //$NON-NLS-1$ //$NON-NLS-2$
+		if (isSimpleCoordinates(move)) {
+			from = Chess.strToSqi(move.substring(0, 2));
+			if (from == Chess.NO_SQUARE) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidFromSquare", move)); //$NON-NLS-1$
+			}
+			to = Chess.strToSqi(move.substring(2, 4));
+			if (to == Chess.NO_SQUARE) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidToSquare", move)); //$NON-NLS-1$
+			}
+		} else {
+			// might be a move in SAN format
+			Move m = game.getMoveFromSAN(move);
+			if (m == null) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidMoveString", move)); //$NON-NLS-1$
+			}
+			from = m.getFromSqi();
+			to = m.getToSqi();
 		}
 		game.setFromSquare(from);
 		try {
@@ -49,4 +60,24 @@ public class MoveCommand extends AbstractCommand {
 		return true;
 	}
 
+	/**
+	 * Check if given move is a simple (from,to) coordinate pair, e.g. "e2e4", "e7e5" etc.
+	 * @param move
+	 * @return
+	 */
+	private boolean isSimpleCoordinates(String move) {
+		if (move.length() != 4)
+			return false;
+		
+		if (move.charAt(0) < 'a' || move.charAt(0) > 'h')
+			return false;
+		if (move.charAt(2) < 'a' || move.charAt(2) > 'h')
+			return false;
+		if (move.charAt(1) < '1' || move.charAt(1) > '8')
+			return false;
+		if (move.charAt(3) < '1' || move.charAt(3) > '8')
+			return false;
+		
+		return true;
+	}
 }

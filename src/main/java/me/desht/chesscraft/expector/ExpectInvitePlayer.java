@@ -1,6 +1,7 @@
 package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 
 import org.bukkit.Bukkit;
 
@@ -26,7 +27,7 @@ public class ExpectInvitePlayer extends ExpectChessBase {
 		deferTask(Bukkit.getPlayerExact(playerName), new Runnable() {
 			@Override
 			public void run() {
-				ChessGame game = ChessGame.getCurrentGame(playerName, true);
+				ChessGame game = ChessGameManager.getManager().getCurrentGame(playerName, true);
 				game.invitePlayer(playerName, inviteeName);
 			}
 		});

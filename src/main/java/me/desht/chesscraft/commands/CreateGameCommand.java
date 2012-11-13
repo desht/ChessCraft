@@ -1,12 +1,12 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import chesspresso.Chess;
 
@@ -26,7 +26,7 @@ public class CreateGameCommand extends AbstractCommand {
 		String gameName = args.length >= 1 ? args[0] : null;
 		String boardName = args.length >= 2 ? args[1] : null;
 		
-		ChessGame.createGame((Player) sender, gameName, boardName, getBooleanOption("black") ? Chess.BLACK : Chess.WHITE);
+		ChessGameManager.getManager().createGame((Player) sender, gameName, boardName, getBooleanOption("black") ? Chess.BLACK : Chess.WHITE);
 		
 		return true;
 	}

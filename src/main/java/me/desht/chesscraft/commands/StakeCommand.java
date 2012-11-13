@@ -3,6 +3,7 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -27,7 +28,7 @@ public class StakeCommand extends AbstractCommand {
 		
 		String stakeStr = args[0];
 		try {
-			ChessGame game = ChessGame.getCurrentGame(player.getName(), true);
+			ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
 			double amount = Double.parseDouble(stakeStr);
 			game.setStake(player.getName(), amount);
 			game.getView().getControlPanel().repaintControls();

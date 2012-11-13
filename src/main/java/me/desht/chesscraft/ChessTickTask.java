@@ -1,6 +1,7 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Bukkit;
@@ -19,7 +20,7 @@ public class ChessTickTask {
 		tickTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(ChessCraft.getInstance(), new Runnable() {
 			@Override
 			public void run() {
-				for (ChessGame game : ChessGame.listGames()) {
+				for (ChessGame game : ChessGameManager.getManager().listGames()) {
 					game.clockTick();
 					game.checkForAutoDelete();
 				}

@@ -26,6 +26,8 @@ public class JChecsAI extends ChessAI {
 		super(name, chessCraftGame, isWhite, params);
 
 		jChecsGame = initGame();
+		
+		setReady();
 	}
 	
 	/**
@@ -90,12 +92,17 @@ public class JChecsAI extends ChessAI {
 	 * @see me.desht.chesscraft.chess.ai.AbstractAI#movePiece(int, int)
 	 */
 	@Override
-	protected void movePiece(int fromSqi, int toSqi) {
+	protected void movePiece(int fromSqi, int toSqi, boolean otherPlayer) {
 		// conveniently, Chesspresso & jChecs use the same row/column/sqi conventions
 		Square from = Square.valueOf(fromSqi);
 		Square to = Square.valueOf(toSqi);
 
 		Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
 		jChecsGame.moveFromCurrent(m);
+	}
+
+	@Override
+	public void offerDraw() {
+		throw new ChessException(Messages.getString("drawOfferDeclined", getName()));
 	}
 }

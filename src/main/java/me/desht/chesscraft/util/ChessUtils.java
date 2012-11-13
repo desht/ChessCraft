@@ -27,6 +27,12 @@ import chesspresso.Chess;
  */
 public class ChessUtils {
 
+	/**
+	 * Get the colour string for the given Chesspresso colour.
+	 * 
+	 * @param c
+	 * @return
+	 */
 	public static String getColour(int c) {
 		switch (c) {
 		case Chess.WHITE: return Messages.getString("Game.white"); //$NON-NLS-1$
@@ -35,18 +41,17 @@ public class ChessUtils {
 		}
 	}
 	
+	/**
+	 * Get the colour string for the given colour, with markup for display purposes.
+	 * 
+	 * @param c
+	 * @return
+	 */
 	public static String getDisplayColour(int c) {
 		String s = c == Chess.WHITE ? "&f" : "&8";
 		return s + getColour(c) + "&-";
 	}
 
-	public static int otherColour(int c) {
-		switch (c) {
-		case Chess.WHITE: return Chess.BLACK;
-		case Chess.BLACK: return Chess.WHITE;
-		default: throw new IllegalArgumentException("Invalid colour: " + c);
-		}
-	}
 	/**
 	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
 	 * month wrong :( )
@@ -59,6 +64,12 @@ public class ChessUtils {
 		return new SimpleDateFormat("yyyy.MM.dd").format(new Date(when)); //$NON-NLS-1$
 	}
 
+	/**
+	 * Format an elapsed time.
+	 * 
+	 * @param l		time in milliseconds
+	 * @return	A time string in HH:MM:SS format
+	 */
 	public static String milliSecondsToHMS(long l) {
 		l /= 1000;
 
@@ -69,6 +80,12 @@ public class ChessUtils {
 		return String.format("%1$02d:%2$02d:%3$02d", hrs, mins, secs); //$NON-NLS-1$
 	}
 
+	/**
+	 * Get a piece name from a Chesspresso piece number.
+	 * 
+	 * @param piece
+	 * @return
+	 */
 	public static String pieceToStr(int piece) {
 		switch (piece) {
 		case Chess.PAWN:

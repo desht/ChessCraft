@@ -1,6 +1,7 @@
 package me.desht.chesscraft.chess.ai;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,10 +33,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * 
  */
 public class AIFactory {
-	private static final String DEFS_FILE = "AI_settings.yml";
+	private static final String AI_ALIASES_FILE = "AI.yml";
+	private static final String AI_CORE_DEFS = "/AI_settings.yml";
 
 	private final HashMap<String, ChessAI> runningAIs = new HashMap<String, ChessAI>();
-	private final Map<String, AIDefinition> allAIs = new HashMap<String, AIDefinition>();
+	private final Map<String, AIDefinition> allAliases = new HashMap<String, AIDefinition>();
+	private final Map<String, AIDefinition> coreDefs = new HashMap<String, AIDefinition>();
 
 	public static final AIFactory instance = new AIFactory();
 
@@ -96,20 +100,19 @@ public class AIFactory {
 	}
 	public List<AIDefinition> listAIDefinitions(boolean isSorted) {
 		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(allAIs.keySet());
+			SortedSet<String> sorted = new TreeSet<String>(allAliases.keySet());
 			List<AIDefinition> res = new ArrayList<AIDefinition>();
 			for (String name : sorted) {
-				res.add(allAIs.get(name));
+				res.add(allAliases.get(name));
 			}
 			return res;
 		} else {
-			return new ArrayList<AIDefinition>(allAIs.values());
+			return new ArrayList<AIDefinition>(allAliases.values());
 		}
 	}
 
 	/**
-	 * Return the AI definition for the given AI name.  If a null name is passed, return a 
-	 * random available AI.
+	 * Return the AI definition for the given AI name.
 	 * 
 	 * @param aiName
 	 * @return
@@ -118,7 +121,11 @@ public class AIFactory {
 		if (aiName.startsWith(ChessAI.AI_PREFIX)) {
 			aiName = aiName.substring(ChessAI.AI_PREFIX.length());
 		}
-		return allAIs.get(aiName);
+		if (allAliases.containsKey(aiName)) {
+			return allAliases.get(aiName);
+		} else {
+			return coreDefs.get(aiName);
+		}
 	}
 	public AIDefinition getAIDefinition(String aiName, boolean force) {
 		AIDefinition def = getAIDefinition(aiName);
@@ -136,52 +143,60 @@ public class AIFactory {
 	 */
 	public String getFreeAIName() {
 		List<String> free = new ArrayList<String>();
-		for (String k : allAIs.keySet()) {
-			if (isAvailable(k) && allAIs.get(k).isEnabled()) {
+		for (String k : allAliases.keySet()) {
+			if (isAvailable(k) && allAliases.get(k).isEnabled()) {
 				free.add(k);
 			}
 		}
 		if (free.size() == 0)
-			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAIs.size()));
-		
+			throw new ChessException(Messages.getString("ChessAI.noAvailableAIs", allAliases.size()));
+
 		return ChessAI.AI_PREFIX + free.get(new Random().nextInt(free.size()));
 	}
 
 	public void loadAIDefinitions() {
-		File aiFile = new File(DirectoryStructure.getPluginDirectory(), DEFS_FILE); //$NON-NLS-1$
+		YamlConfiguration coreAIdefs;
 
-		if (!aiFile.exists()) {
-			LogUtils.severe("AI Loading Error: file not found: " + aiFile); //$NON-NLS-1$
+		allAliases.clear();
+
+		// first pull in the core definitions from the JAR file resource...
+		try {
+			InputStream in = DirectoryStructure.openResourceNoCache(AI_CORE_DEFS);
+			coreAIdefs = YamlConfiguration.loadConfiguration(in);
+		} catch (Exception e) {
+			LogUtils.severe("Can't load AI definitions: " + e.getMessage());
 			return;
 		}
 
-		YamlConfiguration config = YamlConfiguration.loadConfiguration(aiFile);
-
-		ConfigurationSection n = config.getConfigurationSection("AI"); //$NON-NLS-1$
-		if (n == null) {
-			LogUtils.severe("AI Loading Error: AI section missing from " + aiFile); //$NON-NLS-1$
-			return;
-		}
-
-		allAIs.clear();
-		for (String aiName : n.getKeys(false)) {
-			ConfigurationSection conf = n.getConfigurationSection(aiName);
-			if (n.getBoolean("enabled", true)) { //$NON-NLS-1$
-				for (String alias : conf.getString("funName", aiName).split(",")) {
-					if ((alias = alias.trim()).length() > 0) {
-						try {
-							allAIs.put(alias.toLowerCase(), new AIDefinition(alias, conf));
-						} catch (ClassNotFoundException e) {
-							LogUtils.warning("unknown class '" + conf.getString("class") + "' for AI [" + alias + "]: skipped");
-						} catch (ClassCastException e) {
-							LogUtils.warning("class '" + conf.getString("class") + "'for AI [" + alias + "] is not a AbstractAI subclass: skipped");
-						}
-					}
+		// now load the aliases file
+		File aiAliasesFile = new File(DirectoryStructure.getPluginDirectory(), AI_ALIASES_FILE);
+		Configuration aliasesConf = YamlConfiguration.loadConfiguration(aiAliasesFile);
+		for (String alias : aliasesConf.getKeys(false)) {
+			ConfigurationSection aliasConf = aliasesConf.getConfigurationSection(alias);
+			String ai = aliasConf.getString("ai");
+			if (!coreAIdefs.contains(ai)) {
+				LogUtils.warning("AI aliases file " + aiAliasesFile + " refers to non-existent AI definition: " + alias);
+				continue;
+			}
+			ConfigurationSection core = coreAIdefs.getConfigurationSection(ai);
+			for (String key : core.getKeys(false)) {
+				if (!aliasConf.contains(key)) {
+					aliasConf.set(key, core.get(key));
 				}
+			}
+			
+			try {
+				AIDefinition aiDef = new AIDefinition(alias, aliasConf);
+				allAliases.put(alias, aiDef);
+				coreDefs.put(ai, aiDef);
+			} catch (ClassNotFoundException e) {
+				LogUtils.warning("unknown class '" + aliasConf.getString("class") + "' for AI [" + alias + "]: skipped");
+			} catch (ClassCastException e) {
+				LogUtils.warning("class '" + aliasConf.getString("class") + "'for AI [" + alias + "] is not a AbstractAI subclass: skipped");
 			}
 		}
 
-		LogUtils.fine("Loaded " + allAIs.size() + " AI definitions from " + DEFS_FILE);
+		LogUtils.fine("Loaded " + allAliases.size() + " AI definitions");
 	}
 	
 	public static void init() {
@@ -197,6 +212,8 @@ public class AIFactory {
 			this.params = new MemoryConfiguration();
 
 			String className = conf.getString("class", "me.desht.chesscraft.chess.ai.JChecsAI");
+			if (className.indexOf('.') == -1)
+				className = "me.desht.chesscraft.chess.ai." + className;
 			aiImplClass = Class.forName(className).asSubclass(ChessAI.class);
 
 			for (String k : conf.getKeys(false)) {
@@ -252,9 +269,9 @@ public class AIFactory {
 		}
 
 		public boolean isEnabled() {
-			return getParams().getBoolean("enabled");
+			return getParams().getBoolean("enabled", true);
 		}
-		
+
 		public ConfigurationSection getParams() {
 			return params;
 		}
