@@ -98,7 +98,7 @@ public abstract class ChessAI implements Runnable {
 	 */
 	public String getDisplayName() {
 		String fmt = ChessCraft.getInstance().getConfig().getString("ai.name_format", "[AI]<NAME>").replace("<NAME>", name);
-		return ChessAI.AI_PREFIX + fmt;
+		return ChessAI.AI_PREFIX + fmt + ChatColor.RESET;
 	}
 
 	public ChessGame getChessCraftGame() {

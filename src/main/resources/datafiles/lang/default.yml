@@ -64,9 +64,9 @@ ChessCommandExecutor:
   gameCreated:
     - "Game &6{0}&- has been created on &6{1}&-."
     - "Now type (or use control panel buttons):"
-    - "&5*&- &f/chess invite <playername>&- to invite someone"
-    - "&5*&- &f/chess invite&- to create an open invitation"
-    - "&5*&- just &f/chess start&- to play a random AI opponent"
+    - "&5‣&- &f/chess invite <playername>&- to invite someone"
+    - "&5‣&- &f/chess invite&- to create an open invitation"
+    - "&5‣&- just &f/chess start&- to play a random AI opponent"
   gameDeleted: "Game &6{0}&- has been deleted."
   gameDeletedAlert: "Game deleted by &6{0}&-!"
   gameDetail:

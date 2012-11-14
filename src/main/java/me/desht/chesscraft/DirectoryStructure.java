@@ -2,6 +2,7 @@ package me.desht.chesscraft;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -266,6 +267,16 @@ public class DirectoryStructure {
 		return f;
 	}
 
+	/**
+	 * Check if the given file is a custom resource, i.e. it's a custom/ subdirectory.
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static boolean isCustom(File path) {
+		return path.getParentFile().getName().equalsIgnoreCase("custom");
+	}
+	
 	/** 
 	 * Find a YAML resource in the custom/ subdirectory of the given directory.
 	 * 
@@ -279,4 +290,10 @@ public class DirectoryStructure {
 		return f;
 	}
 
+	public static final FilenameFilter ymlFilter = new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String name) {
+			return name.endsWith(".yml");
+		}
+	};
 }

@@ -1,5 +1,7 @@
 package me.desht.chesscraft.commands;
 
+import java.util.List;
+
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
@@ -24,17 +26,19 @@ public class ListBoardCommand extends AbstractCommand {
 			return true;
 		}
 
+		MessagePager pager = MessagePager.getPager(sender).clear();
 		if (args.length >= 1) {
-			BoardViewManager.getManager().getBoardView(args[0]).showBoardDetail(sender);
+			List<String> l = BoardViewManager.getManager().getBoardView(args[0]).getBoardDetail();
+			pager.add(l);
 		} else {
-			MessagePager pager = MessagePager.getPager(sender).clear();
 			for (BoardView bv : BoardViewManager.getManager().listBoardViews(true)) {
 				String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
-				pager.add(Messages.getString("ChessCommandExecutor.boardList", bv.getName(), MiscUtil.formatLocation(bv.getA1Square()), //$NON-NLS-1$
-				                             bv.getBoardStyleName(), gameName));
+				pager.add(MessagePager.BULLET + Messages.getString("ChessCommandExecutor.boardList",
+				                                                   bv.getName(), MiscUtil.formatLocation(bv.getA1Square()), //$NON-NLS-1$
+				                                                   bv.getBoardStyleName(), gameName));
 			}
-			pager.showPage();
 		}
+		pager.showPage();
 		return true;
 	}
 

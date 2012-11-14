@@ -1,7 +1,6 @@
 package me.desht.chesscraft;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +21,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class ChessPersistence {
-
-	private FilenameFilter ymlFilter = new FilenameFilter() {
-		@Override
-		public boolean accept(File dir, String name) {
-			return name.endsWith(".yml");
-		}
-	};
 
 	public void save() {
 		savePersistedData();
@@ -92,7 +84,7 @@ public class ChessPersistence {
 		int nLoaded = 0;
 		
 		// load the boards, and any games on those boards
-		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(ymlFilter)) {
+		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(DirectoryStructure.ymlFilter)) {
 			nLoaded += loadBoard(f) ? 1 : 0;
 		}
 		

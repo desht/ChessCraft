@@ -27,6 +27,7 @@ import me.desht.chesscraft.commands.JoinCommand;
 import me.desht.chesscraft.commands.ListAICommand;
 import me.desht.chesscraft.commands.ListBoardCommand;
 import me.desht.chesscraft.commands.ListGameCommand;
+import me.desht.chesscraft.commands.ListStylesCommand;
 import me.desht.chesscraft.commands.ListTopCommand;
 import me.desht.chesscraft.commands.MoveCommand;
 import me.desht.chesscraft.commands.NoCommand;
@@ -144,7 +145,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		registerCommands();
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
-
+		if (!getConfig().getBoolean("pager.enabled")) {
+			MessagePager.setDefaultPageSize(Integer.MAX_VALUE);
+		}
+		
 		persistence.reload();
 
 		if (sms != null)
@@ -305,6 +309,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		cmds.registerCommand(new JoinCommand());
 		cmds.registerCommand(new ListAICommand());
 		cmds.registerCommand(new ListGameCommand());
+		cmds.registerCommand(new ListStylesCommand());
 		cmds.registerCommand(new ListBoardCommand());
 		cmds.registerCommand(new ListTopCommand());
 		cmds.registerCommand(new MoveCommand());
@@ -349,8 +354,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	@Override
-	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal,
-			Object newVal) {
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
 			tickTask.start(0L);
 		} else if (key.equalsIgnoreCase("locale")) { //$NON-NLS-1$
@@ -369,6 +373,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			flightListener.recalculateFlightRegions();
 		} else if (key.equalsIgnoreCase("flying.fly_speed") || key.equalsIgnoreCase("flying.walk_speed")) {
 			flightListener.updateSpeeds();
+		} else if (key.equalsIgnoreCase("pager.enabled")) {
+			if ((Boolean) newVal) {
+				MessagePager.setDefaultPageSize();
+			} else {
+				MessagePager.setDefaultPageSize(Integer.MAX_VALUE);
+			}
 		}
 	}
 

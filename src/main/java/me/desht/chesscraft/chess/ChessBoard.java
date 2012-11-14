@@ -239,8 +239,11 @@ public class ChessBoard {
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
 		BoardStyle newStyle = BoardStyle.loadStyle(boardStyleName);
+		setBoardStyle(newStyle);
+	}
 
-		// We don't allow any changes to the board's dimensions, only changes to
+	public final void setBoardStyle(BoardStyle newStyle) {
+		// We don't allow any changes to the board's dimensions; only changes to
 		// the appearance of the board.
 		if (boardStyle != null &&
 				(boardStyle.getFrameWidth() != newStyle.getFrameWidth() ||
@@ -562,16 +565,16 @@ public class ChessBoard {
 		if (row < 0 || col < 0 || row > 7 || col > 7) {
 			throw new ChessException("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");	
 		}
-		
+
 		Cuboid sq = new Cuboid(a1Corner.getLocation());
-		
+
 		int s = boardStyle.getSquareSize();
 		Direction dir = rotation.getDirection();
 		Direction dirRight = rotation.getRight().getDirection();
-		
+
 		sq = sq.shift(dir, row * s).shift(dirRight, col * s);
 		sq = sq.expand(dir, s - 1).expand(dirRight, s - 1);
-		
+
 		return sq;
 	}
 

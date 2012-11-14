@@ -44,7 +44,7 @@ public class ListTopCommand extends AbstractCommand {
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		int row = 1;
 		for (ScoreRecord sr : results.getView(viewName).getScores(n, excludeAI)) {
-			pager.add(Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
+			pager.add(MessagePager.BULLET + Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
 			row++;
 		}
 		pager.showPage();

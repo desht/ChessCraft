@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
@@ -49,7 +50,7 @@ public class ChessUtils {
 	 */
 	public static String getDisplayColour(int c) {
 		String s = c == Chess.WHITE ? "&f" : "&8";
-		return s + getColour(c) + "&-";
+		return s + getColour(c) + ChatColor.RESET;
 	}
 
 	/**

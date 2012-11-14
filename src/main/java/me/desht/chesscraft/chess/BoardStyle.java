@@ -22,25 +22,36 @@ import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class BoardStyle {
+public class BoardStyle implements Comparable<BoardStyle> {
 	public static final String DEFAULT_BOARD_STYLE = "standard";
 	
 	public static final int MIN_HEIGHT = 3, MIN_FRAMEWIDTH = 2, MIN_SQUARESIZE = 1;
 	public static final int MAX_HEIGHT = 128, MAX_FRAMEWIDTH = 10, MAX_SQUARESIZE = 30;
 	
-	private int frameWidth, squareSize, height;
+	private final boolean isCustom;
+	private final int frameWidth, squareSize, height;
+	private final String styleName;
+	
 	private MaterialWithData blackSquareMat, whiteSquareMat;
 	private MaterialWithData enclosureMat, frameMat, controlPanelMat;
 	private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
 	private MaterialWithData strutsMat;
 	private HighlightStyle highlightStyle;
 	private int lightLevel;
-	private String styleName;
+	
 	private String pieceStyleName;
 
-	// protected - have to use BoardStyle.loadNewStyle to get a new one..
-	protected BoardStyle(String styleName, Configuration c) throws ChessException {
+	/**
+	 * Private constructor.  Use BoardStyle.loadNewStyle() to get new BoardStyle objects.
+	 * 
+	 * @param styleName
+	 * @param c
+	 * @param isCustom
+	 * @throws ChessException
+	 */
+	private BoardStyle(String styleName, Configuration c, boolean isCustom) throws ChessException {
 		this.styleName = styleName;
+		this.isCustom = isCustom;
 		
 		for (String k : new String[] {
 				"square_size", "frame_width", "height",
@@ -51,9 +62,10 @@ public class BoardStyle {
 			throw new ChessException("board style must have at least one of 'lit' or 'light_level'");
 		}
 		
-		this.setSquareSize(c.getInt("square_size"));
-		this.setFrameWidth(c.getInt("frame_width"));
-		this.setHeight(c.getInt("height"));
+		squareSize = c.getInt("square_size");
+		frameWidth = c.getInt("frame_width");
+		height = c.getInt("height");
+		
 		this.pieceStyleName = c.getString("piece_style", "standard");
 
 		if (c.contains("lit")) {
@@ -82,6 +94,10 @@ public class BoardStyle {
 
 	public String getName() {
 		return styleName;
+	}
+	
+	public boolean isCustom() {
+		return isCustom;
 	}
 	
 	public String getPieceStyleName() {
@@ -194,16 +210,6 @@ public class BoardStyle {
 		}
 	}
 
-	private void setFrameWidth(int frameWidth) {
-		this.frameWidth = frameWidth < MIN_FRAMEWIDTH ? MIN_FRAMEWIDTH
-				: (frameWidth > MAX_FRAMEWIDTH ? MAX_FRAMEWIDTH : frameWidth);
-	}
-
-	private void setHeight(int height) {
-		this.height = height < MIN_HEIGHT ? MIN_HEIGHT
-				: (height > MAX_HEIGHT ? MAX_HEIGHT : height);
-	}
-
 	public void setHighlightBlackSquareMaterial(MaterialWithData highlightBlackSquareMat) {
 		this.highlightBlackSquareMat = highlightBlackSquareMat;
 	}
@@ -220,11 +226,6 @@ public class BoardStyle {
 		this.highlightWhiteSquareMat = highlightWhiteSquareMat;
 	}
 
-	private void setSquareSize(int squareSize) {
-		this.squareSize = squareSize < MIN_SQUARESIZE ? MIN_SQUARESIZE
-				: (squareSize > MAX_SQUARESIZE ? MAX_SQUARESIZE : squareSize);
-	}
-
 	public void verifyCompatibility(ChessSet pieceStyle) throws ChessException {
 		// ensure the new chess set actually fits this board
 		if (pieceStyle.getMaxWidth() > squareSize || pieceStyle.getMaxHeight() > height) {
@@ -232,7 +233,7 @@ public class BoardStyle {
 		}
 	}
 	
-	public void saveStyle(String newStyleName) throws ChessException {
+	public BoardStyle saveStyle(String newStyleName) throws ChessException {
 		File f = DirectoryStructure.getResourceFileForSave(DirectoryStructure.getBoardStyleDirectory(), newStyleName);
 
 		// It would be nice to use the configuration API to save this, but I want comments!
@@ -274,7 +275,7 @@ public class BoardStyle {
 			out.write("highlight_black_square: '" + highlightBlackSquareMat + "'\n");
 			out.close();
 			
-			styleName = newStyleName;
+			return loadStyle(newStyleName);
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
 		}
@@ -294,7 +295,7 @@ public class BoardStyle {
 		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getBoardStyleDirectory(), styleName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
-		return new BoardStyle(styleName, c);
+		return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
 	}
 	
 	/**
@@ -308,5 +309,10 @@ public class BoardStyle {
 		BoardStyle b = BoardStyle.loadStyle(boardStyleName);
 		ChessSet cs = ChessSet.getChessSet(pieceStyleName == null ? b.getPieceStyleName() : pieceStyleName);
 		b.verifyCompatibility(cs);
+	}
+
+	@Override
+	public int compareTo(BoardStyle o) {
+		return getName().compareTo(o.getName());
 	}
 }

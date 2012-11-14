@@ -12,6 +12,7 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class HumanChessPlayer extends ChessPlayer {
@@ -23,10 +24,19 @@ public class HumanChessPlayer extends ChessPlayer {
 	}
 
 	private Player getBukkitPlayer() {
-		if (player == null)
+		if (player == null) {
 			player = Bukkit.getPlayer(getName());
+		} else {
+			if (!player.isOnline())
+				player = null;
+		}
 		
 		return player;
+	}
+	
+	@Override
+	public String getDisplayName() {
+		return ChatColor.GOLD + getName() + ChatColor.RESET;
 	}
 	
 	@Override
