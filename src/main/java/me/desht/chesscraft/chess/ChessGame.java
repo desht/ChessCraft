@@ -142,7 +142,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws IllegalMoveException	If the game data contains an illegal Chess move
 	 */
 	public ChessGame(ConfigurationSection map) throws IllegalMoveException {
-		view = BoardView.getBoardView(map.getString("boardview"));
+		view = BoardViewManager.getManager().getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
 		}

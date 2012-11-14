@@ -2,6 +2,7 @@ package me.desht.chesscraft.listeners;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -23,7 +24,7 @@ public class ChessBlockListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation());
 		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
 			return;
 		}
@@ -35,7 +36,7 @@ public class ChessBlockListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation());
 		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
 			return;
 		}
@@ -47,7 +48,7 @@ public class ChessBlockListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_building", true)) {
 			return;
 		}
-		BoardView bv = BoardView.partOfChessBoard(event.getBlock().getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation());
 		if (bv == null || bv.canDesignHere(event.getPlayer(), event.getBlock().getLocation())) {
 			return;
 		}
@@ -59,14 +60,14 @@ public class ChessBlockListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
@@ -78,9 +79,9 @@ public class ChessBlockListener extends ChessListenerBase {
 	 */
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockFromTo(BlockFromToEvent event) {		
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
-		} else if (BoardView.partOfChessBoard(event.getToBlock().getLocation()) != null) {
+		} else if (BoardViewManager.getManager().partOfChessBoard(event.getToBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}
@@ -93,7 +94,7 @@ public class ChessBlockListener extends ChessListenerBase {
 	 */
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockForm(BlockFormEvent event) {
-		if (BoardView.partOfChessBoard(event.getBlock().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
 			event.setCancelled(true);
 		}
 	}

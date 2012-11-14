@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -23,12 +24,12 @@ public class RedrawCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		if (args.length >= 1) {
 			// redraw named board
-			BoardView bv = BoardView.getBoardView(args[0]);
+			BoardView bv = BoardViewManager.getManager().getBoardView(args[0]);
 			repaintBoard(bv);
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardRedrawn", bv.getName())); //$NON-NLS-1$
 		} else if (getBooleanOption("all")) {
 			// redraw ALL boards
-			for (BoardView bv : BoardView.listBoardViews()) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 				repaintBoard(bv);
 			}
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.allBoardsRedrawn")); //$NON-NLS-1$
@@ -36,7 +37,7 @@ public class RedrawCommand extends AbstractCommand {
 			// redraw board caller is standing on, if any
 			notFromConsole(sender);
 			Player player = (Player) sender;
-			BoardView bv = BoardView.partOfChessBoard(player.getLocation());
+			BoardView bv = BoardViewManager.getManager().partOfChessBoard(player.getLocation());
 			if (bv == null) {
 				throw new ChessException(Messages.getString("Designer.notOnBoard"));
 			}

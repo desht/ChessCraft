@@ -2,6 +2,7 @@ package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
@@ -36,7 +37,7 @@ public class ExpectBoardCreation extends ExpectChessBase {
 			return;
 		}
 		
-		BoardView view = BoardView.createBoard(boardName, loc, BoardRotation.getRotation(player), style, pieceStyle);
+		BoardView view = BoardViewManager.getManager().createBoard(boardName, loc, BoardRotation.getRotation(player), style, pieceStyle);
 		
 		MiscUtil.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
 				view.getName(), MiscUtil.formatLocation(view.getA1Square())));

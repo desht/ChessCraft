@@ -3,6 +3,7 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.TimeControlDefs;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
@@ -54,7 +55,7 @@ public class ReloadCommand extends AbstractCommand {
 		}
 		if (reloadTimeControls) {
 			TimeControlDefs.loadBaseDefs();
-			for (BoardView bv : BoardView.listBoardViews()) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 				bv.getControlPanel().getSignButton(TimeControlButton.class).reloadDefs();
 			}
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.timeControlsReloaded")); //$NON-NLS-1$

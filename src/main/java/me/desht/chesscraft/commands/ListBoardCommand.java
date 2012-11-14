@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -18,16 +19,16 @@ public class ListBoardCommand extends AbstractCommand {
 	}
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		if (BoardView.listBoardViews().isEmpty()) {
+		if (BoardViewManager.getManager().listBoardViews().isEmpty()) {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.noBoards")); //$NON-NLS-1$
 			return true;
 		}
 
 		if (args.length >= 1) {
-			BoardView.getBoardView(args[0]).showBoardDetail(sender);
+			BoardViewManager.getManager().getBoardView(args[0]).showBoardDetail(sender);
 		} else {
 			MessagePager pager = MessagePager.getPager(sender).clear();
-			for (BoardView bv : BoardView.listBoardViews(true)) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews(true)) {
 				String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 				pager.add(Messages.getString("ChessCommandExecutor.boardList", bv.getName(), MiscUtil.formatLocation(bv.getA1Square()), //$NON-NLS-1$
 				                             bv.getBoardStyleName(), gameName));

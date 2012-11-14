@@ -182,9 +182,9 @@ public class ChessGameManager {
 	public ChessGame createGame(Player player, String gameName, String boardName, int colour) {
 		BoardView bv;
 		if (boardName == null) {
-			bv = BoardView.getFreeBoard();
+			bv = BoardViewManager.getManager().getFreeBoard();
 		} else {
-			bv = BoardView.getBoardView(boardName);
+			bv = BoardViewManager.getManager().getBoardView(boardName);
 		}
 
 		return createGame(player, gameName, bv, colour);

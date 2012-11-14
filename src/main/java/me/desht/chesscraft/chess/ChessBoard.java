@@ -127,7 +127,7 @@ public class ChessBoard {
 		if (bounds.getUpperSW().getBlock().getLocation().getY() > bounds.getUpperSW().getWorld().getMaxHeight()) {
 			throw new ChessException(Messages.getString("BoardView.boardTooHigh")); //$NON-NLS-1$
 		}
-		for (BoardView bv : BoardView.listBoardViews()) {
+		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			if (bv.getA1Square().getWorld() != bounds.getWorld()) {
 				continue;
 			}

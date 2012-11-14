@@ -1,7 +1,7 @@
 package me.desht.chesscraft.listeners;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -14,6 +14,6 @@ public class ChessWorldListener extends ChessListenerBase {
 	
 	@EventHandler
 	public void onWorldLoaded(WorldLoadEvent event) {
-		BoardView.loadDeferred(event.getWorld().getName());
+		BoardViewManager.getManager().loadDeferred(event.getWorld().getName());
 	}
 }

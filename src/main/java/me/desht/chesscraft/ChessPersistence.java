@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -37,7 +38,7 @@ public class ChessPersistence {
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.deleteTemporary();
 		}
-		for (BoardView view : BoardView.listBoardViews()) {
+		for (BoardView view : BoardViewManager.getManager().listBoardViews()) {
 			view.deleteTemporary();
 		}
 
@@ -95,7 +96,7 @@ public class ChessPersistence {
 			nLoaded += loadBoard(f) ? 1 : 0;
 		}
 		
-		for (BoardView bv : BoardView.listBoardViews()) {
+		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			bv.getControlPanel().repaintControls();
 		}
 
@@ -143,14 +144,14 @@ public class ChessPersistence {
 				return false;
 			}
 			if (bv.getChessBoard() != null) {
-				BoardView.registerView(bv);
+				BoardViewManager.getManager().registerView(bv);
 				// load the board's game too, if there is one
 				if (!bv.getSavedGameName().isEmpty()) {
 					File gameFile = new File(DirectoryStructure.getGamesPersistDirectory(), bv.getSavedGameName() + ".yml");
 					loadGame(gameFile);
 				}
 			} else {
-				BoardView.deferLoading(bv.getWorldName(), f);
+				BoardViewManager.getManager().deferLoading(bv.getWorldName(), f);
 				LogUtils.info("board loading for board '" + bv.getName() + "' deferred (world '" + bv.getWorldName() + "' not available)");
 			}
 			return true;
@@ -184,7 +185,7 @@ public class ChessPersistence {
 	}
 
 	private void saveBoards() {
-		for (BoardView b : BoardView.listBoardViews()) {
+		for (BoardView b : BoardViewManager.getManager().listBoardViews()) {
 			savePersistable("board", b);
 		}
 	}

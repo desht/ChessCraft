@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
@@ -171,7 +172,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.deleteTemporary();
 		}
-		for (BoardView view : BoardView.listBoardViews()) {
+		for (BoardView view : BoardViewManager.getManager().listBoardViews()) {
 			view.deleteTemporary();
 		}
 		Results.shutdown();
@@ -206,7 +207,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 			metrics.createGraph("Boards Created").addPlotter(new Plotter() {
 				@Override
-				public int getValue() { return BoardView.listBoardViews().size();	}
+				public int getValue() { return BoardViewManager.getManager().listBoardViews().size();	}
 			});
 			metrics.createGraph("Games in Progress").addPlotter(new Plotter() {
 				@Override
@@ -372,7 +373,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	private void updateAllControlPanels() {
-		for (BoardView bv : BoardView.listBoardViews()) {
+		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			bv.getControlPanel().repaintControls();
 			bv.getControlPanel().repaintClocks();
 		}

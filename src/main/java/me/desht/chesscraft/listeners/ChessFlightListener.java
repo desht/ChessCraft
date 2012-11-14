@@ -10,6 +10,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.BlockType;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
@@ -198,7 +199,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		Player player = event.getPlayer();
 		if (allowedToFly.containsKey(player.getName()) && !gameModeAllowsFlight(player) && player.isFlying()) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (BoardView.partOfChessBoard(event.getClickedBlock().getLocation()) == null) {
+				if (BoardViewManager.getManager().partOfChessBoard(event.getClickedBlock().getLocation()) == null) {
 					MiscUtil.errorMessage(player, Messages.getString("Flight.interactionStopped"));
 					event.setCancelled(true);
 				}
@@ -226,7 +227,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		flightRegions.clear();
 
-		for (BoardView bv : BoardView.listBoardViews()) {
+		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			Cuboid c = bv.getOuterBounds();
 			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
 			if (BlockType.canPassThrough(mat.getId())) {

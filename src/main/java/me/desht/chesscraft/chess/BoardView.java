@@ -1,15 +1,10 @@
 package me.desht.chesscraft.chess;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
@@ -23,18 +18,14 @@ import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.event.ChessBoardCreatedEvent;
-import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -51,9 +42,6 @@ import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
-	private static final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
-
-	private static final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
 
 	private final String name;
 	private final ControlPanel controlPanel;
@@ -77,7 +65,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public BoardView(String boardName, Location origin,
 			BoardRotation rotation, String bStyle, String pStyle) throws ChessException {
 		this.name = boardName;
-		if (BoardView.boardViewExists(name)) {
+		if (BoardViewManager.getManager().boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 		chessBoard = new ChessBoard(origin, rotation, bStyle, pStyle);
@@ -99,7 +87,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		BoardRotation dir = BoardRotation.get(conf.getString("direction")); //$NON-NLS-1$
 
 		this.name = conf.getString("name"); //$NON-NLS-1$
-		if (BoardView.boardViewExists(name)) {
+		if (BoardViewManager.getManager().boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 
@@ -553,7 +541,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	private void deleteCommon() {
-		BoardView.removeBoardView(getName());
+		BoardViewManager.getManager().unregisterBoardView(getName());
 	}
 
 	private void restoreTerrain() {
@@ -581,7 +569,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * 
 	 * @return	The location
 	 */
-	private Location findSafeLocationOutside() {
+	public Location findSafeLocationOutside() {
 		Location dest = chessBoard.getFullBoard().getLowerNE();
 		dest.add(-1, 0, 1);
 		return dest.getWorld().getHighestBlockAt(dest).getLocation();
@@ -639,241 +627,5 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
 		if (game != null)
 			ChessGameManager.getManager().setCurrentGame(player.getName(), game);
-	}
-
-	/*----------------------static methods--------------------------------------*/
-
-	public static String makeBoardName() {
-		String res;
-		int n = 1;
-		do {
-			res = "board-" + n++; //$NON-NLS-1$
-		} while (BoardView.boardViewExists(res));
-
-		return res;
-	}
-
-	public static void addBoardView(String name, BoardView view) {
-		chessBoards.put(name, view);
-		
-		Bukkit.getPluginManager().callEvent(new ChessBoardCreatedEvent(view));
-
-	}
-
-	public static void registerView(BoardView view) {
-		addBoardView(view.getName(), view);
-	}
-
-	public static void removeBoardView(String name) {
-		BoardView bv;
-		try {
-			bv = getBoardView(name);
-			chessBoards.remove(name);
-			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
-		} catch (ChessException e) {
-			LogUtils.warning("removeBoardView: unknown board name " + name);
-		}
-
-	}
-
-	public static void removeAllBoardViews() {
-		for (BoardView bv : listBoardViews()) {
-			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
-		}
-		chessBoards.clear();
-	}
-
-	public static boolean boardViewExists(String name) {
-		return chessBoards.containsKey(name);
-	}
-
-	public static BoardView getBoardView(String name) throws ChessException {
-		if (!chessBoards.containsKey(name)) {
-			if (chessBoards.size() > 0) {
-				// try "fuzzy" search
-				String keys[] = chessBoards.keySet().toArray(new String[0]);
-				String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
-
-				if (matches.length == 1) {
-					return chessBoards.get(matches[0]);
-				} else {
-					// partial-name search
-					int k = -1, c = 0;
-					name = name.toLowerCase();
-					for (int i = 0; i < keys.length; ++i) {
-						if (keys[i].toLowerCase().startsWith(name)) {
-							k = i;
-							++c;
-						}
-					}
-					if (k >= 0 && c == 1) {
-						return chessBoards.get(keys[k]);
-					}
-				}
-			}
-			throw new ChessException(Messages.getString("BoardView.noSuchBoard", name)); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return chessBoards.get(name);
-	}
-
-	public static List<BoardView> listBoardViews() {
-		return listBoardViews(false);
-	}
-
-	public static List<BoardView> listBoardViews(boolean isSorted) {
-		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
-			List<BoardView> res = new ArrayList<BoardView>();
-			for (String name : sorted) {
-				res.add(chessBoards.get(name));
-			}
-			return res;
-		} else {
-			return new ArrayList<BoardView>(chessBoards.values());
-		}
-
-	}
-
-	/**
-	 * Get a board that does not have a game running.
-	 * 
-	 * @return the first free board found
-	 * @throws ChessException if no free board was found
-	 */
-	public static BoardView getFreeBoard() throws ChessException {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.getGame() == null && !bv.isDesigning()) {
-				return bv;
-			}
-		}
-		throw new ChessException(Messages.getString("BoardView.noFreeBoards")); //$NON-NLS-1$
-	}
-
-	/**
-	 * Check if location is any part of any board including the frame & enclosure.
-	 * 
-	 * @param loc	location to check
-	 * @param fudge	fudge factor - check a larger area around the board
-	 * @return the boardview that matches, or null if none
-	 */
-	public static BoardView partOfChessBoard(Location loc) {
-		return partOfChessBoard(loc, 0);
-	}
-
-	public static BoardView partOfChessBoard(Location loc, int fudge) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isPartOfBoard(loc, fudge)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Check if location is above a board square but below the roof
-	 * 
-	 * @param loc  location to check
-	 * @return the boardview that matches, or null if none
-	 */
-	public static BoardView aboveChessBoard(Location loc) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isAboveBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Check if location is part of a board square
-	 * 
-	 * @param loc	location to check
-	 * @return the boardview that matches, or null if none
-	 */
-	public static BoardView onChessBoard(Location loc) {
-		for (BoardView bv : listBoardViews()) {
-			if (bv.isOnBoard(loc)) {
-				return bv;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Teleport the player in a sensible manner, depending on where they are now.
-	 * 
-	 * @param player
-	 * @throws ChessException
-	 */
-	public static void teleportOut(Player player) throws ChessException {
-		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
-
-		BoardView bv = partOfChessBoard(player.getLocation());
-		Location prev = ChessCraft.getInstance().getPlayerTracker().getLastPos(player);
-		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
-			// try to get the player out of this board safely
-			Location loc = bv.findSafeLocationOutside();
-			if (loc != null) {
-				ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
-			} else {
-				ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, player.getWorld().getSpawnLocation());
-				MiscUtil.errorMessage(player, Messages.getString("ChessCommandExecutor.goingToSpawn")); //$NON-NLS-1$
-			}
-		} else if (prev != null) {
-			// go back to previous location
-			ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, prev);
-		} else {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.notOnChessboard")); //$NON-NLS-1$
-		}
-	}
-
-	/**
-	 * Convenience method to create a new board and do all the associated setup tasks.
-	 * 
-	 * @param boardName
-	 * @param loc
-	 * @param style
-	 * @param pieceStyle
-	 * @return a fully initialised and painted board
-	 */
-	public static BoardView createBoard(String boardName, Location loc, BoardRotation rotation, String style, String pieceStyle) {
-		BoardView view = new BoardView(boardName, loc, rotation, style, pieceStyle);
-		BoardView.registerView(view);
-		if (ChessCraft.getWorldEdit() != null) {
-			TerrainBackup.save(view);
-		}
-		view.save();
-		view.paintAll();
-
-		return view;
-	}
-
-	/**
-	 * Mark a board as deferred loading - its world wasn't available so we'll record the board
-	 * file name for later.
-	 * 
-	 * @param worldName
-	 * @param f
-	 */
-	public static void deferLoading(String worldName, File f) {
-		if (!deferred.containsKey(worldName)) {
-			deferred.put(worldName, new HashSet<File>());
-		}
-		deferred.get(worldName).add(f);
-	}
-
-	/**
-	 * Load any deferred boards for the given world.
-	 * 
-	 * @param worldName
-	 */
-	public static void loadDeferred(String worldName) {
-		if (!deferred.containsKey(worldName)) {
-			return;
-		}
-		for (File f : deferred.get(worldName)) {
-			ChessCraft.getPersistenceHandler().loadBoard(f);
-		}
-		deferred.get(worldName).clear();
 	}
 }

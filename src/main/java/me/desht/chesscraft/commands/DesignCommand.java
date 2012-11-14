@@ -3,6 +3,7 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
@@ -30,7 +31,7 @@ public class DesignCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
 		
-		BoardView bv = BoardView.partOfChessBoard(((Player)sender).getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
