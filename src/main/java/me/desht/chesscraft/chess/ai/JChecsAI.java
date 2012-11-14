@@ -1,11 +1,12 @@
 package me.desht.chesscraft.chess.ai;
 
-import org.bukkit.configuration.ConfigurationSection;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+
+import org.bukkit.configuration.ConfigurationSection;
+
 import fr.free.jchecs.ai.Engine;
 import fr.free.jchecs.ai.EngineFactory;
 import fr.free.jchecs.core.Game;
@@ -86,6 +87,8 @@ public class JChecsAI extends ChessAI {
 	@Override
 	public void undoLastMove() {
 		jChecsGame.goPrevious();
+		if (!toMove())
+			jChecsGame.goPrevious();
 	}
 
 	/* (non-Javadoc)
