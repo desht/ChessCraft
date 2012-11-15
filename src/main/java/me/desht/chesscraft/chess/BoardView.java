@@ -85,7 +85,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		worldName = (String) origin.get(0);
 		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
 		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
-		BoardRotation dir = BoardRotation.get(conf.getString("direction")); //$NON-NLS-1$
+		BoardRotation dir = BoardRotation.getRotation(conf.getString("direction")); //$NON-NLS-1$
 
 		this.name = conf.getString("name"); //$NON-NLS-1$
 		if (BoardViewManager.getManager().boardViewExists(name)) {
