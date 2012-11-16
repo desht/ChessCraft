@@ -238,6 +238,7 @@ Game:
   gameIsFull: "This game already has two players."
   getStakeBack: "You get your stake of {0} back."
   invalidPromoPiece: "Invalid promotion piece: {0}."
+  inviteCooldown: "You must wait {0,number,integer} seconds before sending another open invitation."
   inviteSent: "An invitation has been sent to &6{0}&-."
   inviteWithdrawn: "Your invitation has been withdrawn."
   joinPrompt: "Type &f/chess join&- to join the game."

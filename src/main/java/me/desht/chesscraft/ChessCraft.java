@@ -145,9 +145,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		registerCommands();
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
-		if (!getConfig().getBoolean("pager.enabled")) {
-			MessagePager.setDefaultPageSize(Integer.MAX_VALUE);
-		}
+		MessagePager.setDefaultPageSize(getConfig().getInt("pager.lines", 0));
 		
 		persistence.reload();
 

@@ -10,6 +10,8 @@ auto_teleport_on_join: true
 timeout_forfeit: 60 sec
 no_pvp: true
 teleporting: true
+pager:
+    lines: 0
 stake:
     max: -1.0
     default: 0.0
@@ -20,6 +22,7 @@ auto_delete:
     finished: 15 sec
     not_started: 1 min 30 sec
     running: 28 days
+open_invite_cooldown: 3 mins
 no_monster_damage: true
 no_misc_damage: true
 no_monster_attacks: true

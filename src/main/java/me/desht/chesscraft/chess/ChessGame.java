@@ -68,11 +68,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private String invited;
 	private GameState state;
 	private int fromSquare;
-	private long started, finished, lastMoved;
+	private long started, finished, lastMoved, lastOpenInvite;
 	private TimeControl tcWhite, tcBlack;
 	private int result;
 	private double stake;
-
+	
 	/**
 	 * Constructor: Creating a new Chess game.
 	 * 
@@ -100,7 +100,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
-		started = finished = 0L;
+		started = finished = lastOpenInvite = 0L;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null && ChessCraft.economy != null) {
 			double playerBalance = ChessCraft.economy.getBalance(playerName);
@@ -168,10 +168,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		created = map.getLong("created", System.currentTimeMillis()); //$NON-NLS-1$
 		started = map.getLong("started"); //$NON-NLS-1$
 		finished = map.getLong("finished", state == GameState.FINISHED ? System.currentTimeMillis() : 0);
+		lastOpenInvite = 0L;
 		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
 		result = map.getInt("result"); //$NON-NLS-1$
-		players[Chess.WHITE].setPromotionPiece(map.getInt("promotionWhite"));
-		players[Chess.BLACK].setPromotionPiece(map.getInt("promotionBlack"));
+		if (hasPlayer(Chess.WHITE))
+			getPlayer(Chess.WHITE).setPromotionPiece(map.getInt("promotionWhite"));
+		if (hasPlayer(Chess.BLACK)) 
+			getPlayer(Chess.BLACK).setPromotionPiece(map.getInt("promotionBlack"));
 		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
 
 		cpGame = setupChesspressoGame();
@@ -298,6 +301,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return players[colour];
 	}
 	
+	public boolean hasPlayer(int colour) {
+		return players[colour] != null;
+	}
+	
 	/**
 	 * Get the name of the player for the given colour (Chess.WHITE or Chess.BLACK),
 	 * or the empty string if there's no player of that colour (yet).
@@ -308,7 +315,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public String getPlayerName(int colour) {
 		return players[colour] != null ? players[colour].getName() : "";
 	}
-
+	
 	public String getWhitePlayerName() {
 		return getPlayerName(Chess.WHITE);
 	}
@@ -368,7 +375,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 	
 	public int getPromotionPiece(int colour) {
-		return getPlayer(colour) == null ? Chess.QUEEN : getPlayer(colour).getPromotionPiece();
+		return hasPlayer(colour) ? getPlayer(colour).getPromotionPiece() : Chess.QUEEN;
 	}
 
 	/**
@@ -621,12 +628,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public void inviteOpen(String inviterName) {
 		inviteSanityCheck(inviterName);
+		
+		long now = System.currentTimeMillis();
+		Duration cooldown = new Duration(ChessCraft.getInstance().getConfig().getString("open_invite_cooldown", "3 mins"));
+		long remaining = (cooldown.getTotalDuration() - (now - lastOpenInvite)) / 1000;
+		if (remaining > 0) {
+			throw new ChessException(Messages.getString("Game.inviteCooldown", remaining));
+		}
+		
 		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
 			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
 		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
-		invited = OPEN_INVITATION; //$NON-NLS-1$
+		invited = OPEN_INVITATION;
+		lastOpenInvite = now;
 	}
 
 	private void inviteSanityCheck(String inviterName) {

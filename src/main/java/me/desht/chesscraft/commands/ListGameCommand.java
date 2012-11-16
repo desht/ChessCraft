@@ -46,8 +46,8 @@ public class ListGameCommand extends AbstractCommand {
 				}
 				String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? TO_MOVE : ""; //$NON-NLS-1$ //$NON-NLS-2$
 				String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? TO_MOVE : ""; //$NON-NLS-1$ //$NON-NLS-2$
-				String white = game.getWhitePlayerName().isEmpty() ? "?" : game.getPlayer(Chess.WHITE).getDisplayName(); //$NON-NLS-1$
-				String black = game.getBlackPlayerName().isEmpty() ? "?" : game.getPlayer(Chess.BLACK).getDisplayName(); //$NON-NLS-1$
+				String white = game.hasPlayer(Chess.WHITE) ? game.getPlayer(Chess.WHITE).getDisplayName() : "?"; //$NON-NLS-1$
+				String black = game.hasPlayer(Chess.BLACK) ? game.getPlayer(Chess.BLACK).getDisplayName() : "?"; //$NON-NLS-1$
 				String line = String.format(MessagePager.BULLET + "%s: &f%s%s (%s) v %s%s (%s)",
 				                            name,
 				                            curMoveW, white, ChessUtils.getDisplayColour(Chess.WHITE),
