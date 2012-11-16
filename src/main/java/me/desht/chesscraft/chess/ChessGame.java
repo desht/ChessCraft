@@ -1447,8 +1447,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * move in our game model too.  Also check if the AI has failed and we need to abandon.
 	 */
 	private synchronized void checkForAIActivity() {
-		players[Chess.WHITE].checkPendingMove();
-		players[Chess.BLACK].checkPendingMove();
+		players[Chess.WHITE].checkPendingAction();
+		players[Chess.BLACK].checkPendingAction();
 	}
 	
 	/**

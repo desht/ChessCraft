@@ -202,7 +202,7 @@ Game:
   boardInDesignMode: "这个棋盘正处于棋子设计模式"
   sitePGN: " 在Minecraftia中"
   AIisBusy: "那个AI现在正忙着比赛."
-  alertPrefix: "&6:: &-国际象棋比赛 &6{0}&-： "
+  alertPrefix: "&6♚ &-国际象棋比赛 &6{0}&-： "
   archiveExists: "存档文件 {0} 存在 - 不会被覆盖."
   abandoned: "&6{0}&- 在一局国际象棋比赛中和  &6{1}&- (弃局) 下成了和局 !"
   autoDeleteFinished: "比赛结束, 棋子自动删除完成."

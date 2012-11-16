@@ -174,7 +174,7 @@ Game:
   boardAlreadyHasGame: "Esa mesa ya tiene una partida jugandose."
   sitePGN: " en Minecraftia"
   AIisBusy: "Ese AI esta actualmente ocupado jugando una partida."
-  alertPrefix: "&6:: &-Partida &6{0}&-: "
+  alertPrefix: "&6♚ &-Partida &6{0}&-: "
   archiveExists: "Archivo {0} existe - no se sobrescribira."
   autoDeleteFinished: "Autoborrado de partida finalizado."
   autoDeleteNotStarted: "Partida auto-borrada (No empezada en {0})."

@@ -208,7 +208,7 @@ Game:
   boardInDesignMode: Esse tabuleiro está sendo usado para design.
   sitePGN: ' em Minecraftia'
   AIisBusy: Esse oponente virtual está ocupado jogando outro jogo.
-  alertPrefix: '&6:: &-Jogo &6{0}&-: '
+  alertPrefix: '&6♚ &-Jogo &6{0}&-: '
   archiveExists: Arquivo {0} existe - nao sera substituido.
   abandoned: '&6{0}&- empatou com &6{1}&- (jogo abandonado) num jogo de xadrez!'
   autoDeleteFinished: Auto-deletamento concluido.

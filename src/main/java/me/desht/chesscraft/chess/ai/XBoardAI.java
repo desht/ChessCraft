@@ -80,7 +80,7 @@ public class XBoardAI extends ChessAI {
 	@Override
 	public void offerDraw() {
 		io.writeLine("draw");
-		setDrawOffered(true);
+		setDrawOfferedToAI(true);
 	}
 
 	public String getFeature(String k) {
@@ -113,12 +113,12 @@ public class XBoardAI extends ChessAI {
 			aiHasMoved(fromSqi, toSqi);
 			return true;
 		} else if (line.equals("offer draw")) {
-			if (isDrawOffered()) {
+			if (isDrawOfferedToAI()) {
 				// AI has accepted the opponent's draw offer; game over
 				acceptDrawOffer();
 			} else {
 				// AI is making a draw offer - relay this to the other player
-				getChessCraftGame().offerDraw(getName());
+				makeDrawOffer();
 			}
 			return true;
 		} else {

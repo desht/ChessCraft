@@ -1,5 +1,9 @@
 package me.desht.chesscraft.controlpanel;
 
+import java.util.List;
+
+import me.desht.dhutils.MessagePager;
+
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class BoardInfoButton extends AbstractSignButton {
@@ -10,7 +14,10 @@ public class BoardInfoButton extends AbstractSignButton {
 	
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		getView().showBoardDetail(event.getPlayer());
+		MessagePager pager = MessagePager.getPager(event.getPlayer()).clear();
+		List<String> l = getView().getBoardDetail();
+		pager.add(l);
+		pager.showPage();
 	}
 
 	@Override

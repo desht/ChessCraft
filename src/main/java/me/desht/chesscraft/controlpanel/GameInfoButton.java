@@ -1,6 +1,9 @@
 package me.desht.chesscraft.controlpanel;
 
+import java.util.List;
+
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.dhutils.MessagePager;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -14,7 +17,10 @@ public class GameInfoButton extends AbstractSignButton {
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		if (game != null) {
-			game.showGameDetail(event.getPlayer());
+			MessagePager pager = MessagePager.getPager(event.getPlayer()).clear();
+			List<String> l = game.getGameDetail();
+			pager.add(l);
+			pager.showPage();
 		}
 	}
 

@@ -219,7 +219,7 @@ Game:
   boardInDesignMode: "That board is being used for piece designing."
   sitePGN: " in Minecraftia"
   AIisBusy: "That AI is currently busy playing a game."
-  alertPrefix: "&6:: &-Game &6{0}&-: "
+  alertPrefix: "&6♚ &-Game &6{0}&-: "
   archiveExists: "Archive file {0} exists - won''t overwrite."
   abandoned: "&6{0}&- drew with &6{1}&- (game abandoned) in a game of Chess!"
   autoDeleteFinished: "Finished game auto-deleted."

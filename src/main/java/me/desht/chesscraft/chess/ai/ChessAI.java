@@ -26,14 +26,16 @@ public abstract class ChessAI implements Runnable {
 	 * colors, if wanted.
 	 */
 	public static final String AI_PREFIX = ChatColor.WHITE.toString();
+	
+	public enum PendingAction { NONE, MOVED, DRAW_OFFERED, DRAW_ACCEPTED, DRAW_DECLINED }
 
 	private boolean active = false;
 	private int aiTask = -1;
 	private boolean hasFailed = false;
-	private boolean pendingMove = false;
+	private PendingAction pendingAction = PendingAction.NONE;
 	private int pendingFrom, pendingTo;
 	private boolean ready = false;
-	private boolean drawOffered = false;
+	private boolean drawOffered = false; // draw offered *to* the AI
 	
 	private final String name;
 	private final ChessGame chessCraftGame;
@@ -66,11 +68,12 @@ public abstract class ChessAI implements Runnable {
 	public abstract void undoLastMove();
 
 	/**
-	 * Offer a draw to the AI.
-	 * 
-	 * @throws ChessException if the AI implementation doesn't support being offered draws.
+	 * Offer a draw to the AI.  The default implementation just rejects any offers, but subclasses may
+	 * override this if the implementing AI supports being offered a draw.
 	 */
-	public abstract void offerDraw();
+	public void offerDraw() {
+		rejectDrawOffer();
+	}
 	
 	/**
 	 * Perform the implementation-specfic steps needed to update the AI's internal game model with
@@ -105,11 +108,11 @@ public abstract class ChessAI implements Runnable {
 		return chessCraftGame;
 	}
 
-	protected boolean isDrawOffered() {
+	protected boolean isDrawOfferedToAI() {
 		return drawOffered;
 	}
-
-	protected void setDrawOffered(boolean drawOffered) {
+	
+	protected void setDrawOfferedToAI(boolean drawOffered) {
 		this.drawOffered = drawOffered;
 	}
 
@@ -117,12 +120,12 @@ public abstract class ChessAI implements Runnable {
 		return isWhite;
 	}
 
-	public boolean getPendingMove() {
-		return pendingMove;
+	public PendingAction getPendingAction() {
+		return pendingAction;
 	}
-
-	public void clearPendingMove() {
-		this.pendingMove = false;
+	
+	public void clearPendingAction() {
+		pendingAction = PendingAction.NONE;
 	}
 
 	public int getPendingFrom() {
@@ -268,7 +271,7 @@ public abstract class ChessAI implements Runnable {
 			return;
 		}
 
-		if (isDrawOffered()) {
+		if (isDrawOfferedToAI()) {
 			// making a move effectively rejects any pending draw offer
 			rejectDrawOffer();
 		}
@@ -282,24 +285,19 @@ public abstract class ChessAI implements Runnable {
 		// the next clock tick.
 		pendingFrom = fromSqi;
 		pendingTo = toSqi;
-		pendingMove = true;
+		pendingAction = PendingAction.MOVED;
 	}
 
+	protected void makeDrawOffer() {
+		pendingAction = PendingAction.DRAW_OFFERED;
+	}
+	
 	protected void acceptDrawOffer() {
-		ChessGame game = getChessCraftGame();
-		ChessPlayer other = getOtherChessPlayer();
-		if (other != null) {
-			other.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getName()));
-		}
-		game.drawn();
+		pendingAction = PendingAction.DRAW_ACCEPTED;
 	}
 	
 	protected void rejectDrawOffer() {
-		setDrawOffered(false);
-		ChessPlayer other = getOtherChessPlayer();
-		if (other != null) {
-			other.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getName()));
-		}
+		pendingAction = PendingAction.DRAW_DECLINED;
 	}
 	
 	public ChessPlayer getChessPlayer() {

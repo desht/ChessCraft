@@ -183,7 +183,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	}
 
 	@Override
-	public void checkPendingMove() {
+	public void checkPendingAction() {
 		// do nothing here
 	}
 

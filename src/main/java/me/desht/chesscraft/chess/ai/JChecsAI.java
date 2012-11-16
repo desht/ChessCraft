@@ -103,9 +103,4 @@ public class JChecsAI extends ChessAI {
 		Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
 		jChecsGame.moveFromCurrent(m);
 	}
-
-	@Override
-	public void offerDraw() {
-		throw new ChessException(Messages.getString("drawOfferDeclined", getName()));
-	}
 }
