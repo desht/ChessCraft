@@ -179,6 +179,10 @@ public class TimeControl implements ConfigurationSerializable {
 		}
 	}
 
+	public RolloverPhase getCurrentPhase() {
+		return rollovers.get(rolloverPhase);
+	}
+	
 	/**
 	 * The player has made a move - adjust time control accordingly, and deactivate the clock.
 	 */
@@ -203,7 +207,7 @@ public class TimeControl implements ConfigurationSerializable {
 		setActive(false);
 	}
 
-	private class RolloverPhase {
+	public class RolloverPhase {
 		private long increment;	// milliseconds
 		private int moves;
 		private int minutes;

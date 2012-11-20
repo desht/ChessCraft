@@ -2,6 +2,7 @@ package me.desht.chesscraft.chess.player;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.chesscraft.chess.ai.ChessAI;
@@ -173,5 +174,10 @@ public class AIChessPlayer extends ChessPlayer {
 	@Override
 	public void playEffect(String effect) {
 		// do nothing
+	}
+
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		ai.notifyTimeControl(timeControl);
 	}
 }

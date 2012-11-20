@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess.ai;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -102,5 +103,10 @@ public class JChecsAI extends ChessAI {
 
 		Move m = new Move(jChecsGame.getBoard().getPieceAt(from), from, to);
 		jChecsGame.moveFromCurrent(m);
+	}
+
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		// do nothing here... JChecs doesn't support time controls
 	}
 }

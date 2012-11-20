@@ -582,7 +582,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public List<String> getBoardDetail() {
 		List<String> res = new ArrayList<String>();
 		
-		String bullet = MessagePager.BULLET;
+		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
 		Cuboid bounds = getOuterBounds();
 		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 

@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess.player;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
@@ -192,6 +193,13 @@ public class HumanChessPlayer extends ChessPlayer {
 		Player p = getBukkitPlayer();
 		if (p != null) {
 			ChessUtils.playEffect(p.getLocation(), effect);
+		}
+	}
+
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		if (timeControl.isNewPhase()) {
+			alert(Messages.getString("Game.newTimeControlPhase", timeControl.phaseString()));
 		}
 	}
 

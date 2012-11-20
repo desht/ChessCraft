@@ -11,6 +11,7 @@ import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.dhutils.LogUtils;
 
@@ -67,14 +68,8 @@ public abstract class ChessAI implements Runnable {
 	 */
 	public abstract void undoLastMove();
 
-	/**
-	 * Offer a draw to the AI.  The default implementation just rejects any offers, but subclasses may
-	 * override this if the implementing AI supports being offered a draw.
-	 */
-	public void offerDraw() {
-		rejectDrawOffer();
-	}
-	
+	public abstract void notifyTimeControl(TimeControl timeControl);
+
 	/**
 	 * Perform the implementation-specfic steps needed to update the AI's internal game model with
 	 * the given move.  Square indices are always in Chesspresso sqi format.
@@ -85,6 +80,14 @@ public abstract class ChessAI implements Runnable {
 	 */
 	protected abstract void movePiece(int fromSqi, int toSqi, boolean otherPlayer);
 
+	/**
+	 * Offer a draw to the AI.  The default implementation just rejects any offers, but subclasses may
+	 * override this if the implementing AI supports being offered a draw.
+	 */
+	public void offerDraw() {
+		rejectDrawOffer();
+	}
+	
 	/**
 	 * Get the AI's canonical name.  This is dependent only on the internal prefix.
 	 * 
@@ -325,5 +328,4 @@ public abstract class ChessAI implements Runnable {
 	public static boolean isAIPlayer(String playerName) {
 		return playerName.startsWith(AI_PREFIX);
 	}
-
 }

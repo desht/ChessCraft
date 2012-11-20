@@ -164,6 +164,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			tcWhite = (TimeControl) map.get("tcWhite");
 			tcBlack = (TimeControl) map.get("tcBlack");
+			if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
+			if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 		}
 		created = map.getLong("created", System.currentTimeMillis()); //$NON-NLS-1$
 		started = map.getLong("started"); //$NON-NLS-1$
@@ -171,10 +173,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		lastOpenInvite = 0L;
 		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
 		result = map.getInt("result"); //$NON-NLS-1$
-		if (hasPlayer(Chess.WHITE))
-			getPlayer(Chess.WHITE).setPromotionPiece(map.getInt("promotionWhite"));
-		if (hasPlayer(Chess.BLACK)) 
-			getPlayer(Chess.BLACK).setPromotionPiece(map.getInt("promotionBlack"));
+		if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).setPromotionPiece(map.getInt("promotionWhite"));
+		if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).setPromotionPiece(map.getInt("promotionBlack"));
 		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
 
 		cpGame = setupChesspressoGame();
@@ -184,6 +184,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (tcWhite.getControlType() != ControlType.NONE) {
 			view.getControlPanel().getTcDefs().addCustomSpec(tcWhite.getSpec());
 		}
+
 		view.setGame(this);
 	}
 
@@ -219,6 +220,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return new ChessGame(conf);
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -710,11 +712,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[Chess.WHITE].withdrawFunds(stake);
 			players[Chess.BLACK].withdrawFunds(stake);
 		}
-		
+
 		clearInvitation();
 		started = lastMoved = System.currentTimeMillis();
 		tcWhite.setActive(true);
 		setState(GameState.RUNNING);
+
+		players[Chess.WHITE].notifyTimeControl(tcWhite);
+		players[Chess.BLACK].notifyTimeControl(tcBlack);
 
 		players[Chess.WHITE].promptForFirstMove();
 
@@ -936,13 +941,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (getPosition().getToPlay() == Chess.WHITE) {
 			tcBlack.moveMade();
 			if (tcBlack.isNewPhase()) {
-				players[Chess.BLACK].alert(Messages.getString("Game.newTimeControlPhase", tcBlack.phaseString()));
+				getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 			}
 			tcWhite.setActive(true);
 		} else {
 			tcWhite.moveMade();
 			if (tcWhite.isNewPhase()) {
-				players[Chess.WHITE].alert(Messages.getString("Game.newTimeControlPhase", tcWhite.phaseString()));
+				getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
 			}
 			tcBlack.setActive(true);
 		}
@@ -1405,7 +1410,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		
 		String white = players[Chess.WHITE] == null ? "?" : players[Chess.WHITE].getDisplayName();
 		String black = players[Chess.BLACK] == null ? "?" : players[Chess.BLACK].getDisplayName();
-		String bullet = MessagePager.BULLET;
+		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
 		
 		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
 		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 

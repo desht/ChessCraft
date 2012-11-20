@@ -1,6 +1,7 @@
 package me.desht.chesscraft.chess.player;
 
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import chesspresso.Chess;
 
 public abstract class ChessPlayer {
@@ -102,4 +103,6 @@ public abstract class ChessPlayer {
 	public abstract void checkPendingAction();
 
 	public abstract void playEffect(String effect);
+
+	public abstract void notifyTimeControl(TimeControl timeControl);
 }

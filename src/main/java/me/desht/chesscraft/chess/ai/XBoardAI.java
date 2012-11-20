@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
+import me.desht.chesscraft.chess.TimeControl.RolloverPhase;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 
@@ -152,6 +154,26 @@ public class XBoardAI extends ChessAI {
 		if (otherPlayer) {
 			String move = Chess.sqiToStr(fromSqi) + Chess.sqiToStr(toSqi); 
 			io.writeLine(move);
+		}
+	}
+
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		long totalSecs = timeControl.getTotalTime() / 1000;
+		long secs = totalSecs % 60;
+		long mins = totalSecs / 60;
+		
+		switch (timeControl.getControlType()) {
+		case MOVE_IN:
+			io.writeLine("st " + totalSecs);
+			break;
+		case GAME_IN:
+			io.writeLine("level 0 " + mins + ":" + secs + " 0");
+			break;
+		case ROLLOVER:
+			RolloverPhase phase = timeControl.getCurrentPhase();
+			io.writeLine("level " + phase.getMoves() + " " + phase.getMinutes() + " " + phase.getIncrement() / 1000);
+			break;
 		}
 	}
 
