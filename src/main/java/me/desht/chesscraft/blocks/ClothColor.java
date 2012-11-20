@@ -17,7 +17,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//package com.sk89q.worldedit.blocks;
 package me.desht.chesscraft.blocks;
 
 import java.util.Map;
@@ -38,7 +37,7 @@ public enum ClothColor {
     LIGHT_GREEN(ID.LIGHT_GREEN, "Light green", "lightgreen"),
     PINK(ID.PINK, "Pink", new String[] { "pink", "lightred" }),
     GRAY(ID.GRAY, "Gray", new String[] { "grey", "gray" }),
-    LIGHT_GRAY(ID.LIGHT_GRAY, "Light gray", new String[] { "lightgrey", "lightgray", "silver" }),
+    LIGHT_GRAY(ID.LIGHT_GRAY, "Light gray", new String[] { "lightgrey", "lightgray" }),
     CYAN(ID.CYAN, "Cyan", new String[] { "cyan", "turquoise" }),
     PURPLE(ID.PURPLE, "Purple", new String[] { "purple", "violet" }),
     BLUE(ID.BLUE, "Blue", "blue"),
