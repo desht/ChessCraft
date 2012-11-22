@@ -39,8 +39,8 @@ public class TimeControlButton extends AbstractSignButton {
 			tcDefs.prevDef(); break;
 		}
 		game.setTimeControl(tcDefs.currentDef().getSpec());
-		getPanel().updateClock(Chess.WHITE, game.getTcWhite());
-		getPanel().updateClock(Chess.BLACK, game.getTcBlack());
+		getPanel().updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));
+		getPanel().updateClock(Chess.BLACK, game.getTimeControl(Chess.BLACK));
 		
 		repaint();
 	}

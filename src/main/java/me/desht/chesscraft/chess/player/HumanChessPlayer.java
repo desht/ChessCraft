@@ -42,6 +42,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	
 	@Override
 	public void promptForFirstMove() {
+		alert(Messages.getString("Game.started", ChessUtils.getDisplayColour(getColour()), ChessUtils.getWandDescription()));
 	}
 
 	@Override
@@ -114,8 +115,7 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void depositFunds(double amount) {
-		// TODO Auto-generated method stub
-		
+		ChessCraft.economy.depositPlayer(getName(), amount);
 	}
 
 	@Override
@@ -200,6 +200,8 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void notifyTimeControl(TimeControl timeControl) {
 		if (timeControl.isNewPhase()) {
 			alert(Messages.getString("Game.newTimeControlPhase", timeControl.phaseString()));
+		} else if (getGame().getPosition().getPlyNumber() <= 2) {
+			alert(Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", getGame().getTimeControl(getColour()).getSpec()));
 		}
 	}
 

@@ -164,8 +164,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} else {
 			tcWhite = (TimeControl) map.get("tcWhite");
 			tcBlack = (TimeControl) map.get("tcBlack");
-			if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
-			if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 		}
 		created = map.getLong("created", System.currentTimeMillis()); //$NON-NLS-1$
 		started = map.getLong("started"); //$NON-NLS-1$
@@ -183,6 +181,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		if (tcWhite.getControlType() != ControlType.NONE) {
 			view.getControlPanel().getTcDefs().addCustomSpec(tcWhite.getSpec());
+			if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
+			if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 		}
 
 		view.setGame(this);
@@ -448,13 +448,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		setStake(playerName, newStake);
 	}
 
-	public TimeControl getTcWhite() {
-		return tcWhite;
+	public TimeControl getTimeControl(int colour) {
+		switch (colour) {
+		case Chess.WHITE: return tcWhite;
+		case Chess.BLACK: return tcBlack;
+		default: throw new IllegalArgumentException("invalid colour " + colour);
+		}
 	}
-
-	public TimeControl getTcBlack() {
-		return tcBlack;
-	}
+	
+//	public TimeControl getTcWhite() {
+//		return tcWhite;
+//	}
+//
+//	public TimeControl getTcBlack() {
+//		return tcBlack;
+//	}
 
 	/**
 	 * Housekeeping task, called periodically by the scheduler.  Update the clocks for the game, and
@@ -679,37 +687,28 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.SETTING_UP);
 
-		String whiteStr = Messages.getString("Game.white");
-		String blackStr = Messages.getString("Game.black");
-
 		if (!isFull()) {
-			// game started with only one player - add an AI
+			// game started with only one player - add an AI player
 			fillEmptyPlayerSlot(null);
 		}
 
 		cpGame.setTag(PGN.TAG_WHITE, getWhitePlayerName());
 		cpGame.setTag(PGN.TAG_BLACK, getBlackPlayerName());
 
-		// just in case stake.max got adjusted after game creation...
-		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
-		if (max >= 0 && stake > max) {
-			stake = max;
-			view.getControlPanel().repaintControls();
-		}
-		
-		players[Chess.WHITE].validateAffordability("Game.cantAffordToStart");
-		players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
-
 		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
 			summonPlayers();
 		}
 
-		String wand = ChessUtils.getWandDescription();
-		players[Chess.WHITE].alert(Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
-		players[Chess.BLACK].alert(Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$
-
-		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {
+		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {	
+			// just in case stake.max got adjusted after game creation...
+			double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+			if (max >= 0 && stake > max) {
+				stake = max;
+				view.getControlPanel().repaintControls();
+			}
+			players[Chess.WHITE].validateAffordability("Game.cantAffordToStart");
 			players[Chess.WHITE].withdrawFunds(stake);
+			players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
 			players[Chess.BLACK].withdrawFunds(stake);
 		}
 

@@ -142,8 +142,8 @@ public class ControlPanel {
 
 	public void repaintClocks() {
 		ChessGame game = view.getGame();
-		updateClock(Chess.WHITE, game == null ? null : game.getTcWhite());
-		updateClock(Chess.BLACK, game == null ? null : game.getTcBlack());
+		updateClock(Chess.WHITE, game == null ? null : game.getTimeControl(Chess.WHITE));
+		updateClock(Chess.BLACK, game == null ? null : game.getTimeControl(Chess.BLACK));
 	}
 
 	public void repaintSignButtons() {

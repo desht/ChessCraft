@@ -7,13 +7,16 @@
 # or add/remove alias definitions.  You can have multiple aliases referring to the same
 # AI definition (e.g. see the "gnuchess1" and "gnuchess2" aliases below).
 #
+# These aliases are used for the "/chess invite <ai-name>" command, and appear as the AI's
+# displayed name (prefixed with "[AI]").
+#
 # The "ai" parameter is mandatory and must reference an AI definition in AI_settings.yml
 #
 # See AI_settings.yml for the default parameters for each AI.  The following parameters
 # are useful to override when defining aliases:
 #
 # "enabled" - if false, this AI will not be randomly picked to join games (but it can still be
-#   invited explicitly with "/chess invite <ai-alias>"
+#   invited explicitly with "/chess invite <ai-name>"
 #
 # "comment" - a short text string displayed to players who use "/chess list ai"
 #
@@ -43,11 +46,13 @@ jcns3: { ai: "ai13" }
 jcns4: { ai: "ai14" }
 jcns5: { ai: "ai15" }
 jcns6: { ai: "ai16" }
-jcrand: { ai: "ai17", enabled: false }
+# This engined is disabled by default since it's completely stupid and really only for 
+# testing purposes.
+jcrand: { ai: "ai17", enabled: false, payout: 0.0 }
 
-# These engines are disabled by default - you can enable them if you have gnuchess and/or
-# crafty installed.  If they're not in the default PATH for the craftbukkit server, you 
-# can update the "command" setting to refer to the full path to the program.
+# XBoard engines are disabled by default - you can enable them if you have gnuchess and/or
+# crafty installed.  If the command is not in the default PATH for the craftbukkit server,
+# you can update the "command" setting to refer to the full path to the program.
 gnuchess1: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 gnuchess2: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 crafty: { ai: "xboard", enabled: false, command: "crafty xboard" }

@@ -24,6 +24,10 @@ public abstract class ChessPlayer {
 		return name;
 	}
 	
+	public String getDisplayName() {
+		return name;
+	}
+
 	public int getColour() {
 		return colour;
 	}
@@ -65,14 +69,12 @@ public abstract class ChessPlayer {
 	}
 
 	public abstract void validateAffordability(String error);
-	
 	public abstract void validateInvited(String error);
 	
 	public abstract void promptForFirstMove();
 	public abstract void promptForNextMove();
 
 	public abstract void alert(String message);
-
 	public abstract void statusMessage(String message);
 
 	public abstract void replayMoves();
@@ -84,10 +86,6 @@ public abstract class ChessPlayer {
 	public abstract void withdrawFunds(double amount);
 	public abstract void depositFunds(double amount);
 	
-	public String getDisplayName() {
-		return name;
-	}
-
 	public abstract void summonToGame();
 
 	public abstract void cancelOffers();
@@ -95,7 +93,6 @@ public abstract class ChessPlayer {
 	public abstract double getPayoutMultiplier();
 	
 	public abstract void drawOffered();
-
 	public abstract void swapOffered();
 	
 	public abstract void undoLastMove();

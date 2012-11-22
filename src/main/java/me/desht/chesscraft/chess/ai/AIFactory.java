@@ -90,8 +90,12 @@ public class AIFactory {
 	 * Clear down all running AIs. Called on disable.
 	 */
 	public void clearDown() {
+		List<ChessAI> l = new ArrayList<ChessAI>();
 		for (Entry<String, ChessAI> e : runningAIs.entrySet()) {
-			e.getValue().delete();
+			l.add(e.getValue());
+		}
+		for (ChessAI ai : l) {
+			ai.delete();
 		}
 	}
 

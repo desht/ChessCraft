@@ -52,8 +52,8 @@ effects:
     check: sound,rawname=random.orb
     game_lost: sound,rawname=mob.endermen.death
     game_won: sound,rawname=random.levelup
-    teleport_from: effect,name=smoke,data=4
-    teleport_to: effect,name=ender_signal
+    teleport_out: effect,name=smoke,data=4
+    teleport_in: effect,name=ender_signal
     piece_riding: true
     volume: 1.0
 log_level: INFO

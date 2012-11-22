@@ -31,10 +31,10 @@ public class TimeControlCommand extends AbstractCommand {
 		ControlPanel cp = game.getView().getControlPanel();
 		cp.getTcDefs().addCustomSpec(tcSpec);
 		cp.getSignButton(TimeControlButton.class).repaint();
-		cp.updateClock(Chess.WHITE, game.getTcWhite());
-		cp.updateClock(Chess.BLACK, game.getTcBlack());
+		cp.updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));
+		cp.updateClock(Chess.BLACK, game.getTimeControl(Chess.BLACK));
 		
-		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTcWhite().toString()));
+		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTimeControl(Chess.WHITE).toString()));
 		
 		return true;
 	}
