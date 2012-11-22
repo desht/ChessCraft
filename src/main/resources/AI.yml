@@ -1,5 +1,6 @@
-# Alias file defining all AIs available to ChessCraft.  See "AI_settings.yml" for core
-# AI definitions.
+#
+# User-editable alias file defining all AIs available to ChessCraft.
+# See "AI_settings.yml" for core AI definitions.
 #
 # Each entry below has an alias as the key, followed by one or more parameters for the AI that
 # the alias uses.  You are free to change any of the alias keys below to a preferred name,
@@ -16,11 +17,11 @@
 #
 # "comment" - a short text string displayed to players who use "/chess list ai"
 #
-# "payout_multiplier" - applies if Economy support is enabled.  Default is 1.0 - it could be
-#   raised for tougher engines and lowered for weaker engines.
+# "payout_multiplier" - applies if Economy support is enabled; the player's winnings will
+#    multiplied by this value.  Default is 1.0 - it could be raised for tougher engines and
+#    lowered for weaker engines.
 #
-# "command" - applies to "xboard" and "uci" AIs.  The name of the external chess engine which
-#   will be launched for the AI.
+# "command" - applies to "xboard" AIs; the command to start the external chess engine for the AI.
 #
 # See the website for full documentation: http://dev.bukkit.org/server-mods/chesscraft/pages/ai
 
