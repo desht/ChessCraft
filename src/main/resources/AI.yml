@@ -17,7 +17,7 @@
 #
 # "comment" - a short text string displayed to players who use "/chess list ai"
 #
-# "payout_multiplier" - applies if Economy support is enabled; the player's winnings will
+# "payout_multiplier" - applies if Economy support is enabled; the player's winnings will be
 #    multiplied by this value.  Default is 1.0 - it could be raised for tougher engines and
 #    lowered for weaker engines.
 #
@@ -33,6 +33,8 @@ jcmm1: { ai: "ai05" }
 jcmm2: { ai: "ai06" }
 jcmm3: { ai: "ai07" }
 jcmm4: { ai: "ai08" }
+# The next four engines are disabled by default because the AI code appears to be buggy
+# (occasional exceptions thrown when calculating moves)
 jcmmp2: { ai: "ai09", enabled: false }
 jcmmp3: { ai: "ai10" , enabled: false }
 jcmmp4: { ai: "ai11" , enabled: false }
@@ -42,7 +44,10 @@ jcns4: { ai: "ai14" }
 jcns5: { ai: "ai15" }
 jcns6: { ai: "ai16" }
 jcrand: { ai: "ai17", enabled: false }
+
+# These engines are disabled by default - you can enable them if you have gnuchess and/or
+# crafty installed.  If they're not in the default PATH for the craftbukkit server, you 
+# can update the "command" setting to refer to the full path to the program.
 gnuchess1: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 gnuchess2: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 crafty: { ai: "xboard", enabled: false, command: "crafty xboard" }
-
