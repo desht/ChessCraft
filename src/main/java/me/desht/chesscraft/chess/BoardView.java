@@ -402,7 +402,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
 		if (Move.isCapturing(move)) {
-			ChessUtils.playEffect(loc, "piece_captured");
+			ChessCraft.getInstance().getFX().playEffect(loc, "piece_captured");
 		} else {
 			getGame().getPlayer(Chess.WHITE).playEffect("piece_moved");
 			getGame().getPlayer(Chess.BLACK).playEffect("piece_moved");

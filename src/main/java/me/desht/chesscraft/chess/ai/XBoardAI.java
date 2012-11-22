@@ -17,6 +17,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.TimeControl.RolloverPhase;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
@@ -188,7 +189,7 @@ public class XBoardAI extends ChessAI {
 			while (!done) {
 				try {
 					String s = io.readLine();
-					System.out.println("featurereader: [" + s + "]");
+					LogUtils.finer("featurereader: [" + s + "]");
 					if (s.startsWith("feature ")) {
 						List<String> f = MiscUtil.splitQuotedString(s.replace("=", " "));
 						for (int i = 1; i < f.size(); i += 2) {
@@ -197,13 +198,13 @@ public class XBoardAI extends ChessAI {
 							String v = f.get(i+1);
 							features.put(k, v);
 							if (k.equals("done") && v.equals("1")) {
-								System.out.println("done!");
+								LogUtils.fine("feature reader done: " + features.size() + " features reported");
 								done = true;
 							}
 						}
 					}
 				} catch (IOException e) {
-					System.out.println("caught io exception: " + e.getMessage());
+					LogUtils.severe("FeatureReader: caught io exception: " + e.getMessage());
 					done = true;
 				}
 			}
@@ -228,7 +229,6 @@ public class XBoardAI extends ChessAI {
 				// we give the AI engine 2 seconds to reply to the "protover" command
 				// with a list of features
 				future.get(2000, TimeUnit.MILLISECONDS);
-				System.out.println("got our future");
 
 				// now it's safe to finish AI init
 

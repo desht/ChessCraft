@@ -192,7 +192,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void playEffect(String effect) {
 		Player p = getBukkitPlayer();
 		if (p != null) {
-			ChessUtils.playEffect(p.getLocation(), effect);
+			ChessCraft.getInstance().getFX().playEffect(p.getLocation(), effect);
 		}
 	}
 

@@ -63,6 +63,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PluginVersionChecker;
 import me.desht.dhutils.PluginVersionListener;
+import me.desht.dhutils.SpecialFX;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
@@ -96,6 +97,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private ChessFlightListener flightListener;
 	private SMSIntegration sms;
 	private ChessTickTask tickTask;
+	private SpecialFX fx;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -146,6 +148,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
 		MessagePager.setDefaultPageSize(getConfig().getInt("pager.lines", 0));
+		
+		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
 		
 		persistence.reload();
 
@@ -286,6 +290,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	public PlayerTracker getPlayerTracker() {
 		return tracker;
+	}
+	
+	public SpecialFX getFX() {
+		return fx;
 	}
 
 	/*-----------------------------------------------------------------*/
