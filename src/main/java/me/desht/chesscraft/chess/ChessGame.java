@@ -55,9 +55,7 @@ import chesspresso.position.Position;
  */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private static final String OPEN_INVITATION = "*";
-//	private static final Map<String, ChessGame> chessGames = new HashMap<String, ChessGame>();
-//	private static final Map<String, ChessGame> currentGame = new HashMap<String, ChessGame>();
-
+	
 	private final String name;
 	private final BoardView view;
 	private final Game cpGame;
@@ -70,11 +68,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private String invited;
 	private GameState state;
 	private int fromSquare;
-	private long started, finished, lastMoved;
+	private long started, finished, lastMoved, lastOpenInvite;
 	private TimeControl tcWhite, tcBlack;
 	private int result;
 	private double stake;
-
+	
 	/**
 	 * Constructor: Creating a new Chess game.
 	 * 
@@ -102,7 +100,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
-		started = finished = 0L;
+		started = finished = lastOpenInvite = 0L;
 		result = Chess.RES_NOT_FINISHED;
 		if (playerName != null && ChessCraft.economy != null) {
 			double playerBalance = ChessCraft.economy.getBalance(playerName);
@@ -142,7 +140,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws IllegalMoveException	If the game data contains an illegal Chess move
 	 */
 	public ChessGame(ConfigurationSection map) throws IllegalMoveException {
-		view = BoardView.getBoardView(map.getString("boardview"));
+		view = BoardViewManager.getManager().getBoardView(map.getString("boardview"));
 		if (view.getGame() != null) {
 			throw new ChessException(Messages.getString("Game.boardAlreadyHasGame")); //$NON-NLS-1$
 		}
@@ -170,10 +168,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		created = map.getLong("created", System.currentTimeMillis()); //$NON-NLS-1$
 		started = map.getLong("started"); //$NON-NLS-1$
 		finished = map.getLong("finished", state == GameState.FINISHED ? System.currentTimeMillis() : 0);
+		lastOpenInvite = 0L;
 		lastMoved = map.getLong("lastMoved", System.currentTimeMillis());
 		result = map.getInt("result"); //$NON-NLS-1$
-		players[Chess.WHITE].setPromotionPiece(map.getInt("promotionWhite"));
-		players[Chess.BLACK].setPromotionPiece(map.getInt("promotionBlack"));
+		if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).setPromotionPiece(map.getInt("promotionWhite"));
+		if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).setPromotionPiece(map.getInt("promotionBlack"));
 		stake = map.getDouble("stake", 0.0); //$NON-NLS-1$
 
 		cpGame = setupChesspressoGame();
@@ -182,7 +181,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		if (tcWhite.getControlType() != ControlType.NONE) {
 			view.getControlPanel().getTcDefs().addCustomSpec(tcWhite.getSpec());
+			if (hasPlayer(Chess.WHITE)) getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
+			if (hasPlayer(Chess.BLACK)) getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 		}
+
 		view.setGame(this);
 	}
 
@@ -218,6 +220,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return new ChessGame(conf);
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -300,6 +303,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return players[colour];
 	}
 	
+	public boolean hasPlayer(int colour) {
+		return players[colour] != null;
+	}
+	
 	/**
 	 * Get the name of the player for the given colour (Chess.WHITE or Chess.BLACK),
 	 * or the empty string if there's no player of that colour (yet).
@@ -310,7 +317,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public String getPlayerName(int colour) {
 		return players[colour] != null ? players[colour].getName() : "";
 	}
-
+	
 	public String getWhitePlayerName() {
 		return getPlayerName(Chess.WHITE);
 	}
@@ -370,7 +377,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 	
 	public int getPromotionPiece(int colour) {
-		return getPlayer(colour) == null ? Chess.QUEEN : getPlayer(colour).getPromotionPiece();
+		return hasPlayer(colour) ? getPlayer(colour).getPromotionPiece() : Chess.QUEEN;
 	}
 
 	/**
@@ -441,13 +448,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		setStake(playerName, newStake);
 	}
 
-	public TimeControl getTcWhite() {
-		return tcWhite;
+	public TimeControl getTimeControl(int colour) {
+		switch (colour) {
+		case Chess.WHITE: return tcWhite;
+		case Chess.BLACK: return tcBlack;
+		default: throw new IllegalArgumentException("invalid colour " + colour);
+		}
 	}
-
-	public TimeControl getTcBlack() {
-		return tcBlack;
-	}
+	
+//	public TimeControl getTcWhite() {
+//		return tcWhite;
+//	}
+//
+//	public TimeControl getTcBlack() {
+//		return tcBlack;
+//	}
 
 	/**
 	 * Housekeeping task, called periodically by the scheduler.  Update the clocks for the game, and
@@ -623,12 +638,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public void inviteOpen(String inviterName) {
 		inviteSanityCheck(inviterName);
+		
+		long now = System.currentTimeMillis();
+		Duration cooldown = new Duration(ChessCraft.getInstance().getConfig().getString("open_invite_cooldown", "3 mins"));
+		long remaining = (cooldown.getTotalDuration() - (now - lastOpenInvite)) / 1000;
+		if (remaining > 0) {
+			throw new ChessException(Messages.getString("Game.inviteCooldown", remaining));
+		}
+		
 		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
 			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
 		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
-		invited = OPEN_INVITATION; //$NON-NLS-1$
+		invited = OPEN_INVITATION;
+		lastOpenInvite = now;
 	}
 
 	private void inviteSanityCheck(String inviterName) {
@@ -663,44 +687,38 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ensurePlayerInGame(playerName);
 		ensureGameState(GameState.SETTING_UP);
 
-		String whiteStr = Messages.getString("Game.white");
-		String blackStr = Messages.getString("Game.black");
-
 		if (!isFull()) {
-			// game started with only one player - add an AI
+			// game started with only one player - add an AI player
 			fillEmptyPlayerSlot(null);
 		}
 
 		cpGame.setTag(PGN.TAG_WHITE, getWhitePlayerName());
 		cpGame.setTag(PGN.TAG_BLACK, getBlackPlayerName());
 
-		// just in case stake.max got adjusted after game creation...
-		double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
-		if (max >= 0 && stake > max) {
-			stake = max;
-			view.getControlPanel().repaintControls();
-		}
-		
-		players[Chess.WHITE].validateAffordability("Game.cantAffordToStart");
-		players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
-
 		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
 			summonPlayers();
 		}
 
-		String wand = ChessUtils.getWandDescription();
-		players[Chess.WHITE].alert(Messages.getString("Game.started", whiteStr, wand)); //$NON-NLS-1$
-		players[Chess.BLACK].alert(Messages.getString("Game.started", blackStr, wand)); //$NON-NLS-1$
-
-		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {
+		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {	
+			// just in case stake.max got adjusted after game creation...
+			double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
+			if (max >= 0 && stake > max) {
+				stake = max;
+				view.getControlPanel().repaintControls();
+			}
+			players[Chess.WHITE].validateAffordability("Game.cantAffordToStart");
 			players[Chess.WHITE].withdrawFunds(stake);
+			players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
 			players[Chess.BLACK].withdrawFunds(stake);
 		}
-		
+
 		clearInvitation();
 		started = lastMoved = System.currentTimeMillis();
 		tcWhite.setActive(true);
 		setState(GameState.RUNNING);
+
+		players[Chess.WHITE].notifyTimeControl(tcWhite);
+		players[Chess.BLACK].notifyTimeControl(tcBlack);
 
 		players[Chess.WHITE].promptForFirstMove();
 
@@ -922,13 +940,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (getPosition().getToPlay() == Chess.WHITE) {
 			tcBlack.moveMade();
 			if (tcBlack.isNewPhase()) {
-				players[Chess.BLACK].alert(Messages.getString("Game.newTimeControlPhase", tcBlack.phaseString()));
+				getPlayer(Chess.BLACK).notifyTimeControl(tcBlack);
 			}
 			tcWhite.setActive(true);
 		} else {
 			tcWhite.moveMade();
 			if (tcWhite.isNewPhase()) {
-				players[Chess.WHITE].alert(Messages.getString("Game.newTimeControlPhase", tcWhite.phaseString()));
+				getPlayer(Chess.WHITE).notifyTimeControl(tcWhite);
 			}
 			tcBlack.setActive(true);
 		}
@@ -938,7 +956,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public String getPGNResult() {
 		switch (result) {
 		case Chess.RES_NOT_FINISHED:
-			return OPEN_INVITATION; //$NON-NLS-1$
+			return "*"; //$NON-NLS-1$
 		case Chess.RES_WHITE_WINS:
 			return "1-0"; //$NON-NLS-1$
 		case Chess.RES_BLACK_WINS:
@@ -946,7 +964,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		case Chess.RES_DRAW:
 			return "1/2-1/2"; //$NON-NLS-1$
 		default:
-			return OPEN_INVITATION; //$NON-NLS-1$
+			return "*"; //$NON-NLS-1$
 		}
 	}
 
@@ -1382,47 +1400,50 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Display details for the game to the given player.
+	 * Return detailed information about the game.
 	 * 
-	 * @param player
+	 * @return a string list of game information
 	 */
-	public void showGameDetail(CommandSender sender) {
+	public List<String> getGameDetail() {
+		List<String> res = new ArrayList<String>();
+		
 		String white = players[Chess.WHITE] == null ? "?" : players[Chess.WHITE].getDisplayName();
 		String black = players[Chess.BLACK] == null ? "?" : players[Chess.BLACK].getDisplayName();
-
-		String bullet = ChatColor.DARK_PURPLE + "* " + ChatColor.AQUA; //$NON-NLS-1$
-		MessagePager pager = MessagePager.getPager(sender).clear();
-		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
-		pager.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
+		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
+		
+		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
+		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
+		res.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
 		if (ChessCraft.economy != null) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
+			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
-		pager.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
+		res.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
 					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 
-		pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));	//$NON-NLS-1$
 		if (getState() == GameState.RUNNING) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
+			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
 		}
 		if (getInvited().equals(OPEN_INVITATION)) { //$NON-NLS-1$
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
+			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation")); //$NON-NLS-1$
 		} else if (!getInvited().isEmpty()) {
-			pager.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
+			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited())); //$NON-NLS-1$
 		}
-		pager.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
+		res.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory")); //$NON-NLS-1$
 		List<Short> h = getHistory();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < h.size(); i += 2) {
-			StringBuilder sb = new StringBuilder(String.format("&f%1$d. &-", (i / 2) + 1)); //$NON-NLS-1$
-			sb.append(Move.getString(h.get(i)));
+			sb.append(ChatColor.WHITE + Integer.toString((i / 2) + 1) + ". ");
+			sb.append(ChatColor.YELLOW + Move.getString(h.get(i)));
 			if (i < h.size() - 1) {
-				sb.append("  ").append(Move.getString(h.get(i + 1))); //$NON-NLS-1$
+				sb.append(" ").append(Move.getString(h.get(i + 1)));
 			}
-			pager.add(sb.toString());
+			sb.append(" ");
 		}
+		res.add(sb.toString());
 
-		pager.showPage();
+		return res;
 	}
 
 	/**
@@ -1430,8 +1451,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * move in our game model too.  Also check if the AI has failed and we need to abandon.
 	 */
 	private synchronized void checkForAIActivity() {
-		players[Chess.WHITE].checkPendingMove();
-		players[Chess.BLACK].checkPendingMove();
+		players[Chess.WHITE].checkPendingAction();
+		players[Chess.BLACK].checkPendingAction();
 	}
 	
 	/**

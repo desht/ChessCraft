@@ -10,6 +10,8 @@ auto_teleport_on_join: true
 timeout_forfeit: 60 sec
 no_pvp: true
 teleporting: true
+pager:
+    lines: 0
 stake:
     max: -1.0
     default: 0.0
@@ -20,6 +22,7 @@ auto_delete:
     finished: 15 sec
     not_started: 1 min 30 sec
     running: 28 days
+open_invite_cooldown: 3 mins
 no_monster_damage: true
 no_misc_damage: true
 no_monster_attacks: true
@@ -42,15 +45,15 @@ time_control:
 designer:
     auto_load: true
 effects:
-    piece_captured: $explosion
-    piece_selected: note.hat
-    piece_unselected: note.bass
-    piece_moved: random.pop
-    check: random.orb
-    game_lost: mob.endermen.death
-    game_won: random.levelup
-    teleport_from: effect/smoke/4
-    teleport_to: effect/ender_signal
+    piece_captured: explosion
+    piece_selected: sound,rawname=note.hat
+    piece_unselected: sound,rawname=note.bass
+    piece_moved: sound,rawname=random.pop
+    check: sound,rawname=random.orb
+    game_lost: sound,rawname=mob.endermen.death
+    game_won: sound,rawname=random.levelup
+    teleport_out: effect,name=smoke,data=4
+    teleport_in: effect,name=ender_signal
     piece_riding: true
     volume: 1.0
 log_level: INFO

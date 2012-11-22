@@ -11,15 +11,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.configuration.Configuration;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
+
+import org.bukkit.ChatColor;
+
 import chesspresso.Chess;
 
 /**
@@ -49,7 +47,7 @@ public class ChessUtils {
 	 */
 	public static String getDisplayColour(int c) {
 		String s = c == Chess.WHITE ? "&f" : "&8";
-		return s + getColour(c) + "&-";
+		return s + getColour(c) + ChatColor.RESET;
 	}
 
 	/**
@@ -235,39 +233,6 @@ public class ChessUtils {
 		return new DecimalFormat("#0.00").format(stake);
 	}
 
-	public static void playEffect(Location loc, String effectName) {
-		Configuration cfg = ChessCraft.getInstance().getConfig();
-		String effect = cfg.getString("effects." + effectName);
-		if (effect == null) {
-			LogUtils.warning("unknown effect name '" + effectName + "'");
-			return;
-		}
-		if (effect.equals("$explosion")) {
-			loc.getWorld().createExplosion(loc, 0.0f);
-		} else if (effect.equals("$lightning")) {
-			loc.getWorld().strikeLightningEffect(loc);
-		} else if (effect.startsWith("effect/")) {
-			String[] a = effect.substring(7).split("/");
-			Effect e = Effect.valueOf(a[0].toUpperCase());
-			if (e != null) {
-				try {
-					if (a.length > 2) {	
-						loc.getWorld().playEffect(loc, e, Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-					} else if (a.length > 1) {
-						loc.getWorld().playEffect(loc, e, Integer.parseInt(a[1]));
-					} else {
-						loc.getWorld().playEffect(loc, e, 0);
-					}
-				} catch (NumberFormatException ex) {
-					LogUtils.warning("invalid effect specifier: " + effect + ": " + ex.getMessage());
-				}
-			} else {
-				LogUtils.warning("unknown effect '" + effect + "'");
-			}
-		} else {
-			MiscUtil.playNamedSound(loc, effect, (float)cfg.getDouble("effects.volume", 1.0f), 1.0f);
-		}
-	}
 	
 } // end class ChessUtils
 

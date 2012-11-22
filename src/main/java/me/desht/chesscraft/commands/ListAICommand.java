@@ -1,17 +1,16 @@
 package me.desht.chesscraft.commands;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MinecraftChatStr;
 import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class ListAICommand extends AbstractCommand {
@@ -28,27 +27,20 @@ public class ListAICommand extends AbstractCommand {
 		MessagePager pager = MessagePager.getPager(sender).clear();
 
 		if (args.length == 0) {
-			LinkedList<String> lines = new LinkedList<String>();
-			for (AIDefinition aiDef : AIFactory.instance.listAIDefinitions(true)) {
+			List<AIDefinition> aiDefs = AIFactory.instance.listAIDefinitions(true);
+			List<String> lines = new ArrayList<String>(aiDefs.size());
+			for (AIDefinition aiDef : aiDefs) {
 				if (!aiDef.isEnabled())
 					continue;
 				StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList",
 				                                                        aiDef.getName(), aiDef.getImplClassName(),
 				                                                        aiDef.getComment()));
 				if (ChessCraft.economy != null) {
-					sb.append(sender instanceof Player ? "<l>" : ", "); //$NON-NLS-1$ //$NON-NLS-2$
-					sb.append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (aiDef.getPayoutMultiplier() * 100))); //$NON-NLS-1$
+					sb.append(", " + Messages.getString("ChessCommandExecutor.AIpayout", (int) (aiDef.getPayoutMultiplier() * 100))); //$NON-NLS-1$
 				}
 
-				//				if (aiDef.getComment() != null && sender != null && ((lines.size() + 1) % MessagePager.getPageSize()) == 0) {
-				//					lines.add(""); // ensure description and comment are on the same page  $NON-NLS-1$
-				//				}
-				lines.add(sb.toString());
-				//				if (aiDef.getComment() != null) {
-				//					lines.add("  &2 - " + aiDef.getComment()); //$NON-NLS-1$
-				//				}
+				lines.add(MessagePager.BULLET +  sb.toString());
 			}
-			lines = MinecraftChatStr.alignTags(lines, true);
 			pager.add(lines);
 		} else {
 			AIDefinition aiDef = AIFactory.instance.getAIDefinition(args[0], true);

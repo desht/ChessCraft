@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -20,7 +21,7 @@ public class BoardDeletionCommand extends AbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
-		BoardView bv = BoardView.getBoardView(args[0]);
+		BoardView bv = BoardViewManager.getManager().getBoardView(args[0]);
 		String boardName = bv.getName();
 		bv.deletePermanently();
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$

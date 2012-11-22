@@ -2,7 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -37,12 +37,12 @@ public class TeleportCommand extends AbstractCommand {
 		
 		switch (args.length) {
 		case 0:
-			BoardView.teleportOut(player);
+			BoardViewManager.getManager().teleportOut(player);
 			break;
 		case 1:
 			if (getBooleanOption("b")) {
 				PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.board");
-				BoardView.getBoardView(args[0]).summonPlayer(player);
+				BoardViewManager.getManager().getBoardView(args[0]).summonPlayer(player);
 			} else {
 				ChessGame game = ChessGameManager.getManager().getGame(args[0], true);
 				game.getView().summonPlayer(player);

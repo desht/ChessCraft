@@ -196,7 +196,7 @@ Game:
   boardAlreadyHasGame: Auf dem Brett ist schon ein Spiel.
   sitePGN: ' in Minecraftia'
   AIisBusy: Diese AI spielt zur Zeit ein Spiel.
-  alertPrefix: '&6:: &-Spiel &6{0}&-: '
+  alertPrefix: '&6♚ &-Spiel &6{0}&-: '
   archiveExists: Archiv Datei {0} existiert - werde sie nicht überschreiben.
   autoDeleteFinished: Spiel beendet und automatisch entfernt.
   autoDeleteNotStarted: Spiel automatisch entfernt (startete nicht innerhalb {0}).

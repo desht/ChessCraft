@@ -1,7 +1,7 @@
 package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -14,7 +14,7 @@ public class TeleportButton extends AbstractSignButton {
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		if (ChessCraft.getInstance().getConfig().getBoolean("teleporting")) {
-			BoardView.teleportOut(event.getPlayer());
+			BoardViewManager.getManager().teleportOut(event.getPlayer());
 		}
 	}
 

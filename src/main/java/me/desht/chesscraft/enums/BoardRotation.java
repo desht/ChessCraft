@@ -10,12 +10,10 @@ public enum BoardRotation {
 	SOUTH(1, 0), // south = +x
 	WEST(0, 1);// west = +z
 	
-	/**
-	 * the increments if moving in this direction
-	 */
+	// the increments if moving in this direction
 	private final int x, z;
 
-	BoardRotation(int xPositive, int zPositive) {
+	private BoardRotation(int xPositive, int zPositive) {
 		x = xPositive;
 		z = zPositive;
 	}
@@ -37,8 +35,9 @@ public enum BoardRotation {
 	}
 	
 	/**
-	 * this is to the <i>right</i> of the direction
-	 * @return the direction if it is turned right
+	 * Get the rotation to the right (clockwise) of the current rotation
+	 * 
+	 * @return the rotation to the right
 	 */
 	public BoardRotation getRight() {
 		if (this.ordinal() >= BoardRotation.values().length - 1) {
@@ -49,8 +48,9 @@ public enum BoardRotation {
 	}
 
 	/**
-	 * this is to the <i>left</i> of the direction
-	 * @return the direction if it is turned left
+	 * Get the rotation to the left (anti-clockwise) of the current rotation
+	 * 
+	 * @return the rotation to the left
 	 */
 	public BoardRotation getLeft() {
 		if (this.ordinal() == 0) {
@@ -72,6 +72,20 @@ public enum BoardRotation {
 				return Direction.West;
 		}
 		return null; // should not get here..
+	}
+
+	public float getYaw() {
+		switch (this) {
+			case NORTH:
+				return 90;
+			case EAST:
+				return 180;
+			case SOUTH:
+				return 270;
+			case WEST:
+				return 0;
+		}
+		return 0;
 	}
 
 	public static BoardRotation getRotation(Location loc) {
@@ -96,21 +110,7 @@ public enum BoardRotation {
 		return getRotation(p.getLocation());
 	}
 
-	public float getYaw() {
-		switch (this) {
-			case NORTH:
-				return 90;
-			case EAST:
-				return 180;
-			case SOUTH:
-				return 270;
-			case WEST:
-				return 0;
-		}
-		return 0;
-	}
-
-	public static BoardRotation get(String name) {
+	public static BoardRotation getRotation(String name) {
 		for (BoardRotation o : values()) {
 			if (o.name().equalsIgnoreCase(name)) {
 				return o;

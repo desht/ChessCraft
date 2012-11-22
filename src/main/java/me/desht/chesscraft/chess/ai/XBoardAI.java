@@ -14,7 +14,10 @@ import java.util.regex.Pattern;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
+import me.desht.chesscraft.chess.TimeControl.RolloverPhase;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
@@ -80,7 +83,7 @@ public class XBoardAI extends ChessAI {
 	@Override
 	public void offerDraw() {
 		io.writeLine("draw");
-		setDrawOffered(true);
+		setDrawOfferedToAI(true);
 	}
 
 	public String getFeature(String k) {
@@ -113,12 +116,12 @@ public class XBoardAI extends ChessAI {
 			aiHasMoved(fromSqi, toSqi);
 			return true;
 		} else if (line.equals("offer draw")) {
-			if (isDrawOffered()) {
+			if (isDrawOfferedToAI()) {
 				// AI has accepted the opponent's draw offer; game over
 				acceptDrawOffer();
 			} else {
 				// AI is making a draw offer - relay this to the other player
-				getChessCraftGame().offerDraw(getName());
+				makeDrawOffer();
 			}
 			return true;
 		} else {
@@ -155,6 +158,26 @@ public class XBoardAI extends ChessAI {
 		}
 	}
 
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		long totalSecs = timeControl.getTotalTime() / 1000;
+		long secs = totalSecs % 60;
+		long mins = totalSecs / 60;
+		
+		switch (timeControl.getControlType()) {
+		case MOVE_IN:
+			io.writeLine("st " + totalSecs);
+			break;
+		case GAME_IN:
+			io.writeLine("level 0 " + mins + ":" + secs + " 0");
+			break;
+		case ROLLOVER:
+			RolloverPhase phase = timeControl.getCurrentPhase();
+			io.writeLine("level " + phase.getMoves() + " " + phase.getMinutes() + " " + phase.getIncrement() / 1000);
+			break;
+		}
+	}
+
 	private class FeatureReader implements Runnable {
 
 		private FeatureReader() {
@@ -166,7 +189,7 @@ public class XBoardAI extends ChessAI {
 			while (!done) {
 				try {
 					String s = io.readLine();
-					System.out.println("featurereader: [" + s + "]");
+					LogUtils.finer("featurereader: [" + s + "]");
 					if (s.startsWith("feature ")) {
 						List<String> f = MiscUtil.splitQuotedString(s.replace("=", " "));
 						for (int i = 1; i < f.size(); i += 2) {
@@ -175,13 +198,13 @@ public class XBoardAI extends ChessAI {
 							String v = f.get(i+1);
 							features.put(k, v);
 							if (k.equals("done") && v.equals("1")) {
-								System.out.println("done!");
+								LogUtils.fine("feature reader done: " + features.size() + " features reported");
 								done = true;
 							}
 						}
 					}
 				} catch (IOException e) {
-					System.out.println("caught io exception: " + e.getMessage());
+					LogUtils.severe("FeatureReader: caught io exception: " + e.getMessage());
 					done = true;
 				}
 			}
@@ -206,7 +229,6 @@ public class XBoardAI extends ChessAI {
 				// we give the AI engine 2 seconds to reply to the "protover" command
 				// with a list of features
 				future.get(2000, TimeUnit.MILLISECONDS);
-				System.out.println("got our future");
 
 				// now it's safe to finish AI init
 

@@ -4,6 +4,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
@@ -30,7 +31,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 			return true;
 		}
 		
-		BoardView bv = BoardView.partOfChessBoard(((Player)sender).getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}

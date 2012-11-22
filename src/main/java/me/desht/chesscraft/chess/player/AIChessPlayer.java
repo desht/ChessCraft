@@ -1,16 +1,17 @@
 package me.desht.chesscraft.chess.player;
 
-import chesspresso.Chess;
-import chesspresso.move.IllegalMoveException;
-import chesspresso.move.Move;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
-import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
+import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import chesspresso.Chess;
+import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
 
 public class AIChessPlayer extends ChessPlayer {
 
@@ -122,34 +123,61 @@ public class AIChessPlayer extends ChessPlayer {
 	}
 
 	@Override
-	public void checkPendingMove() {
+	public void checkPendingAction() {
+		ChessGame game = getGame();
+		ChessPlayer otherPlayer = game.getPlayer(Chess.otherPlayer(getColour()));
+		
 		if (ai.hasFailed()) {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {
-				getGame().drawn(GameResult.Abandoned);
+				game.drawn(GameResult.Abandoned);
 			} catch (ChessException e) {
 				// should never get here
 				LogUtils.severe("Unexpected exception caught while trying to draw game - deleted", e);
-				getGame().deletePermanently();
+				game.deletePermanently();
 			}
-		} else if (ai.getPendingMove()) {
-			int from = ai.getPendingFrom();
-			int to = ai.getPendingTo();
-			ai.clearPendingMove();
-			try {
-				getGame().doMove(getName(), to, from);
-			} catch (IllegalMoveException e) {
-				getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
-				ai.setFailed(true);
-			} catch (ChessException e) {
-				getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
-				ai.setFailed(true);
+		} else {
+			// see if the AI has any pending actions from the other thread that we need to pick up
+			switch (ai.getPendingAction()) {
+			case MOVED:
+				int from = ai.getPendingFrom();
+				int to = ai.getPendingTo();
+				try {
+					getGame().doMove(getName(), to, from);
+				} catch (IllegalMoveException e) {
+					getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+					ai.setFailed(true);
+				} catch (ChessException e) {
+					getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
+					ai.setFailed(true);
+				}
+				break;
+			case DRAW_OFFERED:
+				game.offerDraw(getName());
+				break;
+			case DRAW_ACCEPTED:
+				if (otherPlayer != null) {
+					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getName()));
+				}
+				game.drawn();
+				break;
+			case DRAW_DECLINED:
+				if (otherPlayer != null) {
+					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getName()));
+				}
+				break;
 			}
+			ai.clearPendingAction();
 		}
 	}
 
 	@Override
 	public void playEffect(String effect) {
 		// do nothing
+	}
+
+	@Override
+	public void notifyTimeControl(TimeControl timeControl) {
+		ai.notifyTimeControl(timeControl);
 	}
 }

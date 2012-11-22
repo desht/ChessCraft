@@ -28,7 +28,7 @@ import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 
-public class ChessSet implements Iterable<ChessStone> {
+public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 
 	// map of all known chess sets keyed by set name
 	private static final Map<String, ChessSet> allChessSets = new HashMap<String, ChessSet>();
@@ -68,6 +68,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	private final String comment;
 	private final int maxWidth;
 	private final int maxHeight;
+	private final boolean isCustom;
 
 	/**
 	 * Private constructor.  Initialise a chess set from saved data.
@@ -76,7 +77,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	 * 
 	 * @throws ChessException if there is any problem loading the set.
 	 */
-	private ChessSet(Configuration c) throws ChessException {
+	private ChessSet(Configuration c, boolean isCustom) throws ChessException {
 		ChessPersistence.requireSection(c, "name");
 		ChessPersistence.requireSection(c, "pieces");
 		ChessPersistence.requireSection(c, "materials.white");
@@ -84,6 +85,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		
 		name = c.getString("name");
 		comment = c.getString("comment", "");
+		this.isCustom = isCustom;
 		
 		ConfigurationSection pieceConf = c.getConfigurationSection("pieces");
 		int maxH = 0, maxW = 0;
@@ -129,6 +131,7 @@ public class ChessSet implements Iterable<ChessStone> {
 	 */
 	ChessSet(String name, ChessPieceTemplate[] templates, MaterialMap materialMapWhite, MaterialMap materialMapBlack, String comment) {
 		this.name = name;
+		this.isCustom = true;
 		this.materialMapWhite = materialMapWhite;
 		this.materialMapBlack = materialMapBlack;
 		this.comment = comment;
@@ -221,6 +224,10 @@ public class ChessSet implements Iterable<ChessStone> {
 		return maxHeight;
 	}
 
+	public boolean isCustom() {
+		return isCustom;
+	}
+
 	/**
 	 * Save this chess set to a file with the new name.
 	 * 
@@ -290,7 +297,7 @@ public class ChessSet implements Iterable<ChessStone> {
 		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
 		
 		Configuration c = YamlConfiguration.loadConfiguration(f);
-		ChessSet set = new ChessSet(c);
+		ChessSet set = new ChessSet(c, DirectoryStructure.isCustom(f));
 		LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
 		
 		allChessSets.put(setName, set);
@@ -322,6 +329,11 @@ public class ChessSet implements Iterable<ChessStone> {
 		public void remove() {
 		}
 
+	}
+
+	@Override
+	public int compareTo(ChessSet o) {
+		return getName().compareTo(o.getName());
 	}
 } // end class ChessSet
 

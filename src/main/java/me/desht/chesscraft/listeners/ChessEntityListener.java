@@ -3,6 +3,7 @@ package me.desht.chesscraft.listeners;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
@@ -33,7 +34,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		}
 
 		Location loc = event.getLocation();
-		for (BoardView bv : BoardView.listBoardViews()) {
+		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			if (bv.isPartOfBoard(loc)) {
 				event.setCancelled(true);
 				return;
@@ -48,8 +49,8 @@ public class ChessEntityListener extends ChessListenerBase {
 			return;
 		}
 
-		if (BoardView.partOfChessBoard(event.getEntity().getLocation()) != null
-				|| BoardView.partOfChessBoard(event.getTarget().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation()) != null
+				|| BoardViewManager.getManager().partOfChessBoard(event.getTarget().getLocation()) != null) {
 			event.setCancelled(true);
 			// don't remove tame creatures
 			if (!(event.getEntity() instanceof Tameable && ((Tameable) event.getEntity()).isTamed())) {
@@ -65,7 +66,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		}
 
 		for (Block b : event.blockList()) {
-			for (BoardView bv : BoardView.listBoardViews()) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 				if (bv.isPartOfBoard(b.getLocation())) {
 					event.setCancelled(true);
 					return;
@@ -87,7 +88,7 @@ public class ChessEntityListener extends ChessListenerBase {
 
 			Location attackerLoc = dbeEvent.getDamager().getLocation();
 			Location defenderLoc = event.getEntity().getLocation();
-			for (BoardView bv : BoardView.listBoardViews()) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 				if (bv.isPartOfBoard(defenderLoc) || bv.isPartOfBoard(attackerLoc)) {
 					event.setCancelled(true);
 					if ((event.getEntity() instanceof Player) && // victim is a player
@@ -108,7 +109,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		}
 
 		if (event.getCause() == DamageCause.SUFFOCATION) {
-			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation());
+			BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation());
 			if (bv != null) {
 				// player must have had a chess piece placed on them
 				displacePlayerSafely(event);
@@ -117,7 +118,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		} else {
 			// any other damage to a player while on a board, e.g. falling off of a piece or viewing platform,
 			// cactus/lava/fire on pieces, etc..
-			BoardView bv = BoardView.partOfChessBoard(event.getEntity().getLocation(), 1);
+			BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation(), 1);
 			if (bv != null) {
 				event.setCancelled(true);
 				event.getEntity().setFireTicks(0);

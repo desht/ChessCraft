@@ -1,10 +1,14 @@
-# Alias file defining all AIs available to ChessCraft.  See "AI_settings.yml" for core
-# AI definitions.
+#
+# User-editable alias file defining all AIs available to ChessCraft.
+# See "AI_settings.yml" for core AI definitions.
 #
 # Each entry below has an alias as the key, followed by one or more parameters for the AI that
 # the alias uses.  You are free to change any of the alias keys below to a preferred name,
 # or add/remove alias definitions.  You can have multiple aliases referring to the same
 # AI definition (e.g. see the "gnuchess1" and "gnuchess2" aliases below).
+#
+# These aliases are used for the "/chess invite <ai-name>" command, and appear as the AI's
+# displayed name (prefixed with "[AI]").
 #
 # The "ai" parameter is mandatory and must reference an AI definition in AI_settings.yml
 #
@@ -12,15 +16,15 @@
 # are useful to override when defining aliases:
 #
 # "enabled" - if false, this AI will not be randomly picked to join games (but it can still be
-#   invited explicitly with "/chess invite <ai-alias>"
+#   invited explicitly with "/chess invite <ai-name>"
 #
 # "comment" - a short text string displayed to players who use "/chess list ai"
 #
-# "payout_multiplier" - applies if Economy support is enabled.  Default is 1.0 - it could be
-#   raised for tougher engines and lowered for weaker engines.
+# "payout_multiplier" - applies if Economy support is enabled; the player's winnings will be
+#    multiplied by this value.  Default is 1.0 - it could be raised for tougher engines and
+#    lowered for weaker engines.
 #
-# "command" - applies to "xboard" and "uci" AIs.  The name of the external chess engine which
-#   will be launched for the AI.
+# "command" - applies to "xboard" AIs; the command to start the external chess engine for the AI.
 #
 # See the website for full documentation: http://dev.bukkit.org/server-mods/chesscraft/pages/ai
 
@@ -32,6 +36,8 @@ jcmm1: { ai: "ai05" }
 jcmm2: { ai: "ai06" }
 jcmm3: { ai: "ai07" }
 jcmm4: { ai: "ai08" }
+# The next four engines are disabled by default because the AI code appears to be buggy
+# (occasional exceptions thrown when calculating moves)
 jcmmp2: { ai: "ai09", enabled: false }
 jcmmp3: { ai: "ai10" , enabled: false }
 jcmmp4: { ai: "ai11" , enabled: false }
@@ -40,8 +46,13 @@ jcns3: { ai: "ai13" }
 jcns4: { ai: "ai14" }
 jcns5: { ai: "ai15" }
 jcns6: { ai: "ai16" }
-jcrand: { ai: "ai17", enabled: false }
+# This engined is disabled by default since it's completely stupid and really only for 
+# testing purposes.
+jcrand: { ai: "ai17", enabled: false, payout: 0.0 }
+
+# XBoard engines are disabled by default - you can enable them if you have gnuchess and/or
+# crafty installed.  If the command is not in the default PATH for the craftbukkit server,
+# you can update the "command" setting to refer to the full path to the program.
 gnuchess1: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 gnuchess2: { ai: "xboard", enabled: false, command: "gnuchess xboard" }
 crafty: { ai: "xboard", enabled: false, command: "crafty xboard" }
-

@@ -4,6 +4,7 @@ import java.io.File;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -33,7 +34,7 @@ public class ArchiveCommand extends AbstractCommand {
 			if (args[0].equals("-this")) {
 				notFromConsole(player);
 				Player p = (Player)player;
-				BoardView bv = BoardView.partOfChessBoard(p.getLocation());
+				BoardView bv = BoardViewManager.getManager().partOfChessBoard(p.getLocation());
 				if (bv == null) {
 					throw new ChessException(Messages.getString("Designer.notOnBoard"));
 				} else {
