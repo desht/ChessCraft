@@ -1345,7 +1345,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (players[otherColour].isHuman()) {
 			// playing another human - we need to ask them if it's OK to undo
 			String otherPlayerName = players[otherColour].getName();
-			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectUndoResponse(this, playerName, otherPlayerName));
+			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectUndoResponse(this, playerName));
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.undoOfferedOther", playerName));
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.undoOfferedYou", otherPlayerName));

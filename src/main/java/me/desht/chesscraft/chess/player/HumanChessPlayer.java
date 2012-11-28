@@ -162,7 +162,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void drawOffered() {
 		String offerer = getGame().getOtherPlayerName(getName());
 		
-		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectDrawResponse(getGame(), offerer, getName()));
+		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectDrawResponse(getGame(), offerer));
 		
 		alert(Messages.getString("ChessCommandExecutor.drawOfferedOther", offerer));
 		alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
@@ -172,7 +172,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void swapOffered() {
 		String offerer = getGame().getOtherPlayerName(getName());
 		
-		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectSwapResponse(getGame(), offerer, getName()));
+		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectSwapResponse(getGame(), offerer));
 		
 		alert(Messages.getString("ChessCommandExecutor.swapOfferedOther", offerer));
 		alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
