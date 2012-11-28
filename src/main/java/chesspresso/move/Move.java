@@ -382,21 +382,36 @@ public class Move
     
     /*================================================================================*/
     
-    /**
-     * Equality test. Two move are equal if and only if all arguments match.
-     *
-     *@param obj the object to compare against
-     *@return whether the two moves are equal
-     */
-    public boolean equals(Object obj)
-    {
-        if (obj instanceof Move) {
-            Move move = (Move)obj;
-            return m_move == move.m_move && m_info == move.m_info;
-        } else {
-            return false;
-        }
-    }
+    /* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + m_info;
+		result = prime * result + m_move;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Move other = (Move) obj;
+		if (m_info != other.m_info)
+			return false;
+		if (m_move != other.m_move)
+			return false;
+		return true;
+	}
     
     /**
      * Returns the LAN (long annotation, see PGN spec) of the move, e.g. Ne2xf4+.
