@@ -292,7 +292,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-							game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+							game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
@@ -323,7 +323,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
 			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
-					game.getPosition().getLastMove().getLAN()));
+					game.getPosition().getLastMove().getSAN()));
 		} else {
 			if (player.isSneaking()) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$

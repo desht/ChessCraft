@@ -2,6 +2,7 @@ package me.desht.chesscraft.expector;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.enums.GameResult;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
@@ -22,7 +23,7 @@ public class ExpectDrawResponse extends ExpectYesNoResponse {
 			public void run() {
 				if (accepted) {
 					game.alert(offerer, Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getPlayerName())); //$NON-NLS-1$
-					game.drawn();
+					game.drawn(GameResult.DrawAgreed);
 				} else {
 					game.alert(offerer, Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getPlayerName())); //$NON-NLS-1$
 					Player player = Bukkit.getPlayer(offeree);

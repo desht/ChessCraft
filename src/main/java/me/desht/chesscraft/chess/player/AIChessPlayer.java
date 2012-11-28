@@ -1,5 +1,6 @@
 package me.desht.chesscraft.chess.player;
 
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
@@ -130,7 +131,11 @@ public class AIChessPlayer extends ChessPlayer {
 		if (ai.hasFailed()) {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {
-				game.drawn(GameResult.Abandoned);
+				if (ChessCraft.getInstance().getConfig().getBoolean("ai.lose_on_fail", false)) {
+					game.winByDefault(otherPlayer.getName());
+				} else {
+					game.drawn(GameResult.Abandoned);
+				}
 			} catch (ChessException e) {
 				// should never get here
 				LogUtils.severe("Unexpected exception caught while trying to draw game - deleted", e);
@@ -159,7 +164,7 @@ public class AIChessPlayer extends ChessPlayer {
 				if (otherPlayer != null) {
 					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getName()));
 				}
-				game.drawn();
+				game.drawn(GameResult.DrawAgreed);
 				break;
 			case DRAW_DECLINED:
 				if (otherPlayer != null) {

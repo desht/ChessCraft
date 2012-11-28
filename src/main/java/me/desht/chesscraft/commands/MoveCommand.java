@@ -52,7 +52,7 @@ public class MoveCommand extends AbstractCommand {
 		try {
 			game.doMove(sender.getName(), to);
 			MiscUtil.statusMessage(sender, Messages.getString("ChessPlayerListener.youPlayed",
-			                                                  game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+			                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 		} catch (IllegalMoveException e) {
 			throw new ChessException(e.getMessage());
 		}
