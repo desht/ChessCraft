@@ -3,7 +3,7 @@ package me.desht.chesscraft.chess.pieces;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 
 public class MaterialMap {
 	private final Map<Character,MaterialWithData> map = new HashMap<Character, MaterialWithData>();

@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import chesspresso.Chess;
 
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.regions.Cuboid;

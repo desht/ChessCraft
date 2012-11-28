@@ -11,7 +11,7 @@ import org.bukkit.block.BlockFace;
 
 import chesspresso.Chess;
 
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.enums.Direction;

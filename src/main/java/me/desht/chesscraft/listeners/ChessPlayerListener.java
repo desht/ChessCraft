@@ -6,7 +6,7 @@ import java.util.Map;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.BlockType;
+import me.desht.dhutils.block.BlockType;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;

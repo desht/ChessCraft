@@ -1,12 +1,6 @@
 package me.desht.chesscraft.controlpanel;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.BoardRotation;
@@ -14,6 +8,12 @@ import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.regions.Cuboid;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.MaterialWithData;
+
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 
 public abstract class AbstractSignLabel {
 

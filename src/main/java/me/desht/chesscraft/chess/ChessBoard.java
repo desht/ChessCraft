@@ -14,8 +14,8 @@ import chesspresso.Chess;
 import chesspresso.position.Position;
 
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.BlockType;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;

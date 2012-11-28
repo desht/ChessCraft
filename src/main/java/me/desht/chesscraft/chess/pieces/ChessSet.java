@@ -23,7 +23,7 @@ import com.google.common.base.Joiner;
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;

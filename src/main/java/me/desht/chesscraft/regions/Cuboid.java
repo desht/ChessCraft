@@ -22,9 +22,9 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.inventory.InventoryHolder;
 
-import me.desht.chesscraft.blocks.BlockType;
-import me.desht.chesscraft.blocks.BlockUtils;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.BlockUtils;
+import me.desht.dhutils.block.MaterialWithData;
 import net.minecraft.server.ChunkCoordIntPair;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.EnumSkyBlock;

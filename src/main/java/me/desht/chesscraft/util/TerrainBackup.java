@@ -1,4 +1,4 @@
-package me.desht.chesscraft.blocks;
+package me.desht.chesscraft.util;
 
 import java.io.File;
 import me.desht.chesscraft.ChessCraft;

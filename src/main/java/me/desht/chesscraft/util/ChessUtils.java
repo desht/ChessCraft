@@ -13,7 +13,7 @@ import java.util.Date;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.LogUtils;
 
 import org.bukkit.ChatColor;
