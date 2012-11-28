@@ -52,7 +52,6 @@ import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessFlightListener;
 import me.desht.chesscraft.listeners.ChessPlayerListener;
 import me.desht.chesscraft.listeners.ChessWorldListener;
-import me.desht.chesscraft.regions.Cuboid;
 import me.desht.chesscraft.results.Results;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
@@ -256,7 +255,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin p = pm.getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
-			Cuboid.setWorldEdit(worldEditPlugin);
 			LogUtils.fine("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
 			LogUtils.warning("WorldEdit plugin not detected: chess board terrain saving disabled.");

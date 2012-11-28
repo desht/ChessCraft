@@ -5,7 +5,7 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.GameState;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.MaterialWithData;

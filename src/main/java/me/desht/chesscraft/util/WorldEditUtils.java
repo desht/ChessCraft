@@ -1,6 +1,6 @@
 package me.desht.chesscraft.util;
 
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
 
 import org.bukkit.entity.Player;
 

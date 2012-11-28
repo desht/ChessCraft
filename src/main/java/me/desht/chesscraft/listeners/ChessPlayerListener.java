@@ -12,12 +12,12 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.player.ChessPlayer;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
@@ -146,7 +146,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					} else if ((bv = BoardViewManager.getManager().partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
 							Location tpLoc = bv.getControlPanel().getTeleportLocation();
-							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(Direction.Horizontal, 4);
+							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(CuboidDirection.Horizontal, 4);
 							if (!zone.contains(player.getLocation()) && bv.isPartOfBoard(player.getLocation())) {
 								teleportPlayer(player, tpLoc);
 							}

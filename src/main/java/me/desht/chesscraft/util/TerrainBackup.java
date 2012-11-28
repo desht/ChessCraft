@@ -4,7 +4,7 @@ import java.io.File;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.TerrainManager;
 

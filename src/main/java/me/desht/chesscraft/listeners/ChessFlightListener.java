@@ -12,10 +12,10 @@ import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
@@ -247,8 +247,8 @@ public class ChessFlightListener extends ChessListenerBase {
 			Cuboid c = bv.getOuterBounds();
 			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
 			if (BlockType.canPassThrough(mat.getId())) {
-				c = c.expand(Direction.Up, Math.max(5, (c.getSizeY() * above) / 100));
-				c = c.outset(Direction.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
+				c = c.expand(CuboidDirection.Up, Math.max(5, (c.getSizeY() * above) / 100));
+				c = c.outset(CuboidDirection.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
 			}
 			flightRegions.add(c);
 		}

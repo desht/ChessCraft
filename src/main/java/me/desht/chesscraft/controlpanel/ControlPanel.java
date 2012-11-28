@@ -15,8 +15,8 @@ import chesspresso.Chess;
 
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.enums.Direction;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.chesscraft.enums.BoardRotation;
 
@@ -52,7 +52,7 @@ public class ControlPanel {
 		clockLabels[Chess.WHITE] = new ClockLabel(this, Chess.WHITE);
 		clockLabels[Chess.BLACK] = new ClockLabel(this, Chess.BLACK);
 
-		toMoveIndicator = panelBlocks.inset(Direction.Vertical, 1).
+		toMoveIndicator = panelBlocks.inset(CuboidDirection.Vertical, 1).
 				expand(boardDir.getDirection(), -((PANEL_WIDTH - 2) / 2)).
 				expand(boardDir.getDirection().opposite(), -((PANEL_WIDTH - 2) / 2));
 	}
@@ -126,7 +126,7 @@ public class ControlPanel {
 	}
 
 	public void repaintAll() {
-		panelBlocks.setFast(view.getControlPanelMaterial());
+		panelBlocks.fillFast(view.getControlPanelMaterial());
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
 		repaintControls();
@@ -174,7 +174,7 @@ public class ControlPanel {
 		} else if (toPlay == Chess.BLACK) {
 			mat = getView().getBlackSquareMaterial();
 		}
-		toMoveIndicator.set(mat);
+		toMoveIndicator.fill(mat);
 	}
 
 	public void updatePlyCount(int plyNumber) {
@@ -213,7 +213,7 @@ public class ControlPanel {
 		int z = a1.getBlockZ() + dir.getZadjustment(panelOffset) + dirLeft.getZadjustment(frameOffset);
 		// then expand the cuboid in the board's direction by the panel's desired width
 		Cuboid panel = new Cuboid(new Location(a1.getWorld(), x, y, z));
-		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(Direction.Up, 2);
+		return panel.expand(dir.getDirection(), PANEL_WIDTH - 1).expand(CuboidDirection.Up, 2);
 	}
 
 }

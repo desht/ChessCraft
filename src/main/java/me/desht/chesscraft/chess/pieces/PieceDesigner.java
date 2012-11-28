@@ -14,10 +14,10 @@ import chesspresso.Chess;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 
 public class PieceDesigner {
 	private final BoardView view;
@@ -146,7 +146,7 @@ public class PieceDesigner {
 		// scan just above squares B2-E2 inclusive
 		// any block found with a different block on top is of interest
 		for (int col = 1; col < 5; col++) {
-			Cuboid c = view.getChessBoard().getSquare(1, col).shift(Direction.Up, 1);
+			Cuboid c = view.getChessBoard().getSquare(1, col).shift(CuboidDirection.Up, 1);
 			for (Block b : c) {
 				Block b2 = b.getRelative(BlockFace.UP);
 				if (b.getTypeId() == b2.getTypeId() && b.getData() == b2.getData()) {
@@ -198,8 +198,8 @@ public class PieceDesigner {
 		Iterator<String> iter = whiteToBlack.keySet().iterator();
 
 		for (int col = 1; col < 5; col++) {
-			Cuboid c = view.getChessBoard().getSquare(1, col).shift(Direction.Up, 1);
-			c.expand(Direction.Up, 1).clear(true);
+			Cuboid c = view.getChessBoard().getSquare(1, col).shift(CuboidDirection.Up, 1);
+			c.expand(CuboidDirection.Up, 1).clear(true);
 			int n = 0;
 			for (Block b : c) {
 				if (!iter.hasNext()) 
