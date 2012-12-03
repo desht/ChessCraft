@@ -383,6 +383,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			} else {
 				MessagePager.setDefaultPageSize(Integer.MAX_VALUE);
 			}
+		} else if (key.startsWith("effects.")) {
+			fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
 		}
 	}
 
