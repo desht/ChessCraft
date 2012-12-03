@@ -9,6 +9,7 @@ import java.util.Map;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -23,19 +24,21 @@ public class Messages {
 	public static void init(String locale) {
 		File langDir = DirectoryStructure.getLanguagesDirectory();
 
-		DirectoryStructure.extractResource("/datafiles/lang/default.yml", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/es_es.yml", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/de_de.yml", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/ru_ru.yml", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/pt_br.yml", langDir);
-		DirectoryStructure.extractResource("/datafiles/lang/zh_cn.yml", langDir);
+		try {
+			for (String lang : MiscUtil.listFilesinJAR(DirectoryStructure.getJarFile(), "datafiles/lang", ".yml")) {
+				DirectoryStructure.extractResource(lang, langDir);
+			}
+		} catch (IOException e) {
+			LogUtils.severe("can't determine message files to extract!");
+			e.printStackTrace();
+		}
 
 		try {
 			fallbackMessages = loadMessageFile("default");
 		} catch (ChessException e) {
 			LogUtils.severe("can't load fallback messages file!", e);
 		}
-		
+
 		try {
 			setMessageLocale(locale);
 		} catch (ChessException e) {
