@@ -91,6 +91,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					bv.getChessBoard().setPieceStyle(val);
 				} else if (attr.startsWith("boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
+					styleHasChanged = true;
 				} else if (attr.startsWith("defaultstake")) {
 					bv.setDefaultStake(Double.parseDouble(val));
 				} else if (attr.startsWith("defaulttc")) {
