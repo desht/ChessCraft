@@ -13,11 +13,8 @@ import java.util.Date;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.LogUtils;
-
-import org.bukkit.ChatColor;
-
+import me.desht.dhutils.block.MaterialWithData;
 import chesspresso.Chess;
 
 /**
@@ -47,7 +44,7 @@ public class ChessUtils {
 	 */
 	public static String getDisplayColour(int c) {
 		String s = c == Chess.WHITE ? "&f" : "&8";
-		return s + getColour(c) + ChatColor.RESET;
+		return s + getColour(c) + "&-";
 	}
 
 	/**
