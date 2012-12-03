@@ -54,7 +54,7 @@ import chesspresso.position.Position;
  *
  */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
-	private static final String OPEN_INVITATION = "*";
+	public static final String OPEN_INVITATION = "*";
 	
 	private final String name;
 	private final BoardView view;
@@ -836,6 +836,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		short realMove = validateMove(move);
 
+		int prevToMove = getPosition().getToPlay();
+		
 		// At this point we know the move is valid, so go ahead and make the necessary changes...
 		getPosition().doMove(realMove);	// the board view will repaint itself at this point
 		lastMoved = System.currentTimeMillis();
@@ -844,7 +846,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		autoSave();
 		this.fromSquare = Chess.NO_SQUARE;
 
-		int prevToMove = getPosition().getToPlay();
 		players[prevToMove].cancelOffers();
 
 		if (checkForFinishingPosition())

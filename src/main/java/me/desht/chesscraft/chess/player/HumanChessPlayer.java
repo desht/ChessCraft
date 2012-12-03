@@ -7,10 +7,9 @@ import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
-import me.desht.chesscraft.expector.ExpectUndoResponse;
+import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.responsehandler.ResponseHandler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -97,7 +96,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void validateInvited(String error) {
 		String invited = getGame().getInvited();
-		if (!invited.equals("*") && !invited.equalsIgnoreCase(getName())) { 
+		if (!invited.equals(ChessGame.OPEN_INVITATION) && !invited.equalsIgnoreCase(getName())) { 
 			throw new ChessException(Messages.getString(error));
 		}
 	}
@@ -134,22 +133,7 @@ public class HumanChessPlayer extends ChessPlayer {
 		
 		if (p != null) {
 			// making a move after a draw/swap/undo offer has been made is equivalent to declining the offer
-			ResponseHandler resp = ChessCraft.getInstance().responseHandler;
-			ExpectDrawResponse dr = resp.getAction(p.getName(), ExpectDrawResponse.class);
-			ExpectSwapResponse sr = resp.getAction(p.getName(), ExpectSwapResponse.class);
-			ExpectUndoResponse ur = resp.getAction(p.getName(), ExpectUndoResponse.class);
-			if (dr != null) {
-				MiscUtil.statusMessage(p, Messages.getString("ExpectYesNoOffer.youDeclinedDrawOffer")); //$NON-NLS-1$
-				dr.cancelAction();
-			}
-			if (sr != null) {
-				MiscUtil.statusMessage(p, Messages.getString("ExpectYesNoOffer.youDeclinedSwapOffer")); //$NON-NLS-1$
-				sr.cancelAction();
-			}
-			if (ur != null) {
-				MiscUtil.statusMessage(p, Messages.getString("ExpectYesNoOffer.youDeclinedUndoOffer")); //$NON-NLS-1$
-				ur.cancelAction();
-			}
+			ExpectYesNoResponse.handleYesNoResponse(p, false);
 		}
 	}
 
