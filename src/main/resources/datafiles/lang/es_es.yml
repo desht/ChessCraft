@@ -210,7 +210,7 @@ Game:
   paidStake: "Has pagado una estaca de {0}."
   playerJoined: "&6{0}&- ha entrado a tu partida."
   playerNotOnline: "El jugador {0} no esta conectado."
-  playerPlayedMove: "{0} jugo [{1}]"
+  playerPlayedMove: "{0} jugo [&f{1}&-]"
   resigned: "&6{0}&- le gano a &6{1}&- (se ha rendido) en una partida de Ajedrez!"
   shouldBeState: "La partida tendria que estar en la etapa {0}."
   stakeCantBeChanged: "La estaca no puede ser cambiada una vez ambos jugadores entraron."

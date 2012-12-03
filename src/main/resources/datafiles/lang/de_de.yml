@@ -236,7 +236,7 @@ Game:
   paidStake: Du hast einen Einsatz von {0} bezahlt.
   playerJoined: '&6{0}&- ist deinem Spiel beigetreten.'
   playerNotOnline: Spieler {0} ist nicht online.
-  playerPlayedMove: '{0} spielte [{1}].  Dein Zug.'
+  playerPlayedMove: '{0} spielte [&f{1}&-].  Dein Zug.'
   resigned: '&6{0}&- schlug &6{1}&- (Aufgabe) in einem Schachspiel!'
   shouldBeState: Spiel sollte im Status {0} sein.
   stakeCantBeChanged: Der Einsatz kann nicht verändert werden sobald beide Spieler beigetreten sind.
