@@ -341,9 +341,9 @@ public class ChessPlayerListener extends ChessListenerBase {
 	}
 	
 	private void teleportPlayer(Player player, Location dest) {
-		plugin.getFX().playEffect(player.getLocation(), "teleport_from");
+		plugin.getFX().playEffect(player.getLocation(), "teleport_out");
 		player.teleport(dest);
-		plugin.getFX().playEffect(dest, "teleport_to");
+		plugin.getFX().playEffect(dest, "teleport_in");
 	}
 
 	private long lastAnimationEvent(Player player) {

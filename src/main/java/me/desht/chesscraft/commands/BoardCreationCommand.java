@@ -14,7 +14,7 @@ import org.bukkit.plugin.Plugin;
 public class BoardCreationCommand extends AbstractCommand {
 
 	public BoardCreationCommand() {
-		super("chess b c", 1, 3);
+		super("chess b c", 1);
 		addAlias("chess c b");	// backwards compat
 		setPermissionNode("chesscraft.commands.create.board");
 		setUsage("/chess board create <board-name> [-style <style-name>] [-pstyle <style-name>]");
