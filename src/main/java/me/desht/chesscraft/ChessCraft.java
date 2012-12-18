@@ -385,6 +385,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			}
 		} else if (key.startsWith("effects.")) {
 			fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
+		} else if (key.startsWith("database.")) {
+			Results.shutdown();
+			if (Results.getResultsHandler() == null) {
+				LogUtils.warning("DB connection cannot be re-established.  Check your settings.");
+			}
 		}
 	}
 

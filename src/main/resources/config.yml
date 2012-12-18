@@ -67,5 +67,12 @@ flying:
     outer_limit: 25
     fly_speed: 0.2
     walk_speed: 0.2
+database:
+    driver: sqlite
+    host: localhost
+    user: chesscraft
+    password: chesscraft
+    port: 3306
+    name: chesscraft
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

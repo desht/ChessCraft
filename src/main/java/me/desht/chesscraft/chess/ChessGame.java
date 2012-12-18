@@ -1046,8 +1046,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		handlePayout();
-		if (Results.resultsHandlerOK()) {
-			Results.getResultsHandler().logResult(this, rt);
+		
+		Results handler = Results.getResultsHandler();
+		if (handler != null) {
+			handler.logResult(this, rt);
 		}
 	}
 

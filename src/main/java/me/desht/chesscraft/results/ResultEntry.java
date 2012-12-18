@@ -1,10 +1,12 @@
 package me.desht.chesscraft.results;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+
+import chesspresso.Chess;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
@@ -19,8 +21,8 @@ public class ResultEntry {
 	private final String pgnResult;
 
 	ResultEntry(ChessGame game, GameResult rt) {
-		playerWhite = game.getWhitePlayerName();
-		playerBlack = game.getBlackPlayerName();
+		playerWhite = game.getPlayer(Chess.WHITE).getName();
+		playerBlack = game.getPlayer(Chess.BLACK).getName();
 		gameName = game.getName();
 		startTime = game.getStarted();
 		endTime = game.getFinished();
@@ -103,12 +105,13 @@ public class ResultEntry {
 	void save(Connection connection) {
 		try {
 			PreparedStatement stmt = connection.prepareStatement(
-					"INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, ?)");
+					"INSERT INTO results (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
+					" VALUES (?, ?, ?, ?, ?, ?, ?)");
 			stmt.setString(1, playerWhite);
 			stmt.setString(2, playerBlack);
 			stmt.setString(3, gameName);
-			stmt.setDate(4, new Date(startTime));
-			stmt.setDate(5, new Date(endTime));
+			stmt.setTimestamp(4, new Timestamp(startTime));
+			stmt.setTimestamp(5, new Timestamp(endTime));
 			stmt.setString(6, result.toString());
 			stmt.setString(7, pgnResult);
 			stmt.executeUpdate();
