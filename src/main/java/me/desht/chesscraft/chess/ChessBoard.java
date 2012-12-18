@@ -14,18 +14,19 @@ import chesspresso.Chess;
 import chesspresso.position.Position;
 
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.BlockType;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -77,10 +78,10 @@ public class ChessBoard {
 		a1Corner = initA1Corner(origin, rotation);
 		h8Corner = initH8Corner(a1Corner.getLocation());
 		board = new Cuboid(a1Corner.getLocation(), h8Corner.getLocation());
-		areaBoard = board.expand(Direction.Up, boardStyle.getHeight());
-		frameBoard = board.outset(Direction.Horizontal, boardStyle.getFrameWidth());
-		aboveFullBoard = frameBoard.shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight() - 1);
-		fullBoard = frameBoard.expand(Direction.Up, boardStyle.getHeight() + 1);
+		areaBoard = board.expand(CuboidDirection.Up, boardStyle.getHeight());
+		frameBoard = board.outset(CuboidDirection.Horizontal, boardStyle.getFrameWidth());
+		aboveFullBoard = frameBoard.shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, boardStyle.getHeight() - 1);
+		fullBoard = frameBoard.expand(CuboidDirection.Up, boardStyle.getHeight() + 1);
 		validateBoardPosition();
 	}
 
@@ -292,12 +293,12 @@ public class ChessBoard {
 	}
 
 	private void paintEnclosure() {
-		aboveFullBoard.getFace(Direction.North).setFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(Direction.East).setFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(Direction.South).setFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(Direction.West).setFast(boardStyle.getEnclosureMaterial());
+		aboveFullBoard.getFace(CuboidDirection.North).fillFast(boardStyle.getEnclosureMaterial());
+		aboveFullBoard.getFace(CuboidDirection.East).fillFast(boardStyle.getEnclosureMaterial());
+		aboveFullBoard.getFace(CuboidDirection.South).fillFast(boardStyle.getEnclosureMaterial());
+		aboveFullBoard.getFace(CuboidDirection.West).fillFast(boardStyle.getEnclosureMaterial());
 
-		fullBoard.getFace(Direction.Up).setFast(boardStyle.getEnclosureMaterial());
+		fullBoard.getFace(CuboidDirection.Up).fillFast(boardStyle.getEnclosureMaterial());
 
 		if (!boardStyle.getEnclosureMaterial().equals(boardStyle.getStrutsMaterial())) {
 			paintStruts();
@@ -308,31 +309,31 @@ public class ChessBoard {
 		MaterialWithData struts = boardStyle.getStrutsMaterial();
 
 		// vertical struts at the frame corners
-		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(Direction.Up, 1).expand(Direction.Up, boardStyle.getHeight());
-		c.setFast(struts);
-		c = c.shift(Direction.South, frameBoard.getSizeX() - 1);
-		c.setFast(struts);
-		c = c.shift(Direction.West, frameBoard.getSizeZ() - 1);
-		c.setFast(struts);
-		c = c.shift(Direction.North, frameBoard.getSizeZ() - 1);
-		c.setFast(struts);
+		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, boardStyle.getHeight());
+		c.fillFast(struts);
+		c = c.shift(CuboidDirection.South, frameBoard.getSizeX() - 1);
+		c.fillFast(struts);
+		c = c.shift(CuboidDirection.West, frameBoard.getSizeZ() - 1);
+		c.fillFast(struts);
+		c = c.shift(CuboidDirection.North, frameBoard.getSizeZ() - 1);
+		c.fillFast(struts);
 
 		// horizontal struts along roof edge
-		Cuboid roof = frameBoard.shift(Direction.Up, boardStyle.getHeight() + 1);
-		roof.getFace(Direction.East).setFast(struts);
-		roof.getFace(Direction.North).setFast(struts);
-		roof.getFace(Direction.West).setFast(struts);
-		roof.getFace(Direction.South).setFast(struts);
+		Cuboid roof = frameBoard.shift(CuboidDirection.Up, boardStyle.getHeight() + 1);
+		roof.getFace(CuboidDirection.East).fillFast(struts);
+		roof.getFace(CuboidDirection.North).fillFast(struts);
+		roof.getFace(CuboidDirection.West).fillFast(struts);
+		roof.getFace(CuboidDirection.South).fillFast(struts);
 
 	}
 
 	private void paintFrame() {
 		int fw = boardStyle.getFrameWidth();
 		MaterialWithData fm = boardStyle.getFrameMaterial();
-		frameBoard.getFace(Direction.West).expand(Direction.East, fw - 1).setFast(fm);
-		frameBoard.getFace(Direction.South).expand(Direction.North, fw - 1).setFast(fm);
-		frameBoard.getFace(Direction.East).expand(Direction.West, fw - 1).setFast(fm);
-		frameBoard.getFace(Direction.North).expand(Direction.South, fw - 1).setFast(fm);
+		frameBoard.getFace(CuboidDirection.West).expand(CuboidDirection.East, fw - 1).fillFast(fm);
+		frameBoard.getFace(CuboidDirection.South).expand(CuboidDirection.North, fw - 1).fillFast(fm);
+		frameBoard.getFace(CuboidDirection.East).expand(CuboidDirection.West, fw - 1).fillFast(fm);
+		frameBoard.getFace(CuboidDirection.North).expand(CuboidDirection.South, fw - 1).fillFast(fm);
 	}
 
 	private void paintBoard() {
@@ -348,7 +349,7 @@ public class ChessBoard {
 	private void paintBoardSquare(int row, int col) {
 		Cuboid square = getSquare(row, col);
 		boolean black = (col + (row % 2)) % 2 == 0;
-		square.setFast(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial());
+		square.fillFast(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial());
 		square.sendClientChanges();
 	}
 
@@ -364,10 +365,10 @@ public class ChessBoard {
 			MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
 			switch (boardStyle.getHighlightStyle()) {
 			case EDGES:
-				sq.getFace(Direction.East).set(squareHighlightColor);
-				sq.getFace(Direction.North).set(squareHighlightColor);
-				sq.getFace(Direction.West).set(squareHighlightColor);
-				sq.getFace(Direction.South).set(squareHighlightColor);
+				sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
+				sq.getFace(CuboidDirection.North).fill(squareHighlightColor);
+				sq.getFace(CuboidDirection.West).fill(squareHighlightColor);
+				sq.getFace(CuboidDirection.South).fill(squareHighlightColor);
 				break;
 			case CORNERS:
 				for (Block b : sq.corners()) {
@@ -419,7 +420,7 @@ public class ChessBoard {
 			}
 		}
 
-		region.expand(Direction.Down, 1).forceLightLevel(boardStyle.getLightLevel());		
+		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());		
 		region.sendClientChanges();
 	}
 
@@ -465,8 +466,8 @@ public class ChessBoard {
 				if (row < 2 && col < 5) {
 					continue;
 				}
-				Cuboid sq = getSquare(row, col).shift(Direction.Up, 1).inset(Direction.Horizontal, 1);
-				sq.setFast(marker);
+				Cuboid sq = getSquare(row, col).shift(CuboidDirection.Up, 1).inset(CuboidDirection.Horizontal, 1);
+				sq.fillFast(marker);
 			}
 		}
 	}
@@ -569,8 +570,8 @@ public class ChessBoard {
 		Cuboid sq = new Cuboid(a1Corner.getLocation());
 
 		int s = boardStyle.getSquareSize();
-		Direction dir = rotation.getDirection();
-		Direction dirRight = rotation.getRight().getDirection();
+		CuboidDirection dir = rotation.getDirection();
+		CuboidDirection dirRight = rotation.getRight().getDirection();
 
 		sq = sq.shift(dir, row * s).shift(dirRight, col * s);
 		sq = sq.expand(dir, s - 1).expand(dirRight, s - 1);
@@ -588,7 +589,7 @@ public class ChessBoard {
 	 * @return a Cuboid representing the drawing space
 	 */
 	public Cuboid getPieceRegion(int row, int col) {
-		Cuboid sq = getSquare(row, col).expand(Direction.Up, boardStyle.getHeight() - 1).shift(Direction.Up, 1);
+		Cuboid sq = getSquare(row, col).expand(CuboidDirection.Up, boardStyle.getHeight() - 1).shift(CuboidDirection.Up, 1);
 		return sq;
 	}
 

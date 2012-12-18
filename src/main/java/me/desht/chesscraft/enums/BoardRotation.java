@@ -1,5 +1,7 @@
 package me.desht.chesscraft.enums;
 
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -60,16 +62,16 @@ public enum BoardRotation {
 		}
 	}
 
-	public Direction getDirection() {
+	public CuboidDirection getDirection() {
 		switch (this) {
 			case NORTH:
-				return Direction.North;
+				return CuboidDirection.North;
 			case EAST:
-				return Direction.East;
+				return CuboidDirection.East;
 			case SOUTH:
-				return Direction.South;
+				return CuboidDirection.South;
 			case WEST:
-				return Direction.West;
+				return CuboidDirection.West;
 		}
 		return null; // should not get here..
 	}

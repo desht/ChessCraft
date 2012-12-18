@@ -259,7 +259,7 @@ Game:
   paidStake: "You have paid a stake of {0}."
   playerJoined: "&6{0}&- has joined your game."
   playerNotOnline: "Player {0} is not online."
-  playerPlayedMove: "{0} played [{1}].  Your move."
+  playerPlayedMove: "{0} played [&f{1}&-].  Your move."
   resigned: "&6{0}&- beat &6{1}&- (resigned) in a game of Chess!"
   shouldBeState: "Game should be in state {0}."
   stakeCantBeChanged: "Stake cannot be changed once both players have joined."

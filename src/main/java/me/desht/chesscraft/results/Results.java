@@ -89,7 +89,7 @@ public class Results {
 	 * Shut down the results handler, ensuring the DB is cleanly disconnected etc.
 	 * Call this when the plugin is disabled.
 	 */
-	public static void shutdown() {
+	public static synchronized void shutdown() {
 		if (results != null) {
 			if (results.db != null) {
 				results.db.shutdown();

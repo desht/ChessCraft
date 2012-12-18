@@ -9,22 +9,22 @@ import me.desht.dhutils.MiscUtil;
 
 public class ExpectUndoResponse extends ExpectYesNoResponse {
 
-	public ExpectUndoResponse(ChessGame game, String offerer, String offeree) {
-		super(game, offerer, offeree);
+	public ExpectUndoResponse(ChessGame game, String offerer) {
+		super(game, offerer);
 	}
 	
 	@Override
-	public void doResponse(final String playerName) {
+	public void doResponse(final String offeree) {
 		deferTask(Bukkit.getPlayer(offerer), new Runnable() {
 
 			@Override
 			public void run() {
 				if (accepted) {
-					game.alert(offerer, Messages.getString("ExpectYesNoOffer.undoOfferAccepted", offeree)); //$NON-NLS-1$
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.undoOfferAccepted", getPlayerName())); //$NON-NLS-1$
 					game.undoMove(offerer);
 				} else {
-					game.alert(offerer, Messages.getString("ExpectYesNoOffer.undoOfferDeclined", offeree)); //$NON-NLS-1$
-					Player player = Bukkit.getPlayer(playerName);
+					game.alert(offerer, Messages.getString("ExpectYesNoOffer.undoOfferDeclined", getPlayerName())); //$NON-NLS-1$
+					Player player = Bukkit.getPlayer(offeree);
 					if (player != null) {
 						MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedUndoOffer")); //$NON-NLS-1$
 					}

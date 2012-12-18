@@ -6,18 +6,18 @@ import java.util.Map;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.BlockType;
+import me.desht.dhutils.block.BlockType;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.player.ChessPlayer;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
@@ -146,7 +146,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					} else if ((bv = BoardViewManager.getManager().partOfChessBoard(loc)) != null) {
 						if (bv.isControlPanel(loc)) {
 							Location tpLoc = bv.getControlPanel().getTeleportLocation();
-							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(Direction.Horizontal, 4);
+							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(CuboidDirection.Horizontal, 4);
 							if (!zone.contains(player.getLocation()) && bv.isPartOfBoard(player.getLocation())) {
 								teleportPlayer(player, tpLoc);
 							}
@@ -292,7 +292,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-							game.getPosition().getLastMove().getLAN())); //$NON-NLS-1$
+							game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
@@ -323,7 +323,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
 			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
-					game.getPosition().getLastMove().getLAN()));
+					game.getPosition().getLastMove().getSAN()));
 		} else {
 			if (player.isSneaking()) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
@@ -341,9 +341,9 @@ public class ChessPlayerListener extends ChessListenerBase {
 	}
 	
 	private void teleportPlayer(Player player, Location dest) {
-		plugin.getFX().playEffect(player.getLocation(), "teleport_from");
+		plugin.getFX().playEffect(player.getLocation(), "teleport_out");
 		player.teleport(dest);
-		plugin.getFX().playEffect(dest, "teleport_to");
+		plugin.getFX().playEffect(dest, "teleport_in");
 	}
 
 	private long lastAnimationEvent(Player player) {

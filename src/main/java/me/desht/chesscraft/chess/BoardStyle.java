@@ -13,8 +13,8 @@ import java.io.IOException;
 
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.blocks.BlockType;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;

@@ -15,7 +15,8 @@ public class ListTopCommand extends AbstractCommand {
 	public ListTopCommand() {
 		super("chess l t", 0, 3);
 		setPermissionNode("chesscraft.commands.list.top");
-		setUsage("/chess list top [<n>] [ladder|list] [-ai]");
+		setUsage("/chess list top [<n>] [ladder|league] [-ai]");
+		setOptions(new String[] { "ai" });
 	}
 	
 	@Override
@@ -29,17 +30,11 @@ public class ListTopCommand extends AbstractCommand {
 			try {
 				n = Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
-				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", args[1]));
+				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", args[0]));
 			}
 		}
-		String viewName = "ladder";
-		if (args.length > 1) {
-			viewName = args[1];
-		}
-		boolean excludeAI = false;
-		if (args.length > 2 && args[2].equals("-ai")) {
-			excludeAI = true;
-		}
+		String viewName = args.length > 1 ? args[1] : "ladder";
+		boolean excludeAI = getBooleanOption("ai");
 		
 		MessagePager pager = MessagePager.getPager(sender).clear();
 		int row = 1;

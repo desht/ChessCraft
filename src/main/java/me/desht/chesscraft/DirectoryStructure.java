@@ -11,6 +11,7 @@ import java.net.URLConnection;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 public class DirectoryStructure {
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -34,7 +35,11 @@ public class DirectoryStructure {
 		pluginDir = ChessCraft.getInstance().getDataFolder();
 
 		setupDirectoryStructure();
-		extractResources();
+		try {
+			extractResources();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static File getPluginDirectory() {
@@ -129,27 +134,19 @@ public class DirectoryStructure {
 		return new File("plugins", "ChessCraft.jar");
 	}
 
-	private static void extractResources() {
+	private static void extractResources() throws IOException {
 		extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NEWER); //$NON-NLS-1$
 		extractResource("/AI.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 		extractResource("/timecontrols.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 
-		extractResource("/datafiles/board_styles/standard.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/open.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/sandwood.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/large.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/small.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/huge.yml", boardStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/board_styles/yazpanda.yml", boardStyleDir); //$NON-NLS-1$
+		for (String s : MiscUtil.listFilesinJAR(getJarFile(), "datafiles/board_styles",	".yml")) {
+			extractResource(s, boardStyleDir);
+		}
 
-		extractResource("/datafiles/piece_styles/standard.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/twist.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/sandwood.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/large.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/small.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/huge.yml", pieceStyleDir); //$NON-NLS-1$
-		extractResource("/datafiles/piece_styles/yazpanda.yml", pieceStyleDir); //$NON-NLS-1$
-
+		for (String s : MiscUtil.listFilesinJAR(getJarFile(), "datafiles/piece_styles",	".yml")) {
+			extractResource(s, pieceStyleDir);
+		}
+		
 		// message resources no longer extracted here - this is now done by Messages.loadMessages()
 	}
 
@@ -190,21 +187,14 @@ public class DirectoryStructure {
 			return;
 		}
 
+		if (!from.startsWith("/")) {
+			from = "/" + from;
+		}
+		
 		LogUtils.fine("extracting resource: " + from + " -> " + of);
 
 		OutputStream out = null;
 		try {
-//			// Got to jump through hoops to ensure we can still pull messages from a JAR
-//			// file after it's been reloaded...
-//			URL res = ChessCraft.class.getResource(from);
-//			if (res == null) {
-//				LogUtils.warning("can't find " + from + " in plugin JAR file"); //$NON-NLS-1$
-//				return;
-//			}
-//			URLConnection resConn = res.openConnection();
-//			resConn.setUseCaches(false);
-//			InputStream in = resConn.getInputStream();
-
 			InputStream in = openResourceNoCache(from);
 			if (in == null) {
 				LogUtils.warning("can't get input stream from " + from); //$NON-NLS-1$

@@ -9,22 +9,20 @@ Detailed documentation can be found in BukkitDev: http://dev.bukkit.org/server-m
 ## Building
 
 If you want to build ChessCraft yourself, you will need Maven.
-f
-1a) Download a copy of Vault.jar (1.1.1 minimum required, but get the latest) from http://dev.bukkit.org/server-mods/vault/
 
-1b) Run 'mvn install:install-file -DgroupId=net.milkbowl -DartifactId=vault -Dversion=1.1.1 -Dpackaging=jar -Dfile=Vault.jar' (adjust version accordingly)
+1) Install dhutils: run ```git clone https://github.com/desht/dhutils``` followed by ```mvn install```
 
-2a) Download a copy of ScrollingMenuSign.jar (1.2.0 minimum required, but get the latest) from http://dev.bukkit.org/server-mods/scrollingmenusign
+2a) Download a copy of ScrollingMenuSign.jar (get the latest version) from http://dev.bukkit.org/server-mods/scrollingmenusign
 
-2b) Run 'mvn install:install-file -DgroupId=me.desht -DartifactId=scrollingmenusign -Dversion=1.1 -Dpackaging=jar -Dfile=ScrollingMenuSign.jar' (adjust version accordingly)
+2b) Run ```mvn install:install-file -DgroupId=me.desht -DartifactId=scrollingmenusign -Dversion=x.y.z -Dpackaging=jar -Dfile=ScrollingMenuSign.jar``` (replace *x.y.z* with the version you downloaded)
 
-2c) Alternatively, "git clone https://github.com/desht/ScrollingMenuSign" and build it from source (see https://github.com/desht/ScrollingMenuSign)
+(Alternatively, you can do ```git clone https://github.com/desht/ScrollingMenuSign``` and build it from source - see https://github.com/desht/ScrollingMenuSign)
 
-3) Run 'mvn clean install'
+3) Run ```mvn clean install```
 
 This should give you a copy of ChessCraft.jar under the target/ directory.
 
-Use 'mvn eclipse:eclipse' to create the .project and .classpath files if you want to open the project in Eclipse.
+Use ```mvn eclipse:eclipse``` to create the .project and .classpath files if you want to open the project in Eclipse.
 
 ## License
 

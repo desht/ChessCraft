@@ -54,7 +54,7 @@ import chesspresso.position.Position;
  *
  */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
-	private static final String OPEN_INVITATION = "*";
+	public static final String OPEN_INVITATION = "*";
 	
 	private final String name;
 	private final BoardView view;
@@ -636,6 +636,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
+	/**
+	 * Broadcast an open invitation to the server and allow anyone to join the game.
+	 * 
+	 * @param inviterName
+	 */
 	public void inviteOpen(String inviterName) {
 		inviteSanityCheck(inviterName);
 		
@@ -673,6 +678,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
+	/**
+	 * Withdraw any invitation to this game.
+	 */
 	public void clearInvitation() {
 		invited = ""; //$NON-NLS-1$
 	}
@@ -730,6 +738,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[Chess.BLACK].summonToGame();
 	}
 
+	/**
+	 * The given player is resigning.
+	 * 
+	 * @param playerName
+	 */
 	public void resign(String playerName) {
 		if (state != GameState.RUNNING) {
 			throw new ChessException(Messages.getString("Game.notStarted")); //$NON-NLS-1$
@@ -752,6 +765,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(winner, loser, GameResult.Resigned);
 	}
 
+	/**
+	 * Player has won by default (other player has exhausted their time control,
+	 * or has been offline too long).
+	 * 
+	 * @param playerName
+	 */
 	public void winByDefault(String playerName) {
 		ensurePlayerInGame(playerName);
 
@@ -770,6 +789,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		announceResult(winner, loser, GameResult.Forfeited);
 	}
 
+	/**
+	 * The game is a draw.
+	 * 
+	 * @param res	the reason for the draw
+	 */
 	public void drawn(GameResult res) {
 		ensureGameState(GameState.RUNNING);
 
@@ -777,10 +801,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		result = Chess.RES_DRAW;
 		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2"); //$NON-NLS-1$
 		announceResult(getWhitePlayerName(), getBlackPlayerName(), res);
-	}
-
-	public void drawn() {
-		drawn(GameResult.DrawAgreed);
 	}
 
 	/**
@@ -812,12 +832,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return;
 		}
 
-		Boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
-
-		int prevToMove = getPosition().getToPlay();
+		boolean isCapturing = getPosition().getPiece(toSquare) != Chess.NO_PIECE;
 		short move = Move.getRegularMove(fromSquare, toSquare, isCapturing);
 		short realMove = validateMove(move);
 
+		int prevToMove = getPosition().getToPlay();
+		
 		// At this point we know the move is valid, so go ahead and make the necessary changes...
 		getPosition().doMove(realMove);	// the board view will repaint itself at this point
 		lastMoved = System.currentTimeMillis();
@@ -1026,10 +1046,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		handlePayout();
-		if (Results.resultsHandlerOK()) {
-			Results.getResultsHandler().logResult(this, rt);
+		
+		Results handler = Results.getResultsHandler();
+		if (handler != null) {
+			handler.logResult(this, rt);
 		}
-		//		LogUtils.info(msg);
 	}
 
 	private void handlePayout() {
@@ -1108,23 +1129,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-	/**
-	 * get PGN result
-	 * 
-	 * @return game result in PGN notation
-	 */
-	public String getResult() {
-		if (getState() != GameState.FINISHED) {
-			return "*"; //$NON-NLS-1$
-		}
-
-		if (getPosition().isMate()) {
-			return getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
-			return "1/2-1/2"; //$NON-NLS-1$
-		}
-	}
-
 	public void alert(Player player, String message) {
 		MiscUtil.alertMessage(player, Messages.getString("Game.alertPrefix", getName()) + message); //$NON-NLS-1$
 	}
@@ -1164,6 +1168,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return playerName.equalsIgnoreCase(getPlayerToMove());
 	}
 
+	/**
+	 * Write a PGN file for the game.
+	 * 
+	 * @param force	
+	 * @return	the file that has been written
+	 */
 	public File writePGN(boolean force) {
 		File f = makePGNFile();
 		if (f.exists() && !force) {
@@ -1194,6 +1204,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return f;
 	}
 
+	/**
+	 * Force the board position to the given FEN string.  This should only be used for testing
+	 * since the move history for the game is invalidated.
+	 * 
+	 * @param fen
+	 */
 	public void setPositionFEN(String fen) {
 		getPosition().set(new Position(fen));
 		// manually overriding the position invalidates the move history
@@ -1201,56 +1217,68 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Check if a game needs to be auto-deleted: - ChessGame that has not been
-	 * started after a certain duration - ChessGame that has been finished for a
-	 * certain duration
+	 * Check if a game needs to be auto-deleted:
+	 * - ChessGame that has not been started after a certain duration
+	 * - ChessGame that has been finished for a certain duration
+	 * - ChessGame that has been running without any moves made for a certain duration
 	 */
 	public void checkForAutoDelete() {
-		boolean mustDelete = false;
 		String alertStr = null;
 
 		if (getState() == GameState.SETTING_UP) {
 			long elapsed = System.currentTimeMillis() - created;
 			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.not_started", "3 mins"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration() && !isFull()) {
-				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteNotStarted", timeout); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.FINISHED) {
 			long elapsed = System.currentTimeMillis() - finished;
 			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.finished", "30 sec"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
-				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteFinished"); //$NON-NLS-1$
 			}
 		} else if (getState() == GameState.RUNNING) {
 			long elapsed = System.currentTimeMillis() - lastMoved;
 			Duration timeout = new Duration(ChessCraft.getInstance().getConfig().getString("auto_delete.running", "28 days"));
 			if (timeout.getTotalDuration() > 0 && elapsed > timeout.getTotalDuration()) {
-				mustDelete = true;
 				alertStr = Messages.getString("Game.autoDeleteRunning", timeout); //$NON-NLS-1$
 			}
 		}
 
-		if (mustDelete) {
+		if (alertStr != null) {
 			alert(alertStr);
 			LogUtils.info(alertStr);
 			deletePermanently();
 		}
 	}
 
+	/**
+	 * Validate that the given player is in this game.
+	 * 
+	 * @param playerName
+	 */
 	public void ensurePlayerInGame(String playerName) {
 		if (!playerName.equals(getWhitePlayerName()) && !playerName.equals(getBlackPlayerName())) {
 			throw new ChessException(Messages.getString("Game.notInGame")); //$NON-NLS-1$
 		}
 	}
 
+	/**
+	 * Validate that it's the given player's move in this game.
+	 * 
+	 * @param playerName
+	 */
 	public void ensurePlayerToMove(String playerName) {
 		if (!playerName.equals(getPlayerToMove())) {
 			throw new ChessException(Messages.getString("Game.notYourTurn")); //$NON-NLS-1$
 		}
 	}
 
+	/**
+	 * Validate that this game is in the given state.
+	 * 
+	 * @param state
+	 */
 	public void ensureGameState(GameState state) {
 		if (getState() != state) {
 			throw new ChessException(Messages.getString("Game.shouldBeState", state)); //$NON-NLS-1$
@@ -1345,7 +1373,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (players[otherColour].isHuman()) {
 			// playing another human - we need to ask them if it's OK to undo
 			String otherPlayerName = players[otherColour].getName();
-			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectUndoResponse(this, playerName, otherPlayerName));
+			ChessCraft.getInstance().responseHandler.expect(otherPlayerName, new ExpectUndoResponse(this, playerName));
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.undoOfferedOther", playerName));
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.undoOfferedYou", otherPlayerName));

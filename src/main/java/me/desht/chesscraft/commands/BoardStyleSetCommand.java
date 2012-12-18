@@ -1,7 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.MaterialWithData;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
@@ -91,6 +91,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 					bv.getChessBoard().setPieceStyle(val);
 				} else if (attr.startsWith("boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
+					styleHasChanged = true;
 				} else if (attr.startsWith("defaultstake")) {
 					bv.setDefaultStake(Double.parseDouble(val));
 				} else if (attr.startsWith("defaulttc")) {

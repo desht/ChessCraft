@@ -11,13 +11,11 @@ public abstract class ExpectYesNoResponse extends ExpectChessBase {
 
 	protected final ChessGame game;
 	protected final String offerer;
-	protected final String offeree;
 	protected boolean accepted;
 
-	public ExpectYesNoResponse(ChessGame game, String offerer, String offeree) {
+	public ExpectYesNoResponse(ChessGame game, String offerer) {
 		this.game = game;
 		this.offerer = offerer;
-		this.offeree = offeree;
 	}
 
 	public void setResponse(boolean accepted) {
@@ -30,7 +28,7 @@ public abstract class ExpectYesNoResponse extends ExpectChessBase {
 	
 	/**
 	 * The given player has just typed "yes" or "no" (or used a Yes/No button).  Work out to what offer they're
-	 * responding to, and carry out the associated action.
+	 * responding, and carry out the associated action.
 	 * 
 	 * @param player
 	 * @param isAccepted

@@ -12,17 +12,17 @@ import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.blocks.MaterialWithData;
-import me.desht.chesscraft.blocks.TerrainBackup;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.chesscraft.enums.Direction;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
-import me.desht.chesscraft.regions.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.TerrainBackup;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
@@ -227,7 +227,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			}
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
-			chessBoard.getBoard().shift(Direction.Up, 1).expand(Direction.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
+			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
 			setDefaultTcSpec(getDefaultTcSpec());
 		}
 		chessBoard.getFullBoard().sendClientChanges();
@@ -449,7 +449,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public boolean isOnBoard(Location loc, int minHeight, int maxHeight) {
-		Cuboid bounds = getBounds().shift(Direction.Up, minHeight).expand(Direction.Up, maxHeight - minHeight);
+		Cuboid bounds = getBounds().shift(CuboidDirection.Up, minHeight).expand(CuboidDirection.Up, maxHeight - minHeight);
 		return bounds.contains(loc);
 	}
 
@@ -482,7 +482,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 *         including frame & enclosure
 	 */
 	public boolean isPartOfBoard(Location loc, int fudge) {
-		Cuboid o = chessBoard.getFullBoard().outset(Direction.Both, fudge);
+		Cuboid o = chessBoard.getFullBoard().outset(CuboidDirection.Both, fudge);
 		return o != null && o.contains(loc);
 	}
 	public boolean isPartOfBoard(Location loc) {
@@ -491,7 +491,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public boolean isControlPanel(Location loc) {
 		// outsetting the cuboid allows the signs on the panel to be targeted too
-		return controlPanel.getPanelBlocks().outset(Direction.Horizontal, 1).contains(loc);
+		return controlPanel.getPanelBlocks().outset(CuboidDirection.Horizontal, 1).contains(loc);
 	}
 
 	/**
@@ -560,8 +560,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.clearAll();
 		}
 		
-		chessBoard.getFullBoard().outset(Direction.Horizontal, 16).initLighting();
-		chessBoard.getFullBoard().outset(Direction.Horizontal, 16).sendClientChanges();
+		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).initLighting();
+		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).sendClientChanges();
 	}
 
 	/**
