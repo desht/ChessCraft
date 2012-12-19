@@ -1420,7 +1420,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		tcWhite.setActive(toPlay == Chess.WHITE);
 		tcBlack.setActive(toPlay == Chess.BLACK);
 		updateChessClocks(true);
-		getView().getControlPanel().repaintAll();
 
 		autoSave();
 

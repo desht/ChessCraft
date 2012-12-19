@@ -26,12 +26,13 @@ public class BoardCreationCommand extends AbstractCommand {
 
 		notFromConsole(sender);
 		
-		String name = args[0];
-		if (name.startsWith("-")) {
+		if (args.length == 0 || args[0].startsWith("-")) {
 			showUsage(sender);
 			return true;
 		}
 
+		String name = args[0];
+		
 		String boardStyleName = getStringOption("style"); //$NON-NLS-1$
 		String pieceStyleName = getStringOption("pstyle"); //$NON-NLS-1$
 		

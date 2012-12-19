@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import chesspresso.Chess;
 
+import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.cuboid.Cuboid;
@@ -92,7 +93,7 @@ public class ControlPanel {
 	}
 	
 	public void removeSigns() {
-		panelBlocks.shift(signDir.getDirection(), 1).clear(true);
+		panelBlocks.shift(signDir.getDirection(), 1).fill(0, (byte)0);
 	}
 
 	public <T extends AbstractSignButton> T getSignButton(Class<T> type) {
@@ -125,8 +126,12 @@ public class ControlPanel {
 		return panelBlocks;
 	}
 
-	public void repaintAll() {
-		panelBlocks.fillFast(view.getControlPanelMaterial());
+	public void repaintAll(MassBlockUpdate mbu) {
+		if (mbu != null) {
+			panelBlocks.fill(view.getControlPanelMaterial(), mbu);
+		} else {
+			panelBlocks.fill(view.getControlPanelMaterial());
+		}
 		panelBlocks.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
 
 		repaintControls();

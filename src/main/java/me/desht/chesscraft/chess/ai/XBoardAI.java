@@ -181,7 +181,7 @@ public class XBoardAI extends ChessAI {
 	private class FeatureReader implements Runnable {
 
 		private FeatureReader() {
-			Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), this);
+			Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), this);
 		}
 
 		private void readLines() {

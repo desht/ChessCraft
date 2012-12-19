@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scheduler.BukkitTask;
 
 import chesspresso.Chess;
 
@@ -31,7 +32,7 @@ public abstract class ChessAI implements Runnable {
 	public enum PendingAction { NONE, MOVED, DRAW_OFFERED, DRAW_ACCEPTED, DRAW_DECLINED }
 
 	private boolean active = false;
-	private int aiTask = -1;
+	private BukkitTask aiTask;
 	private boolean hasFailed = false;
 	private PendingAction pendingAction = PendingAction.NONE;
 	private int pendingFrom, pendingTo;
@@ -247,18 +248,18 @@ public abstract class ChessAI implements Runnable {
 	 */
 	private void startThinking() {
 		long delay = ChessCraft.getInstance().getConfig().getInt("ai.min_move_wait", 0);
-		aiTask = Bukkit.getScheduler().scheduleAsyncDelayedTask(ChessCraft.getInstance(), this, delay * 20L);
+		aiTask = Bukkit.getScheduler().runTaskLaterAsynchronously(ChessCraft.getInstance(), this, delay * 20L);
 	}
 
 	/**
 	 * Tell the AI to stop thinking.
 	 */
 	private void stopThinking() {
-		if (Bukkit.getScheduler().isCurrentlyRunning(aiTask)) {
+		if (Bukkit.getScheduler().isCurrentlyRunning(aiTask.getTaskId())) {
 			LogUtils.fine(gameDetails + "forcing shutdown for AI task #" + aiTask);
-			Bukkit.getScheduler().cancelTask(aiTask);
+			aiTask.cancel();
 		}
-		aiTask = -1;
+		aiTask = null;
 	}
 
 	/**

@@ -12,6 +12,8 @@ import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
+import me.desht.dhutils.block.CraftMassBlockUpdate;
+import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
@@ -217,6 +219,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void setGame(ChessGame game) {
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(chessBoard.getBoard().getWorld());
+		
 		this.game = game;
 		if (game != null) {
 			game.getPosition().addPositionListener(this);
@@ -227,10 +231,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			}
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
-			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).clear(true);
+			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
 			setDefaultTcSpec(getDefaultTcSpec());
 		}
-		chessBoard.getFullBoard().sendClientChanges();
+		mbu.notifyClients();
+//		chessBoard.getFullBoard().sendClientChanges();
 		controlPanel.repaintClocks();
 		controlPanel.repaintControls();
 	}
@@ -323,11 +328,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void paintAll() {
-		chessBoard.paintAll();
-		controlPanel.repaintAll();
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getChessBoard().getBoard().getWorld());
+
+		chessBoard.paintAll(mbu);
+		controlPanel.repaintAll(mbu);
 		if (game != null) {
 			chessBoard.paintChessPieces(game.getPosition());
 		}
+		
+		mbu.notifyClients();
 	}
 
 	private void paintChessPiece(int sqi, int stone) {
@@ -424,6 +433,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		
 		getControlPanel().updatePlyCount(getGame().getChesspressoGame().getCurrentPly());
+
+		getControlPanel().repaintAll(null);
 	}
 
 	// -------------------------------------------------------------------------------
@@ -560,8 +571,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.clearAll();
 		}
 		
-		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).initLighting();
-		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).sendClientChanges();
+//		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).initLighting();
+//		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).sendClientChanges();
 	}
 
 	/**

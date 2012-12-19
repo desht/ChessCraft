@@ -15,6 +15,8 @@ import chesspresso.position.Position;
 
 import me.desht.chesscraft.Messages;
 import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.CraftMassBlockUpdate;
+import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessStone;
@@ -275,82 +277,84 @@ public class ChessBoard {
 	/**
 	 * Paint everything! (board, frame, enclosure, control panel, lighting)
 	 */
-	void paintAll() {
+	void paintAll(MassBlockUpdate mbu) {
 		if (designer == null) {
-			fullBoard.clear(true);
+			fullBoard.fill(0, (byte)0, mbu);
 		}
-		paintEnclosure();
-		paintFrame();
-		paintBoard();
+		paintEnclosure(mbu);
+		paintFrame(mbu);
+		paintBoard(mbu);
 		if (designer != null) {
-			paintDesignIndicators();
+			paintDesignIndicators(mbu);
 		}
 		if (fromSquare >= 0 || toSquare >= 0) {
 			highlightSquares(fromSquare, toSquare);
 		}
 		fullBoard.forceLightLevel(boardStyle.getLightLevel());
-		fullBoard.sendClientChanges();
 	}
 
-	private void paintEnclosure() {
-		aboveFullBoard.getFace(CuboidDirection.North).fillFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(CuboidDirection.East).fillFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(CuboidDirection.South).fillFast(boardStyle.getEnclosureMaterial());
-		aboveFullBoard.getFace(CuboidDirection.West).fillFast(boardStyle.getEnclosureMaterial());
+	private void paintEnclosure(MassBlockUpdate mbu) {
+		aboveFullBoard.getFace(CuboidDirection.North).fill(boardStyle.getEnclosureMaterial(), mbu);
+		aboveFullBoard.getFace(CuboidDirection.East).fill(boardStyle.getEnclosureMaterial(), mbu);
+		aboveFullBoard.getFace(CuboidDirection.South).fill(boardStyle.getEnclosureMaterial(), mbu);
+		aboveFullBoard.getFace(CuboidDirection.West).fill(boardStyle.getEnclosureMaterial(), mbu);
 
-		fullBoard.getFace(CuboidDirection.Up).fillFast(boardStyle.getEnclosureMaterial());
+		fullBoard.getFace(CuboidDirection.Up).fill(boardStyle.getEnclosureMaterial(), mbu);
 
 		if (!boardStyle.getEnclosureMaterial().equals(boardStyle.getStrutsMaterial())) {
-			paintStruts();
+			paintStruts(mbu);
 		}
 	}
 
-	private void paintStruts() {
+	private void paintStruts(MassBlockUpdate mbu) {
 		MaterialWithData struts = boardStyle.getStrutsMaterial();
 
 		// vertical struts at the frame corners
 		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, boardStyle.getHeight());
-		c.fillFast(struts);
+		c.fill(struts, mbu);
 		c = c.shift(CuboidDirection.South, frameBoard.getSizeX() - 1);
-		c.fillFast(struts);
+		c.fill(struts, mbu);
 		c = c.shift(CuboidDirection.West, frameBoard.getSizeZ() - 1);
-		c.fillFast(struts);
+		c.fill(struts, mbu);
 		c = c.shift(CuboidDirection.North, frameBoard.getSizeZ() - 1);
-		c.fillFast(struts);
+		c.fill(struts, mbu);
 
 		// horizontal struts along roof edge
 		Cuboid roof = frameBoard.shift(CuboidDirection.Up, boardStyle.getHeight() + 1);
-		roof.getFace(CuboidDirection.East).fillFast(struts);
-		roof.getFace(CuboidDirection.North).fillFast(struts);
-		roof.getFace(CuboidDirection.West).fillFast(struts);
-		roof.getFace(CuboidDirection.South).fillFast(struts);
+		roof.getFace(CuboidDirection.East).fill(struts, mbu);
+		roof.getFace(CuboidDirection.North).fill(struts, mbu);
+		roof.getFace(CuboidDirection.West).fill(struts, mbu);
+		roof.getFace(CuboidDirection.South).fill(struts, mbu);
 
 	}
 
-	private void paintFrame() {
+	private void paintFrame(MassBlockUpdate mbu) {
 		int fw = boardStyle.getFrameWidth();
 		MaterialWithData fm = boardStyle.getFrameMaterial();
-		frameBoard.getFace(CuboidDirection.West).expand(CuboidDirection.East, fw - 1).fillFast(fm);
-		frameBoard.getFace(CuboidDirection.South).expand(CuboidDirection.North, fw - 1).fillFast(fm);
-		frameBoard.getFace(CuboidDirection.East).expand(CuboidDirection.West, fw - 1).fillFast(fm);
-		frameBoard.getFace(CuboidDirection.North).expand(CuboidDirection.South, fw - 1).fillFast(fm);
+		frameBoard.getFace(CuboidDirection.West).expand(CuboidDirection.East, fw - 1).fill(fm, mbu);
+		frameBoard.getFace(CuboidDirection.South).expand(CuboidDirection.North, fw - 1).fill(fm, mbu);
+		frameBoard.getFace(CuboidDirection.East).expand(CuboidDirection.West, fw - 1).fill(fm, mbu);
+		frameBoard.getFace(CuboidDirection.North).expand(CuboidDirection.South, fw - 1).fill(fm, mbu);
 	}
 
-	private void paintBoard() {
+	private void paintBoard(MassBlockUpdate mbu) {
 		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++	) {
-			paintBoardSquare(sqi);
+			paintBoardSquare(sqi, mbu);
 		}
 	}
 
-	private void paintBoardSquare(int sqi) {
-		paintBoardSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
+	private void paintBoardSquare(int sqi, MassBlockUpdate mbu) {
+		paintBoardSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), mbu);
 	}
 
-	private void paintBoardSquare(int row, int col) {
+	private void paintBoardSquare(int row, int col, MassBlockUpdate mbu) {
 		Cuboid square = getSquare(row, col);
 		boolean black = (col + (row % 2)) % 2 == 0;
-		square.fillFast(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial());
-		square.sendClientChanges();
+		if (mbu == null) {
+			square.fill(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial());
+		} else {
+			square.fill(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial(), mbu);
+		}
 	}
 
 	private void highlightBoardSquare(int sqi, boolean highlight) {
@@ -359,7 +363,7 @@ public class ChessBoard {
 
 	private void highlightBoardSquare(int row, int col, boolean highlight) {
 		if (!highlight) {
-			paintBoardSquare(row, col);
+			paintBoardSquare(row, col, null);
 		} else {
 			Cuboid sq = getSquare(row, col);
 			MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
@@ -410,7 +414,8 @@ public class ChessBoard {
 	 */
 	public void paintChessPiece(int row, int col, int stone) {
 		Cuboid region = getPieceRegion(row, col);
-		region.clear(true);
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
+		region.fill(0, (byte)0, mbu);
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = chessPieceSet.getStone(stone, getRotation());
 			if (cStone != null) {
@@ -420,8 +425,9 @@ public class ChessBoard {
 			}
 		}
 
-		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());		
-		region.sendClientChanges();
+		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());	
+		mbu.notifyClients();
+//		region.sendClientChanges();
 	}
 
 	private void paintChessPiece(Cuboid region, ChessStone stone) {
@@ -459,7 +465,7 @@ public class ChessBoard {
 	/**
 	 * Board is in designer mode - paint some markers on unused squares
 	 */
-	private void paintDesignIndicators() {
+	private void paintDesignIndicators(MassBlockUpdate mbu) {
 		MaterialWithData marker = MaterialWithData.get("wool:red"); // configurable?
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
@@ -467,7 +473,7 @@ public class ChessBoard {
 					continue;
 				}
 				Cuboid sq = getSquare(row, col).shift(CuboidDirection.Up, 1).inset(CuboidDirection.Horizontal, 1);
-				sq.fillFast(marker);
+				sq.fill(marker, mbu);
 			}
 		}
 	}
@@ -489,8 +495,8 @@ public class ChessBoard {
 			if (boardStyle.getHighlightStyle() == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, false);
 			} else {
-				paintBoardSquare(fromSquare);
-				paintBoardSquare(toSquare);
+				paintBoardSquare(fromSquare, null);
+				paintBoardSquare(toSquare, null);
 			}
 		}
 		fromSquare = from;
@@ -552,7 +558,9 @@ public class ChessBoard {
 	 * Clear full area associated with this board
 	 */
 	void clearAll() {
-		fullBoard.clear(true);
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
+		fullBoard.fill(0, (byte)0, mbu);
+		mbu.notifyClients();
 	}
 
 	/**

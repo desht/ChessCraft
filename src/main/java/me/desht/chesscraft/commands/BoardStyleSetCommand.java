@@ -115,7 +115,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSuggestSave"));
 			bv.paintAll();
 		} else {
-			bv.getControlPanel().repaintAll();
+			bv.getControlPanel().repaintAll(null);
 		}
 		
 		bv.save();
