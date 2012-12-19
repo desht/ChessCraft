@@ -3,7 +3,6 @@ package me.desht.chesscraft;
 import java.io.IOException;
 import java.util.List;
 
-import me.desht.chesscraft.Metrics.Plotter;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
@@ -75,6 +74,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
+import org.mcstats.Metrics.Plotter;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
