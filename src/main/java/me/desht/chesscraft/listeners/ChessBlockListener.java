@@ -6,6 +6,7 @@ import me.desht.chesscraft.chess.BoardViewManager;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -60,11 +61,21 @@ public class ChessBlockListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_burning", true)) {
 			return;
 		}
-		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 1) != null) {
 			event.setCancelled(true);
 		}
 	}
 
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockBurn(BlockBurnEvent event) {
+		if (!plugin.getConfig().getBoolean("no_burning", true)) {
+			return;
+		}
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
