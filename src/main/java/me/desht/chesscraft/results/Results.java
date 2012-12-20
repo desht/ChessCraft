@@ -291,12 +291,16 @@ public class Results {
 				}
 			}
 			getConnection().setAutoCommit(true);
-			for (ResultViewBase view : views.values()) {
-				view.rebuild();
-			}
+			rebuildViews();
 			System.out.println("test data added & committed");
 		} catch (SQLException e) {
 			LogUtils.warning("can't put test data into DB: " + e.getMessage());
+		}
+	}
+
+	public void rebuildViews() {
+		for (ResultViewBase view : views.values()) {
+			view.rebuild();
 		}
 	}
 }

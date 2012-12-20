@@ -8,9 +8,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 
 import me.desht.chesscraft.ChessCraft;
@@ -25,7 +28,7 @@ public class ResultsDB {
 
 	ResultsDB() throws ClassNotFoundException, SQLException {
 		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
-		
+
 		if (dbType.equals("mysql")) {
 			connection = connectMySQL();
 			setupTablesMySQL();
@@ -33,15 +36,53 @@ public class ResultsDB {
 			// sqlite is the default
 			connection = connectSQLite();
 			setupTablesSQLite();
-			// TODO: migrate old SQLite data from results.db to gameresults.db
+			checkForOldFormatData();
 		}
 		LogUtils.fine("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
+	}
+
+	private void checkForOldFormatData() {
+		File oldDbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
+		if (!oldDbFile.exists()) {
+			return;
+		}
+		try {
+			LogUtils.info("Migrating old-format game results into new DB schema...");
+			Class.forName("org.sqlite.JDBC");
+			Connection oldConn = DriverManager.getConnection("jdbc:sqlite:" + oldDbFile.getAbsolutePath());
+			Statement st = oldConn.createStatement();
+			ResultSet rs = st.executeQuery("select * from results");
+			List<ResultEntry> entries = new ArrayList<ResultEntry>();
+			while (rs.next()) {
+				ResultEntry e = new ResultEntry(rs);
+				entries.add(e);
+			}
+			oldConn.close();
+			connection.setAutoCommit(false);
+			for (ResultEntry re : entries) {
+				re.save(connection);
+			}
+			connection.setAutoCommit(true);
+			LogUtils.info("Sucessfully migrated " + entries.size() + " old-format game results");
+			File oldDbBackup = new File(DirectoryStructure.getResultsDir(), "oldresults.db");
+			if (!oldDbFile.renameTo(oldDbBackup)) {
+				LogUtils.warning("couldn't rename " + oldDbFile + " to" + oldDbBackup);
+			}
+			Bukkit.getScheduler().runTask(ChessCraft.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					Results.getResultsHandler().rebuildViews();		
+				}
+			});
+		} catch (Exception e) {
+			LogUtils.warning("Could not migrate old-format game results: " + e.getMessage());
+		}
 	}
 
 	public Connection getConnection() {
 		return connection;
 	}
-	
+
 	private Connection connectSQLite() throws ClassNotFoundException, SQLException {
 		Class.forName("org.sqlite.JDBC");
 		File dbFile = new File(DirectoryStructure.getResultsDir(), "gameresults.db");
@@ -108,7 +149,7 @@ public class ResultsDB {
 			throw e;
 		}
 	}
-	
+
 	private void setupTablesMySQL() throws SQLException {
 		try {
 			if (!tableExists("results")) {
