@@ -204,7 +204,7 @@ public class ChessUtils {
 
 	public static int getWandId() {
 		String wand = ChessCraft.getInstance().getConfig().getString("wand_item"); //$NON-NLS-1$
-		if (wand.equalsIgnoreCase("*")) {
+		if (wand.isEmpty() || wand.equalsIgnoreCase("*")) {
 			return -1;
 		}
 		MaterialWithData mat = MaterialWithData.get(wand);
