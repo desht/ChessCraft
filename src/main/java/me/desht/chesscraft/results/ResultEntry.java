@@ -6,11 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import chesspresso.Chess;
-
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
-import me.desht.dhutils.LogUtils;
+import chesspresso.Chess;
 
 public class ResultEntry {
 

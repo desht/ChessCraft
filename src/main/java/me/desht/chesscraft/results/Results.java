@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
@@ -160,6 +162,16 @@ public class Results {
 			int rowId = re.save(getConnection());
 			for (ResultViewBase view : views.values()) {
 				view.addResult(re);
+			}
+			if (ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db")) {
+				if (ChessGameManager.getManager().checkGame(re.getGameName())) {
+					ChessGame game = ChessGameManager.getManager().getGame(re.getGameName());
+					String pgnData = game.getPGN();
+					PreparedStatement stmt = getResultsDB().getCachedStatement("INSERT INTO pgn VALUES(?,?)");
+					stmt.setInt(1, rowId);
+					stmt.setString(2, pgnData);
+					stmt.executeUpdate();
+				}
 			}
 		} catch (SQLException e) {
 			LogUtils.warning("can't save result for game " + re.getGameName() + " to database: " + e.getMessage());

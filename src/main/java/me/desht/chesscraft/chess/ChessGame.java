@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1189,6 +1190,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		} catch (FileNotFoundException e) {
 			throw new ChessException(Messages.getString("Game.cantWriteArchive", f.getName(), e.getMessage())); //$NON-NLS-1$
 		}
+	}
+	
+	public String getPGN() {
+		StringWriter strw = new StringWriter();
+		PGNWriter w = new PGNWriter(strw);
+		w.write(cpGame.getModel());
+		return strw.toString();
 	}
 
 	private File makePGNFile() {

@@ -137,7 +137,7 @@ public class ResultsDB {
 
 	private void setupTablesMySQL() throws SQLException {
 		createTableIfNotExists("results",
-				"gameID INT(11) NOT NULL AUTO_INCREMENT," +
+				"gameID INTEGER NOT NULL AUTO_INCREMENT," +
 				"playerWhite VARCHAR(32) NOT NULL," +
 				"playerBlack VARCHAR(32) NOT NULL," +
 				"gameName VARCHAR(64) NOT NULL," +
@@ -157,6 +157,10 @@ public class ResultsDB {
 				"player VARCHAR(32) NOT NULL," +
 				"score INTEGER NOT NULL," +
 				"PRIMARY KEY (player)");
+		createTableIfNotExists("pgn",
+				"gameID INTEGER NOT NULL," +
+				"pgnData TEXT NOT NULL," +
+				"FOREIGN KEY (gameID) REFERENCES results(gameID) ON DELETE CASCADE");
 	}
 
 	private void createTableIfNotExists(String tableName, String ddl) throws SQLException {
