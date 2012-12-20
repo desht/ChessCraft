@@ -350,6 +350,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			} catch (NumberFormatException e) {
 				throw new DHUtilsException("Invalid duration: " + val);
 			}
+		} else if (key.startsWith("effects.") && getConfig().get(key) instanceof String) {
+			// this will throw an IllegalArgumentException if the value is no good
+			SpecialFX.SpecialEffect e = fx.new SpecialEffect(val, 1.0f);
+			e.play(null);
 		}
 	}
 
@@ -416,6 +420,17 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onVersionChanged(int oldVersion, int newVersion) {
-		// nothing to do right now
+		boolean changed = false;
+		for (String k : getConfig().getConfigurationSection("effects").getKeys(false)) {
+			if (getConfig().getString("effects." + k).contains("rawname=")) {
+				String newEffect = getConfig().getDefaults().getString("effects." + k);
+				LogUtils.info("migrating config setting 'effects." + k + "' => " + newEffect);
+				getConfig().set("effects." + k, newEffect);
+				changed = true;
+			}
+		}
+		if (changed) {
+			saveConfig();
+		}
 	}
 }

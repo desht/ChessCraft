@@ -23,6 +23,10 @@
 			<id>vault-repo</id>
 			<url>http://ci.herocraftonline.com/plugin/repository/everything</url>
 		</repository>
+		<repository>
+		    <id>Plugin Metrics</id>
+		    <url>http://repo.mcstats.org/content/repositories/public</url>
+		</repository>
 	</repositories>
 	<build>
 		<finalName>${project.name}</finalName>
@@ -111,17 +115,9 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>LATEST</version>
+			<version>RELEASE</version>
 			<scope>provided</scope>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>craftbukkit</artifactId>
-			<version>LATEST</version>
-			<scope>provided</scope>
-		</dependency>
--->
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
 			<artifactId>Vault</artifactId>
@@ -149,7 +145,7 @@
 		<dependency>
 			<groupId>me.desht</groupId>
 			<artifactId>dhutils</artifactId>
-			<version>[1.6.0,)</version>
+			<version>[1.7.0,)</version>
 		</dependency>
                 <dependency>
                     <groupId>org.mcstats</groupId>

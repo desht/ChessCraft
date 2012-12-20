@@ -47,12 +47,12 @@ designer:
     auto_load: true
 effects:
     piece_captured: explosion
-    piece_selected: sound,rawname=note.hat
-    piece_unselected: sound,rawname=note.bass
-    piece_moved: sound,rawname=random.pop
-    check: sound,rawname=random.orb
-    game_lost: sound,rawname=mob.endermen.death
-    game_won: sound,rawname=random.levelup
+    piece_selected: sound,name=note_sticks
+    piece_unselected: sound,name=note_bass
+    piece_moved: sound,name=item_pickup
+    check: sound,name=orb_pickup
+    game_lost: sound,name=enderman_death
+    game_won: sound,name=level_up
     teleport_out: effect,name=smoke,data=4
     teleport_in: effect,name=ender_signal
     piece_riding: true
