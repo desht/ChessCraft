@@ -19,7 +19,7 @@ import me.desht.dhutils.LogUtils;
 
 public class Results {
 	private static Results results = null;	// this is a singleton class
-	
+
 	private final ResultsDB db;
 	private final List<ResultEntry> entries = new ArrayList<ResultEntry>();
 	private final Map<String, ResultViewBase> views = new HashMap<String, ResultViewBase>();
@@ -35,7 +35,7 @@ public class Results {
 		registerView("ladder", new Ladder(this));
 		registerView("league", new League(this));
 	}
-	
+
 	/**
 	 * Register a new view type
 	 * 
@@ -45,7 +45,7 @@ public class Results {
 	private void registerView(String viewName, ResultViewBase view) {
 		views.put(viewName, view);
 	}
-	
+
 	/**
 	 * Get the singleton results handler object
 	 * 
@@ -70,12 +70,12 @@ public class Results {
 	public synchronized static boolean resultsHandlerOK() {
 		return results != null;
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-	
+
 	/**
 	 * Get the database handler for the results
 	 * 
@@ -111,7 +111,7 @@ public class Results {
 		}
 		return views.get(viewName);
 	}
-	
+
 	/**
 	 * Return a list of all results
 	 * 
@@ -145,23 +145,27 @@ public class Results {
 			// since that would hurt higher-ranked players on the ladder
 			return;
 		}
-	
+
 		ResultEntry re = new ResultEntry(game, rt);
 		logResult(re);
 	}
-	
+
 	/**
 	 * Log a result entry
 	 * @param re
 	 */
 	public void logResult(ResultEntry re) {
 		entries.add(re);
-		re.save(getConnection());
-		for (ResultViewBase view : views.values()) {
-			view.addResult(re);
+		try {
+			int rowId = re.save(getConnection());
+			for (ResultViewBase view : views.values()) {
+				view.addResult(re);
+			}
+		} catch (SQLException e) {
+			LogUtils.warning("can't save result for game " + re.getGameName() + " to database: " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Get the number of wins for a player
 	 * 
@@ -170,7 +174,7 @@ public class Results {
 	 */
 	public int getWins(String playerName) {
 		int nWins = 0;
-		
+
 		try {
 			PreparedStatement stmtW = getConnection().prepareStatement(
 					"SELECT COUNT(playerWhite) FROM results WHERE " +
@@ -182,7 +186,7 @@ public class Results {
 		} catch (SQLException e) {
 			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
-		
+
 		return nWins;
 	}
 
@@ -194,7 +198,7 @@ public class Results {
 	 */
 	public int getDraws(String playerName) {
 		int nDraws = 0;
-		
+
 		try {
 			PreparedStatement stmtW = getConnection().prepareStatement(
 					"SELECT COUNT(playerWhite) FROM results WHERE " +
@@ -206,10 +210,10 @@ public class Results {
 		} catch (SQLException e) {
 			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
-		
+
 		return nDraws;
 	}
-	
+
 	/**
 	 * Get the number of losses for a player
 	 * 
@@ -239,8 +243,8 @@ public class Results {
 		count += rs.getInt(1);
 		return count;
 	}
-	
-	
+
+
 	private void loadEntries() {
 		try {
 			entries.clear();
@@ -254,7 +258,7 @@ public class Results {
 			LogUtils.warning("SQL query failed: " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Generate some random test data and put it in the results table.  This is just
 	 * for testing purposes.
@@ -262,7 +266,7 @@ public class Results {
 	public void addTestData() {
 		final int N_PLAYERS = 10;
 		String[] pgnResults = { "1-0", "0-1", "1/2-1/2" };
-		
+
 		try {
 			getConnection().setAutoCommit(false);
 			Statement clear = getConnection().createStatement();
@@ -292,7 +296,7 @@ public class Results {
 			}
 			getConnection().setAutoCommit(true);
 			rebuildViews();
-			System.out.println("test data added & committed");
+			LogUtils.info("test data added & committed");
 		} catch (SQLException e) {
 			LogUtils.warning("can't put test data into DB: " + e.getMessage());
 		}

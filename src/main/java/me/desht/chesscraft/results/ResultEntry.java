@@ -102,22 +102,20 @@ public class ResultEntry {
 		}
 	}
 
-	void save(Connection connection) {
-		try {
-			PreparedStatement stmt = connection.prepareStatement(
-					"INSERT INTO results (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
-					" VALUES (?, ?, ?, ?, ?, ?, ?)");
-			stmt.setString(1, playerWhite);
-			stmt.setString(2, playerBlack);
-			stmt.setString(3, gameName);
-			stmt.setTimestamp(4, new Timestamp(startTime));
-			stmt.setTimestamp(5, new Timestamp(endTime));
-			stmt.setString(6, result.toString());
-			stmt.setString(7, pgnResult);
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			LogUtils.warning("SQL insert failed: " + e.getMessage());
-		}	
+	int save(Connection connection) throws SQLException {
+		PreparedStatement stmt = connection.prepareStatement(
+				"INSERT INTO results (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
+				" VALUES (?, ?, ?, ?, ?, ?, ?)");
+		stmt.setString(1, playerWhite);
+		stmt.setString(2, playerBlack);
+		stmt.setString(3, gameName);
+		stmt.setTimestamp(4, new Timestamp(startTime));
+		stmt.setTimestamp(5, new Timestamp(endTime));
+		stmt.setString(6, result.toString());
+		stmt.setString(7, pgnResult);
+		stmt.executeUpdate();
+		ResultSet rs = stmt.getGeneratedKeys();
+		return rs.getInt(1);
 	}
 }
 

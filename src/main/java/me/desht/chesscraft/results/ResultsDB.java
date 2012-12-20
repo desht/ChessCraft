@@ -18,26 +18,36 @@ import org.bukkit.configuration.Configuration;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 
 public class ResultsDB {
-
+	private enum SupportedDrivers {
+		MYSQL,
+		SQLITE;
+	};
+	
 	private final Connection connection;
 
 	private final Map<String, PreparedStatement> statementCache = new HashMap<String, PreparedStatement>();
 
 	ResultsDB() throws ClassNotFoundException, SQLException {
 		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
-
-		if (dbType.equals("mysql")) {
+		SupportedDrivers driver = SupportedDrivers.valueOf(dbType.toUpperCase());
+		switch (driver) {
+		case MYSQL:
 			connection = connectMySQL();
 			setupTablesMySQL();
-		} else {
-			// sqlite is the default
+			break;
+		case SQLITE:
 			connection = connectSQLite();
 			setupTablesSQLite();
-			checkForOldFormatData();
+			break;
+		default:
+			throw new ChessException("unsupported database type: " + dbType);
 		}
+		setupTablesCommon();
+		checkForOldFormatData();
 		LogUtils.fine("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
 	}
 
@@ -114,77 +124,51 @@ public class ResultsDB {
 	}
 
 	private void setupTablesSQLite() throws SQLException {
-		try {
-			if (!tableExists("results")) {
-				String ddl = "CREATE TABLE results (" +
-						"gameID INTEGER PRIMARY KEY," +
-						"playerWhite VARCHAR(32) NOT NULL," +
-						"playerBlack VARCHAR(32) NOT NULL," +
-						"gameName VARCHAR(64) NOT NULL," +
-						"startTime DATETIME NOT NULL," +
-						"endTime DATETIME NOT NULL," +
-						"result TEXT NOT NULL," +
-						"pgnResult TEXT NOT NULL)";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			}
-			if (!tableExists("ladder")) {
-				String ddl = "CREATE TABLE ladder (" +
-						"player VARCHAR(32) NOT NULL," +
-						"score INTEGER NOT NULL," +
-						"PRIMARY KEY (player))";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			}
-			if (!tableExists("league")) {
-				String ddl = "CREATE TABLE league (" +
-						"player VARCHAR(32) NOT NULL," +
-						"score INTEGER NOT NULL," +
-						"PRIMARY KEY (player))";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			}
-		} catch (SQLException e) {
-			LogUtils.warning("Table creation failed: " + e.getMessage());
-			throw e;
-		}
+		createTableIfNotExists("results",
+				"gameID INTEGER PRIMARY KEY," +
+				"playerWhite VARCHAR(32) NOT NULL," +
+				"playerBlack VARCHAR(32) NOT NULL," +
+				"gameName VARCHAR(64) NOT NULL," +
+				"startTime DATETIME NOT NULL," +
+				"endTime DATETIME NOT NULL," +
+				"result TEXT NOT NULL," +
+				"pgnResult TEXT NOT NULL");
 	}
 
 	private void setupTablesMySQL() throws SQLException {
-		try {
-			if (!tableExists("results")) {
-				String ddl = "CREATE TABLE results (" +
-						"gameID INT(11) NOT NULL AUTO_INCREMENT," +
-						"playerWhite VARCHAR(32) NOT NULL," +
-						"playerBlack VARCHAR(32) NOT NULL," +
-						"gameName VARCHAR(64) NOT NULL," +
-						"startTime DATETIME NOT NULL," +
-						"endTime DATETIME NOT NULL," +
-						"result TEXT NOT NULL," +
-						"pgnResult TEXT NOT NULL," +
-						"PRIMARY KEY (gameID))";
+		createTableIfNotExists("results",
+				"gameID INT(11) NOT NULL AUTO_INCREMENT," +
+				"playerWhite VARCHAR(32) NOT NULL," +
+				"playerBlack VARCHAR(32) NOT NULL," +
+				"gameName VARCHAR(64) NOT NULL," +
+				"startTime DATETIME NOT NULL," +
+				"endTime DATETIME NOT NULL," +
+				"result TEXT NOT NULL," +
+				"pgnResult TEXT NOT NULL," +
+				"PRIMARY KEY (gameID)");
+	}
+
+	private void setupTablesCommon() throws SQLException {
+		createTableIfNotExists("ladder",
+				"player VARCHAR(32) NOT NULL," +
+				"score INTEGER NOT NULL," +
+				"PRIMARY KEY (player)");
+		createTableIfNotExists("league",
+				"player VARCHAR(32) NOT NULL," +
+				"score INTEGER NOT NULL," +
+				"PRIMARY KEY (player)");
+	}
+
+	private void createTableIfNotExists(String tableName, String ddl) throws SQLException {
+		if (!tableExists(tableName)) {
+			try {
+				ddl = "CREATE TABLE " + tableName + "(" + ddl + ")";
 				Statement stmt = connection.createStatement();
 				stmt.executeUpdate(ddl);
+			} catch (SQLException e) {
+				LogUtils.warning("can't create table " + tableName + ": " + e.getMessage());
+				throw e;
 			}
-			if (!tableExists("ladder")) {
-				String ddl = "CREATE TABLE ladder (" +
-						"player VARCHAR(32) NOT NULL," +
-						"score INTEGER NOT NULL," +
-						"PRIMARY KEY (player))";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			}
-			if (!tableExists("league")) {
-				String ddl = "CREATE TABLE league (" +
-						"player VARCHAR(32) NOT NULL," +
-						"score INTEGER NOT NULL," +
-						"PRIMARY KEY (player))";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			}
-		} catch (SQLException e) {
-			LogUtils.warning("Table creation failed: " + e.getMessage());
-			throw e;
 		}
 	}
 
