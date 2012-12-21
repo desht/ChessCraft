@@ -63,6 +63,7 @@ import me.desht.dhutils.PluginVersionChecker;
 import me.desht.dhutils.PluginVersionListener;
 import me.desht.dhutils.SpecialFX;
 import me.desht.dhutils.commands.CommandManager;
+import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
@@ -110,8 +111,19 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	@Override
 	public void onEnable() {
 		setInstance(this);
-
+		
 		LogUtils.init(this);
+
+		try {
+			NMSHelper.init(this);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LogUtils.severe("ChessCraft version " + getDescription().getVersion() + " is not compatible with this CraftBukkit version.");
+			LogUtils.severe("Check http://dev.bukkit.org/server-mods/chesscraft/ for information on updated builds.");
+			LogUtils.severe("Plugin disabled.");
+			setEnabled(false);
+			return;
+		}
 
 		configManager = new ConfigurationManager(this, this);
 
@@ -165,6 +177,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onDisable() {
+		if (!isEnabled())
+			return;
+		
 		tickTask.cancel();
 
 		flightListener.restoreSpeeds();

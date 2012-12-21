@@ -189,9 +189,6 @@ public class PieceDesigner {
 		}
 
 		addMapBlocks(chessSet.getWhiteToBlack());
-
-//		bounding.forceLightLevel(view.getChessBoard().getBoardStyle().getLightLevel());
-//		bounding.sendClientChanges();
 	}
 
 	private void addMapBlocks(Map<String, String> whiteToBlack) {
@@ -208,8 +205,8 @@ public class PieceDesigner {
 					continue;	// skip alternate squares
 				String whiteMat = iter.next();
 				String blackMat = whiteToBlack.get(whiteMat);
-				MaterialWithData.get(whiteMat).applyToBlockFast(b);
-				MaterialWithData.get(blackMat).applyToBlockFast(b.getRelative(BlockFace.UP));
+				MaterialWithData.get(whiteMat).applyToBlock(b);
+				MaterialWithData.get(blackMat).applyToBlock(b.getRelative(BlockFace.UP));
 			}
 		}
 	}
@@ -231,18 +228,11 @@ public class PieceDesigner {
 	 * Clear all pieces in the design squares (A1-E1 & A2-E2)
 	 */
 	public void clear() {
-//		Cuboid bounding = null;
 		for (int row = 0; row < 2; row++) {
 			for (int col = 0; col < 5; col++) {
 				view.getChessBoard().paintChessPiece(row, col, Chess.NO_STONE);
 			}
 		}
-		
-		// force an update for all squares in the box A1-E2
-//		bounding = view.getChessBoard().getPieceRegion(0, 0);
-//		bounding = bounding.getBoundingCuboid(view.getChessBoard().getPieceRegion(1, 4));
-//		bounding.sendClientChanges();
-
 		chessSet = null;
 	}
 

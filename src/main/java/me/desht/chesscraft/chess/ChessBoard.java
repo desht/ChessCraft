@@ -419,7 +419,7 @@ public class ChessBoard {
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = chessPieceSet.getStone(stone, getRotation());
 			if (cStone != null) {
-				paintChessPiece(region, cStone);
+				paintChessPiece(region, cStone, mbu);
 			} else {
 				LogUtils.severe("unknown piece: " + stone);
 			}
@@ -427,10 +427,9 @@ public class ChessBoard {
 
 		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());	
 		mbu.notifyClients();
-//		region.sendClientChanges();
 	}
 
-	private void paintChessPiece(Cuboid region, ChessStone stone) {
+	private void paintChessPiece(Cuboid region, ChessStone stone, MassBlockUpdate mbu) {
 		assert region.getSizeX() >= stone.getSizeX();
 		assert region.getSizeZ() >= stone.getSizeZ();
 
@@ -451,14 +450,14 @@ public class ChessBoard {
 					if (BlockType.shouldPlaceLast(mat.getId())) {
 						deferred.put(b, mat);
 					} else {
-						mat.applyToBlockFast(b);
+						mat.applyToBlock(b, mbu);
 					}
 				}	
 			}	
 		}
 
 		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
-			e.getValue().applyToBlockFast(e.getKey());
+			e.getValue().applyToBlock(e.getKey(), mbu);
 		}
 	}
 
