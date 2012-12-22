@@ -99,6 +99,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private SMSIntegration sms;
 	private ChessTickTask tickTask;
 	private SpecialFX fx;
+	
+	private boolean startupFailed = false;
 
 	/*-----------------------------------------------------------------*/
 	@Override
@@ -121,6 +123,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			LogUtils.severe("ChessCraft version " + getDescription().getVersion() + " is not compatible with this CraftBukkit version.");
 			LogUtils.severe("Check http://dev.bukkit.org/server-mods/chesscraft/ for information on updated builds.");
 			LogUtils.severe("Plugin disabled.");
+			startupFailed = true;
 			setEnabled(false);
 			return;
 		}
@@ -177,8 +180,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onDisable() {
-		if (!isEnabled())
-			return;
+		// nothing to shut down if we couldn't even start up
+		if (startupFailed) return;
 		
 		tickTask.cancel();
 
