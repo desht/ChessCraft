@@ -45,6 +45,10 @@ public class PieceDesigner {
 	public void setSetName(String setName) {
 		this.setName = setName;
 	}
+	
+	public ChessSet getChessSet() {
+		return chessSet;
+	}
 
 	/**
 	 * Scan the board and initialise a chess set based on the contents of squares A1-E1 & A2-E2.

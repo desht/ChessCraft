@@ -30,8 +30,9 @@ public class DesignCommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
+		Player player = (Player)sender;
 		
-		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(player.getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
 		}
@@ -50,7 +51,7 @@ public class DesignCommand extends AbstractCommand {
 				return true;
 			} else {
 				// toggle into design mode
-				designer = new PieceDesigner(bv, bv.getPieceStyleName(), "");
+				designer = new PieceDesigner(bv, bv.getPieceStyleName(), player.getName());
 				bv.getChessBoard().setDesigner(designer);
 				MiscUtil.statusMessage(sender, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessCraft.getInstance().getConfig().getBoolean("designer.auto_load")) {

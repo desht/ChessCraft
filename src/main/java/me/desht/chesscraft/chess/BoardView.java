@@ -93,12 +93,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
 
-		String designerName = conf.getString("designer.setName");
-		String designerPlayerName = conf.getString("designer.playerName");
-		if (designerName != null && !designerName.isEmpty()) {
-			setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
-		}
-
 		defaultStake = conf.getDouble("defaultStake", -1.0);
 		lockStake = conf.getBoolean("lockStake", false);
 
@@ -118,6 +112,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
 
+		Map<String, String> m = (Map<String,String>)conf.get("designer");
+		if (m != null) {
+			String designerName = m.get("setName");
+			String designerPlayerName = m.get("playerName");
+			if (designerName != null && !designerName.isEmpty()) {
+				setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
+			}
+		}
+		
 		setDefaultTcSpec(defaultTcSpec);
 	}
 

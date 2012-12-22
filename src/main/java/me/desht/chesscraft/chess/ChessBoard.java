@@ -416,8 +416,9 @@ public class ChessBoard {
 		Cuboid region = getPieceRegion(row, col);
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
 		region.fill(0, (byte)0, mbu);
+		ChessSet cSet = designer != null ? designer.getChessSet() : chessPieceSet;
 		if (stone != Chess.NO_STONE) {
-			ChessStone cStone = chessPieceSet.getStone(stone, getRotation());
+			ChessStone cStone = cSet.getStone(stone, getRotation());
 			if (cStone != null) {
 				paintChessPiece(region, cStone, mbu);
 			} else {
