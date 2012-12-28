@@ -163,13 +163,14 @@ public class Results {
 			for (ResultViewBase view : views.values()) {
 				view.addResult(re);
 			}
-			if (ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db")) {
+			if (rowId != -1 && ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db")) {
 				if (ChessGameManager.getManager().checkGame(re.getGameName())) {
 					ChessGame game = ChessGameManager.getManager().getGame(re.getGameName());
 					String pgnData = game.getPGN();
 					PreparedStatement stmt = getResultsDB().getCachedStatement("INSERT INTO pgn VALUES(?,?)");
 					stmt.setInt(1, rowId);
 					stmt.setString(2, pgnData);
+					LogUtils.fine("execute SQL: " + stmt);
 					stmt.executeUpdate();
 				}
 			}

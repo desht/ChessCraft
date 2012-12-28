@@ -73,7 +73,9 @@
 				      <filters>
 					<filter>
 					  <artifact>me.desht:dhutils-lib</artifact>
-					  <includes><include>**</include></includes>
+					  <includes>
+                                            <include>**</include>
+					  </includes>
 					</filter>
 				       </filters>
 				      <relocations>

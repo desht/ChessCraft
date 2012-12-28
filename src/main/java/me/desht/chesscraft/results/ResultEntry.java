@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
+import me.desht.dhutils.LogUtils;
 import chesspresso.Chess;
 
 public class ResultEntry {
@@ -103,7 +104,7 @@ public class ResultEntry {
 	int save(Connection connection) throws SQLException {
 		PreparedStatement stmt = connection.prepareStatement(
 				"INSERT INTO results (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
-				" VALUES (?, ?, ?, ?, ?, ?, ?)");
+				" VALUES (?, ?, ?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, playerWhite);
 		stmt.setString(2, playerBlack);
 		stmt.setString(3, gameName);
@@ -111,9 +112,15 @@ public class ResultEntry {
 		stmt.setTimestamp(5, new Timestamp(endTime));
 		stmt.setString(6, result.toString());
 		stmt.setString(7, pgnResult);
+		LogUtils.fine("execute SQL: " + stmt);
 		stmt.executeUpdate();
 		ResultSet rs = stmt.getGeneratedKeys();
-		return rs.getInt(1);
+		if (rs.next()) {
+			return rs.getInt(1);
+		} else {
+			LogUtils.warning("can't get generated key for SQL insert, aux tables will not be updated");
+			return -1;
+		}
 	}
 }
 

@@ -15,8 +15,8 @@ public class ListTopCommand extends AbstractCommand {
 	public ListTopCommand() {
 		super("chess l t", 0, 3);
 		setPermissionNode("chesscraft.commands.list.top");
-		setUsage("/chess list top [<n>] [ladder|league] [-ai]");
-		setOptions(new String[] { "ai" });
+		setUsage("/chess list top [<n>] [ladder|league] [-ai] [-r]");
+		setOptions(new String[] { "ai", "r" });
 	}
 	
 	@Override
