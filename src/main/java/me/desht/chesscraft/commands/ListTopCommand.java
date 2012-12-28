@@ -25,6 +25,9 @@ public class ListTopCommand extends AbstractCommand {
 		if (results == null) {
 			throw new ChessException("Results are not available.");
 		}
+		if (getBooleanOption("r")) {
+			results.rebuildViews();
+		}
 		int n = 5;
 		if (args.length > 0) {
 			try {
