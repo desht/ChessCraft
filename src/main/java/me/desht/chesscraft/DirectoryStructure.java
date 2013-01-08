@@ -1,19 +1,29 @@
 package me.desht.chesscraft;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 public class DirectoryStructure {
+	public static final Charset TARGET_ENCODING = Charset.defaultCharset();
+    public static final Charset SOURCE_ENCODING = Charset.forName("UTF-8");
+    
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir;
 	private static File dataDir, gamePersistDir, boardPersistDir, languagesDir, resultsDir;
@@ -158,9 +168,9 @@ public class DirectoryStructure {
 			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
-
-	static void extractResource(String from, File toDir) {
-		extractResource(from, toDir, ExtractWhen.IF_NEWER);
+	
+	static void extractResource(String from, File to) {
+		extractResource(from, to, ExtractWhen.IF_NEWER);
 	}
 
 	static void extractResource(String from, File to, ExtractWhen when) {
@@ -191,33 +201,19 @@ public class DirectoryStructure {
 			from = "/" + from;
 		}
 		
-		LogUtils.fine("extracting resource: " + from + " -> " + of);
-
-		OutputStream out = null;
+		LogUtils.fine(String.format("extracting resource: %s (%s) -> %s (%s)", from, SOURCE_ENCODING.name(), to, TARGET_ENCODING.name()));
+		
+		final char[] cbuf = new char[1024];
+		int read;
 		try {
-			InputStream in = openResourceNoCache(from);
-			if (in == null) {
-				LogUtils.warning("can't get input stream from " + from); //$NON-NLS-1$
-			} else {
-				out = new FileOutputStream(of);
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = in.read(buf)) > 0) {
-					out.write(buf, 0, len);
-				}
-				in.close();
-				out.close();
-			}
+            final Reader in = new BufferedReader(new InputStreamReader(openResourceNoCache(from), SOURCE_ENCODING));
+            final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(of), TARGET_ENCODING));
+            while ((read = in.read(cbuf)) > 0) {
+            	out.write(cbuf, 0, read);
+            }
+            out.close(); in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (Exception ex) { //IOException
-				// ChessCraft.log(Level.SEVERE, null, ex);
-			}
 		}
 	}
 	
