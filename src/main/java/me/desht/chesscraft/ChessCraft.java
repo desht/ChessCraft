@@ -120,8 +120,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			NMSHelper.init(this);
 		} catch (Exception e) {
 			e.printStackTrace();
+			String url = getDescription().getWebsite();
 			LogUtils.severe("ChessCraft version " + getDescription().getVersion() + " is not compatible with this CraftBukkit version.");
-			LogUtils.severe("Check http://dev.bukkit.org/server-mods/chesscraft/ for information on updated builds.");
+			LogUtils.severe("Check " + url + " for information on updated builds.");
 			LogUtils.severe("Plugin disabled.");
 			startupFailed = true;
 			setEnabled(false);

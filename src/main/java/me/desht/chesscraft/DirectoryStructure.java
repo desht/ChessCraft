@@ -141,7 +141,12 @@ public class DirectoryStructure {
 	}
 
 	public static File getJarFile() {
-		return new File("plugins", "ChessCraft.jar");
+		File f = new File("plugins", "ChessCraft.jar");
+		if (!f.exists()) {
+			String ver = ChessCraft.getInstance().getDescription().getVersion();
+			f = new File("plugins", "ChessCraft-" + ver + ".jar");
+		}
+		return f;
 	}
 
 	private static void extractResources() throws IOException {
