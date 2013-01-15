@@ -8,7 +8,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -21,7 +20,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 public class DirectoryStructure {
-	public static final Charset TARGET_ENCODING = Charset.defaultCharset();
+	public static final Charset TARGET_ENCODING = Charset.forName("UTF-8");
     public static final Charset SOURCE_ENCODING = Charset.forName("UTF-8");
     
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -12,6 +12,7 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.base.Joiner;
@@ -58,7 +59,12 @@ public class Messages {
 		if (located == null) {
 			throw new ChessException("Unknown locale '" + wantedLocale + "'");
 		}
-		YamlConfiguration conf = YamlConfiguration.loadConfiguration(located);
+		YamlConfiguration conf;
+		try {
+			conf = MiscUtil.loadYamlUTF8(located);
+		} catch (Exception e) {
+			throw new ChessException("Can't load message file [" + located + "]: " + e.getMessage());
+		}
 
 		// ensure that the config we're loading has all of the messages that the fallback has
 		// make a note of any missing translations

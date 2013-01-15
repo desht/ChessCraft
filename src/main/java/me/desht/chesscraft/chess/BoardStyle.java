@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
@@ -20,6 +21,7 @@ import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BoardStyle implements Comparable<BoardStyle> {
@@ -289,13 +291,15 @@ public class BoardStyle implements Comparable<BoardStyle> {
 	 * @throws ChessException
 	 */
 	public static BoardStyle loadStyle(String styleName) throws ChessException {
-		if (styleName == null) {
-			styleName = DEFAULT_BOARD_STYLE;
-		}
-		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getBoardStyleDirectory(), styleName);
+		if (styleName == null) styleName = DEFAULT_BOARD_STYLE;
 		
-		Configuration c = YamlConfiguration.loadConfiguration(f);
-		return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
+		try {
+			File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getBoardStyleDirectory(), styleName);
+			Configuration c = MiscUtil.loadYamlUTF8(f);
+			return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
+		} catch (Exception e) {
+			throw new ChessException(e.getMessage());
+		}
 	}
 	
 	/**

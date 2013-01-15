@@ -12,6 +12,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -96,7 +97,7 @@ public class ChessPersistence {
 
 		// load other misc data which isn't tied to any board or game
 		try {
-			YamlConfiguration conf = YamlConfiguration.loadConfiguration(DirectoryStructure.getPersistFile());
+			YamlConfiguration conf = MiscUtil.loadYamlUTF8(DirectoryStructure.getPersistFile());
 			ConfigurationSection current = conf.getConfigurationSection("current_games");
 			if (current != null) {
 				for (String player : current.getKeys(false)) {
@@ -122,7 +123,7 @@ public class ChessPersistence {
 	public boolean loadBoard(File f) {
 		LogUtils.fine("loading board: " + f);
 		try {
-			Configuration conf = YamlConfiguration.loadConfiguration(f);
+			Configuration conf = MiscUtil.loadYamlUTF8(f);
 			
 			BoardView bv;
 			if (conf.contains("board")) {
@@ -157,7 +158,7 @@ public class ChessPersistence {
 	private boolean loadGame(File f) {
 		LogUtils.fine("loading game: " + f);
 		try {
-			Configuration conf = YamlConfiguration.loadConfiguration(f);
+			Configuration conf = MiscUtil.loadYamlUTF8(f);
 			ChessGame game = null;
 			if (conf.contains("game")) {
 				game = (ChessGame) conf.get("game");

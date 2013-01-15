@@ -1,6 +1,7 @@
 package me.desht.chesscraft.chess;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +10,10 @@ import java.util.Map;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.base.Joiner;
@@ -28,14 +31,19 @@ public class TimeControlDefs {
 		baseDefs = new ArrayList<TimeControlDefs.TCDef>();
 		
 		File f = new File(ChessCraft.getInstance().getDataFolder(), TIME_CONTROLS_FILE);
-		Configuration c = YamlConfiguration.loadConfiguration(f);
-		List<?> l = c.getList("time_controls");
+		Configuration c;
+		try {
+			c = MiscUtil.loadYamlUTF8(f);
+		} catch (Exception e) {
+			throw new ChessException("can't load time control data from [" + f + "]: " + e.getMessage());
+		}
+		List<Map<?,?>> l = c.getMapList("time_controls");
 		if (l == null) {
 			throw new ChessException(TIME_CONTROLS_FILE + " is missing the 'time_controls' section!");
 		} else {
-			for (Object o : l) {
+			for (Map<?,?> m : l) {
 				@SuppressWarnings("unchecked")
-				Map<String,String> map = (HashMap<String, String>) o;
+				Map<String,String> map = (Map<String, String>) m;
 				String label = map.get("label");
 				String spec = map.get("spec");
 				if (label == null) {

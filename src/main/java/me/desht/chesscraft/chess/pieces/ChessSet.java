@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.common.base.Joiner;
@@ -27,6 +28,7 @@ import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
 
 public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 
@@ -294,16 +296,20 @@ public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 	}
 
 	private static ChessSet loadChessSet(String setName) throws ChessException {
-		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
-		
-		Configuration c = YamlConfiguration.loadConfiguration(f);
-		ChessSet set = new ChessSet(c, DirectoryStructure.isCustom(f));
-		LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
-		
-		allChessSets.put(setName, set);
-		setLoadTime.put(setName, System.currentTimeMillis());
-		
-		return set;
+		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);		
+		try {
+			Configuration c = MiscUtil.loadYamlUTF8(f);
+
+			ChessSet set = new ChessSet(c, DirectoryStructure.isCustom(f));
+			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
+			
+			allChessSets.put(setName, set);
+			setLoadTime.put(setName, System.currentTimeMillis());
+			
+			return set;
+		} catch (Exception e) {
+			throw new ChessException("can't load chess set from [" + f + "]: " + e.getMessage());
+		}
 	}
 	
 	//-------------------------------- iterator class
