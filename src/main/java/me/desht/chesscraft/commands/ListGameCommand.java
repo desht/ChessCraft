@@ -39,7 +39,7 @@ public class ListGameCommand extends AbstractCommand {
 			List<String> l = ChessGameManager.getManager().getGame(args[0]).getGameDetail();
 			pager.add(l);
 		} else {
-			for (ChessGame game : ChessGameManager.getManager().listGames(true)) {
+			for (ChessGame game : ChessGameManager.getManager().listGamesSorted()) {
 				String name = game.getName();
 				if (game == ChessGameManager.getManager().getCurrentGame(sender.getName())) {
 					name = ChatColor.BOLD + ChatColor.ITALIC.toString() + name + ChatColor.RESET;

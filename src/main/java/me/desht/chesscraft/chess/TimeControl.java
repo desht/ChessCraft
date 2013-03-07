@@ -203,6 +203,8 @@ public class TimeControl implements ConfigurationSerializable {
 				newPhase = true;
 			}
 			remainingTime += rollovers.get(rolloverPhase).getIncrement();
+		default:
+			break;
 		}
 		setActive(false);
 	}

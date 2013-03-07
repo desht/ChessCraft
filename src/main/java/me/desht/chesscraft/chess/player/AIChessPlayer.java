@@ -171,6 +171,8 @@ public class AIChessPlayer extends ChessPlayer {
 					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getName()));
 				}
 				break;
+			default:
+				break;
 			}
 			ai.clearPendingAction();
 		}

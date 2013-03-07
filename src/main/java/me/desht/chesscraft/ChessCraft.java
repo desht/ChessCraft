@@ -1,6 +1,7 @@
 package me.desht.chesscraft;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import me.desht.chesscraft.chess.BoardView;
@@ -194,12 +195,14 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		for (ChessGame game : ChessGameManager.getManager().listGames()) {
+		List<ChessGame> games = new ArrayList<ChessGame>(ChessGameManager.getManager().listGames());
+		for (ChessGame game : games) {
 			game.deleteTemporary();
 		}
-		for (BoardView view : BoardViewManager.getManager().listBoardViews()) {
+		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
+		for (BoardView view : views) {
 			view.deleteTemporary();
-		}
+		} 
 		Results.shutdown();
 
 		instance = null;

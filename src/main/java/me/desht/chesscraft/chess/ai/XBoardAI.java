@@ -175,6 +175,8 @@ public class XBoardAI extends ChessAI {
 			RolloverPhase phase = timeControl.getCurrentPhase();
 			io.writeLine("level " + phase.getMoves() + " " + phase.getMinutes() + " " + phase.getIncrement() / 1000);
 			break;
+		default:
+			break;
 		}
 	}
 

@@ -97,10 +97,12 @@ public class ChessPlayerListener extends ChessListenerBase {
 					MiscUtil.alertMessage(player,  Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 					a.cancelAction();
 					break;
+				default:
+					break;
 				}
 				event.setCancelled(true);
 			} else {
-				BoardView bv = BoardViewManager.getManager().partOfChessBoard(b.getLocation());
+				BoardView bv = BoardViewManager.getManager().partOfChessBoard(b.getLocation(), 0);
 				if (bv != null && bv.getControlPanel().isSignButton(b.getLocation())) {
 					bv.getControlPanel().signClicked(event);
 					event.setCancelled(true);
@@ -143,7 +145,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 						boardClicked(player, loc, bv);
 					} else if ((bv = BoardViewManager.getManager().aboveChessBoard(loc)) != null) {
 						pieceClicked(player, loc, bv);
-					} else if ((bv = BoardViewManager.getManager().partOfChessBoard(loc)) != null) {
+					} else if ((bv = BoardViewManager.getManager().partOfChessBoard(loc, 0)) != null) {
 						if (bv.isControlPanel(loc)) {
 							Location tpLoc = bv.getControlPanel().getTeleportLocation();
 							Cuboid zone = bv.getControlPanel().getPanelBlocks().outset(CuboidDirection.Horizontal, 4);
@@ -206,7 +208,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
-		if (BoardViewManager.getManager().partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlockClicked().getLocation(), 0) != null) {
 			event.setCancelled(true);
 			// seems just cancelling the event doesn't stop the bucket getting filled?
 			event.setItemStack(new ItemStack(Material.BUCKET, 1));
@@ -215,14 +217,14 @@ public class ChessPlayerListener extends ChessListenerBase {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
-		if (BoardViewManager.getManager().partOfChessBoard(event.getBlockClicked().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlockClicked().getLocation(), 0) != null) {
 			event.setCancelled(true);
 		}
 	}
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event) {
-		if (BoardViewManager.getManager().partOfChessBoard(event.getFrom()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getFrom(), 0) != null) {
 			event.setCancelled(true);
 		}
 	}

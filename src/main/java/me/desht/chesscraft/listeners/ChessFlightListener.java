@@ -215,7 +215,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		Player player = event.getPlayer();
 		if (allowedToFly.containsKey(player.getName()) && !gameModeAllowsFlight(player) && player.isFlying()) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (BoardViewManager.getManager().partOfChessBoard(event.getClickedBlock().getLocation()) == null) {
+				if (BoardViewManager.getManager().partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null) {
 					MiscUtil.errorMessage(player, Messages.getString("Flight.interactionStopped"));
 					event.setCancelled(true);
 				}

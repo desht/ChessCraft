@@ -82,7 +82,7 @@ public class PieceDesigner {
 					for (int z = 0; z < templates[p].getSizeZ(); z++) {
 						Point rotatedPoint = rotate(x, z, templates[p].getSizeZ(), templates[p].getSizeX(), rotation);
 						Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
-						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData()).rotate(rotation);
+						MaterialWithData mat = MaterialWithData.get(b).rotate(rotation);
 						String materialName = mat.toString();
 						if (!reverseMap.containsKey(materialName)) {
 							// not seen this material yet
@@ -156,9 +156,9 @@ public class PieceDesigner {
 				if (b.getTypeId() == b2.getTypeId() && b.getData() == b2.getData()) {
 					continue;
 				}
-				MaterialWithData mat = MaterialWithData.get(b.getTypeId(), b.getData());
+				MaterialWithData mat = MaterialWithData.get(b);
 				if (reverseMap.containsKey(mat.toString())) {
-					MaterialWithData mat2 = MaterialWithData.get(b2.getTypeId(), b2.getData());
+					MaterialWithData mat2 = MaterialWithData.get(b2);
 					LogUtils.fine("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					blackMap.put(reverseMap.get(mat.toString()), mat2);
 				}

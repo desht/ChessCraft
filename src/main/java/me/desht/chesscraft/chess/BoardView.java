@@ -496,8 +496,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 *         including frame & enclosure
 	 */
 	public boolean isPartOfBoard(Location loc, int fudge) {
-		Cuboid o = chessBoard.getFullBoard().outset(CuboidDirection.Both, fudge);
-		return o != null && o.contains(loc);
+		Cuboid o = chessBoard.getFullBoard();
+		if (fudge != 0) o = o.outset(CuboidDirection.Both, fudge);
+		return o.contains(loc);
 	}
 	public boolean isPartOfBoard(Location loc) {
 		return isPartOfBoard(loc, 0);

@@ -13,16 +13,14 @@ import java.io.IOException;
 
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.block.BlockType;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
 
 import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 public class BoardStyle implements Comparable<BoardStyle> {
 	public static final String DEFAULT_BOARD_STYLE = "standard";

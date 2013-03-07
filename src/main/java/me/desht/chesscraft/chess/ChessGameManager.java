@@ -1,6 +1,7 @@
 package me.desht.chesscraft.chess;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,21 +71,17 @@ public class ChessGameManager {
 		return chessGames.containsKey(gameName);
 	}
 
-	public List<ChessGame> listGames(boolean isSorted) {
-		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
-			List<ChessGame> res = new ArrayList<ChessGame>();
-			for (String name : sorted) {
-				res.add(chessGames.get(name));
-			}
-			return res;
-		} else {
-			return new ArrayList<ChessGame>(chessGames.values());
+	public Collection<ChessGame> listGamesSorted() {
+		SortedSet<String> sorted = new TreeSet<String>(chessGames.keySet());
+		List<ChessGame> res = new ArrayList<ChessGame>();
+		for (String name : sorted) {
+			res.add(chessGames.get(name));
 		}
+		return res;
 	}
 
-	public List<ChessGame> listGames() {
-		return listGames(false);
+	public Collection<ChessGame> listGames() {
+		return chessGames.values();
 	}
 
 	public ChessGame getGame(String name) {

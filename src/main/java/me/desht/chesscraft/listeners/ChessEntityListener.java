@@ -49,8 +49,8 @@ public class ChessEntityListener extends ChessListenerBase {
 			return;
 		}
 
-		if (BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation()) != null
-				|| BoardViewManager.getManager().partOfChessBoard(event.getTarget().getLocation()) != null) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation(), 0) != null
+				|| BoardViewManager.getManager().partOfChessBoard(event.getTarget().getLocation(), 0) != null) {
 			event.setCancelled(true);
 			// don't remove tame creatures
 			if (!(event.getEntity() instanceof Tameable && ((Tameable) event.getEntity()).isTamed())) {
@@ -109,7 +109,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		}
 
 		if (event.getCause() == DamageCause.SUFFOCATION) {
-			BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation());
+			BoardView bv = BoardViewManager.getManager().partOfChessBoard(event.getEntity().getLocation(), 0);
 			if (bv != null) {
 				// player must have had a chess piece placed on them
 				displacePlayerSafely(event);

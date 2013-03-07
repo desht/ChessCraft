@@ -2,6 +2,7 @@ package me.desht.chesscraft.chess;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,22 +106,17 @@ public class BoardViewManager {
 		return chessBoards.get(name);
 	}
 
-	public List<BoardView> listBoardViews() {
-		return listBoardViews(false);
+	public Collection<BoardView> listBoardViews() {
+		return chessBoards.values();
 	}
 
-	public List<BoardView> listBoardViews(boolean isSorted) {
-		if (isSorted) {
-			SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
-			List<BoardView> res = new ArrayList<BoardView>();
-			for (String name : sorted) {
-				res.add(chessBoards.get(name));
-			}
-			return res;
-		} else {
-			return new ArrayList<BoardView>(chessBoards.values());
+	public Collection<BoardView> listBoardViewsSorted() {
+		SortedSet<String> sorted = new TreeSet<String>(chessBoards.keySet());
+		List<BoardView> res = new ArrayList<BoardView>();
+		for (String name : sorted) {
+			res.add(chessBoards.get(name));
 		}
-
+		return res;
 	}
 
 	/**
@@ -197,9 +193,9 @@ public class BoardViewManager {
 	public void teleportOut(Player player) throws ChessException {
 		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport");
 
-		BoardView bv = partOfChessBoard(player.getLocation());
+		BoardView bv = partOfChessBoard(player.getLocation(), 0);
 		Location prev = ChessCraft.getInstance().getPlayerTracker().getLastPos(player);
-		if (bv != null && (prev == null || partOfChessBoard(prev) == bv)) {
+		if (bv != null && (prev == null || partOfChessBoard(prev, 0) == bv)) {
 			// try to get the player out of this board safely
 			Location loc = bv.findSafeLocationOutside();
 			if (loc != null) {

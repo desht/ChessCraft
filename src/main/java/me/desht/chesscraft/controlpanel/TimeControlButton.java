@@ -37,6 +37,8 @@ public class TimeControlButton extends AbstractSignButton {
 			tcDefs.nextDef(); break;
 		case RIGHT_CLICK_BLOCK:
 			tcDefs.prevDef(); break;
+		default:
+			break;
 		}
 		game.setTimeControl(tcDefs.currentDef().getSpec());
 		getPanel().updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));

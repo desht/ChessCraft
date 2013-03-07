@@ -387,6 +387,8 @@ public class ChessBoard {
 					}
 				}
 				break;
+			default:
+				break;
 			}
 		}
 	}

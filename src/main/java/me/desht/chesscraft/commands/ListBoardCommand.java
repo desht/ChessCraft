@@ -31,7 +31,7 @@ public class ListBoardCommand extends AbstractCommand {
 			List<String> l = BoardViewManager.getManager().getBoardView(args[0]).getBoardDetail();
 			pager.add(l);
 		} else {
-			for (BoardView bv : BoardViewManager.getManager().listBoardViews(true)) {
+			for (BoardView bv : BoardViewManager.getManager().listBoardViewsSorted()) {
 				String gameName = bv.getGame() != null ? bv.getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 				pager.add(MessagePager.BULLET + Messages.getString("ChessCommandExecutor.boardList",
 				                                                   bv.getName(), MiscUtil.formatLocation(bv.getA1Square()), //$NON-NLS-1$
