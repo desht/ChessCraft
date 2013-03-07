@@ -15,9 +15,7 @@ import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 
-public class ChessStoneBlock implements ChessStone {
-	private final int stone;
-	private final int sizeX, sizeY, sizeZ;
+public class BlockChessStone extends ChessStone {
 	private final MaterialWithData[][][] pieceArray;
 
 	/**
@@ -27,8 +25,8 @@ public class ChessStoneBlock implements ChessStone {
 	 * @param matMap
 	 * @param direction
 	 */
-	public ChessStoneBlock(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
-		this.stone = stone;
+	public BlockChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
+		super(stone);
 
 		int rotation = direction.ordinal() * 90;
 		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
@@ -39,18 +37,18 @@ public class ChessStoneBlock implements ChessStone {
 		int tmplY = tmpl.getSizeY();
 		int tmplZ = tmpl.getSizeZ();
 		
-		sizeY = tmplY;
 		if (rotation == 90 || rotation == 270) {
 			// allows for pieces with a non-square footprint
-			sizeZ = tmplX;
-			sizeX = tmplZ;
+			setSize(tmplZ, tmplY, tmplX);
 		} else {
-			sizeX = tmplX;
-			sizeZ = tmplZ;
+			setSize(tmplX, tmplY, tmplZ);
 		}
-		LogUtils.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + sizeX + "," + sizeY + "," + sizeZ);
-		pieceArray = new MaterialWithData[sizeX][sizeY][sizeZ];
+		LogUtils.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + getSizeX() + "," + getSizeY() + "," + getSizeZ());
+		pieceArray = new MaterialWithData[getSizeX()][getSizeY()][getSizeZ()];
 
+		int sx = getSizeX();
+		int sz = getSizeZ();
+		
 		switch (rotation) {
 		case 0:
 			for (int x = 0; x < tmplX; ++x) {
@@ -65,7 +63,7 @@ public class ChessStoneBlock implements ChessStone {
 			for (int x = 0; x < tmplX; ++x) {
 				for (int y = 0; y < tmplY; ++y) {
 					for (int z = 0; z < tmplZ; ++z) {
-						pieceArray[sizeX - z - 1][y][x] = matMap.get(tmpl.get(x, y, z)).rotate(90);
+						pieceArray[sx - z - 1][y][x] = matMap.get(tmpl.get(x, y, z)).rotate(90);
 					}
 				}
 			}
@@ -74,7 +72,7 @@ public class ChessStoneBlock implements ChessStone {
 			for (int x = 0; x < tmplX; ++x) {
 				for (int y = 0; y < tmplY; ++y) {
 					for (int z = 0; z < tmplZ; ++z) {
-						pieceArray[sizeX - x - 1][y][sizeZ - z - 1] = matMap.get(tmpl.get(x, y, z)).rotate(180);
+						pieceArray[sx - x - 1][y][sz - z - 1] = matMap.get(tmpl.get(x, y, z)).rotate(180);
 					}
 				}
 			}
@@ -83,7 +81,7 @@ public class ChessStoneBlock implements ChessStone {
 			for (int x = 0; x < tmplX; ++x) {
 				for (int y = 0; y < tmplY; ++y) {
 					for (int z = 0; z < tmplZ; ++z) {
-						pieceArray[z][y][sizeZ - x - 1] = matMap.get(tmpl.get(x, y, z)).rotate(270);
+						pieceArray[z][y][sz - x - 1] = matMap.get(tmpl.get(x, y, z)).rotate(270);
 					}
 				}
 			}
@@ -92,30 +90,6 @@ public class ChessStoneBlock implements ChessStone {
 			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
 		}
 		LogUtils.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
-	}
-
-	public int getStone() {
-		return stone;
-	}
-
-	public int getSizeX() {
-		return sizeX;
-	}
-
-	public int getSizeY() {
-		return sizeY;
-	}
-
-	public int getSizeZ() {
-		return sizeZ;
-	}
-
-	public MaterialWithData getMaterial(int x, int y, int z) {
-		return pieceArray[x][y][z];
-	}
-
-	public int getWidth() {
-		return Math.max(getSizeX(), getSizeZ());
 	}
 	
 	@Override
@@ -131,7 +105,7 @@ public class ChessStoneBlock implements ChessStone {
 		for (int x = 0; x < getSizeX(); x++) {
 			for (int y = 0; y < getSizeY(); y++) {
 				for (int z = 0; z < getSizeZ(); z++) {
-					MaterialWithData mat = getMaterial(x, y, z);
+					MaterialWithData mat = pieceArray[x][y][z];
 					if (mat.getId() == 0) {
 						// we expect that the region was pre-cleared, skip placing air a second time
 						continue;

@@ -167,7 +167,7 @@ public class BlockChessSet extends ChessSet {
 		String key = String.format("%d:%d:%s", piece, colour, direction);
 		if (!stoneCache.containsKey(key)) {
 			MaterialMap matMap = colour == Chess.WHITE ? materialMapWhite : materialMapBlack;
-			stoneCache.put(key, new ChessStoneBlock(stone, templates[piece], matMap, direction));
+			stoneCache.put(key, new BlockChessStone(stone, templates[piece], matMap, direction));
 		}
 		return stoneCache.get(key);
 	}
