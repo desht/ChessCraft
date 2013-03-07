@@ -33,7 +33,7 @@ public class BoardStyleSaveCommand extends AbstractCommand {
 		String newStyleName = args.length > 0 ? args[0] : style.getName();
 		
 		BoardStyle newStyle = style.saveStyle(newStyleName);
-		bv.getChessBoard().setBoardStyle(newStyle);
+		bv.getChessBoard().setBoardStyle(newStyle, false);
 		bv.save();
 		
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSaved", bv.getName(), newStyleName));

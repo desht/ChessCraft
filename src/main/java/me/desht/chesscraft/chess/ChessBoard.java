@@ -233,14 +233,15 @@ public class ChessBoard {
 		boardStyle.verifyCompatibility(newChessSet);
 
 		chessPieceSet = newChessSet;
+		System.out.println("piece style now = " + chessPieceSet.getName());
 	}
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
 		BoardStyle newStyle = BoardStyle.loadStyle(boardStyleName);
-		setBoardStyle(newStyle);
+		setBoardStyle(newStyle, boardStyle == null || !(boardStyle.getName().equals(newStyle.getName())));
 	}
 
-	public final void setBoardStyle(BoardStyle newStyle) {
+	public final void setBoardStyle(BoardStyle newStyle, boolean changeChessSet) {
 		// We don't allow any changes to the board's dimensions; only changes to
 		// the appearance of the board.
 		if (boardStyle != null &&
@@ -251,7 +252,9 @@ public class ChessBoard {
 		}
 
 		boardStyle = newStyle;
-		chessPieceSet = ChessSetFactory.getChessSet(boardStyle.getPieceStyleName());
+		if (changeChessSet) {
+			chessPieceSet = ChessSetFactory.getChessSet(boardStyle.getPieceStyleName());
+		}
 	}
 
 	/**

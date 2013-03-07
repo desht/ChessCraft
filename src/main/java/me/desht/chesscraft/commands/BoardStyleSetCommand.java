@@ -40,7 +40,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 		
-		boolean styleHasChanged = false;
+		boolean styleHasChanged = false, forceRedraw = false;
 		
 		for (int i = 0; i < args.length; i += 2) {
 			String attr = args[i].replace("_", "");	// '_' is optional
@@ -89,9 +89,10 @@ public class BoardStyleSetCommand extends AbstractCommand {
 				} else if (attr.startsWith("overridepiecestyle")) {
 					// update the piece style used by this board (but don't modify the style)
 					bv.getChessBoard().setPieceStyle(val);
+					forceRedraw = true;
 				} else if (attr.startsWith("boardstyle")) {
 					bv.getChessBoard().setBoardStyle(val);
-					styleHasChanged = true;
+					forceRedraw = true;
 				} else if (attr.startsWith("defaultstake")) {
 					bv.setDefaultStake(Double.parseDouble(val));
 				} else if (attr.startsWith("defaulttc")) {
@@ -113,6 +114,8 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
 		if (styleHasChanged) {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSuggestSave"));
+			bv.paintAll();
+		} else if (forceRedraw) {
 			bv.paintAll();
 		} else {
 			bv.getControlPanel().repaintAll(null);
