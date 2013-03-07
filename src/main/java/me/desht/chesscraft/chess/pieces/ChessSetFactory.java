@@ -62,7 +62,7 @@ public class ChessSetFactory {
 		try {
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 
-			ChessSet set = new ChessSet(c, DirectoryStructure.isCustom(f));
+			BlockChessSet set = new BlockChessSet(c, DirectoryStructure.isCustom(f));
 			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
 			
 			allChessSets.put(setName, set);

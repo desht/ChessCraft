@@ -23,7 +23,7 @@ public class PieceDesigner {
 	private final BoardView view;
 	private final String playerName;
 	private String setName;	// name of the set currently being designed
-	private ChessSet chessSet;	// the set currently being designed
+	private BlockChessSet chessSet;	// the set currently being designed
 
 	public PieceDesigner(BoardView view, String setName, String playerName) throws ChessException {
 		if (view.isDesigning()) {
@@ -46,7 +46,7 @@ public class PieceDesigner {
 		this.setName = setName;
 	}
 	
-	public ChessSet getChessSet() {
+	public BlockChessSet getChessSet() {
 		return chessSet;
 	}
 
@@ -99,7 +99,7 @@ public class PieceDesigner {
 
 		MaterialMap blackMap = initBlackMaterialMap(whiteMap);
 
-		chessSet = new ChessSet(setName, templates, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
+		chessSet = new BlockChessSet(setName, templates, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
 	}
 
 	private char getNextChar(char c) throws ChessException {
@@ -175,12 +175,16 @@ public class PieceDesigner {
 	 */
 	public void load() throws ChessException {
 		ChessSet newChessSet = ChessSetFactory.getChessSet(setName);
+		if (!(newChessSet instanceof BlockChessSet)) {
+			throw new ChessException("Set '" + newChessSet.getName() + "' is not a block chess set!");
+		}
+		
 		BoardStyle boardStyle = view.getChessBoard().getBoardStyle();
 		// ensure the new chess set actually fits this board
 		if (newChessSet.getMaxWidth() > boardStyle.getSquareSize() || newChessSet.getMaxHeight() > boardStyle.getHeight()) {
 			throw new ChessException("Set '" + newChessSet.getName() + "' is too large for this board!");
 		}
-		chessSet = newChessSet;
+		chessSet = (BlockChessSet) newChessSet;
 
 		Cuboid bounding = null;
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {

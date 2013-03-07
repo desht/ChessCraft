@@ -133,7 +133,7 @@ public class ChessStoneBlock implements ChessStone {
 				for (int z = 0; z < getSizeZ(); z++) {
 					MaterialWithData mat = getMaterial(x, y, z);
 					if (mat.getId() == 0) {
-						// the region was pre-cleared, skip placing air a second time
+						// we expect that the region was pre-cleared, skip placing air a second time
 						continue;
 					}
 					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);

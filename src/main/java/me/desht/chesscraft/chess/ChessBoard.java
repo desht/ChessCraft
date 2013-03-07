@@ -419,45 +419,13 @@ public class ChessBoard {
 			if (cStone != null) {
 				cStone.paint(region, mbu);
 			} else {
-				LogUtils.severe("unknown piece: " + stone);
+				LogUtils.severe("unknown chess stone " + stone);
 			}
 		}
 
 		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());	
 		mbu.notifyClients();
 	}
-
-//	private void paintChessPiece(Cuboid region, ChessStone stone, MassBlockUpdate mbu) {
-//		assert region.getSizeX() >= stone.getSizeX();
-//		assert region.getSizeZ() >= stone.getSizeZ();
-//
-//		int xOff = (region.getSizeX() - stone.getSizeX()) / 2;
-//		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
-//
-//		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
-//		World world = region.getWorld();
-//		for (int x = 0; x < stone.getSizeX(); x++) {
-//			for (int y = 0; y < stone.getSizeY(); y++) {
-//				for (int z = 0; z < stone.getSizeZ(); z++) {
-//					MaterialWithData mat = stone.getMaterial(x, y, z);
-//					if (mat.getId() == 0) {
-//						// the region was pre-cleared, skip placing air a second time
-//						continue;
-//					}
-//					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);
-//					if (BlockType.shouldPlaceLast(mat.getId())) {
-//						deferred.put(b, mat);
-//					} else {
-//						mat.applyToBlock(b, mbu);
-//					}
-//				}	
-//			}	
-//		}
-//
-//		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
-//			e.getValue().applyToBlock(e.getKey(), mbu);
-//		}
-//	}
 
 	/**
 	 * Board is in designer mode - paint some markers on unused squares
