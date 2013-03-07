@@ -1,15 +1,21 @@
 package me.desht.chesscraft.commands;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.enums.HighlightStyle;
+import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -41,6 +47,8 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
 		
 		boolean styleHasChanged = false, forceRedraw = false;
+		
+		Set<String> changed = new HashSet<String>();
 		
 		for (int i = 0; i < args.length; i += 2) {
 			String attr = args[i].replace("_", "");	// '_' is optional
@@ -104,6 +112,7 @@ public class BoardStyleSetCommand extends AbstractCommand {
 				} else {
 					throw new ChessException("Unknown attribute '" + attr + "'.");
 				}
+				changed.add(attr);
 			} catch (NumberFormatException e) {
 				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", val));
 			} catch (IllegalArgumentException e) {
@@ -122,6 +131,8 @@ public class BoardStyleSetCommand extends AbstractCommand {
 		}
 		
 		bv.save();
+		
+		Bukkit.getPluginManager().callEvent(new ChessBoardModifiedEvent(bv, changed));
 		
 		return true;
 	}

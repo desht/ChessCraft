@@ -14,6 +14,7 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
+import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.LogUtils;
@@ -231,6 +232,13 @@ public class ChessFlightListener extends ChessListenerBase {
 	@EventHandler
 	public void onBoardDeleted(ChessBoardDeletedEvent event) {
 		recalculateFlightRegions();
+	}
+	
+	@EventHandler
+	public void onBoardModifed(ChessBoardModifiedEvent event) {
+		if (event.getChangedAttributes().contains("enclosure")) {
+			recalculateFlightRegions();
+		}
 	}
 
 	/**
