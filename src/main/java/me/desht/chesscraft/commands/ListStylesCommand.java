@@ -8,6 +8,7 @@ import java.util.Map;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.pieces.ChessSet;
+import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
@@ -67,12 +68,12 @@ public class ListStylesCommand extends AbstractCommand {
 
 		for (File f : customDir.listFiles(DirectoryStructure.ymlFilter)) {
 			String styleName = f.getName().replaceAll("\\.yml$", "");
-			res.put(styleName, ChessSet.getChessSet(styleName));
+			res.put(styleName, ChessSetFactory.getChessSet(styleName));
 		}
 		for (File f : dir.listFiles(DirectoryStructure.ymlFilter)) {
 			String styleName = f.getName().replaceAll("\\.yml$", "");
 			if (res.containsKey(styleName)) continue;
-			res.put(styleName, ChessSet.getChessSet(styleName));
+			res.put(styleName, ChessSetFactory.getChessSet(styleName));
 		}
 		return MiscUtil.asSortedList(res.values());
 	}

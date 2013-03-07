@@ -6,19 +6,9 @@
  */
 package me.desht.chesscraft.chess;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import chesspresso.Chess;
-import chesspresso.position.Position;
-
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.BlockType;
-import me.desht.dhutils.block.CraftMassBlockUpdate;
-import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.ChessSet;
+import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.chesscraft.chess.pieces.ChessStone;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.enums.BoardRotation;
@@ -26,12 +16,17 @@ import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.CraftMassBlockUpdate;
+import me.desht.dhutils.block.MassBlockUpdate;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.block.Block;
+
+import chesspresso.Chess;
+import chesspresso.position.Position;
 
 public class ChessBoard {
 
@@ -234,7 +229,7 @@ public class ChessBoard {
 			return;
 		}
 
-		ChessSet newChessSet = ChessSet.getChessSet(pieceStyle);
+		ChessSet newChessSet = ChessSetFactory.getChessSet(pieceStyle);
 		boardStyle.verifyCompatibility(newChessSet);
 
 		chessPieceSet = newChessSet;
@@ -256,7 +251,7 @@ public class ChessBoard {
 		}
 
 		boardStyle = newStyle;
-		chessPieceSet = ChessSet.getChessSet(boardStyle.getPieceStyleName());
+		chessPieceSet = ChessSetFactory.getChessSet(boardStyle.getPieceStyleName());
 	}
 
 	/**
@@ -422,7 +417,7 @@ public class ChessBoard {
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = cSet.getStone(stone, getRotation());
 			if (cStone != null) {
-				paintChessPiece(region, cStone, mbu);
+				cStone.paint(region, mbu);
 			} else {
 				LogUtils.severe("unknown piece: " + stone);
 			}
@@ -432,37 +427,37 @@ public class ChessBoard {
 		mbu.notifyClients();
 	}
 
-	private void paintChessPiece(Cuboid region, ChessStone stone, MassBlockUpdate mbu) {
-		assert region.getSizeX() >= stone.getSizeX();
-		assert region.getSizeZ() >= stone.getSizeZ();
-
-		int xOff = (region.getSizeX() - stone.getSizeX()) / 2;
-		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
-
-		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
-		World world = region.getWorld();
-		for (int x = 0; x < stone.getSizeX(); x++) {
-			for (int y = 0; y < stone.getSizeY(); y++) {
-				for (int z = 0; z < stone.getSizeZ(); z++) {
-					MaterialWithData mat = stone.getMaterial(x, y, z);
-					if (mat.getId() == 0) {
-						// the region was pre-cleared, skip placing air a second time
-						continue;
-					}
-					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);
-					if (BlockType.shouldPlaceLast(mat.getId())) {
-						deferred.put(b, mat);
-					} else {
-						mat.applyToBlock(b, mbu);
-					}
-				}	
-			}	
-		}
-
-		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
-			e.getValue().applyToBlock(e.getKey(), mbu);
-		}
-	}
+//	private void paintChessPiece(Cuboid region, ChessStone stone, MassBlockUpdate mbu) {
+//		assert region.getSizeX() >= stone.getSizeX();
+//		assert region.getSizeZ() >= stone.getSizeZ();
+//
+//		int xOff = (region.getSizeX() - stone.getSizeX()) / 2;
+//		int zOff = (region.getSizeZ() - stone.getSizeZ()) / 2;
+//
+//		Map<Block,MaterialWithData> deferred = new HashMap<Block, MaterialWithData>();
+//		World world = region.getWorld();
+//		for (int x = 0; x < stone.getSizeX(); x++) {
+//			for (int y = 0; y < stone.getSizeY(); y++) {
+//				for (int z = 0; z < stone.getSizeZ(); z++) {
+//					MaterialWithData mat = stone.getMaterial(x, y, z);
+//					if (mat.getId() == 0) {
+//						// the region was pre-cleared, skip placing air a second time
+//						continue;
+//					}
+//					Block b = region.getRelativeBlock(world, x + xOff, y, z + zOff);
+//					if (BlockType.shouldPlaceLast(mat.getId())) {
+//						deferred.put(b, mat);
+//					} else {
+//						mat.applyToBlock(b, mbu);
+//					}
+//				}	
+//			}	
+//		}
+//
+//		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
+//			e.getValue().applyToBlock(e.getKey(), mbu);
+//		}
+//	}
 
 	/**
 	 * Board is in designer mode - paint some markers on unused squares

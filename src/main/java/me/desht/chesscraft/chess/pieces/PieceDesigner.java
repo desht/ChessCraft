@@ -174,7 +174,7 @@ public class PieceDesigner {
 	 * @throws ChessException if the set doesn't exist or doesn't fit the board
 	 */
 	public void load() throws ChessException {
-		ChessSet newChessSet = ChessSet.getChessSet(setName);
+		ChessSet newChessSet = ChessSetFactory.getChessSet(setName);
 		BoardStyle boardStyle = view.getChessBoard().getBoardStyle();
 		// ensure the new chess set actually fits this board
 		if (newChessSet.getMaxWidth() > boardStyle.getSquareSize() || newChessSet.getMaxHeight() > boardStyle.getHeight()) {
@@ -187,7 +187,7 @@ public class PieceDesigner {
 			int sqi = getSqi(p);
 			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 			bounding = c.getBoundingCuboid(bounding);
-			ChessStone whiteStone = chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getRotation());
+			ChessStoneBlock whiteStone = (ChessStoneBlock) chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getRotation());
 			LogUtils.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
 			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
 		}
@@ -224,7 +224,7 @@ public class PieceDesigner {
 		if (chessSet != null) {
 			chessSet.save(setName);
 			// force the new set to be re-cached
-			ChessSet.getChessSet(setName);
+			ChessSetFactory.getChessSet(setName);
 		}
 	}
 

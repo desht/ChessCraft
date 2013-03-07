@@ -9,7 +9,6 @@ package me.desht.chesscraft.chess.pieces;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,7 +18,6 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.MaterialWithData;
 
 import org.bukkit.configuration.Configuration;
@@ -30,13 +28,7 @@ import chesspresso.Chess;
 
 import com.google.common.base.Joiner;
 
-public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
-
-	// map of all known chess sets keyed by set name
-	private static final Map<String, ChessSet> allChessSets = new HashMap<String, ChessSet>();
-
-	// note when the set was loaded so we can reload if the set file is updated
-	private static final Map<String,Long> setLoadTime = new HashMap<String, Long>();
+public class ChessSet implements Comparable<ChessSet> {
 
 	private static final String[] CHESS_SET_HEADER_LINES = new String[] {
 			"ChessCraft piece style definition file",
@@ -73,13 +65,13 @@ public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 	private final boolean isCustom;
 
 	/**
-	 * Private constructor.  Initialise a chess set from saved data.
+	 * Package-protected constructor.  Initialise a chess set from saved data.
 	 * 
 	 * @param c		The Configuration object loaded from file.
 	 * 
 	 * @throws ChessException if there is any problem loading the set.
 	 */
-	private ChessSet(Configuration c, boolean isCustom) throws ChessException {
+	ChessSet(Configuration c, boolean isCustom) throws ChessException {
 		ChessPersistence.requireSection(c, "name");
 		ChessPersistence.requireSection(c, "pieces");
 		ChessPersistence.requireSection(c, "materials.white");
@@ -146,10 +138,6 @@ public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 		maxWidth = maxW; maxHeight = maxH;
 	}
 
-	public Iterator<ChessStone> iterator() {
-		return new ChessPieceIterator();
-	}
-
 	/**
 	 * Return a mapping of white material to black material for those materials in this set
 	 * which differ for the white and black pieces.
@@ -185,7 +173,7 @@ public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 		String key = String.format("%d:%d:%s", piece, colour, direction);
 		if (!stoneCache.containsKey(key)) {
 			MaterialMap matMap = colour == Chess.WHITE ? materialMapWhite : materialMapBlack;
-			stoneCache.put(key, new ChessStone(stone, templates[piece], matMap, direction));
+			stoneCache.put(key, new ChessStoneBlock(stone, templates[piece], matMap, direction));
 		}
 		return stoneCache.get(key);
 	}
@@ -258,83 +246,6 @@ public class ChessSet implements Iterable<ChessStone>,Comparable<ChessSet> {
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
 		}
-	}
-	
-	//--------------------------static methods---------------------------------
-	
-	/**
-	 * Check if the given set is loaded.
-	 * 
-	 * @param setName
-	 * @return
-	 */
-	public static boolean isLoaded(String setName) {
-		return allChessSets.containsKey(setName);
-	}
-	
-	/**
-	 * Retrieve a chess set with the given name, loading it from file if necessary.
-	 * 
-	 * @param setName
-	 * @return
-	 * @throws ChessException
-	 */
-	public static ChessSet getChessSet(String setName) throws ChessException {
-		setName = setName.toLowerCase();
-		if (!isLoaded(setName) || needsReload(setName)) {
-			loadChessSet(setName);
-		}
-		return allChessSets.get(setName);
-	}
-
-	private static boolean needsReload(String setName) throws ChessException {
-		if (!setLoadTime.containsKey(setName)) {
-			return true;
-		}
-		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
-		return f.lastModified() > setLoadTime.get(setName);
-	}
-
-	private static ChessSet loadChessSet(String setName) throws ChessException {
-		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);		
-		try {
-			Configuration c = MiscUtil.loadYamlUTF8(f);
-
-			ChessSet set = new ChessSet(c, DirectoryStructure.isCustom(f));
-			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
-			
-			allChessSets.put(setName, set);
-			setLoadTime.put(setName, System.currentTimeMillis());
-			
-			return set;
-		} catch (Exception e) {
-			throw new ChessException("can't load chess set from [" + f + "]: " + e.getMessage());
-		}
-	}
-	
-	//-------------------------------- iterator class
-	
-	public class ChessPieceIterator implements Iterator<ChessStone> {
-
-		int i = 0;
-		Integer keys[] = new Integer[0];
-		
-		public ChessPieceIterator(){
-			keys = stoneCache.keySet().toArray(keys);
-		}
-		
-		public boolean hasNext() {
-			return keys.length > i;
-		}
-
-		public ChessStone next() {
-			// simply iterates through values.. not through keys
-			return stoneCache.get(keys[i++]);
-		}
-
-		public void remove() {
-		}
-
 	}
 
 	@Override

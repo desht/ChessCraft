@@ -14,6 +14,7 @@ import java.io.IOException;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.pieces.ChessSet;
+import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
@@ -309,7 +310,7 @@ public class BoardStyle implements Comparable<BoardStyle> {
 	 */
 	public static void verifyCompatibility(String boardStyleName, String pieceStyleName) throws ChessException {
 		BoardStyle b = BoardStyle.loadStyle(boardStyleName);
-		ChessSet cs = ChessSet.getChessSet(pieceStyleName == null ? b.getPieceStyleName() : pieceStyleName);
+		ChessSet cs = ChessSetFactory.getChessSet(pieceStyleName == null ? b.getPieceStyleName() : pieceStyleName);
 		b.verifyCompatibility(cs);
 	}
 
