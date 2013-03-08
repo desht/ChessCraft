@@ -233,7 +233,6 @@ public class ChessBoard {
 		boardStyle.verifyCompatibility(newChessSet);
 
 		chessPieceSet = newChessSet;
-		System.out.println("piece style now = " + chessPieceSet.getName());
 	}
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {

@@ -28,6 +28,7 @@ import me.desht.chesscraft.util.TerrainBackup;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -48,17 +49,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
-
-	private double defaultStake;
-	private boolean lockStake;
-
-	private String defaultTcSpec;
-	private boolean lockTcSpec;
-
-	private ChessGame game = null;			// null indicates board not currently used by any game
-
 	private final String worldName;
 	private final String savedGameName;
+	
+	private double defaultStake;
+	private boolean lockStake;
+	private String defaultTcSpec;
+	private boolean lockTcSpec;
+	private ChessGame game = null;			// null indicates board not currently used by any game
+	private PersistableLocation teleportOutDest;
 
 	public BoardView(String boardName, Location origin, String bStyle, String pStyle) throws ChessException {
 		this(boardName, origin, BoardRotation.getRotation(origin), bStyle, pStyle);
@@ -78,6 +77,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		lockTcSpec = false;
 		worldName = chessBoard.getA1Center().getWorld().getName();
 		savedGameName = "";
+		teleportOutDest = null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -122,6 +122,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		
 		setDefaultTcSpec(defaultTcSpec);
+		
+		teleportOutDest = conf.contains("teleportOutDest") ? (PersistableLocation) conf.get("teleportOutDest") : null;
 	}
 
 	/**
@@ -164,6 +166,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		result.put("lockStake", lockStake);
 		result.put("defaultTcSpec", defaultTcSpec);
 		result.put("lockTcSpec", lockTcSpec);
+		if (teleportOutDest != null) {
+			result.put("teleportOutDest", teleportOutDest);
+		}
 		return result;
 	}
 
@@ -238,9 +243,20 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			setDefaultTcSpec(getDefaultTcSpec());
 		}
 		mbu.notifyClients();
-//		chessBoard.getFullBoard().sendClientChanges();
 		controlPanel.repaintClocks();
 		controlPanel.repaintControls();
+	}
+
+	public void setTeleportDestination(Location loc) {
+		teleportOutDest = loc == null ? null : new PersistableLocation(loc);
+	}
+	
+	public Location getTeleportDestination() {
+		return teleportOutDest == null ? null : teleportOutDest.getLocation();
+	}
+	
+	public boolean hasTeleportDestination() {
+		return teleportOutDest != null;
 	}
 
 	public Location getA1Square() {
@@ -621,7 +637,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr)); //$NON-NLS-1$
 		String lockTcStr = getLockTcSpec() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr)); //$NON-NLS-1$
-
+		String dest = hasTeleportDestination() ? MiscUtil.formatLocation(getTeleportDestination()) : "-";
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.teleportDest", dest));
+		
 		if (chessBoard.getDesigner() != null) {
 			res.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
@@ -644,4 +662,5 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (game != null)
 			ChessGameManager.getManager().setCurrentGame(player.getName(), game);
 	}
+	
 }

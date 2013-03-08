@@ -13,6 +13,7 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -74,6 +75,12 @@ public class ChessPersistence {
 		for (Entry<String,String> e : ChessGameManager.getManager().getCurrentGames().entrySet()) {
 			conf.set("current_games." + e.getKey(), e.getValue());
 		}
+		
+		Location loc = BoardViewManager.getManager().getGlobalTeleportOutDest();
+		if (loc != null) {
+			conf.set("teleport_out_dest", new PersistableLocation(loc));
+		}
+		
 		try {
 			conf.save(DirectoryStructure.getPersistFile());
 		} catch (IOException e1) {
@@ -108,6 +115,10 @@ public class ChessPersistence {
 								+ e.getMessage());
 					}
 				}
+			}
+			if (conf.contains("teleport_out_dest")) {
+				PersistableLocation pLoc = (PersistableLocation) conf.get("teleport_out_dest");
+				BoardViewManager.getManager().setGlobalTeleportOutDest(pLoc.getLocation());
 			}
 		} catch (Exception e) {
 			LogUtils.severe("Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());

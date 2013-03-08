@@ -22,6 +22,7 @@ import me.desht.chesscraft.util.TerrainBackup;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
+import me.desht.dhutils.PersistableLocation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,10 +30,11 @@ import org.bukkit.entity.Player;
 
 public class BoardViewManager {
 
+	private static BoardViewManager instance = null;
+
 	private final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
-
-	private static BoardViewManager instance = null;
+	private PersistableLocation globalTeleportOutDest = null;
 	
 	private BoardViewManager() {	
 	}
@@ -47,6 +49,20 @@ public class BoardViewManager {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
+	}
+
+	/**
+	 * @return the globalTeleportOutDest
+	 */
+	public Location getGlobalTeleportOutDest() {
+		return globalTeleportOutDest == null ? null : globalTeleportOutDest.getLocation();
+	}
+
+	/**
+	 * @param globalTeleportOutDest the globalTeleportOutDest to set
+	 */
+	public void setGlobalTeleportOutDest(Location globalTeleportOutDest) {
+		this.globalTeleportOutDest = globalTeleportOutDest == null ? null : new PersistableLocation(globalTeleportOutDest);
 	}
 
 	public void registerView(BoardView view) {
@@ -195,7 +211,13 @@ public class BoardViewManager {
 
 		BoardView bv = partOfChessBoard(player.getLocation(), 0);
 		Location prev = ChessCraft.getInstance().getPlayerTracker().getLastPos(player);
-		if (bv != null && (prev == null || partOfChessBoard(prev, 0) == bv)) {
+		if (bv != null && bv.hasTeleportDestination()) {
+			// board has a specific location defined
+			Location loc = bv.getTeleportDestination();
+			ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
+		} else if (bv != null && globalTeleportOutDest != null) {
+			ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, getGlobalTeleportOutDest());
+		} else if (bv != null && (prev == null || partOfChessBoard(prev, 0) == bv)) {
 			// try to get the player out of this board safely
 			Location loc = bv.findSafeLocationOutside();
 			if (loc != null) {

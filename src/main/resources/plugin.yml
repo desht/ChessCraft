@@ -49,6 +49,7 @@ permissions:
       chesscraft.commands.board.save: true
       chesscraft.basic: true
       chesscraft.commands.teleport.board: true
+      chesscraft.commands.teleport.set: true
       chesscraft.commands.list.style: true
   chesscraft.basic:
     default: true
@@ -133,6 +134,9 @@ permissions:
     default: true
   chesscraft.commands.teleport.board:
     description: Allows you to teleport to chess boards
+    default: op
+  chesscraft.commands.teleport.set:
+    description: Allows you to set/clear the teleport-out location for chess boards
     default: op
   chesscraft.commands.win:
     description: Allows you to claim victory by default if the opposing player went offline
