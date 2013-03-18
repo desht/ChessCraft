@@ -122,6 +122,7 @@ public class ChessPersistence {
 			}
 		} catch (Exception e) {
 			LogUtils.severe("Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());
+			LogUtils.severe("Message: " + e.getMessage());
 		}
 	}
 

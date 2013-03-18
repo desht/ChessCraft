@@ -60,6 +60,7 @@ import me.desht.dhutils.Duration;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.PluginVersionChecker;
 import me.desht.dhutils.PluginVersionListener;
 import me.desht.dhutils.SpecialFX;
@@ -109,6 +110,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		ConfigurationSerialization.registerClass(BoardView.class);
 		ConfigurationSerialization.registerClass(ChessGame.class);
 		ConfigurationSerialization.registerClass(TimeControl.class);
+		ConfigurationSerialization.registerClass(PersistableLocation.class);
 	}
 
 	@Override

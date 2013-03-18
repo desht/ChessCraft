@@ -1,5 +1,8 @@
 package me.desht.chesscraft;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.dhutils.LogUtils;
@@ -20,7 +23,8 @@ public class ChessTickTask {
 		tickTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(ChessCraft.getInstance(), new Runnable() {
 			@Override
 			public void run() {
-				for (ChessGame game : ChessGameManager.getManager().listGames()) {
+				List<ChessGame> games = new ArrayList<ChessGame>(ChessGameManager.getManager().listGames());
+				for (ChessGame game : games) {
 					game.clockTick();
 					game.checkForAutoDelete();
 				}

@@ -456,14 +456,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		default: throw new IllegalArgumentException("invalid colour " + colour);
 		}
 	}
-	
-//	public TimeControl getTcWhite() {
-//		return tcWhite;
-//	}
-//
-//	public TimeControl getTcBlack() {
-//		return tcBlack;
-//	}
 
 	/**
 	 * Housekeeping task, called periodically by the scheduler.  Update the clocks for the game, and
