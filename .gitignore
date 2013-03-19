@@ -30,3 +30,6 @@
 *.iws
 
 /.externalToolBuilders
+/.swp
+/maven-eclipse.xml
+/pg.cfg
