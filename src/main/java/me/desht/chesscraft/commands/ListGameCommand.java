@@ -2,26 +2,25 @@ package me.desht.chesscraft.commands;
 
 import java.util.List;
 
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-
-import chesspresso.Chess;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
-public class ListGameCommand extends AbstractCommand {
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
+
+import chesspresso.Chess;
+
+public class ListGameCommand extends ChessAbstractCommand {
 
 	private static final String TO_MOVE = ChatColor.GOLD + "\u261e " + ChatColor.RESET;
 
 	public ListGameCommand() {
-		super("chess l g", 0, 1);
+		super("chess list game", 0, 1);
 		setPermissionNode("chesscraft.commands.list.game");
 		setUsage("/chess list game");
 	}
@@ -33,7 +32,7 @@ public class ListGameCommand extends AbstractCommand {
 			return true;
 		}
 
-		MessagePager pager = MessagePager.getPager(sender).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 
 		if (args.length >= 1) {
 			List<String> l = ChessGameManager.getManager().getGame(args[0]).getGameDetail();
@@ -63,4 +62,13 @@ public class ListGameCommand extends AbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getGameCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

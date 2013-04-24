@@ -3,16 +3,15 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class SaveCommand extends AbstractCommand {
+public class SaveCommand extends ChessAbstractCommand {
 
 	public SaveCommand() {
-		super("chess sa", 0, 0);
+		super("chess save", 0, 0);
 		setPermissionNode("chesscraft.commands.save");
 		setUsage("/chess save");
 	}

@@ -6,16 +6,15 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class StakeCommand extends AbstractCommand {
+public class StakeCommand extends ChessAbstractCommand {
 
 	public StakeCommand() {
-		super("chess stak", 1, 1);
+		super("chess stake", 1, 1);
 		setPermissionNode("chesscraft.commands.stake");
 		setUsage("/chess stake <amount>");
 	}
@@ -25,7 +24,7 @@ public class StakeCommand extends AbstractCommand {
 		if (ChessCraft.economy == null) {
 			return true;
 		}
-		
+
 		String stakeStr = args[0];
 		try {
 			ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);

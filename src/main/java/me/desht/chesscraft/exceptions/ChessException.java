@@ -1,10 +1,9 @@
 package me.desht.chesscraft.exceptions;
 
-@SuppressWarnings("serial")
-public class ChessException extends RuntimeException {
+import me.desht.dhutils.DHUtilsException;
 
-	public ChessException() {
-	}
+@SuppressWarnings("serial")
+public class ChessException extends DHUtilsException {
 
 	public ChessException(String message) {
 		super(message);

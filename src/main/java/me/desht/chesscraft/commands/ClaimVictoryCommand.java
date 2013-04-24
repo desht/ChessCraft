@@ -1,5 +1,7 @@
 package me.desht.chesscraft.commands;
 
+import java.util.List;
+
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
@@ -7,15 +9,14 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ClaimVictoryCommand extends AbstractCommand {
+public class ClaimVictoryCommand extends ChessAbstractCommand {
 
 	public ClaimVictoryCommand() {
-		super("chess w", 0, 0);
+		super("chess win", 0, 0);
 		setPermissionNode("chesscraft.commands.win");
 		setUsage("/chess win");
 	}
@@ -45,8 +46,13 @@ public class ClaimVictoryCommand extends AbstractCommand {
 		} else {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
 		}
-		
+
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		showUsage(sender);
+		return noCompletions(sender);
+	}
 }

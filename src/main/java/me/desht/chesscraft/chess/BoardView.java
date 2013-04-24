@@ -12,23 +12,25 @@ import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.CraftMassBlockUpdate;
-import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.exceptions.ChessWorldNotLoadedException;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.TerrainBackup;
+import me.desht.dhutils.AttributeCollection;
+import me.desht.dhutils.ConfigurationListener;
+import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.CraftMassBlockUpdate;
+import me.desht.dhutils.block.MassBlockUpdate;
+import me.desht.dhutils.block.MaterialWithData;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -44,72 +46,89 @@ import chesspresso.position.ImmutablePosition;
 import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 
-public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable {
+public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable, ConfigurationListener {
+
+	private static final String DEFAULT_STAKE = "defaultstake";
+	private static final String LOCK_STAKE = "lockstake";
+	private static final String DEFAULT_TC = "defaulttc";
+	private static final String LOCK_TC = "locktc";
+	private static final String OVERRIDE_PIECE_STYLE = "overridepiecestyle";
+	private static final String BOARD_STYLE = "boardstyle";
+
+	// map attribute names as typed in-game to the corresponding key in the save file
+	// backward compatibility is such fun!
+	private static final Map<String, String> attr2save = new HashMap<String, String>();
+	private static final Map<String, String> save2attr = new HashMap<String, String>();
+	static {
+		attr2save.put(DEFAULT_STAKE, "defaultStake");
+		attr2save.put(LOCK_STAKE, "lockStake");
+		attr2save.put(DEFAULT_TC, "defaultTcSpec");
+		attr2save.put(LOCK_TC, "lockTcSpec");
+		attr2save.put(OVERRIDE_PIECE_STYLE, "pieceStyle");
+		attr2save.put(BOARD_STYLE, "boardStyle");
+		for (String k : attr2save.keySet()) {
+			save2attr.put(attr2save.get(k), k);
+		}
+	}
 
 	private final String name;
 	private final ControlPanel controlPanel;
 	private final ChessBoard chessBoard;
 	private final String worldName;
 	private final String savedGameName;
-	
-	private double defaultStake;
-	private boolean lockStake;
-	private String defaultTcSpec;
-	private boolean lockTcSpec;
+
 	private ChessGame game = null;			// null indicates board not currently used by any game
 	private PersistableLocation teleportOutDest;
+	private final AttributeCollection attributes;
 
 	public BoardView(String boardName, Location origin, String bStyle, String pStyle) throws ChessException {
 		this(boardName, origin, BoardRotation.getRotation(origin), bStyle, pStyle);
 	}
 
-	public BoardView(String boardName, Location origin,
-			BoardRotation rotation, String bStyle, String pStyle) throws ChessException {
+	public BoardView(String boardName, Location origin, BoardRotation rotation, String bStyle, String pStyle) throws ChessException {
 		this.name = boardName;
 		if (BoardViewManager.getManager().boardViewExists(name)) {
 			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
 		}
+		attributes = new AttributeCollection(this);
+		registerAttributes();
+		attributes.set(BOARD_STYLE, bStyle);
+		attributes.set(OVERRIDE_PIECE_STYLE, pStyle);
 		chessBoard = new ChessBoard(origin, rotation, bStyle, pStyle);
 		controlPanel = new ControlPanel(this);
-		defaultStake = -1.0;
-		lockStake = false;
-		defaultTcSpec = "";
-		lockTcSpec = false;
 		worldName = chessBoard.getA1Center().getWorld().getName();
 		savedGameName = "";
 		teleportOutDest = null;
 	}
 
+	private void registerAttributes() {
+		attributes.registerAttribute(DEFAULT_STAKE, -1.0, "Default stake for games on this board");
+		attributes.registerAttribute(LOCK_STAKE, false, "Disallow changing of stake by players");
+		attributes.registerAttribute(DEFAULT_TC, "", "Default time control for games on this board");
+		attributes.registerAttribute(LOCK_TC, false, "Disallow changing of time control by players");
+		attributes.registerAttribute(OVERRIDE_PIECE_STYLE, "", "Overridden piece style for this board");
+		attributes.registerAttribute(BOARD_STYLE, "", "Board style for this board");
+	}
+
 	@SuppressWarnings("unchecked")
 	public BoardView(ConfigurationSection conf) {
-		List<?> origin = conf.getList("origin"); //$NON-NLS-1$
-		worldName = (String) origin.get(0);
-		String bStyle = conf.getString("boardStyle"); //$NON-NLS-1$
-		String pStyle = conf.getString("pieceStyle"); //$NON-NLS-1$
-		BoardRotation dir = BoardRotation.getRotation(conf.getString("direction")); //$NON-NLS-1$
-
-		this.name = conf.getString("name"); //$NON-NLS-1$
+		this.name = conf.getString("name");
 		if (BoardViewManager.getManager().boardViewExists(name)) {
-			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("BoardView.boardExists"));
 		}
-
-		defaultStake = conf.getDouble("defaultStake", -1.0);
-		lockStake = conf.getBoolean("lockStake", false);
-
-		defaultTcSpec = conf.getString("defaultTcSpec", "");
-		lockTcSpec = conf.getBoolean("lockTcSpec", false);
 
 		savedGameName = conf.getString("game", "");
 
-		Location where;
-		try {
-			where = ChessPersistence.thawLocation((List<Object>) origin);
-		} catch (IllegalArgumentException e) {
-			chessBoard = null;
-			controlPanel = null;
-			return;
+		attributes = new AttributeCollection(this);
+		registerAttributes();
+		for (Entry<String, String> e : save2attr.entrySet()) {
+			attributes.set(e.getValue(), conf.getString(e.getKey()));
 		}
-		chessBoard = new ChessBoard(where, dir, bStyle, pStyle);
+
+		Location where = ChessPersistence.thawLocation(conf.getList("origin"));
+		worldName = where.getWorld().getName();
+		BoardRotation dir = BoardRotation.getRotation(conf.getString("direction"));
+		chessBoard = new ChessBoard(where, dir, (String)attributes.get(BOARD_STYLE), (String)attributes.get(OVERRIDE_PIECE_STYLE));
 		controlPanel = new ControlPanel(this);
 
 		Map<String, String> m = (Map<String,String>)conf.get("designer");
@@ -120,9 +139,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 				setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
 			}
 		}
-		
-		setDefaultTcSpec(defaultTcSpec);
-		
+
 		teleportOutDest = conf.contains("teleportOutDest") ? (PersistableLocation) conf.get("teleportOutDest") : null;
 	}
 
@@ -149,8 +166,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("name", name); //$NON-NLS-1$
 		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		result.put("pieceStyle", chessBoard.getPieceStyleName()); //$NON-NLS-1$
-		result.put("boardStyle", chessBoard.getBoardStyleName()); //$NON-NLS-1$
 		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
 		result.put("direction", chessBoard.getRotation().name()); //$NON-NLS-1$
 		Map<String, Object> d = new HashMap<String, Object>();
@@ -162,17 +177,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			d.put("playerName", "");
 		}
 		result.put("designer", d);
-		result.put("defaultStake", defaultStake);
-		result.put("lockStake", lockStake);
-		result.put("defaultTcSpec", defaultTcSpec);
-		result.put("lockTcSpec", lockTcSpec);
+		for (String k : attributes.listAttributeKeys(false)) {
+			result.put(attr2save.get(k), attributes.get(k));
+		}
 		if (teleportOutDest != null) {
 			result.put("teleportOutDest", teleportOutDest);
 		}
 		return result;
 	}
 
-	public static BoardView deserialize(Map<String, Object> map) throws ChessException, ChessWorldNotLoadedException {
+	public static BoardView deserialize(Map<String, Object> map) throws ChessException {
 		Configuration conf = new MemoryConfiguration();
 
 		for (Entry<String, Object> e : map.entrySet()) {
@@ -219,16 +233,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public double getDefaultStake() {
+		double defaultStake = (Double) attributes.get(DEFAULT_STAKE);
 		return defaultStake >= 0.0 ? defaultStake : ChessCraft.getInstance().getConfig().getDouble("stake.default", 0.0);
-	}
-
-	public void setDefaultStake(double defaultStake) {
-		this.defaultStake = defaultStake;
 	}
 
 	public void setGame(ChessGame game) {
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(chessBoard.getBoard().getWorld());
-		
+
 		this.game = game;
 		if (game != null) {
 			game.getPosition().addPositionListener(this);
@@ -240,7 +251,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
 			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
-			setDefaultTcSpec(getDefaultTcSpec());
+			attributes.set(DEFAULT_TC, getDefaultTcSpec());
 		}
 		mbu.notifyClients();
 		controlPanel.repaintClocks();
@@ -250,11 +261,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public void setTeleportDestination(Location loc) {
 		teleportOutDest = loc == null ? null : new PersistableLocation(loc);
 	}
-	
+
 	public Location getTeleportDestination() {
 		return teleportOutDest == null ? null : teleportOutDest.getLocation();
 	}
-	
+
 	public boolean hasTeleportDestination() {
 		return teleportOutDest != null;
 	}
@@ -320,30 +331,16 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public String getDefaultTcSpec() {
+		String defaultTcSpec = (String) attributes.get(DEFAULT_TC);
 		return defaultTcSpec.isEmpty() ? ChessCraft.getInstance().getConfig().getString("time_control.default") : defaultTcSpec;
 	}
 
-	public void setDefaultTcSpec(String spec) {
-		TimeControl tc = new TimeControl(spec);		// force validation of the spec
-		defaultTcSpec = tc.getSpec();
-		getControlPanel().getTcDefs().addCustomSpec(defaultTcSpec);
-		getControlPanel().getSignButton(TimeControlButton.class).repaint();
-	}
-
-	public void setLockTcSpec(boolean lock) {
-		lockTcSpec = lock;
-	}
-
 	public boolean getLockTcSpec() {
-		return lockTcSpec;
+		return (Boolean) attributes.get(LOCK_TC);
 	}
 
 	public boolean getLockStake() {
-		return lockStake;
-	}
-
-	public void setLockStake(boolean lockStake) {
-		this.lockStake = lockStake;
+		return (Boolean) attributes.get(LOCK_STAKE);
 	}
 
 	public void paintAll() {
@@ -354,7 +351,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (game != null) {
 			chessBoard.paintChessPieces(game.getPosition());
 		}
-		
+
 		mbu.notifyClients();
 	}
 
@@ -450,7 +447,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		} else {
 			getChessBoard().highlightSquares(Chess.NO_SQUARE, Chess.NO_SQUARE);
 		}
-		
+
 		getControlPanel().updatePlyCount(getGame().getChesspressoGame().getCurrentPly());
 
 		getControlPanel().repaintAll(null);
@@ -580,7 +577,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		// signs can get dropped otherwise
 		getControlPanel().removeSigns();
-		
+
 		if (ChessCraft.getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
 			restored = TerrainBackup.reload(this);
@@ -590,9 +587,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			// we couldn't restore the original terrain - just set the board to air
 			chessBoard.clearAll();
 		}
-		
-//		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).initLighting();
-//		chessBoard.getFullBoard().outset(CuboidDirection.Horizontal, 16).sendClientChanges();
 	}
 
 	/**
@@ -612,23 +606,23 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public List<String> getBoardDetail() {
 		List<String> res = new ArrayList<String>();
-		
+
 		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
 		Cuboid bounds = getOuterBounds();
 		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
 
 		res.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
-		                                      MiscUtil.formatLocation(bounds.getLowerNE()),
-		                                      MiscUtil.formatLocation(bounds.getUpperSW())));
+		                                    MiscUtil.formatLocation(bounds.getLowerNE()),
+		                                    MiscUtil.formatLocation(bounds.getUpperSW())));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().toString())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
-		                                      getWhiteSquareMaterial(), getBlackSquareMaterial()));
+		                                    getWhiteSquareMaterial(), getBlackSquareMaterial()));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
-		                                      getFrameMaterial()));
+		                                    getFrameMaterial()));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
@@ -639,11 +633,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr)); //$NON-NLS-1$
 		String dest = hasTeleportDestination() ? MiscUtil.formatLocation(getTeleportDestination()) : "-";
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.teleportDest", dest));
-		
+
 		if (chessBoard.getDesigner() != null) {
 			res.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
-		String setComment = getChessBoard().getChessSet().getComment();
+		String setComment = getChessBoard().getPieceStyle().getComment();
 		if (setComment != null && !setComment.isEmpty()) {
 			for (String s : setComment.split("\n")) {
 				res.add(ChatColor.YELLOW + s);
@@ -662,5 +656,30 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (game != null)
 			ChessGameManager.getManager().setCurrentGame(player.getName(), game);
 	}
-	
+
+	public AttributeCollection getAttributes() {
+		return attributes;
+	}
+
+	@Override
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		if (key.equals(DEFAULT_TC) && !newVal.toString().isEmpty()) {
+			new TimeControl(newVal.toString());		// force validation of the spec
+		}
+	}
+
+	@Override
+	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+		if (key.equals(DEFAULT_TC) && getControlPanel() != null) {
+			String spec = newVal.toString();
+			if (spec.isEmpty())
+				spec = ChessCraft.getInstance().getConfig().getString("time_control.default");
+			getControlPanel().getTcDefs().addCustomSpec(spec);
+			getControlPanel().getSignButton(TimeControlButton.class).repaint();
+		} else if (key.equals(BOARD_STYLE) && chessBoard != null) {
+			chessBoard.setBoardStyle(newVal.toString());
+		} else if (key.equals(OVERRIDE_PIECE_STYLE) && chessBoard != null) {
+			chessBoard.setPieceStyle(newVal.toString());
+		}
+	}
 }

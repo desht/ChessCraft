@@ -54,9 +54,11 @@ public class ChessBoard {
 	// settings related to how the board is drawn
 	private BoardStyle boardStyle = null;
 	// the set of chess pieces that go with this board
-	private ChessSet chessPieceSet = null;
+	private ChessSet chessSet = null;
 	// are we in designer mode?
 	private PieceDesigner designer = null;
+	// note a full redraw needed if the board or piece style change
+	private boolean redrawNeeded;
 
 	/**
 	 * Board constructor.
@@ -69,7 +71,7 @@ public class ChessBoard {
 	 */
 	public ChessBoard(Location origin, BoardRotation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
 		setBoardStyle(boardStyleName);
-		setPieceStyle(pieceStyleName != null ? pieceStyleName : boardStyle.getPieceStyleName());
+		setPieceStyle(pieceStyleName != null && !pieceStyleName.isEmpty() ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
 		a1Center = new PersistableLocation(origin);
 		a1Corner = initA1Corner(origin, rotation);
@@ -187,7 +189,7 @@ public class ChessBoard {
 	 * @return the name of the piece style being used
 	 */
 	public String getPieceStyleName() {
-		return chessPieceSet != null ? chessPieceSet.getName() : null;
+		return chessSet != null ? chessSet.getName() : null;
 	}
 
 	/**
@@ -200,8 +202,8 @@ public class ChessBoard {
 	/**
 	 * @return the ChessSet object associated with this chessboard
 	 */
-	public ChessSet getChessSet() {
-		return chessPieceSet;
+	public ChessSet getPieceStyle() {
+		return chessSet;
 	}
 
 	/**
@@ -232,7 +234,8 @@ public class ChessBoard {
 		ChessSet newChessSet = ChessSetFactory.getChessSet(pieceStyle);
 		boardStyle.verifyCompatibility(newChessSet);
 
-		chessPieceSet = newChessSet;
+		chessSet = newChessSet;
+		redrawNeeded = true;
 	}
 
 	public final void setBoardStyle(String boardStyleName) throws ChessException {
@@ -252,8 +255,16 @@ public class ChessBoard {
 
 		boardStyle = newStyle;
 		if (changeChessSet) {
-			chessPieceSet = ChessSetFactory.getChessSet(boardStyle.getPieceStyleName());
+			chessSet = ChessSetFactory.getChessSet(boardStyle.getPieceStyleName());
 		}
+		redrawNeeded = true;
+	}
+
+	/**
+	 * @return the redrawNeeded
+	 */
+	public boolean isRedrawNeeded() {
+		return redrawNeeded;
 	}
 
 	/**
@@ -266,8 +277,8 @@ public class ChessBoard {
 		if (boardStyle != null) {
 			setBoardStyle(boardStyle.getName());
 		}
-		if (chessPieceSet != null) {
-			setPieceStyle(chessPieceSet.getName());
+		if (chessSet != null) {
+			setPieceStyle(chessSet.getName());
 		}
 	}
 
@@ -288,6 +299,7 @@ public class ChessBoard {
 			highlightSquares(fromSquare, toSquare);
 		}
 		fullBoard.forceLightLevel(boardStyle.getLightLevel());
+		redrawNeeded = false;
 	}
 
 	private void paintEnclosure(MassBlockUpdate mbu) {
@@ -415,7 +427,7 @@ public class ChessBoard {
 		Cuboid region = getPieceRegion(row, col);
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
 		region.fill(0, (byte)0, mbu);
-		ChessSet cSet = designer != null ? designer.getChessSet() : chessPieceSet;
+		ChessSet cSet = designer != null ? designer.getChessSet() : chessSet;
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = cSet.getStone(stone, getRotation());
 			if (cStone != null) {

@@ -1,5 +1,6 @@
 package me.desht.chesscraft.enums;
 
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 
 public enum HighlightStyle {
@@ -16,6 +17,6 @@ public enum HighlightStyle {
 				return h;
 			}
 		}
-		throw new IllegalArgumentException("unknown highlight style: " + style);
+		throw new ChessException("unknown highlight style: " + style);
 	}
 }

@@ -10,7 +10,6 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -18,10 +17,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class TeleportCommand extends AbstractCommand {
+public class TeleportCommand extends ChessAbstractCommand {
 
 	public TeleportCommand() {
 		super("chess tp", 0, 2);
+		addAlias("chess teleport");
 		setPermissionNode("chesscraft.commands.teleport");
 		setUsage(new String[] {
 				"/chess tp [<game-name>]",
@@ -40,13 +40,13 @@ public class TeleportCommand extends AbstractCommand {
 			return true;
 		}
 		notFromConsole(sender);
-		
+
 		if (!ChessCraft.getInstance().getConfig().getBoolean("teleporting")) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.noTeleporting"));
 		}
-		
+
 		Player player = (Player)sender;
-		
+
 		if (getBooleanOption("set")) {
 			PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.set");
 			if (args.length == 0) {
@@ -83,7 +83,7 @@ public class TeleportCommand extends AbstractCommand {
 			ChessGame game = ChessGameManager.getManager().getGame(args[0], true);
 			game.getView().summonPlayer(player);
 		}
-		
+
 		return true;
 	}
 

@@ -1,42 +1,42 @@
 package me.desht.chesscraft.commands;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
-import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.AttributeCollection;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class BoardStyleSetCommand extends AbstractCommand {
+public class BoardStyleSetCommand extends ChessAbstractCommand {
 
 	public BoardStyleSetCommand() {
-		super("chess b se", 2);
+		super("chess board set", 2);
 		setPermissionNode("chesscraft.commands.board.set");
 		setUsage("/chess board set <attribute> <value> [<attribute> <value>...]");
 	}
-	
+
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
-		
+
 		if (args.length % 2 != 0) {
 			showUsage(sender);
 			return true;
 		}
-		
+
 		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
 		if (bv == null) {
 			throw new ChessException(Messages.getString("Designer.notOnBoard"));
@@ -45,96 +45,64 @@ public class BoardStyleSetCommand extends AbstractCommand {
 			throw new ChessException(Messages.getString("Game.boardInDesignMode"));
 		}
 		BoardStyle style = bv.getChessBoard().getBoardStyle();
-		
-		boolean styleHasChanged = false, forceRedraw = false;
-		
-		Set<String> changed = new HashSet<String>();
-		
+		AttributeCollection viewAttrs = bv.getAttributes();
+		AttributeCollection styleAttrs = style.getAttributes();
+		boolean styleHasChanged = false;
+		Set<String> changedAttrs = new HashSet<String>();
+
 		for (int i = 0; i < args.length; i += 2) {
-			String attr = args[i].replace("_", "");	// '_' is optional
+			String attr = args[i];
 			String val = args[i + 1];
-			
-			try {
-				if (attr.startsWith("white")) {
-					style.setWhiteSquareMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("black")) {
-					style.setBlackSquareMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("frame")) {
-					style.setFrameMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("panel")) {
-					style.setControlPanelMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("enclosure")) {
-					style.setEnclosureMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("struts")) {
-					style.setStrutsMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("highlightwhite")) {
-					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("highlightblack")) {
-					style.setHighlightBlackSquareMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("highlightstyle")) {
-					style.setHighlightStyle(HighlightStyle.getStyle(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("highlight")) {
-					style.setHighlightMaterial(MaterialWithData.get(val));
-					style.setHighlightWhiteSquareMaterial(MaterialWithData.get(val));
-					style.setHighlightBlackSquareMaterial(MaterialWithData.get(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("lightlevel")) {
-					style.setLightLevel(Integer.parseInt(val));
-					styleHasChanged = true;
-				} else if (attr.startsWith("piecestyle")) {
-					// update the default piece style for the current board style
-					style.setPieceStyleName(val);
-					styleHasChanged = true;
-				} else if (attr.startsWith("overridepiecestyle")) {
-					// update the piece style used by this board (but don't modify the style)
-					bv.getChessBoard().setPieceStyle(val);
-					forceRedraw = true;
-				} else if (attr.startsWith("boardstyle")) {
-					bv.getChessBoard().setBoardStyle(val);
-					forceRedraw = true;
-				} else if (attr.startsWith("defaultstake")) {
-					bv.setDefaultStake(Double.parseDouble(val));
-				} else if (attr.startsWith("defaulttc")) {
-					bv.setDefaultTcSpec(val);
-				} else if (attr.startsWith("locktc")) {
-					bv.setLockTcSpec(Boolean.parseBoolean(val));
-				} else if (attr.startsWith("lockstake")) {
-					bv.setLockStake(Boolean.parseBoolean(val));
-				} else {
-					throw new ChessException("Unknown attribute '" + attr + "'.");
-				}
-				changed.add(attr);
-			} catch (NumberFormatException e) {
-				throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", val));
-			} catch (IllegalArgumentException e) {
-				throw new ChessException(Messages.getString("ChessCommandExecutor.boardStyleBadParam", val));
+
+			if (styleAttrs.contains(attr)) {
+				styleAttrs.set(attr, val);
+				styleHasChanged = true;
+			} else if (viewAttrs.contains(attr)) {
+				viewAttrs.set(attr, val);
+			} else {
+				throw new ChessException("Unknown attribute '" + attr + "'.");
 			}
+
+			changedAttrs.add(attr);
 		}
-		
+
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleChanged", bv.getName()));
 		if (styleHasChanged) {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardStyleSuggestSave"));
 			bv.paintAll();
-		} else if (forceRedraw) {
+		} else if (bv.getChessBoard().isRedrawNeeded()) {
 			bv.paintAll();
 		} else {
 			bv.getControlPanel().repaintAll(null);
 		}
-		
+
 		bv.save();
-		
-		Bukkit.getPluginManager().callEvent(new ChessBoardModifiedEvent(bv, changed));
-		
+
+		Bukkit.getPluginManager().callEvent(new ChessBoardModifiedEvent(bv, changedAttrs));
+
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		notFromConsole(sender);
+		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
+		int l = args.length;
+		AttributeCollection styleAttrs = bv.getChessBoard().getBoardStyle().getAttributes();
+		AttributeCollection viewAttrs = bv.getAttributes();
+		if (args.length % 2 == 1) {
+			// provide attribute completions
+			List<String> attrs = new ArrayList<String>(styleAttrs.listAttributeKeys(false));
+			attrs.addAll(new ArrayList<String>(viewAttrs.listAttributeKeys(false)));
+			return filterPrefix(sender, attrs, args[l - 1]);
+		} else {
+			// provide value completions for last attribute
+			String attr = args[l - 2];
+			String desc = styleAttrs.contains(attr) ? styleAttrs.getDescription(attr) : viewAttrs.getDescription(attr);
+			Object o = styleAttrs.contains(attr) ? styleAttrs.get(attr) : viewAttrs.get(attr);
+			if (!desc.isEmpty())
+				desc = ChatColor.GRAY.toString() + ChatColor.ITALIC + " [" + desc + "]";
+			return getConfigValueCompletions(sender, attr, o, desc, args[l - 1]);
+		}
+	}
 }

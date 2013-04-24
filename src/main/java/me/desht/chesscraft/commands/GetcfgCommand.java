@@ -11,17 +11,16 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
-public class GetcfgCommand extends AbstractCommand {
+public class GetcfgCommand extends ChessAbstractCommand {
 
 	public GetcfgCommand() {
-		super("chess get", 0, 1);
+		super("chess getcfg", 0, 1);
 		setPermissionNode("chesscraft.commands.getcfg");
 		setUsage("/chess getcfg");
 	}
@@ -30,7 +29,7 @@ public class GetcfgCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
 		List<String> lines = getPluginConfiguration(args.length >= 1 ? args[0] : null);
 		if (lines.size() > 1) {
-			MessagePager pager = MessagePager.getPager(player).clear();
+			MessagePager pager = MessagePager.getPager(player).clear().setParseColours(true);
 			for (String line : lines) {
 				pager.add(line);
 			}
@@ -51,7 +50,7 @@ public class GetcfgCommand extends AbstractCommand {
 		ArrayList<String> res = new ArrayList<String>();
 		Configuration config = ChessCraft.getInstance().getConfig();
 		ConfigurationSection cs = config.getRoot();
-		
+
 		Set<String> items;
 		if (section == null) {
 			items = config.getDefaults().getKeys(true);
@@ -73,6 +72,16 @@ public class GetcfgCommand extends AbstractCommand {
 		}
 		Collections.sort(res);
 		return res;
+	}
+	
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		switch (args.length) {
+		case 1:
+			return getConfigCompletions(sender, plugin.getConfig(), args[0]);
+		default:
+			return noCompletions(sender);
+		}
 	}
 }
 

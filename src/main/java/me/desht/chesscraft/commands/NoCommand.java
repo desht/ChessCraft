@@ -2,16 +2,15 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class NoCommand extends AbstractCommand {
+public class NoCommand extends ChessAbstractCommand {
 
 	public NoCommand() {
-		super("chess n", 0, 0);
+		super("chess no", 0, 0);
 		setUsage("/chess no");
 	}
 
@@ -21,6 +20,5 @@ public class NoCommand extends AbstractCommand {
 		ExpectYesNoResponse.handleYesNoResponse((Player)sender, false);
 		return true;
 	}
-
 }
 

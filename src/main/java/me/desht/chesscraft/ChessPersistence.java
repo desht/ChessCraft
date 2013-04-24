@@ -49,7 +49,7 @@ public class ChessPersistence {
 		return list;
 	}
 
-	public static Location thawLocation(List<Object> list) {
+	public static Location thawLocation(List<?> list) {
 		World w = ChessPersistence.findWorld((String) list.get(0));
 		return new Location(w,
 		                    (Integer) list.get(1),
@@ -63,7 +63,7 @@ public class ChessPersistence {
 		if (w != null) {
 			return w;
 		} else {
-			throw new IllegalArgumentException("World " + worldName + " was not found on the server.");
+			throw new ChessException("World " + worldName + " was not found on the server.");
 		}
 	}
 

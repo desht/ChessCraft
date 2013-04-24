@@ -5,20 +5,23 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
 import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 
-public class MoveCommand extends AbstractCommand {
+public class MoveCommand extends ChessAbstractCommand {
 
 	public MoveCommand() {
-		super("chess m", 1, 2);
+		super("chess move", 1, 2);
 		setPermissionNode("chesscraft.commands.move");
-		setUsage("/chess move <from> <to>" + Messages.getString("ChessCommandExecutor.algebraicNotation"));
+		setUsage(new String[] {
+				"/chess move <from> <to>" + Messages.getString("ChessCommandExecutor.algebraicNotation"),
+				"/chess move <move>" + Messages.getString("ChessCommandExecutor.sanNotation"),
+		});
 	}
 
 	@Override
@@ -28,7 +31,7 @@ public class MoveCommand extends AbstractCommand {
 		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
 
 		int from, to;
-		
+
 		String move = combine(args, 0).replaceFirst(" ", "").toLowerCase(); //$NON-NLS-1$ //$NON-NLS-2$
 		if (isSimpleCoordinates(move)) {
 			from = Chess.strToSqi(move.substring(0, 2));
@@ -68,7 +71,7 @@ public class MoveCommand extends AbstractCommand {
 	private boolean isSimpleCoordinates(String move) {
 		if (move.length() != 4)
 			return false;
-		
+
 		if (move.charAt(0) < 'a' || move.charAt(0) > 'h')
 			return false;
 		if (move.charAt(2) < 'a' || move.charAt(2) > 'h')
@@ -77,7 +80,7 @@ public class MoveCommand extends AbstractCommand {
 			return false;
 		if (move.charAt(3) < '1' || move.charAt(3) > '8')
 			return false;
-		
+
 		return true;
 	}
 }

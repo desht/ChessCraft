@@ -4,16 +4,15 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class PageCommand extends AbstractCommand {
+public class PageCommand extends ChessAbstractCommand {
 
 	public PageCommand() {
-		super("chess pa", 0, 1);
-		setUsage("/chess page");
+		super("chess page", 0, 1);
+		setUsage("/chess page [n|p|#]");
 	}
 
 	@Override

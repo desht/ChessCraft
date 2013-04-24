@@ -6,17 +6,17 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 import chesspresso.Chess;
 
-public class TimeControlCommand extends AbstractCommand {
+public class TimeControlCommand extends ChessAbstractCommand {
 
 	public TimeControlCommand() {
 		super("chess tc", 1, 1);
+		addAlias("chess timecontrol");
 		setPermissionNode("chesscraft.commands.tc");
 		setUsage("/chess tc <time-control-spec>");
 	}
@@ -33,9 +33,9 @@ public class TimeControlCommand extends AbstractCommand {
 		cp.getSignButton(TimeControlButton.class).repaint();
 		cp.updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));
 		cp.updateClock(Chess.BLACK, game.getTimeControl(Chess.BLACK));
-		
+
 		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTimeControl(Chess.WHITE).toString()));
-		
+
 		return true;
 	}
 

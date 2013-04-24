@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.desht.dhutils.LogUtils;
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -55,7 +56,7 @@ public class TimeControl implements ConfigurationSerializable {
 			remainingTime = rollovers.get(0).getMinutes() * 60000;
 			controlType = ControlType.ROLLOVER;
 		} else {
-			throw new IllegalArgumentException("Invalid time control specification: " + spec);
+			throw new ChessException("Invalid time control specification: " + spec);
 		}
 	}
 

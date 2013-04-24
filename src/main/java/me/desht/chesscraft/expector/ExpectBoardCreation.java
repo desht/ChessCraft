@@ -16,7 +16,7 @@ public class ExpectBoardCreation extends ExpectChessBase {
 	private final String boardName;
 	private final String style;
 	private final String pieceStyle;
-	
+
 	private Location loc;
 
 	public ExpectBoardCreation(String boardName, String style, String pieceStyle) {
@@ -36,11 +36,11 @@ public class ExpectBoardCreation extends ExpectChessBase {
 			LogUtils.warning("Board creation: player " + playerName + " gone offline?");
 			return;
 		}
-		
+
 		BoardView view = BoardViewManager.getManager().createBoard(boardName, loc, BoardRotation.getRotation(player), style, pieceStyle);
-		
+
 		MiscUtil.statusMessage(player, Messages.getString("ExpectBoardCreation.boardCreated", //$NON-NLS-1$
-				view.getName(), MiscUtil.formatLocation(view.getA1Square())));
+		                                                  view.getName(), MiscUtil.formatLocation(view.getA1Square())));
 	}
 
 }

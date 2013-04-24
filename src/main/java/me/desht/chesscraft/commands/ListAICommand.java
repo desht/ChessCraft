@@ -8,15 +8,14 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ListAICommand extends AbstractCommand {
+public class ListAICommand extends ChessAbstractCommand {
 
 	public ListAICommand() {
-		super("chess l a", 0, 1);
+		super("chess list ai", 0, 1);
 		setPermissionNode("chesscraft.commands.list.ai");
 		setUsage("/chess list ai");
 	}
@@ -24,7 +23,7 @@ public class ListAICommand extends AbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 
-		MessagePager pager = MessagePager.getPager(sender).clear();
+		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 
 		if (args.length == 0) {
 			List<AIDefinition> aiDefs = AIFactory.instance.listAIDefinitions(true);
@@ -51,4 +50,13 @@ public class ListAICommand extends AbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getPlayerCompletions(plugin, sender, args[0], true);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

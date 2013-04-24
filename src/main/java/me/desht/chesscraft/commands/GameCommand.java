@@ -1,19 +1,20 @@
 package me.desht.chesscraft.commands;
 
+import java.util.List;
+
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class GameCommand extends AbstractCommand {
+public class GameCommand extends ChessAbstractCommand {
 
 	public GameCommand() {
-		super("chess ga", 0, 1);
+		super("chess game", 0, 1);
 		setPermissionNode("chesscraft.commands.game");
 		setUsage("/chess game [<game-name>]");
 	}
@@ -36,4 +37,13 @@ public class GameCommand extends AbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getGameCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import java.io.File;
+import java.util.List;
 
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -9,21 +10,20 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class ArchiveCommand extends AbstractCommand {
+public class ArchiveCommand extends ChessAbstractCommand {
 
 	public ArchiveCommand() {
-		super("chess a", 0, 1);
+		super("chess archive", 0, 1);
 		setPermissionNode("chesscraft.commands.archive");
 		setUsage(new String[] {
 				"/chess archive",
 				"/chess archive <game-name>",
-				"/chess archive -this",		
+				"/chess archive -this",
 		});
 	}
 
@@ -55,5 +55,14 @@ public class ArchiveCommand extends AbstractCommand {
 		return true;
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getGameCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }
 

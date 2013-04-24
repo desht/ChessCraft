@@ -56,16 +56,16 @@ import chesspresso.position.Position;
  */
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public static final String OPEN_INVITATION = "*";
-	
+
 	private final String name;
 	private final BoardView view;
 	private final Game cpGame;
 	private final long created;
-	
+
 	private final int tcWarned[] = new int[2];
 	private final ChessPlayer[] players = new ChessPlayer[2];
 	private final List<Short> history = new ArrayList<Short>();
-	
+
 	private String invited;
 	private GameState state;
 	private int fromSquare;
@@ -73,7 +73,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private TimeControl tcWhite, tcBlack;
 	private int result;
 	private double stake;
-	
+
 	/**
 	 * Constructor: Creating a new Chess game.
 	 * 
@@ -132,7 +132,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			return new HumanChessPlayer(name, this, colour);
 		}
 	}
-	
+
 	/**
 	 * Constructor: Restoring a saved Chess game.
 	 * 
@@ -243,11 +243,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		for (short move : history) {
 			getPosition().doMove(move);
 		}
-		
+
 		// load moves into the player's (possibly AI) game model
 		if (players[Chess.WHITE] != null) players[Chess.WHITE].replayMoves();
 		if (players[Chess.BLACK] != null) players[Chess.BLACK].replayMoves();
-		
+
 		// set chess clock activity appropriately
 		tcWhite.setActive(getPosition().getToPlay() == Chess.WHITE);
 		tcBlack.setActive(!tcWhite.isActive());
@@ -303,11 +303,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public ChessPlayer getPlayer(int colour) {
 		return players[colour];
 	}
-	
+
 	public boolean hasPlayer(int colour) {
 		return players[colour] != null;
 	}
-	
+
 	/**
 	 * Get the name of the player for the given colour (Chess.WHITE or Chess.BLACK),
 	 * or the empty string if there's no player of that colour (yet).
@@ -318,7 +318,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public String getPlayerName(int colour) {
 		return players[colour] != null ? players[colour].getName() : "";
 	}
-	
+
 	public String getWhitePlayerName() {
 		return getPlayerName(Chess.WHITE);
 	}
@@ -376,7 +376,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public double getStake() {
 		return stake;
 	}
-	
+
 	public int getPromotionPiece(int colour) {
 		return hasPlayer(colour) ? getPlayer(colour).getPromotionPiece() : Chess.QUEEN;
 	}
@@ -515,24 +515,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (view.getLockTcSpec() && tcWhite != null) {
 			throw new ChessException(Messages.getString("Game.timeControlLocked"));
 		}
-		try {
-			tcWhite = new TimeControl(spec);
-			tcBlack = new TimeControl(spec);
-		} catch (IllegalArgumentException e) {
-			throw new ChessException(e.getMessage());
-		}
+		tcWhite = new TimeControl(spec);
+		tcBlack = new TimeControl(spec);
+
 	}
 
 	public void swapColours() {
 		clockTick();
-		
+
 		ChessPlayer tmp = players[Chess.WHITE];
 		players[Chess.WHITE] = players[Chess.BLACK];
 		players[Chess.BLACK] = tmp;
-		
+
 		players[Chess.WHITE].setColour(Chess.WHITE);
 		players[Chess.BLACK].setColour(Chess.BLACK);
-		
+
 		players[Chess.WHITE].alert(Messages.getString("Game.nowPlayingWhite")); //$NON-NLS-1$
 		players[Chess.BLACK].alert(Messages.getString("Game.nowPlayingBlack")); //$NON-NLS-1$
 	}
@@ -540,7 +537,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public boolean isFull() {
 		return players[Chess.WHITE] != null && players[Chess.BLACK] != null;
 	}
-	
+
 	/**
 	 * Add the named player (might be an AI) to the game.
 	 * 
@@ -549,14 +546,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void addPlayer(String playerName) {
 		ensureGameState(GameState.SETTING_UP);
-		
+
 		if (isFull()) {
 			// this could happen if autostart is disabled and two players have already joined
 			throw new ChessException(Messages.getString("Game.gameIsFull")); //$NON-NLS-1$
 		}
-		
+
 		fillEmptyPlayerSlot(playerName);
-		
+
 		getView().getControlPanel().repaintControls();
 		clearInvitation();
 
@@ -568,7 +565,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add the given player (human or AI) to the first empty slot (white or black, in order)
 	 * found in the game.
@@ -591,9 +588,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		int otherColour = Chess.otherPlayer(colour);
 		if (players[otherColour] != null)
 			players[otherColour].alert(Messages.getString("Game.playerJoined", players[colour].getDisplayName()));
-		
+
 	}
-	
+
 	/**
 	 * One player has just invited another player to this game.
 	 * 
@@ -636,14 +633,14 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void inviteOpen(String inviterName) {
 		inviteSanityCheck(inviterName);
-		
+
 		long now = System.currentTimeMillis();
 		Duration cooldown = new Duration(ChessCraft.getInstance().getConfig().getString("open_invite_cooldown", "3 mins"));
 		long remaining = (cooldown.getTotalDuration() - (now - lastOpenInvite)) / 1000;
 		if (remaining > 0) {
 			throw new ChessException(Messages.getString("Game.inviteCooldown", remaining));
 		}
-		
+
 		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviterName))); //$NON-NLS-1$
 		if (ChessCraft.economy != null && getStake() > 0.0) {
 			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
@@ -830,7 +827,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		short realMove = validateMove(move);
 
 		int prevToMove = getPosition().getToPlay();
-		
+
 		// At this point we know the move is valid, so go ahead and make the necessary changes...
 		getPosition().doMove(realMove);	// the board view will repaint itself at this point
 		lastMoved = System.currentTimeMillis();
@@ -929,7 +926,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public Move getMoveFromSAN(String moveSAN) {
 		Position tempPos = new Position(getPosition().getFEN());
-		
+
 		for (short aMove : getPosition().getAllMoves()) {
 			try {
 				tempPos.doMove(aMove);
@@ -945,7 +942,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Handle chess clock switching when a move has been made.
 	 */
@@ -1029,7 +1026,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (p1.equalsIgnoreCase(p2)) {
 			return;
 		}
-		
+
 		if (result == Chess.RES_WHITE_WINS) {
 			players[Chess.WHITE].playEffect("game_won");
 			players[Chess.BLACK].playEffect("game_lost");
@@ -1039,7 +1036,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		handlePayout();
-		
+
 		Results handler = Results.getResultsHandler();
 		if (handler != null) {
 			handler.logResult(this, rt);
@@ -1183,7 +1180,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.cantWriteArchive", f.getName(), e.getMessage())); //$NON-NLS-1$
 		}
 	}
-	
+
 	public String getPGN() {
 		StringWriter strw = new StringWriter();
 		PGNWriter w = new PGNWriter(strw);
@@ -1284,7 +1281,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.shouldBeState", state)); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * Check if the given player is allowed to delete this game
 	 * 
@@ -1330,7 +1327,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		int otherColour = Chess.otherPlayer(colour);
 		players[colour].statusMessage(Messages.getString("ChessCommandExecutor.drawOfferedYou", players[otherColour].getName()));
 		players[otherColour].drawOffered();
-		
+
 		getView().getControlPanel().repaintControls();
 	}
 
@@ -1369,7 +1366,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		int colour = getPlayerColour(playerName);
 		int otherColour = Chess.otherPlayer(colour);
-		
+
 		if (players[otherColour].isHuman()) {
 			// playing another human - we need to ask them if it's OK to undo
 			String otherPlayerName = players[otherColour].getName();
@@ -1377,7 +1374,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.undoOfferedOther", playerName));
 			players[otherColour].alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 			players[colour].statusMessage(Messages.getString("ChessCommandExecutor.undoOfferedYou", otherPlayerName));
-			
+
 			getView().getControlPanel().repaintControls();
 		} else {
 			if (getStake() > 0.0) {
@@ -1404,7 +1401,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		int colour = getPlayerColour(playerName);
 		int otherColour = Chess.otherPlayer(colour);
-		
+
 		if (getPosition().getToPlay() == colour) {
 			// need to undo two moves - first the other player's last move
 			players[otherColour].undoLastMove();
@@ -1433,11 +1430,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public List<String> getGameDetail() {
 		List<String> res = new ArrayList<String>();
-		
+
 		String white = players[Chess.WHITE] == null ? "?" : players[Chess.WHITE].getDisplayName();
 		String black = players[Chess.BLACK] == null ? "?" : players[Chess.BLACK].getDisplayName();
 		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
-		
+
 		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
 		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
 		res.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
@@ -1481,7 +1478,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[Chess.WHITE].checkPendingAction();
 		players[Chess.BLACK].checkPendingAction();
 	}
-	
+
 	/**
 	 * Called when a (human) player has logged out.
 	 * 

@@ -46,7 +46,6 @@ import me.desht.chesscraft.commands.TeleportCommand;
 import me.desht.chesscraft.commands.TimeControlCommand;
 import me.desht.chesscraft.commands.UndoCommand;
 import me.desht.chesscraft.commands.YesCommand;
-import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.listeners.ChessBlockListener;
 import me.desht.chesscraft.listeners.ChessEntityListener;
 import me.desht.chesscraft.listeners.ChessFlightListener;
@@ -87,9 +86,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private static ChessCraft instance;
 	private static WorldEditPlugin worldEditPlugin;
 	private static ChessPersistence persistence;
-	
+
 	public final ResponseHandler responseHandler = new ResponseHandler();
-	
+
 	public static Economy economy = null;
 
 	private final CommandManager cmds = new CommandManager(this);
@@ -101,10 +100,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private SMSIntegration sms;
 	private ChessTickTask tickTask;
 	private SpecialFX fx;
-	
+
 	private boolean startupFailed = false;
 
-	/*-----------------------------------------------------------------*/
 	@Override
 	public void onLoad() {
 		ConfigurationSerialization.registerClass(BoardView.class);
@@ -116,7 +114,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	@Override
 	public void onEnable() {
 		setInstance(this);
-		
+
 		LogUtils.init(this);
 
 		try {
@@ -134,8 +132,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		configManager = new ConfigurationManager(this, this);
 
+		MiscUtil.init(this);
+		MiscUtil.setColouredConsole(getConfig().getBoolean("coloured_console"));
+
 		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
-		
+
 		new PluginVersionChecker(this, this);
 
 		DirectoryStructure.setup();
@@ -167,9 +168,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		MessagePager.setPageCmd("/chess page [#|n|p]");
 		MessagePager.setDefaultPageSize(getConfig().getInt("pager.lines", 0));
-		
+
 		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
-		
+
 		persistence.reload();
 
 		if (sms != null)
@@ -186,11 +187,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public void onDisable() {
 		// nothing to shut down if we couldn't even start up
 		if (startupFailed) return;
-		
+
 		tickTask.cancel();
 
 		flightListener.restoreSpeeds();
-		
+
 		AIFactory.instance.clearDown();
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			game.clockTick();
@@ -217,15 +218,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		try {
-			return cmds.dispatch(sender, command.getName(), args);
-		} catch (DHUtilsException e) {
-			MiscUtil.errorMessage(sender, e.getMessage());
-			return true;
-		} catch (ChessException e) {
-			MiscUtil.errorMessage(sender, e.getMessage());
-			return true;
-		}
+		return cmds.dispatch(sender, command, label, args);
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		return cmds.onTabComplete(sender, command, label, args);
 	}
 
 	private void setupMetrics() {
@@ -314,12 +312,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	public PlayerTracker getPlayerTracker() {
 		return tracker;
 	}
-	
+
 	public SpecialFX getFX() {
 		return fx;
 	}
-
-	/*-----------------------------------------------------------------*/
 
 	private void registerCommands() {
 		cmds.registerCommand(new ArchiveCommand());
@@ -367,23 +363,21 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	/* ConfigurationListener */
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, String val) {
+	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.startsWith("auto_delete.") || key.startsWith("timeout")) {
+			String dur = newVal.toString();
 			try {
-				new Duration(val);
+				new Duration(dur);
 			} catch (NumberFormatException e) {
-				throw new DHUtilsException("Invalid duration: " + val);
+				throw new DHUtilsException("Invalid duration: " + dur);
 			}
 		} else if (key.startsWith("effects.") && getConfig().get(key) instanceof String) {
 			// this will throw an IllegalArgumentException if the value is no good
-			SpecialFX.SpecialEffect e = fx.new SpecialEffect(val, 1.0f);
+			SpecialFX.SpecialEffect e = fx.new SpecialEffect(newVal.toString(), 1.0f);
 			e.play(null);
+		} else if (key.equals("version")) {
+			throw new DHUtilsException("'version' config item may not be changed");
 		}
-	}
-
-	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, List<?> val) {
-		// do nothing
 	}
 
 	@Override
@@ -419,6 +413,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			if (Results.getResultsHandler() == null) {
 				LogUtils.warning("DB connection cannot be re-established.  Check your settings.");
 			}
+		} else if (key.equals("coloured_console")) {
+			MiscUtil.setColouredConsole((Boolean)newVal);
 		}
 	}
 

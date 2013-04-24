@@ -1,16 +1,15 @@
 package me.desht.chesscraft.commands;
 
+import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.chess.ChessGameManager;
-import me.desht.dhutils.commands.AbstractCommand;
-
-public class UndoCommand extends AbstractCommand {
+public class UndoCommand extends ChessAbstractCommand {
 
 	public UndoCommand() {
-		super("chess u");
+		super("chess undo");
 		setPermissionNode("chesscraft.commands.undo");
 		setUsage("/chess undo");
 	}
@@ -20,9 +19,9 @@ public class UndoCommand extends AbstractCommand {
 		notFromConsole(sender);
 
 		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
-		
+
 		game.offerUndoMove(sender.getName());
-		
+
 		return true;
 	}
 

@@ -1,28 +1,21 @@
 package me.desht.chesscraft.commands;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.pieces.ChessSet;
-import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-public class ListStylesCommand extends AbstractCommand {
+public class ListStylesCommand extends ChessAbstractCommand {
 
 	public ListStylesCommand() {
-		super("chess l s", 0, 1);
+		super("chess list style", 0, 1);
 		setPermissionNode("chesscraft.commands.list.style");
-		setUsage("/chess list style");
+		setUsage("/chess list style [-b] [-p]");
 		setOptions(new String[] { "b", "p" });
 	}
 
@@ -30,7 +23,7 @@ public class ListStylesCommand extends AbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		boolean showAll = !hasOption("b") && !hasOption("p");
 
-		MessagePager p = MessagePager.getPager(sender).clear();
+		MessagePager p = MessagePager.getPager(sender).clear().setParseColours(true);
 
 		if (showAll || hasOption("b")) {
 			List<BoardStyle> l = getAllBoardStyles();
@@ -60,39 +53,9 @@ public class ListStylesCommand extends AbstractCommand {
 		return true;
 	}
 
-	private List<ChessSet> getAllPieceStyles() {
-		Map<String,ChessSet> res = new HashMap<String, ChessSet>();
-
-		File dir = DirectoryStructure.getPieceStyleDirectory();
-		File customDir = new File(dir, "custom");
-
-		for (File f : customDir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			res.put(styleName, ChessSetFactory.getChessSet(styleName));
-		}
-		for (File f : dir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			if (res.containsKey(styleName)) continue;
-			res.put(styleName, ChessSetFactory.getChessSet(styleName));
-		}
-		return MiscUtil.asSortedList(res.values());
-	}
-
-	private List<BoardStyle> getAllBoardStyles() {
-		Map<String, BoardStyle> res = new HashMap<String, BoardStyle>();
-
-		File dir = DirectoryStructure.getBoardStyleDirectory();
-		File customDir = new File(dir, "custom");
-
-		for (File f : customDir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			res.put(styleName, BoardStyle.loadStyle(styleName));
-		}
-		for (File f : dir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			if (res.containsKey(styleName)) continue;
-			res.put(styleName, BoardStyle.loadStyle(styleName));
-		}
-		return MiscUtil.asSortedList(res.values());
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		showUsage(sender);
+		return noCompletions(sender);
 	}
 }

@@ -1,20 +1,21 @@
 package me.desht.chesscraft.commands;
 
+import java.util.List;
+
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.commands.AbstractCommand;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class RedrawCommand extends AbstractCommand {
+public class RedrawCommand extends ChessAbstractCommand {
 
 	public RedrawCommand() {
-		super("chess red", 0, 1);
+		super("chess redraw", 0, 1);
 		setPermissionNode("chesscraft.commands.redraw");
 		setUsage("/chess redraw [<board-name>]");
 		setOptions("all");
@@ -52,4 +53,13 @@ public class RedrawCommand extends AbstractCommand {
 		bv.paintAll();
 	}
 
+	@Override
+	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
+		if (args.length == 1) {
+			return getBoardCompletions(plugin, sender, args[0]);
+		} else {
+			showUsage(sender);
+			return noCompletions(sender);
+		}
+	}
 }

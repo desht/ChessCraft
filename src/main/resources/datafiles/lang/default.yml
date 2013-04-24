@@ -109,6 +109,7 @@ ChessCommandExecutor:
     - "Game position for &6{0}&- has been updated. {1} to play."
     - "&4NOTE: &-move history invalidated, this game can no longer be saved."
   promotionPieceSet: "Promotion piece for game &6{0}&- has been set to &6{1}&-."
+  sanNotation: "&5 (SAN notation)"
   scoreRecord: "&e{0,number,integer}) &6{1}&-: &f{2}&-"
   sideSwapOfferedOther: "&6{0}&- has offered to swap sides."
   sideSwapOfferedYou: "You have offered to swap sides with &6{0}&-."
@@ -293,6 +294,7 @@ SMSIntegration:
   gotoGame: "&1Go to Game"
   gameInfo: "&1Game Info"
   deleteGame: "&4*Delete Game"
+  gotoBoard: "&1Go to Board"
 
 TerrainBackup:
   cantDeleteTerrain: "Could not delete {0}"
