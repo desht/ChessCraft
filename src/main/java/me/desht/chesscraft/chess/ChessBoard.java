@@ -6,6 +6,7 @@
  */
 package me.desht.chesscraft.chess;
 
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessSetFactory;
@@ -425,7 +426,7 @@ public class ChessBoard {
 	 */
 	public void paintChessPiece(int row, int col, int stone) {
 		Cuboid region = getPieceRegion(row, col);
-		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), getBoard().getWorld());
 		region.fill(0, (byte)0, mbu);
 		ChessSet cSet = designer != null ? designer.getChessSet() : chessSet;
 		if (stone != Chess.NO_STONE) {
@@ -537,7 +538,7 @@ public class ChessBoard {
 	 * Clear full area associated with this board
 	 */
 	void clearAll() {
-		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getBoard().getWorld());
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), getBoard().getWorld());
 		fullBoard.fill(0, (byte)0, mbu);
 		mbu.notifyClients();
 	}

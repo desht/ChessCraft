@@ -238,7 +238,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void setGame(ChessGame game) {
-		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(chessBoard.getBoard().getWorld());
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), chessBoard.getBoard().getWorld());
 
 		this.game = game;
 		if (game != null) {
@@ -344,7 +344,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void paintAll() {
-		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(getChessBoard().getBoard().getWorld());
+		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), getChessBoard().getBoard().getWorld());
 
 		chessBoard.paintAll(mbu);
 		controlPanel.repaintAll(mbu);
