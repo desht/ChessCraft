@@ -33,7 +33,7 @@ public class ChessSetFactory {
 	public static boolean isLoaded(String setName) {
 		return allChessSets.containsKey(setName);
 	}
-	
+
 	/**
 	 * Retrieve a chess set with the given name, loading it from file if necessary.
 	 * 
@@ -64,12 +64,13 @@ public class ChessSetFactory {
 
 			BlockChessSet set = new BlockChessSet(c, DirectoryStructure.isCustom(f));
 			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
-			
+
 			allChessSets.put(setName, set);
 			setLoadTime.put(setName, System.currentTimeMillis());
-			
+
 			return set;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ChessException("can't load chess set from [" + f + "]: " + e.getMessage());
 		}
 	}

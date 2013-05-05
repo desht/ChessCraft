@@ -6,7 +6,7 @@ import java.util.List;
 public class ChessPieceTemplate {
 	private final int sizeX, sizeY, sizeZ;
 	private final char[][][] pieceData;
-	
+
 	public ChessPieceTemplate(List<List<String>> data) {
 		sizeY = data.size();
 		sizeX = data.get(0).size();
@@ -25,7 +25,7 @@ public class ChessPieceTemplate {
 			}
 		}
 	}
-	
+
 	public ChessPieceTemplate(int x, int y, int z) {
 		assert(x > 0);
 		assert(y > 0);
@@ -35,7 +35,7 @@ public class ChessPieceTemplate {
 		this.sizeZ = z;
 		pieceData = new char[sizeX][sizeY][sizeZ];
 	}
-	
+
 	public int getSizeX() {
 		return pieceData.length;
 	}
@@ -47,18 +47,18 @@ public class ChessPieceTemplate {
 	public int getSizeZ() {
 		return pieceData[0][0].length;
 	}
-	
+
 	public char get(int x, int y, int z) {
 		return pieceData[x][y][z];
 	}
-	
+
 	public void put(int x, int y, int z, char data) {
 		pieceData[x][y][z] = data;
 	}
-	
+
 	public List<List<String>> getPieceData() {
 		List<List<String>> res = new ArrayList<List<String>>();
-		
+
 		res = new ArrayList<List<String>>(sizeY);
 
 		for (int y = 0; y < sizeY; ++y) {
@@ -72,7 +72,7 @@ public class ChessPieceTemplate {
 				res.get(y).add(sb.toString());
 			}
 		}
-		
+
 		return res;
 	}
 

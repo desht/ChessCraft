@@ -45,7 +45,7 @@ public class PieceDesigner {
 	public void setSetName(String setName) {
 		this.setName = setName;
 	}
-	
+
 	public BlockChessSet getChessSet() {
 		return chessSet;
 	}
@@ -62,27 +62,28 @@ public class PieceDesigner {
 
 		int rotation = rotationNeeded();
 		LogUtils.fine("Designer: need to rotate templates by " + rotation + " degrees");
-		
+
 		// reverse mapping of character to material name
 		Map<String,Character> reverseMap = new HashMap<String, Character>();
 		char nextChar = 'A';
 
 		World world = view.getA1Square().getWorld();
-		
+
 		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
 			// get the bounding box for the materials in this square
 			Cuboid c = getPieceBox(p);
 			LogUtils.fine("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
 
 			templates[p] = createTemplate(c, rotation);
-			
+
 			// scan the cuboid and use the contents to populate the new template
 			for (int x = 0; x < templates[p].getSizeX(); x++) {
 				for (int y = 0; y < templates[p].getSizeY(); y++) {
 					for (int z = 0; z < templates[p].getSizeZ(); z++) {
 						Point rotatedPoint = rotate(x, z, templates[p].getSizeZ(), templates[p].getSizeX(), rotation);
 						Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
-						MaterialWithData mat = MaterialWithData.get(b).rotate(rotation);
+						short data = b.getTypeId() == 0 ? 0 : b.getData();
+						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), data).rotate(rotation);
 						String materialName = mat.toString();
 						if (!reverseMap.containsKey(materialName)) {
 							// not seen this material yet
@@ -92,14 +93,15 @@ public class PieceDesigner {
 							nextChar = getNextChar(nextChar);
 						}
 						templates[p].put(x, y, z, reverseMap.get(materialName));
-					}	
+					}
 				}
 			}
 		}
 
 		MaterialMap blackMap = initBlackMaterialMap(whiteMap);
 
-		chessSet = new BlockChessSet(setName, templates, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
+		// no support yet for separate white & black templates
+		chessSet = new BlockChessSet(setName, templates, null, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
 	}
 
 	private char getNextChar(char c) throws ChessException {
@@ -113,7 +115,7 @@ public class PieceDesigner {
 			return ++c;
 		}
 	}
-	
+
 	private ChessPieceTemplate createTemplate(Cuboid c, int rotation) {
 		if (rotation == 0 || rotation == 180) {
 			return new ChessPieceTemplate(c.getSizeX(), c.getSizeY(), c.getSizeZ());
@@ -123,7 +125,7 @@ public class PieceDesigner {
 			return null;
 		}
 	}
-	
+
 	private Point rotate(int x, int z, int sizeX, int sizeZ, int rotation) {
 		switch (rotation % 360) {
 		case 0:
@@ -178,7 +180,7 @@ public class PieceDesigner {
 		if (!(newChessSet instanceof BlockChessSet)) {
 			throw new ChessException("Set '" + newChessSet.getName() + "' is not a block chess set!");
 		}
-		
+
 		BoardStyle boardStyle = view.getChessBoard().getBoardStyle();
 		// ensure the new chess set actually fits this board
 		if (newChessSet.getMaxWidth() > boardStyle.getSquareSize() || newChessSet.getMaxHeight() > boardStyle.getHeight()) {
@@ -270,7 +272,7 @@ public class PieceDesigner {
 
 		return c;
 	}
-	
+
 	private int rotationNeeded() {
 		switch (view.getRotation()) {
 		case NORTH: return 0;
@@ -280,7 +282,7 @@ public class PieceDesigner {
 		default: return 0;
 		}
 	}
-	
+
 	private class Point {
 		public int x, z;
 		public Point(int x, int z) {

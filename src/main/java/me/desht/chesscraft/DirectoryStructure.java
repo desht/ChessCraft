@@ -21,8 +21,8 @@ import me.desht.dhutils.MiscUtil;
 
 public class DirectoryStructure {
 	public static final Charset TARGET_ENCODING = Charset.forName("UTF-8");
-    public static final Charset SOURCE_ENCODING = Charset.forName("UTF-8");
-    
+	public static final Charset SOURCE_ENCODING = Charset.forName("UTF-8");
+
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir;
 	private static File dataDir, gamePersistDir, boardPersistDir, languagesDir, resultsDir;
@@ -39,7 +39,7 @@ public class DirectoryStructure {
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 
 	private enum ExtractWhen { ALWAYS, IF_NOT_EXISTS, IF_NEWER };
-	
+
 	public static void setup() {
 		pluginDir = ChessCraft.getInstance().getDataFolder();
 
@@ -160,7 +160,7 @@ public class DirectoryStructure {
 		for (String s : MiscUtil.listFilesinJAR(getJarFile(), "datafiles/piece_styles",	".yml")) {
 			extractResource(s, pieceStyleDir);
 		}
-		
+
 		// message resources no longer extracted here - this is now done by Messages.loadMessages()
 	}
 
@@ -172,7 +172,7 @@ public class DirectoryStructure {
 			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
 	}
-	
+
 	static void extractResource(String from, File to) {
 		extractResource(from, to, ExtractWhen.IF_NEWER);
 	}
@@ -188,10 +188,10 @@ public class DirectoryStructure {
 		}
 
 		LogUtils.finer("extractResource: file=" + of +
-		                      ", file-last-mod=" + of.lastModified() +
-		                      ", file-exists=" + of.exists() +
-		                      ", jar-last-mod=" +  getJarFile().lastModified() +
-		                      ", when=" + when);
+		               ", file-last-mod=" + of.lastModified() +
+		               ", file-exists=" + of.exists() +
+		               ", jar-last-mod=" +  getJarFile().lastModified() +
+		               ", when=" + when);
 
 		// if the file exists and is newer than the JAR, then we'll leave it alone
 		if (of.exists() && when == ExtractWhen.IF_NOT_EXISTS) {
@@ -204,23 +204,23 @@ public class DirectoryStructure {
 		if (!from.startsWith("/")) {
 			from = "/" + from;
 		}
-		
+
 		LogUtils.fine(String.format("extracting resource: %s (%s) -> %s (%s)", from, SOURCE_ENCODING.name(), to, TARGET_ENCODING.name()));
-		
+
 		final char[] cbuf = new char[1024];
 		int read;
 		try {
-            final Reader in = new BufferedReader(new InputStreamReader(openResourceNoCache(from), SOURCE_ENCODING));
-            final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(of), TARGET_ENCODING));
-            while ((read = in.read(cbuf)) > 0) {
-            	out.write(cbuf, 0, read);
-            }
-            out.close(); in.close();
+			final Reader in = new BufferedReader(new InputStreamReader(openResourceNoCache(from), SOURCE_ENCODING));
+			final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(of), TARGET_ENCODING));
+			while ((read = in.read(cbuf)) > 0) {
+				out.write(cbuf, 0, read);
+			}
+			out.close(); in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-	
+
 	public static InputStream openResourceNoCache(String resource) throws IOException {
 		URL res = ChessCraft.class.getResource(resource);
 		if (res == null) {
@@ -266,7 +266,7 @@ public class DirectoryStructure {
 	public static boolean isCustom(File path) {
 		return path.getParentFile().getName().equalsIgnoreCase("custom");
 	}
-	
+
 	/** 
 	 * Find a YAML resource in the custom/ subdirectory of the given directory.
 	 * 
