@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -19,7 +20,7 @@ public class ChessBlockListener extends ChessListenerBase {
 	public ChessBlockListener(ChessCraft plugin) {
 		super(plugin);
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (!plugin.getConfig().getBoolean("no_building", true)) {
@@ -43,7 +44,7 @@ public class ChessBlockListener extends ChessListenerBase {
 		}
 		event.setCancelled(true);
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		if (!plugin.getConfig().getBoolean("no_building", true)) {
@@ -75,14 +76,21 @@ public class ChessBlockListener extends ChessListenerBase {
 			event.setCancelled(true);
 		}
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 0) != null) {
 			event.setCancelled(true);
 		}
 	}
-	
+
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockFade(BlockFadeEvent event) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 0) != null) {
+			event.setCancelled(true);
+		}
+	}
+
 	/**
 	 * Cancelling liquid flow events makes it possible to use water & lava for walls & chess pieces.
 	 * 
