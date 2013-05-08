@@ -86,10 +86,10 @@ public abstract class ResultViewBase {
 			list.add(entry);
 		}
 		Collections.sort(list, new Comparator<Entry<String, Integer>>() {
-            public int compare(Entry<String, Integer> m1, Entry<String, Integer> m2) {
-                return (m2.getValue()).compareTo(m1.getValue());
-            }
-        });
+			public int compare(Entry<String, Integer> m1, Entry<String, Integer> m2) {
+				return (m2.getValue()).compareTo(m1.getValue());
+			}
+		});
 		int n = 0;
 		for (Entry<String,Integer> entry : list) {
 			if (count > 0 && n++ > count) {
