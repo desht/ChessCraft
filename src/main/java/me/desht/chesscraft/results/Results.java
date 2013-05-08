@@ -1,7 +1,6 @@
 package me.desht.chesscraft.results;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,14 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
+
+import org.bukkit.Bukkit;
 
 public class Results {
 	private static Results results = null;	// this is a singleton class
@@ -26,16 +28,23 @@ public class Results {
 	private final List<ResultEntry> entries = new ArrayList<ResultEntry>();
 	private final Map<String, ResultViewBase> views = new HashMap<String, ResultViewBase>();
 
+	private boolean databaseLoaded = false;
+
+	private final BlockingQueue<DatabaseSavable> pendingUpdates = new LinkedBlockingQueue<DatabaseSavable>();
+	private Thread updater;
+
 	/**
 	 * Create the singleton results handler - only called from getResultsHandler once
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
 	 */
 	private Results() throws ClassNotFoundException, SQLException {
 		db = new ResultsDB();
-		loadEntries();
 		registerView("ladder", new Ladder(this));
 		registerView("league", new League(this));
+		loadEntriesFromDatabase();
+		updater = new Thread(new DatabaseUpdaterTask(this));
+		updater.start();
 	}
 
 	/**
@@ -133,143 +142,93 @@ public class Results {
 	}
 
 	/**
+	 * @return the databaseLoaded
+	 */
+	public boolean isDatabaseLoaded() {
+		return databaseLoaded;
+	}
+
+	/**
 	 * Log the result for a game
-	 * 
+	 *
 	 * @param game	The game that has just finished
 	 * @param rt	The outcome of the game
 	 */
 	public void logResult(ChessGame game, GameResult rt) {
+		if (!databaseLoaded) {
+			return;
+		}
 		if (game.getState() != GameState.FINISHED) {
 			return;
 		}
 		if (rt == GameResult.Abandoned) {
-			// abandoned games don't really have a result - can't count it as a draw
-			// since that would hurt higher-ranked players on the ladder
+			// Abandoned games don't really have a result - we can't count it as a draw
+			// since that would hurt higher-ranked players on the ladder.
 			return;
 		}
 
-		ResultEntry re = new ResultEntry(game, rt);
-		logResult(re);
+		final ResultEntry re = new ResultEntry(game, rt);
+		entries.add(re);
+		for (ResultViewBase view : views.values()) {
+			view.addResult(re);
+		}
+
+		queueDatabaseUpdate(re);
+
+//		final String pgnData = ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db") ? game.getPGN() : null;
+//		Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
+//			@Override
+//			public void run() {
+//				addResultToDatabase(re, pgnData);
+//			}
+//		});
 	}
+//
+//	/**
+//	 * Add a result entry to the database.  Runs in a separate thread.
+//	 *
+//	 * @param re the result entry
+//	 * @param pgnData the PGN data to log, possibly null
+//	 */
+//	private synchronized void addResultToDatabase(ResultEntry re, String pgnData) {
+//		try {
+//			int rowId = re.saveToDatabase(getConnection());
+//			if (rowId != -1 && pgnData != null) {
+//				PreparedStatement stmt = getResultsDB().getCachedStatement("INSERT INTO pgn VALUES(?,?)");
+//				stmt.setInt(1, rowId);
+//				stmt.setString(2, pgnData);
+//				LogUtils.fine("execute SQL: " + stmt);
+//				stmt.executeUpdate();
+//			}
+//		} catch (SQLException e) {
+//			LogUtils.warning("can't save result for game " + re.getGameName() + " to database: " + e.getMessage());
+//		}
+//	}
 
 	/**
-	 * Log a result entry
-	 * @param re
+	 * Asynchronously load in the result data from database.  Called at startup; results data
+	 * will not be available until this has finished.
 	 */
-	public void logResult(ResultEntry re) {
-		entries.add(re);
-		try {
-			int rowId = re.save(getConnection());
-			for (ResultViewBase view : views.values()) {
-				view.addResult(re);
-			}
-			if (rowId != -1 && ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db")) {
-				if (ChessGameManager.getManager().checkGame(re.getGameName())) {
-					ChessGame game = ChessGameManager.getManager().getGame(re.getGameName());
-					String pgnData = game.getPGN();
-					PreparedStatement stmt = getResultsDB().getCachedStatement("INSERT INTO pgn VALUES(?,?)");
-					stmt.setInt(1, rowId);
-					stmt.setString(2, pgnData);
-					LogUtils.fine("execute SQL: " + stmt);
-					stmt.executeUpdate();
+	private void loadEntriesFromDatabase() {
+		Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
+			@Override
+			public void run() {
+				try {
+					entries.clear();
+					Statement stmt = getConnection().createStatement();
+					ResultSet rs = stmt.executeQuery("SELECT * FROM results");
+					while (rs.next()) {
+						ResultEntry e = new ResultEntry(rs);
+						entries.add(e);
+					}
+					rebuildViews();
+					LogUtils.fine("Results data loaded from database");
+					databaseLoaded = true;
+				} catch (SQLException e) {
+					LogUtils.warning("SQL query failed: " + e.getMessage());
 				}
 			}
-		} catch (SQLException e) {
-			LogUtils.warning("can't save result for game " + re.getGameName() + " to database: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Get the number of wins for a player
-	 * 
-	 * @param playerName	The player to check
-	 * @return	The number of games this player has won
-	 */
-	public int getWins(String playerName) {
-		int nWins = 0;
-
-		try {
-			PreparedStatement stmtW = getConnection().prepareStatement(
-					"SELECT COUNT(playerWhite) FROM results WHERE " +
-					"pgnResult = '1-0' AND playerWhite = ?");
-			PreparedStatement stmtB = getConnection().prepareStatement(
-					"SELECT COUNT(playerBlack) FROM results WHERE " +
-					"pgnResult = '0-1' AND playerBlack = ?");
-			return doSearch(playerName, stmtW, stmtB);
-		} catch (SQLException e) {
-			LogUtils.warning("SQL query failed: " + e.getMessage());
-		}
-
-		return nWins;
-	}
-
-	/**
-	 * Get the number of draws for a player
-	 * 
-	 * @param playerName	The player to check
-	 * @return	The number of games this player has drawn
-	 */
-	public int getDraws(String playerName) {
-		int nDraws = 0;
-
-		try {
-			PreparedStatement stmtW = getConnection().prepareStatement(
-					"SELECT COUNT(playerWhite) FROM results WHERE " +
-					"pgnResult = '1/2-1/2' AND playerWhite = ?");
-			PreparedStatement stmtB = getConnection().prepareStatement(
-					"SELECT COUNT(playerBlack) FROM results WHERE " +
-					"pgnResult = '1/2-1/2' AND playerBlack = ?");
-			return doSearch(playerName, stmtW, stmtB);
-		} catch (SQLException e) {
-			LogUtils.warning("SQL query failed: " + e.getMessage());
-		}
-
-		return nDraws;
-	}
-
-	/**
-	 * Get the number of losses for a player
-	 * 
-	 * @param playerName	The player to check
-	 * @return	The number of games this player has lost
-	 */
-	public int getLosses(String playerName) {
-		try {
-			PreparedStatement stmtW = getConnection().prepareStatement(
-					"SELECT COUNT(playerWhite) FROM results WHERE " +
-					"pgnResult = '0-1' AND playerWhite = ?");
-			PreparedStatement stmtB = getConnection().prepareStatement(
-					"SELECT COUNT(playerBlack) FROM results WHERE " +
-					"pgnResult = '1-0' AND playerBlack = ?");
-			return doSearch(playerName, stmtW, stmtB);
-		} catch (SQLException e) {
-			LogUtils.warning("SQL query failed: " + e.getMessage());
-			return 0;
-		}
-	}
-
-	private int doSearch(String playerName, PreparedStatement stmtW, PreparedStatement stmtB) throws SQLException {
-		int count = 0;
-		ResultSet rs = stmtW.executeQuery(playerName);
-		count += rs.getInt(1);
-		rs = stmtB.executeQuery(playerName);
-		count += rs.getInt(1);
-		return count;
-	}
-
-
-	private void loadEntries() {
-		try {
-			entries.clear();
-			Statement stmt = getConnection().createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM results");
-			while (rs.next()) {
-				ResultEntry e = new ResultEntry(rs);
-				entries.add(e);
-			}
-		} catch (SQLException e) {
-			LogUtils.warning("SQL query failed: " + e.getMessage());
-		}
+		});
 	}
 
 	/**
@@ -300,11 +259,11 @@ public class Results {
 					if (pgnRes.equals("1-0") || pgnRes.equals("0-1")) {
 						rt = GameResult.Checkmate;
 					} else {
-						rt = GameResult.DrawAgreed;	
+						rt = GameResult.DrawAgreed;
 					}
 					ResultEntry re = new ResultEntry(plw, plb, gn, start, end, pgnRes, rt);
 					entries.add(re);
-					re.save(getConnection());
+					re.saveToDatabase(getConnection());
 				}
 			}
 			getConnection().setAutoCommit(true);
@@ -319,5 +278,13 @@ public class Results {
 		for (ResultViewBase view : views.values()) {
 			view.rebuild();
 		}
+	}
+
+	void queueDatabaseUpdate(DatabaseSavable update) {
+		pendingUpdates.add(update);
+	}
+
+	public DatabaseSavable pollDatabaseUpdate() throws InterruptedException {
+		return pendingUpdates.take();
 	}
 }

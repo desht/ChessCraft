@@ -23,7 +23,7 @@ public class ListTopCommand extends ChessAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
-		Results results = Results.getResultsHandler();
+		final Results results = Results.getResultsHandler();
 		if (results == null) {
 			throw new ChessException("Results are not available.");
 		}
@@ -41,14 +41,14 @@ public class ListTopCommand extends ChessAbstractCommand {
 		String viewName = args.length > 1 ? args[1] : "ladder";
 		boolean excludeAI = getBooleanOption("ai");
 
+		List<ScoreRecord> scores = results.getView(viewName).getScores(n, excludeAI);
 		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 		int row = 1;
-		for (ScoreRecord sr : results.getView(viewName).getScores(n, excludeAI)) {
+		for (ScoreRecord sr : scores) {
 			pager.add(MessagePager.BULLET + Messages.getString("ChessCommandExecutor.scoreRecord", row, sr.getPlayer(), sr.getScore()));
 			row++;
 		}
 		pager.showPage();
-
 		return true;
 	}
 

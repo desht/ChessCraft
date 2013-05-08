@@ -7,7 +7,7 @@ package me.desht.chesscraft.results;
 public class ScoreRecord {
 	private final String player;
 	private final int score;
-	
+
 	/**
 	 * Create a new score record
 	 * 
@@ -18,7 +18,7 @@ public class ScoreRecord {
 		player = p;
 		score = s;
 	}
-	
+
 	/**
 	 * Get the player
 	 * 
@@ -27,7 +27,7 @@ public class ScoreRecord {
 	public String getPlayer() {
 		return player;
 	}
-	
+
 	/**
 	 * Get the score
 	 * 
@@ -36,5 +36,5 @@ public class ScoreRecord {
 	public int getScore() {
 		return score;
 	}
-	
+
 }

@@ -6,8 +6,6 @@ import me.desht.chesscraft.results.ResultEntry;
 /**
  * 
  * Implements a sort-of-ELO ladder.  Similar algorithm for adjusting player scores.
- * 
- * @author des
  *
  */
 public class Ladder extends ResultViewBase {
@@ -41,14 +39,14 @@ public class Ladder extends ResultViewBase {
 
 //		System.out.println(String.format("add result: %s %s %s %.2f %.2f", re.playerWhite, re.playerBlack, re.pgnResult, probW, probB));
 		if (re.getPgnResult().equals("1-0")) {
-			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (1 - probW)), true);
-			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0 - probB)), true);
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (1 - probW)));
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0 - probB)));
 		} else if (re.getPgnResult().equals("0-1")) {
-			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0 - probW)), true);
-			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (1 - probB)), true);
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0 - probW)));
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (1 - probB)));
 		} else {
-			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0.5f - probW)), true);
-			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0.5f - probB)), true);
+			setScore(re.getPlayerWhite(), ratingW + Math.round(getKfactor(ratingW) * (0.5f - probW)));
+			setScore(re.getPlayerBlack(), ratingB + Math.round(getKfactor(ratingB) * (0.5f - probB)));
 		}
 	}
 
@@ -166,7 +164,7 @@ public class Ladder extends ResultViewBase {
 	}
 
 	@Override
-	int getInitialScore() {
+	protected int getInitialScore() {
 		return ChessCraft.getInstance().getConfig().getInt("ladder.initial_position", INITIAL_POS);
 	}
 

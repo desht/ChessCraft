@@ -152,6 +152,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		// time - easier to test that way.  Remove it for production.
 		//		Results.getResultsHandler().addTestData();
 
+		// this will cause saved results data to start being pulled in (async)
+		Results.getResultsHandler();
+
 		PluginManager pm = getServer().getPluginManager();
 		setupVault(pm);
 		setupSMS(pm);

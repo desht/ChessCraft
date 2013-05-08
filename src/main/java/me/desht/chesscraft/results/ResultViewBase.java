@@ -4,151 +4,119 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import me.desht.chesscraft.chess.ai.ChessAI;
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 
 /**
- * @author des
- * 
  * Abstract base class to represent a view on the raw results data.  Subclass
  * this and implement the addResult() and getInitialScore() methods.
  */
 public abstract class ResultViewBase {
 	private final Results handler;
 	private final String viewType;
-	private Map<String, Integer> scoreMap = null;
-	
+	private final Map<String, Integer> scoreMap;
+	private boolean updateDatabase = true;
+
 	ResultViewBase(Results handler, String viewType) {
 		this.viewType = viewType;
 		this.handler = handler;
-	}
-	
-	/**
-	 * Rebuild the view from the result records - this would normally be done if any of the
-	 * view parameters have been changed.
-	 */
-	public void rebuild() {
-		if (!Results.resultsHandlerOK()) {
-			return;
-		}
-		
-		try {
-			// we build the new results in an internal map, and then write them to the DB
-			// in a single transaction - much better performance this way
-			Connection conn = handler.getConnection();
-			conn.setAutoCommit(false);
-			Statement del = conn.createStatement();	
-			del.executeUpdate("DELETE FROM " + viewType);
-			scoreMap = new HashMap<String, Integer>();
-			for (ResultEntry re : Results.getResultsHandler().getEntries()) {
-				addResult(re);
-			}
-			PreparedStatement insert = handler.getResultsDB().getCachedStatement("INSERT INTO " + viewType + " VALUES (?,?)");
-			for (Entry<String, Integer> e : scoreMap.entrySet()) {
-				insert.setString(1, e.getKey());
-				insert.setInt(2, e.getValue());
-				insert.executeUpdate();
-			}
-			scoreMap = null;
-			conn.setAutoCommit(true);
-		} catch (SQLException e) {
-			LogUtils.warning("Can't rebuild results view " + viewType + ": " + e.getMessage());
-		}
-	}
-	
-	public abstract void addResult(ResultEntry re);
-	
-	abstract int getInitialScore();
-	
-	/**
-	 * Get a list of all player scores, highest first.
-	 * 
-	 * @return	A list of score records (player, score)
-	 */
-	public List<ScoreRecord> getScores() {
-		return getScores(0, false);
-	}
-	
-	/**
-	 * Get the top N scores on the server, highest first.
-	 * 
-	 * @param n	The number of players to return
-	 * @return	A list of score records (player, score)
-	 */
-	public List<ScoreRecord> getScores(int n, boolean excludeAI) {
-		List<ScoreRecord> res = new ArrayList<ScoreRecord>();
-		
-		try {
-			String ex = excludeAI ? " WHERE player NOT LIKE '" + ChessAI.AI_PREFIX + "%'" : "";
-			Statement stmt = handler.getConnection().createStatement();
-			StringBuilder query = new StringBuilder("SELECT player, score FROM " + viewType + ex + " ORDER BY score DESC");
-			if (n > 0) {
-				query.append(" LIMIT ").append(n);
-			}
-			LogUtils.fine("execute SQL: " + query);
-			ResultSet rs = stmt.executeQuery(query.toString());
-			while (rs.next()) {
-				res.add(new ScoreRecord(rs.getString(1), rs.getInt(2)));
-			}
-		} catch (SQLException e) {
-			LogUtils.warning("can't retrieve scores: " + e.getMessage());
-		}
-		
-		return res;
-	}
-	
-	protected void awardPoints(String player, int score) {
-		int current = getScore(player);
-		if (score == 0) {
-			return;
-		}
-		setScore(player, current + score, true);
+		this.scoreMap = new HashMap<String, Integer>();
 	}
 
-	public void setScore(String player, int score, boolean updateOnly) {
-		if (score < 0) {
-			return;
+	public abstract void addResult(ResultEntry re);
+
+	protected abstract int getInitialScore();
+
+	/**
+	 * @return the viewType
+	 */
+	public String getViewType() {
+		return viewType;
+	}
+
+	/**
+	 * Rebuild this view's data from the raw result records.  This is done right after the database data
+	 * has been reloaded.
+	 */
+	void rebuild() {
+		// don't push out database updates here; we've only just read the data in
+		updateDatabase = false;
+		for (ResultEntry re : handler.getEntries()) {
+			addResult(re);
 		}
-		
-		if (scoreMap != null) {
-			// work on the internal score map - we would do this when doing batch calculations
-			// (e.g. a full rebuild of the view) for performance reasons
-			scoreMap.put(player, score);
-			return;
+		updateDatabase = true;
+	}
+
+	/**
+	 * Get a list of all player scores, highest first.
+	 *
+	 * @return	A list of score records (player, score)
+	 */
+	public void getScores() {
+		getScores(0, false);
+	}
+
+	/**
+	 * Get the top N scores on the server, highest first.
+	 *
+	 * @param count	The number of players to return
+	 * @param excludeAI true if AI scores should be excluded
+	 * @throws ChessException if called before data has finished being restored from DB
+	 */
+	public List<ScoreRecord> getScores(final int count, final boolean excludeAI) {
+		if (!handler.isDatabaseLoaded()) {
+			throw new ChessException("No results data is available yet");
 		}
-		
-		try {
-			ResultsDB rdb = handler.getResultsDB();
-			boolean inserted = false;
-			if (!updateOnly) {
-				PreparedStatement getPlayer = rdb.getCachedStatement("SELECT player FROM " + viewType + " WHERE player = ?");
-				getPlayer.setString(1, player);
-				ResultSet rs = getPlayer.executeQuery();
-				if (!rs.next()) {
-					// insert record
-					PreparedStatement insert = rdb.getCachedStatement("INSERT INTO " + viewType + " VALUES (?,?)");
-					insert.setString(1, player);
-					insert.setInt(2, score);
-					insert.executeUpdate();
-					inserted = true;
-				}
+		List<ScoreRecord> res = new ArrayList<ScoreRecord>();
+
+		List<Entry<String, Integer>> list = new ArrayList<Entry<String,Integer>>();
+		for (Entry<String,Integer> entry : scoreMap.entrySet()) {
+			if (excludeAI && ChessAI.isAIPlayer(entry.getKey())) {
+				continue;
 			}
-			if (!inserted) {
-				// update existing record
-				PreparedStatement update = rdb.getCachedStatement("UPDATE " + viewType + " SET score = ? WHERE player = ?");
-				update.setString(2, player);
-				update.setInt(1, score);
-				update.executeUpdate();
+			list.add(entry);
+		}
+		Collections.sort(list, new Comparator<Entry<String, Integer>>() {
+            public int compare(Entry<String, Integer> m1, Entry<String, Integer> m2) {
+                return (m2.getValue()).compareTo(m1.getValue());
+            }
+        });
+		int n = 0;
+		for (Entry<String,Integer> entry : list) {
+			if (count > 0 && n++ > count) {
+				break;
 			}
-		} catch (SQLException e) {
-			LogUtils.warning("Can't set " + viewType + " score for " + player + ": " + e.getMessage());
+			res.add(new ScoreRecord(entry.getKey(), entry.getValue()));
+		}
+
+		return res;
+	}
+
+	protected void awardPoints(String player, int score) {
+		int current = getScore(player);
+		setScore(player, current + score);
+	}
+
+	/**
+	 * Set the score for the given player.
+	 *
+	 * @param player
+	 * @param score
+	 * @param updateOnly
+	 */
+	public void setScore(String player, int score) {
+		scoreMap.put(player, score);
+		if (updateDatabase) {
+			handler.queueDatabaseUpdate(new ViewScoreUpdate(player, score, viewType));
 		}
 	}
 
@@ -160,34 +128,44 @@ public abstract class ResultViewBase {
 	 * @return			The player's score
 	 */
 	public int getScore(String player) {
-		if (scoreMap != null) {
-			// work on the internal score map - we would do this when doing batch calculations
-			// (e.g. a full rebuild of the view) for performance reasons
-			if (!scoreMap.containsKey(player)) {
-				scoreMap.put(player, getInitialScore());
-			}
-			return scoreMap.get(player);
+		if (!scoreMap.containsKey(player)) {
+			scoreMap.put(player, getInitialScore());
 		}
-		
-		try {
-			ResultsDB rdb = handler.getResultsDB();
-			PreparedStatement getPlayer = rdb.getCachedStatement("SELECT score FROM " + viewType + " WHERE player = ?");
+		return scoreMap.get(player);
+	}
+
+	private class ViewScoreUpdate implements DatabaseSavable {
+		private final String player;
+		private final int score;
+		private final String tableName;
+
+		private ViewScoreUpdate(String player, int score, String tableName) {
+			this.player = player;
+			this.score = score;
+			this.tableName = tableName;
+		}
+
+		@Override
+		public void saveToDatabase(Connection conn) throws SQLException {
+			PreparedStatement getPlayer = conn.prepareStatement("SELECT player, score FROM " + viewType + " WHERE player = ?");
 			getPlayer.setString(1, player);
 			ResultSet rs = getPlayer.executeQuery();
-			if (rs.next()) {
-//				System.out.println("getscore " + player + " = " + rs.getInt(1));
-				return rs.getInt(1);
+			PreparedStatement update;
+			if (!rs.next()) {
+				// new insertion
+				update = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?,?)");
+				update.setString(1, player);
+				update.setInt(2, score);
+			} else if (score != rs.getInt(2)) {
+				// update existing
+				update = conn.prepareStatement("UPDATE " + viewType + " SET score = ? WHERE player = ?");
+				update.setString(2, player);
+				update.setInt(1, score);
 			} else {
-				PreparedStatement insert = rdb.getCachedStatement("INSERT INTO " + viewType + " VALUES (?,?)");
-				insert.setString(1, player);
-				insert.setInt(2, getInitialScore());
-				insert.executeUpdate();
-//				System.out.println("getscore " + player + " init= " + getInitialScore());
-				return getInitialScore();
+				return;
 			}
-		} catch (SQLException e) {
-			LogUtils.warning("Can't get " + viewType + " score for " + player + ": " + e.getMessage());
-			return 0;
+			LogUtils.fine("execute SQL: " + update);
+			update.executeUpdate();
 		}
 	}
 }

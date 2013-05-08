@@ -4,32 +4,27 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.Configuration;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.Configuration;
+
 public class ResultsDB {
 	private enum SupportedDrivers {
 		MYSQL,
 		SQLITE;
 	};
-	
-	private final Connection connection;
 
-	private final Map<String, PreparedStatement> statementCache = new HashMap<String, PreparedStatement>();
+	private final Connection connection;
 
 	ResultsDB() throws ClassNotFoundException, SQLException {
 		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
@@ -51,6 +46,18 @@ public class ResultsDB {
 		LogUtils.fine("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
 	}
 
+	void shutdown() {
+		try {
+			if (!connection.getAutoCommit()) {
+				connection.rollback();
+			}
+			LogUtils.fine("Closing DB connection to " + connection.getMetaData().getDatabaseProductName());
+			connection.close();
+		} catch (SQLException e) {
+			LogUtils.warning("can't cleanly shut down DB connection: " + e.getMessage());
+		}
+	}
+
 	private void checkForOldFormatData() {
 		File oldDbFile = new File(DirectoryStructure.getResultsDir(), "results.db");
 		if (!oldDbFile.exists()) {
@@ -70,7 +77,7 @@ public class ResultsDB {
 			oldConn.close();
 			connection.setAutoCommit(false);
 			for (ResultEntry re : entries) {
-				re.save(connection);
+				re.saveToDatabase(connection);
 			}
 			connection.setAutoCommit(true);
 			LogUtils.info("Sucessfully migrated " + entries.size() + " old-format game results");
@@ -81,7 +88,7 @@ public class ResultsDB {
 			Bukkit.getScheduler().runTask(ChessCraft.getInstance(), new Runnable() {
 				@Override
 				public void run() {
-					Results.getResultsHandler().rebuildViews();		
+					Results.getResultsHandler().rebuildViews();
 				}
 			});
 		} catch (Exception e) {
@@ -109,18 +116,6 @@ public class ResultsDB {
 		int port = config.getInt("database.port", 3306);
 		String url = "jdbc:mysql://" + host + ":" + port + "/" + dbName;
 		return DriverManager.getConnection(url, user, pass);
-	}
-
-	public void shutdown() {
-		try {
-			if (!connection.getAutoCommit()) {
-				connection.rollback();
-			}
-			LogUtils.fine("Closing DB connection to " + connection.getMetaData().getDatabaseProductName());
-			connection.close();
-		} catch (SQLException e) {
-			LogUtils.warning("can't cleanly shut down DB connection: " + e.getMessage());
-		}
 	}
 
 	private void setupTablesSQLite() throws SQLException {
@@ -180,12 +175,5 @@ public class ResultsDB {
 		DatabaseMetaData dbm = connection.getMetaData();
 		ResultSet tables = dbm.getTables(null , null, table, null);
 		return tables.next();
-	}
-
-	PreparedStatement getCachedStatement(String query) throws SQLException {
-		if (!statementCache.containsKey(query)) {
-			statementCache.put(query, connection.prepareStatement(query));
-		}
-		return statementCache.get(query);
 	}
 }
