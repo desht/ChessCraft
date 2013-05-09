@@ -21,7 +21,7 @@
 # There is also support for separate templates for white and black pieces.  In
 # this case, the templates are stored as 'pieces.white.<X>' and pieces.black.<X>
 name: papercraft
-comment: Created in ChessCraft piece designer by desht
+comment: Inspired by http://pixelpapercraft.com/chess
 materials:
   white:
     D: WOOL:SILVER
