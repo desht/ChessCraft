@@ -18,9 +18,9 @@ public class ChessPieceTemplate {
 			List<String> layer = data.get(y);
 			for (int x = sizeX - 1; x >= 0; --x) {
 				String xRow = layer.get(x);
-				for (int z = sizeZ - 1; z >= 0; --z) {
+				for (int z = 0; z < sizeZ; z++) {
 					char k = xRow.charAt(z);
-					pieceData[x][y][z] = k;
+					pieceData[x][y][sizeZ - 1 - z] = k;
 				}
 			}
 		}
@@ -56,10 +56,14 @@ public class ChessPieceTemplate {
 		pieceData[x][y][z] = data;
 	}
 
+	/**
+	 * Get the piece data as a list of list of string.  Used by PieceDesigner; the array is suitable
+	 * for writing to file.
+	 *
+	 * @return
+	 */
 	public List<List<String>> getPieceData() {
-		List<List<String>> res = new ArrayList<List<String>>();
-
-		res = new ArrayList<List<String>>(sizeY);
+		List<List<String>> res = new ArrayList<List<String>>(sizeY);
 
 		for (int y = 0; y < sizeY; ++y) {
 			res.add(new ArrayList<String>(sizeX));

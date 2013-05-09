@@ -5,13 +5,16 @@ import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/**
+ * NOTE: this is the direction that the board's control panel faces.
+ */
 public enum BoardRotation {
 
 	NORTH(-1, 0), // north = -x
 	EAST(0, -1), // east = -z
 	SOUTH(1, 0), // south = +x
 	WEST(0, 1);// west = +z
-	
+
 	// the increments if moving in this direction
 	private final int x, z;
 
@@ -35,7 +38,7 @@ public enum BoardRotation {
 	public int getZadjustment(int offset) {
 		return z * offset;
 	}
-	
+
 	/**
 	 * Get the rotation to the right (clockwise) of the current rotation
 	 * 
@@ -64,28 +67,28 @@ public enum BoardRotation {
 
 	public CuboidDirection getDirection() {
 		switch (this) {
-			case NORTH:
-				return CuboidDirection.North;
-			case EAST:
-				return CuboidDirection.East;
-			case SOUTH:
-				return CuboidDirection.South;
-			case WEST:
-				return CuboidDirection.West;
+		case NORTH:
+			return CuboidDirection.North;
+		case EAST:
+			return CuboidDirection.East;
+		case SOUTH:
+			return CuboidDirection.South;
+		case WEST:
+			return CuboidDirection.West;
 		}
 		return null; // should not get here..
 	}
 
 	public float getYaw() {
 		switch (this) {
-			case NORTH:
-				return 90;
-			case EAST:
-				return 180;
-			case SOUTH:
-				return 270;
-			case WEST:
-				return 0;
+		case NORTH:
+			return 90;
+		case EAST:
+			return 180;
+		case SOUTH:
+			return 270;
+		case WEST:
+			return 0;
 		}
 		return 0;
 	}
@@ -107,7 +110,7 @@ public enum BoardRotation {
 			throw new IllegalArgumentException("impossible rotation: " + rot);
 		}
 	}
-	
+
 	public static BoardRotation getRotation(Player p) {
 		return getRotation(p.getLocation());
 	}

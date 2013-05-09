@@ -449,7 +449,7 @@ public class ChessBoard {
 		MaterialWithData marker = MaterialWithData.get("wool:red"); // configurable?
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
-				if (row < 2 && col < 5) {
+				if (row < 2 && col < 5 || row == 6 && col == 0 || row == 7 && col < 5) {
 					continue;
 				}
 				Cuboid sq = getSquare(row, col).shift(CuboidDirection.Up, 1).inset(CuboidDirection.Horizontal, 1);
