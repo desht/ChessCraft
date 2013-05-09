@@ -1,0 +1,1538 @@
+# ChessCraft piece style definition file
+# See http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles
+# 
+# 'name' is the name for this set, and should match the filename
+# 
+# 'comment' is a freeform comment about the set (can be multi-line)
+# 
+# 'materials.white' & 'materials.black' are lists of materials used in this set
+#  Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)
+#  or material plus data (e.g. 35:0, wool:white)
+#  If you use plain integers, they must be quoted, or the set will not load!
+#  If you use material names, they must match the org.bukkit.Material definitions
+#  - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html
+# 
+# 'pieces.<X>' defines the template for a chess piece, where <X> is one of P,R,N,B,Q,K
+#  Each piece definition is a list of list of strings such that:
+#  - definition[0] is the lowest layer on the Y-axis
+#  - definition[0][0] is the northmost row on the lowest layer
+#  - each string runs from west to east and consists of materials defined above
+# 
+# There is also support for separate templates for white and black pieces.  In
+# this case, the templates are stored as 'pieces.white.<X>' and pieces.black.<X>
+name: papercraft
+comment: Created in ChessCraft piece designer by desht
+materials:
+  white:
+    D: WOOL:SILVER
+    E: WOOL:BLACK
+    F: IRON_BLOCK:0
+    G: WOOL:GRAY
+    A: AIR:0
+    B: WOOL:PINK
+    C: WOOL:BROWN
+    L: OBSIDIAN:0
+    M: WOOL:WHITE
+    N: GOLD_BLOCK:0
+    O: WOOD:0
+    H: WOOL:YELLOW
+    I: WOOL:ORANGE
+    J: WOOL:LIME
+    K: WOOL:BLUE
+    U: WOOD:2
+    T: WOOD:1
+    Q: WOOL:PURPLE
+    P: WOOL:MAGENTA
+    S: WOOD:3
+    R: WOOL:CYAN
+  black:
+    D: WOOL:RED
+    E: REDSTONE_BLOCK:0
+    F: WOOL:SILVER
+    G: WOOL:WHITE
+    A: WOOL:BLACK
+    B: AIR:0
+    C: WOOL:GRAY
+    L: WOOL:MAGENTA
+    M: WOOL:PINK
+    N: EMERALD_BLOCK:0
+    O: WOOL:LIME
+    H: WOOL:BROWN
+    I: WOOL:GREEN
+    J: WOOL:BLUE
+    K: WOOL:CYAN
+pieces:
+  white:
+    N:
+    - - AAAAAAAA
+      - CBCAACBC
+      - BBBAABBB
+      - BBBAABBB
+      - AAAAAAAA
+      - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - CBCAACBC
+    - - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+      - AAAAAAAA
+      - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+    - - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+      - AAAAAAAA
+      - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+    - - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+      - AAAAAAAA
+      - AAAAAAAA
+      - BBBAABBB
+      - BBBAABBB
+      - BBBAABBB
+    - - AAAAAAAA
+      - BBBBBBBB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BBBCCBBB
+    - - AABBBBAA
+      - BBDDDDBB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BBCBBCBB
+    - - AACBBCAA
+      - BBCBBCBB
+      - BAAAAAAB
+      - CAAAAAAC
+      - GAAAAAAG
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BBBCBCBB
+    - - AABBBBAA
+      - BBDDDDBB
+      - DAAAAAAD
+      - CAAAAAAC
+      - GAAAAAAG
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BBBBBCBB
+    - - AAAAAAAA
+      - BEFBBFEB
+      - DAAAAAAD
+      - CAAAAAAC
+      - GAAAAAAG
+      - BAAAAAAB
+      - BAAAAAAB
+      - BAAAAAAB
+      - BBCCCBBB
+    - - AAAAAAAA
+      - BBBBBBBB
+      - BBBBBBBB
+      - GBBBBBBG
+      - GBBBBBBG
+      - BBBBBBBB
+      - BBBBBBBB
+      - BBBBBBBB
+      - BBBBBBBB
+    B:
+    - - AAAAAAAA
+      - IIIAAIII
+      - IAIAAIAI
+      - IIIAAIII
+      - AAAAAAAA
+      - AAAAAAAA
+      - IIIAAIII
+      - IAIAAIAI
+      - IIIAAIII
+      - AAAAAAAA
+    - - AAAAAAAA
+      - HHHAAHHH
+      - CAHAAHAC
+      - HHHAAHHH
+      - AAAAAAAA
+      - AAAAAAAA
+      - HHHAAHHH
+      - CAHAAHAC
+      - HHHAAHHH
+      - AAAAAAAA
+    - - AAAAAAAA
+      - IIIAAIII
+      - IAIAAIAI
+      - IIIAAIII
+      - AAAAAAAA
+      - AAAAAAAA
+      - IIIAAIII
+      - IAIAAIAI
+      - IIIAAIII
+      - AAAAAAAA
+    - - AAAAAAAA
+      - HHHAAHHH
+      - CAHAAHAC
+      - HHHAAHHH
+      - AAAAAAAA
+      - AAAAAAAA
+      - HHHAAHHH
+      - CAHAAHAC
+      - HHHAAHHH
+      - AAAAAAAA
+    - - AADGGDAA
+      - DDDDDDDD
+      - HAAAAAAH
+      - HAAAAAAH
+      - IAAAAAAH
+      - HAAAAAAH
+      - HAAAAAAH
+      - HAAAAAAH
+      - HDHIHHID
+      - AAAAAAAA
+    - - AAHHHHAA
+      - DHIIIIHD
+      - HAAAAAAD
+      - DAAAAAAH
+      - HAAAAAAH
+      - CAAAAAAH
+      - DAAAAAAC
+      - IAAAAAAH
+      - CCDHCHCC
+      - AAAAAAAA
+    - - AAAAAAAA
+      - DHDGGDHD
+      - HAAAAAAH
+      - IAAAAAAH
+      - HAAAAAAD
+      - HAAAAAAH
+      - HAAAAAAI
+      - HAAAAAAD
+      - DHHHIHHH
+      - AAAAAAAA
+    - - AAAAAAAA
+      - DIHHHHID
+      - DAAAAAAH
+      - HAAAAAAC
+      - CAAAAAAI
+      - HAAAAAAH
+      - IAAAAAAH
+      - CAAAAAAH
+      - IHIHHHHH
+      - AAAAAAAA
+    - - AAAAAAAA
+      - DFJIIJFD
+      - CAAAAAAH
+      - HAAAAAAH
+      - HAAAAAAH
+      - IAAAAAAH
+      - HAAAAAAC
+      - HAAAAAAH
+      - IHCHHCHH
+      - AAADDAAA
+    - - AAAAAAAA
+      - DIHIIHID
+      - HHHHIHHH
+      - IDCHHHHD
+      - DHIHDCHI
+      - HHHHHIHH
+      - CHDCHHHD
+      - HHHIDCHI
+      - HHIHHIHC
+      - AAAHHAAA
+    - - AAAAAAAA
+      - AAAAAAAA
+      - AHAAAAHA
+      - AHAAAAHA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAACCAAA
+    - - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAHHAAA
+    - - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAAAAAA
+      - AAAGGAAA
+    R:
+    - - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+    - - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+    - - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+    - - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+    - - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+      - AAAAAAAA
+      - EEAEEAEE
+      - EEAEEAEE
+    - - EEKGKEEE
+      - EAAAAAAE
+      - EAAAAAAK
+      - KAAAAAAK
+      - KAAAAAAK
+      - EAAAAAAE
+      - EAAAAAAE
+      - EEEEEEEE
+    - - EKGGKKKE
+      - KAAAAAAK
+      - KAAAAAAK
+      - DAAAAAAG
+      - KAAAAAAK
+      - EAAAAAAK
+      - EAAAAAAE
+      - EEEKKEEE
+    - - EKGGDKKE
+      - KAAAAAAK
+      - KAAAAAAG
+      - DAAAAAAK
+      - GAAAAAAG
+      - EAAAAAAK
+      - EAAAAAAE
+      - EEEKGKEE
+    - - EKGGGDKE
+      - KAAAAAAK
+      - DAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAG
+      - KAAAAAAK
+      - KAAAAAAK
+      - EEDDGGKE
+    - - EKGGGGGE
+      - GAAAAAAK
+      - DAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAG
+      - KAAAAAAK
+      - EKDGGGKE
+    - - EFFGGFFE
+      - KAAAAAAG
+      - GAAAAAAD
+      - GAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAK
+      - EKGGGGKE
+    - - ELFGGFLE
+      - KAAAAAAD
+      - GAAAAAAG
+      - GAAAAAAG
+      - GAAAAAAG
+      - KAAAAAAG
+      - GAAAAAAG
+      - EKGGGGKE
+    - - EGGGGGKE
+      - KAAAAAAK
+      - DAAAAAAD
+      - DAAAAAAG
+      - DAAAAAAG
+      - KAAAAAAK
+      - EAAAAAAE
+      - EKKGGDKE
+    - - EKGDGGKE
+      - KAAAAAAK
+      - DAAAAAAG
+      - GAAAAAAD
+      - KAAAAAAD
+      - KAAAAAAK
+      - EAAAAAAE
+      - EKKGDKKE
+    - - EKGDGKEE
+      - EAAAAAAE
+      - KAAAAAAE
+      - KAAAAAAK
+      - GAAAAAAE
+      - KAAAAAAE
+      - EAAAAAAE
+      - EEKGKKEE
+    - - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+      - EEEEEEEE
+    Q:
+    - - AMMMMMMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMGEMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMDGMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMMMMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMGEMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMDGMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMMMMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - OMAAAAAAMO
+      - OMAAAAAAMO
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMGEMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - OMAAAAAAMO
+      - OMAAAAAAMO
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMDGMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - OMAAAAAAMO
+      - OMAAAAAAMO
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AMMMMMMMMA
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - OMAAAAAAMO
+      - OMAAAAAAMO
+      - AMAAAAAAMA
+      - AMAAAAAAMA
+      - AMMMMMMMMA
+    - - AIIIHIHIIA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AIIIIIIIIA
+    - - AIICHCHCIA
+      - AIAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIIHIIHIIA
+    - - AICCCCCCIA
+      - AHAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AHAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIIHIIHIIA
+    - - AICICICIIA
+      - AHAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAHA
+      - AHAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAHA
+      - AIIHIIHIIA
+    - - AIIHIHIIIA
+      - AHAAAAAAIA
+      - AIAAAAAAIA
+      - AIAAAAAAHA
+      - AHAAAAAAIA
+      - AHAAAAAAIA
+      - AIAAAAAAHA
+      - AIIHHIHHIA
+    - - AIICIHCIIA
+      - AHAAAAAAIA
+      - AHAAAAAAIA
+      - AIAAAAAAHA
+      - AIAAAAAAIA
+      - AHAAAAAAIA
+      - AIAAAAAAHA
+      - AIIIHIIHIA
+    - - AIECIECCIA
+      - AIAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIIIHIHHIA
+    - - AIECIECCIA
+      - AIAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AHAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AIIHIIHIIA
+    - - AIHEIHEHIA
+      - AHAAAAAAIA
+      - AHAAAAAAHA
+      - AIAAAAAAIA
+      - AHAAAAAAIA
+      - AIAAAAAAHA
+      - AIAAAAAAIA
+      - AIIHIIHIIA
+    - - AIHIIIIHIA
+      - AHHIICIHIA
+      - AIIICNNIHA
+      - AIICNNNCIA
+      - AHICNNCHIA
+      - AIHICCIHHA
+      - AIHIIHIIIA
+      - AIIHIIHIIA
+    P:
+    - - CCCAACCC
+      - CACAACAC
+      - CCCAACCC
+      - AAAAAAAA
+      - AAAAAAAA
+      - CCCAACCC
+      - CACAACAC
+      - CCCAACCC
+    - - OOOAAOOO
+      - OOOAAOOO
+      - OOOAAOOO
+      - AAAAAAAA
+      - AAAAAAAA
+      - OOOAAOOO
+      - OOOAAOOO
+      - OOOAAOOO
+    - - MMMMMMMM
+      - MMMMMMMM
+      - MMMMMMMM
+      - MMMMMMMM
+      - MMMMMMMM
+      - MMMMMMMM
+      - DMMMMMMM
+      - DMMMMMMM
+    - - MDOPPODM
+      - MAAAAAAM
+      - MAAAAAAM
+      - MAAAAAAD
+      - MAAAAAAD
+      - MAAAAAAD
+      - DAAAAAAD
+      - DMMMDMMD
+    - - MMOBBOMM
+      - MAAAAAAD
+      - MAAAAAAM
+      - MAAAAAAM
+      - DAAAAAAD
+      - MAAAAAAD
+      - MAAAAAAD
+      - DMMMMMMD
+    - - MOOOOOOM
+      - DAAAAAAM
+      - MAAAAAAM
+      - MAAAAAAM
+      - MAAAAAAM
+      - MAAAAAAD
+      - DAAAAAAD
+      - DMMDMMDD
+    - - MEFOOFEM
+      - MAAAAAAM
+      - MAAAAAAM
+      - MAAAAAAM
+      - DAAAAAAD
+      - DAAAAAAD
+      - DAAAAAAD
+      - DMDMMDDD
+    - - MOOOOOOM
+      - MDMDDDDM
+      - MMDDMMMM
+      - MDDMMDMD
+      - MDMMDDMD
+      - DMMMDMMD
+      - DMMMMMMD
+      - DDDDDDDD
+    K:
+    - - AGGGAAGGGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGGGAAGGGA
+    - - AGGGAAGGGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGGGAAGGGA
+    - - AGGGAAGGGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGGGAAGGGA
+    - - AGGGAAGGGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGGGAAGGGA
+    - - AGGGAAGGGA
+      - AGAGAAGAGA
+      - AGAAAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGAGAAGAGA
+      - AGGGAAGGGA
+    - - AQQQAAQQQA
+      - AQAQAAQAQA
+      - AGAQAAQAGA
+      - AGAQAAQAGA
+      - AGAQAAQAGA
+      - AGAQAAQAGA
+      - AQAQAAQAQA
+      - AQQQAAQQQA
+    - - AQQQAAQQQA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AGAQAAQAGA
+      - AGAQAAQAGA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQQQAAQQQA
+    - - AQQQAAQQRA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQAQAAQAQA
+      - AQQQAAQQQA
+    - - ARRRRRRRRA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARRRRRRRRA
+    - - ARRRRRRRRA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARAAAAAARA
+      - ARRRRRRRRA
+    - - ARRROORRRA
+      - URAAAAAARU
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - ARAAAAAARA
+      - ARRRRRRRRA
+    - - ARROSOORRA
+      - URAAAAAARU
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - RRAAAAAARR
+      - ARAAAAAARA
+      - ARRRRRRRRA
+    - - AOOOOOOOOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOOCCCCOOA
+    - - AOOTTTTOOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - ACCCCCCCCA
+    - - ASOUTTUSOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACCCCCCCCA
+    - - AUFKUUKFUA
+      - AOAAAAAACA
+      - AOAAAAAAOA
+      - AOAAAAAAOA
+      - AOAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACCCCCCCCA
+    - - AUUUUUUSSA
+      - ACAAAAAACA
+      - AOAAAAAACA
+      - AOAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACCCCCCCCA
+    - - ACUUUUUSCA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACCCCCCCCA
+    - - ACCCCCCCCA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACAAAAAACA
+      - ACCCCCCCCA
+    - - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+      - ACCCCCCCCA
+  black:
+    N:
+    - - ABBBBBBBBA
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+      - BBBBBBBBBB
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+    - - ABBBBBBBBA
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+      - BBBBBBBBBB
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+      - BBBBBBBBBB
+      - ABBBBBBBBA
+    - - ACCACCACCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACCCCCCCCA
+    - - ACCACCACCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACCCCACCCA
+    - - BCCCCCCCCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACCCCACCCA
+    - - BCCDDDDCCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACBBBBBBCA
+      - BCBBBBBBCB
+      - ACCAACCCCA
+    - - BDCDEDECDB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBAB
+      - BCBBBBBBAB
+      - BCBBBBBBAB
+      - BCCCAACCCB
+    - - BECCCCCCEB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBAB
+      - BCBBBBBBAB
+      - BCBBBBBBCB
+      - BCCCAAACCB
+    - - BCCDCCDCCB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBCB
+      - BCBBBBBBAB
+      - BCBBBBBBAB
+      - BCBBBBBBCB
+      - BCCAACCCCB
+    - - BCDCCCCDCB
+      - BCCCCCCCCB
+      - BCCCCCAACB
+      - BCCCCAAACB
+      - BCCCAAAACB
+      - BCCCACCCCB
+      - BCCCCCCCCB
+      - BCCCCCCCCB
+    B:
+    - - FFFBBFFFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FFFBBFFFB
+    - - GFFBBFFGB
+      - FBFBBFBFB
+      - GBFBBFBGB
+      - FBFBBFBFB
+      - GBFBBFBGB
+      - FBFBBFBFB
+      - GBFBBFBGB
+      - FFFBBFFFB
+    - - FGFBBFGFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FFFBBFFFB
+    - - FFFBBFFFB
+      - FBFBBFBFB
+      - FBFBBFBFH
+      - FBFBBFBFH
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FFFBBFFFB
+    - - FFFBBFFFB
+      - FBFBBFBFB
+      - FBFBBFBFH
+      - FBFBBFBFH
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FFFBBFFFB
+    - - BBBBBBBBB
+      - BBFGFFBBH
+      - BBFBBFBBH
+      - BBFBBFBBC
+      - BBFBBFBBB
+      - BBFBBFBBB
+      - BBFFFFBBB
+      - BBBBBBBBB
+    - - BBBBBBBBH
+      - BBFFGFBBH
+      - BBFBBFBBB
+      - BBFBBFBBC
+      - BBFBBFBBB
+      - BBFBBFBBB
+      - BBFFFFBBB
+      - BBBBBBBBB
+    - - FFBBBBFFH
+      - FBFGFFBFB
+      - FBFBBFBFB
+      - FBFBBFBFC
+      - FBFBBFBFB
+      - FBFBBFBFB
+      - FBFFFFBFB
+      - FFBBBBFFB
+    - - BBBBBBBBH
+      - BBFFGFBBH
+      - BBFBBFBBB
+      - BBFBBFBBC
+      - BBFBBFBBB
+      - BBFBBFBBB
+      - BBFFFFBBB
+      - BBBBBBBBB
+    - - GFFFFFFGB
+      - GBBBBBBGH
+      - GBBBBBBGH
+      - GBBBBBBGC
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GCCCCCCGB
+      - GBBBBBBGH
+      - GBBBBBBGH
+      - GBBBBBBGH
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GFGFFGGGB
+      - GBBBBBBGB
+      - GBBBBBBGH
+      - GBBBBBBGH
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GCCGGCCGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GFGFGGGGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GFGGGGGGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GFGGFFFGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GBBBBBBGB
+      - GFFFFFFGB
+    - - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+      - GFFFFFFGB
+    R:
+    - - BBBBBBBBBB
+      - BCCCBBCCCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCCCBBCCCB
+    - - BBBBBBBBBB
+      - BCCCBBCCCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCBCBBCBCB
+      - BCCCBBCCCB
+    - - BBBBBBBBBB
+      - BJJJBBJJJB
+      - BJBJBBJBJB
+      - BCBJBBJBCB
+      - BCBJBBJBCB
+      - BCBJBBJBCB
+      - BCBJBBJBCB
+      - BJBJBBJBJB
+      - BJJJBBJJJB
+    - - BBBBBBBBBB
+      - BKJJBBJJJB
+      - BJBJBBJBJB
+      - BJBJBBJBJB
+      - BJBJBBJBJB
+      - BJBJBBJBJB
+      - BJBJBBJBJB
+      - BJBJBBJBJB
+      - BJJJBBJJJB
+    - - BBBBBBBBBB
+      - BKKKKKKKKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKKKKKKKKB
+    - - BBBBBBBBBB
+      - BKKKKKKKKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKKKKKKKKB
+    - - IBBBBBBBBI
+      - IKKKIIKKKI
+      - IKBKBBKBKI
+      - IKBKBBKBKI
+      - IKBKBBKBKI
+      - KKBKBBKBKK
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKKKKKKKKB
+    - - IBBBBBBBBI
+      - IKKIIIIKKI
+      - IKBKBBKBKI
+      - IKBKBBKBKI
+      - IKBKBBKBKI
+      - KKBKBBKBKK
+      - BKBKBBKBKB
+      - BKBKBBKBKB
+      - BKKKKKKKKB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIHHIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIAAIIAAIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIBBBBBBIB
+      - BIIIIIIIIB
+    - - BBBBBBBBBB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+      - BIIIIIIIIB
+    Q:
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - AABABBABAB
+      - AABABBABAA
+      - BABABBABAA
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAABBAAAB
+      - BABABBABAB
+      - AABABBABAB
+      - AABABBABAA
+      - BABABBABAA
+      - BABABBABAB
+      - BABABBABAB
+      - BAAABBAAAB
+    - - BAAAAAAAAB
+      - BABABBABLB
+      - AABABBABAB
+      - AABABBABAA
+      - BABABBABAA
+      - BABABBABAB
+      - BABABBABAB
+      - BAAAAAAAAB
+    - - BAAAAALAAB
+      - BABABBABAB
+      - AABABBABAB
+      - AABABBABAA
+      - BABABBABAA
+      - BABABBABAB
+      - BABABBABAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - AABBBBBBAB
+      - AABBBBBBAA
+      - BABBBBBBAA
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAAALAAAB
+    - - BMLMAAMLMB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAALALAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBLB
+      - BABBBBBBAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBLB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BABBBBBBAB
+      - BAAAAAAAAB
+    - - BAAAAAAAAB
+      - BAAAAAAAAB
+      - BAAAAAAAAB
+      - BAAAAAAAAB
+      - BAAAAAAAAB
+      - BAALAAAAAB
+      - BAAALAAAAB
+      - BAAAAAAAAB
+    P:
+    - - NNNNNNNN
+      - NBBBBBBN
+      - NBBBBBBN
+      - NBBBBBBN
+      - NBBBBBBN
+      - NBBBBBBN
+      - NBBBBBBN
+      - NNNNNNNN
+    - - NOOOOOON
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NOOOOOON
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NOOIOOON
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NOOOOOON
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NIHOOHIN
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NIIOOIIN
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - NOOOOOON
+    - - NNNNNNNN
+      - NOOOOOON
+      - NOOOOOON
+      - NOOOOOON
+      - NOOOOOON
+      - NOOOOOON
+      - NOOOOOON
+      - NNNNNNNN
+    K:
+    - - AIABBAIA
+      - OBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBN
+      - OBOBBOBO
+      - OBOBBOBF
+      - OBOBBOBI
+      - ONOBBOIO
+    - - IAIBBIAI
+      - OBOBBOBF
+      - OBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBO
+      - NOIBBNOO
+    - - NONBBNON
+      - OBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBI
+      - OBOBBOBO
+      - NBOBBOBF
+      - OBOBBOBO
+      - OIOBBFIO
+    - - OOFBBOFO
+      - OBOBBOBO
+      - NBOBBOBO
+      - OBOBBOBO
+      - NBOBBOBO
+      - OBOBBOBO
+      - OBOBBOBI
+      - FOOBBOOO
+    - - ONIFIOON
+      - OBBBBBBO
+      - OBBBBBBO
+      - FBBBBBBO
+      - OBBBBBBO
+      - IBBBBBBO
+      - IBBBBBBF
+      - OOIOOONO
+    - - IOOOOIIO
+      - OBBBBBBN
+      - OBBBBBBO
+      - OBBBBBBF
+      - NBBBBBBI
+      - FBBBBBBO
+      - OBBBBBBO
+      - OOIOFOOO
+    - - FIIOOOFI
+      - OBBBBBBO
+      - NBBBBBBO
+      - OBBBBBBO
+      - FBBBBBBO
+      - OBBBBBBI
+      - FBBBBBBO
+      - IONOOOOF
+    - - IFOIFIOI
+      - OBBBBBBO
+      - IBBBBBBN
+      - OBBBBBBI
+      - OBBBBBBO
+      - FBBBBBBO
+      - OBBBBBBO
+      - OOOOIOFO
+    - - NNOOFIOO
+      - OBBBBBBO
+      - OBBBBBBO
+      - IBBBBBBO
+      - OBBBBBBN
+      - NBBBBBBF
+      - OBBBBBBO
+      - OFOOOIOO
+    - - OIAFNAOO
+      - OBBBBBBN
+      - NBBBBBBF
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBI
+      - BOIOOONO
+    - - IOAAAAOF
+      - IBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBI
+      - IBBBBBBN
+      - OBBBBBBO
+      - OBBBBBBO
+      - OOOIOOOO
+    - - FNAAAAIN
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBI
+      - IBBBBBBO
+      - OBBBBBBF
+      - IBBBBBBO
+      - OFONOION
+    - - OIFAANON
+      - OBBBBBBO
+      - OBBBBBBF
+      - IBBBBBBN
+      - OBBBBBBO
+      - NBBBBBBO
+      - OBBBBBBN
+      - IOFOIOOO
+    - - NAAONAAO
+      - OBBBBBBO
+      - IBBBBBBN
+      - OBBBBBBO
+      - OBBBBBBI
+      - OBBBBBBF
+      - OBBBBBBO
+      - OOIOFONO
+    - - FAAIFAAN
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - IBBBBBBI
+      - OIOOOFIO
+    - - FOOIOONO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBI
+      - FBBBBBBO
+      - IBBBBBBF
+      - OBBBBBBO
+      - FOIOIOOF
+    - - IONFNOOF
+      - OBBBBBBO
+      - OBBBBBBI
+      - NBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBO
+      - OBBBBBBI
+      - ONOOOOOO
+    - - OOFOONOO
+      - FOOFOONO
+      - OIOOOIIN
+      - IONOFNOO
+      - OIOIOONI
+      - OOOIOFOO
+      - FONONOFO
+      - OOOIOIOO
