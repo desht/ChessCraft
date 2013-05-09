@@ -51,14 +51,6 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 	private final AttributeCollection attributes;
 
-//	private MaterialWithData blackSquareMat, whiteSquareMat;
-//	private MaterialWithData enclosureMat, frameMat, controlPanelMat;
-//	private MaterialWithData highlightMat, highlightWhiteSquareMat, highlightBlackSquareMat;
-//	private MaterialWithData strutsMat;
-//	private HighlightStyle highlightStyle;
-//	private int lightLevel;
-//	private String pieceStyleName;
-
 	/**
 	 * Private constructor.  Use {@link #loadStyle(String)} to get new BoardStyle objects.
 	 * 
@@ -80,28 +72,13 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		this.squareSize = c.getInt("square_size");
 		this.frameWidth = c.getInt("frame_width");
 		this.height = c.getInt("height");
-//		this.pieceStyleName = c.getString("piece_style", "standard");
 		ChessValidate.isTrue(c.contains("lit") || c.contains("light_level"), "board style must have at least one of 'lit' or 'light_level'");
-//		this.lightLevel = c.contains("lit") ? 15 : c.getInt("light_level");
 
 		for (String k : c.getKeys(false)) {
 			if (attributes.contains(k)) {
 				attributes.set(k, c.getString(k));
 			}
 		}
-
-//		setBlackSquareMaterial(MaterialWithData.get(c.getString("black_square")));
-//		setWhiteSquareMaterial(MaterialWithData.get(c.getString("white_square")));
-//		setFrameMaterial(MaterialWithData.get(c.getString("frame")));
-//		setEnclosureMaterial(MaterialWithData.get(c.getString("enclosure")));
-//
-//		/************** optional parameters  **************/
-//		setControlPanelMaterial(MaterialWithData.get(c.getString("panel", getFrameMaterial().toString())));
-//		setStrutsMaterial(MaterialWithData.get(c.getString("struts", this.enclosureMat.toString())));
-//		setHighlightMaterial(MaterialWithData.get(c.getString("highlight", "glowstone")));
-//		setHighlightWhiteSquareMaterial(MaterialWithData.get(c.getString("highlight_white_square", this.highlightMat.toString())));
-//		setHighlightBlackSquareMaterial(MaterialWithData.get(c.getString("highlight_black_square", this.highlightMat.toString())));
-//		this.highlightStyle = HighlightStyle.getStyle(c.getString("highlight_style", "corners"));
 	}
 
 	private void registerAttributes() {
@@ -147,13 +124,6 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		return (Integer) attributes.get(LIGHT_LEVEL);
 	}
 
-//	public void setLightLevel(int lightLevel) {
-//		attributes.set(LIGHT_LEVEL, lightLevel);
-////		if (lightLevel >= 0 && lightLevel <= 15) {
-////			this.lightLevel = lightLevel;
-////		}
-//	}
-
 	public MaterialWithData getBlackSquareMaterial() {
 		return (MaterialWithData) attributes.get(BLACK_SQUARE);
 	}
@@ -197,59 +167,6 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	public MaterialWithData getWhiteSquareHighlightMaterial() {
 		return (MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE);
 	}
-
-//	public void setPieceStyleName(String pieceStyleName) {
-//		this.pieceStyleName = pieceStyleName;
-//	}
-//
-//	public void setBlackSquareMaterial(MaterialWithData blackSquareMat) {
-//		validateIsBlock(blackSquareMat, "black square");
-//		this.blackSquareMat = blackSquareMat;
-//	}
-//
-//	public void setWhiteSquareMaterial(MaterialWithData whiteSquareMat) {
-//		validateIsBlock(whiteSquareMat, "white square");
-//		this.whiteSquareMat = whiteSquareMat;
-//	}
-//
-//	public void setControlPanelMaterial(MaterialWithData controlPanelMat) {
-//		validateIsBlock(controlPanelMat, "control panel");
-//		this.controlPanelMat = controlPanelMat;
-//	}
-//
-//	public void setEnclosureMaterial(MaterialWithData enclosureMat) {
-//		validateIsBlock(enclosureMat, "enclosure");
-//		this.enclosureMat = enclosureMat;
-//	}
-//
-//	public void setStrutsMaterial(MaterialWithData strutsMat) {
-//		validateIsBlock(strutsMat, "struts");
-//		this.strutsMat = strutsMat;
-//	}
-//
-//	public void setFrameMaterial(MaterialWithData frameMat) {
-//		validateIsBlock(frameMat, "frame");
-//		this.frameMat = frameMat;
-//	}
-//
-//	public void setHighlightBlackSquareMaterial(MaterialWithData highlightBlackSquareMat) {
-//		validateIsBlock(highlightBlackSquareMat, "highlight square (black)");
-//		this.highlightBlackSquareMat = highlightBlackSquareMat;
-//	}
-//
-//	public void setHighlightWhiteSquareMaterial(MaterialWithData highlightWhiteSquareMat) {
-//		validateIsBlock(highlightWhiteSquareMat, "highlight square (white)");
-//		this.highlightWhiteSquareMat = highlightWhiteSquareMat;
-//	}
-//
-//	public void setHighlightMaterial(MaterialWithData highlightMat) {
-//		validateIsBlock(highlightMat, "highlight square");
-//		this.highlightMat = highlightMat;
-//	}
-//
-//	public void setHighlightStyle(HighlightStyle highlightStyle) {
-//		this.highlightStyle = highlightStyle;
-//	}
 
 	private void validateIsBlock(MaterialWithData mat, String tag) {
 		ChessValidate.isTrue(mat.getBukkitMaterial().isBlock(), tag + ": " + mat + " is not a block material!");
@@ -361,7 +278,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		// TODO Auto-generated method stub
+		// nothing to do here
 	}
 
 	public AttributeCollection getAttributes() {

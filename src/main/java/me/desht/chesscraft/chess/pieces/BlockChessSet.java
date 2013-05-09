@@ -100,25 +100,25 @@ public class BlockChessSet extends ChessSet {
 	 * This constructor is used to create a new set from piece designer information.
 	 * 
 	 * @param name the chess set name
-	 * @param templates the templates to copy in
-	 * @param materialMapWhite the material map for the white pieces
-	 * @param materialMapBlack the material map for the black pieces
+	 * @param templates the templates to copy in for the white (or both) pieces
+	 * @param materialMaps the material maps for the white and black pieces
+	 * @param description a free-form comment about the set
 	 */
-	BlockChessSet(String name, ChessPieceTemplate[] templates, ChessPieceTemplate[] templatesBlack, MaterialMap materialMapWhite, MaterialMap materialMapBlack, String comment) {
-		super(name, comment);
+	BlockChessSet(String name, ChessPieceTemplate[][] templates, MaterialMap[] materialMaps, String description) {
+		super(name, description);
 
-		this.materialMapWhite = materialMapWhite;
-		this.materialMapBlack = materialMapBlack;
+		this.materialMapWhite = materialMaps[Chess.WHITE];
+		this.materialMapBlack = materialMaps[Chess.BLACK];
 
 		this.templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
 		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-			this.templates[piece] = templates[piece];
+			this.templates[piece] = templates[Chess.WHITE][piece];
 		}
 
-		if (templatesBlack != null) {
+		if (templates[Chess.BLACK] != null) {
 			this.templatesBlack = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
 			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-				this.templatesBlack[piece] = templatesBlack[piece];
+				this.templatesBlack[piece] = templates[Chess.BLACK][piece];
 			}
 		} else {
 			this.templatesBlack = null;
@@ -237,8 +237,17 @@ public class BlockChessSet extends ChessSet {
 			for (char c : materialMapBlack.getMap().keySet()) {
 				conf.set("materials.black." + c, materialMapBlack.get(c).toString());
 			}
-			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-				conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
+			if (templatesBlack != null) {
+				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+					conf.set("pieces.white." + Chess.pieceToChar(piece), templates[piece].getPieceData());
+				}
+				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+					conf.set("pieces.black." + Chess.pieceToChar(piece), templatesBlack[piece].getPieceData());
+				}
+			} else {
+				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+					conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
+				}
 			}
 			conf.save(f);
 			LogUtils.fine("saved chess set '" + getName() + "' to " + f);
@@ -257,5 +266,8 @@ public class BlockChessSet extends ChessSet {
 		return "block";
 	}
 
+	public boolean differentBlackTemplates() {
+		return templatesBlack != null;
+	}
 }
 

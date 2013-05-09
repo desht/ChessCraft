@@ -28,15 +28,16 @@ public class BlockChessStone extends ChessStone {
 	public BlockChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
 		super(stone);
 
-		int rotation = direction.ordinal() * 90;
-		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
-			rotation = (rotation + 180) % 360;
-		}
+//		int rotation = direction.ordinal() * 90;
+//		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
+//			rotation = (rotation + 180) % 360;
+//		}
+		int rotation = rotationNeeded(direction, Chess.stoneToColor(stone));
 
 		int tmplX = tmpl.getSizeX();
 		int tmplY = tmpl.getSizeY();
 		int tmplZ = tmpl.getSizeZ();
-		
+
 		if (rotation == 90 || rotation == 270) {
 			// allows for pieces with a non-square footprint
 			setSize(tmplZ, tmplY, tmplX);
@@ -48,7 +49,7 @@ public class BlockChessStone extends ChessStone {
 
 		int sx = getSizeX();
 		int sz = getSizeZ();
-		
+
 		switch (rotation) {
 		case 0:
 			for (int x = 0; x < tmplX; ++x) {
@@ -91,7 +92,7 @@ public class BlockChessStone extends ChessStone {
 		}
 		LogUtils.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
 	}
-	
+
 	@Override
 	public void paint(Cuboid region, MassBlockUpdate mbu) {
 		assert region.getSizeX() >= getSizeX();
@@ -116,12 +117,27 @@ public class BlockChessStone extends ChessStone {
 					} else {
 						mat.applyToBlock(b, mbu);
 					}
-				}	
-			}	
+				}
+			}
 		}
 
 		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
 			e.getValue().applyToBlock(e.getKey(), mbu);
 		}
+	}
+
+	private int rotationNeeded(BoardRotation direction, int colour) {
+		int rot;
+		switch (direction) {
+		case NORTH: rot = 0; break;
+		case EAST: rot = 90; break;
+		case SOUTH: rot = 180; break;
+		case WEST: rot = 270; break;
+		default: rot = 0; break;
+		}
+		if (colour == Chess.BLACK){
+			rot = (rot + 180) % 360;
+		}
+		return rot;
 	}
 }

@@ -52,56 +52,69 @@ public class PieceDesigner {
 
 	/**
 	 * Scan the board and initialise a chess set based on the contents of squares A1-E1 & A2-E2.
-	 * 
+	 *
 	 * @throws ChessException if there is any kind of problem initialising the set
 	 */
 	public void scan() throws ChessException {
-		MaterialMap whiteMap = new MaterialMap();
+		MaterialMap[] materialMaps = new MaterialMap[2];
+		materialMaps[Chess.WHITE] = new MaterialMap();
 
-		ChessPieceTemplate[] templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
-
-		int rotation = rotationNeeded();
-		LogUtils.fine("Designer: need to rotate templates by " + rotation + " degrees");
-
-		// reverse mapping of character to material name
-		Map<String,Character> reverseMap = new HashMap<String, Character>();
-		char nextChar = 'A';
+		ChessPieceTemplate[][] templates = new ChessPieceTemplate[2][];
+		templates[Chess.WHITE] = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
+		templates[Chess.BLACK] = null;
 
 		World world = view.getA1Square().getWorld();
 
-		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
-			// get the bounding box for the materials in this square
-			Cuboid c = getPieceBox(p);
-			LogUtils.fine("Designer: scan: piece " + Chess.pieceToChar(p) + " - cuboid: " + c);
+		for (int colour = Chess.WHITE; colour <= Chess.BLACK; colour++) {
+			int rotation = rotationNeeded(colour);
+			LogUtils.fine("Designer: rotate templates by " + rotation + " degrees for colour " + colour + " & board orientation " + view.getRotation());
 
-			templates[p] = createTemplate(c, rotation);
+			// reverse mapping of character to material name
+			Map<String,Character> reverseMap = new HashMap<String, Character>();
+			char nextChar = 'A';
 
-			// scan the cuboid and use the contents to populate the new template
-			for (int x = 0; x < templates[p].getSizeX(); x++) {
-				for (int y = 0; y < templates[p].getSizeY(); y++) {
-					for (int z = 0; z < templates[p].getSizeZ(); z++) {
-						Point rotatedPoint = rotate(x, z, templates[p].getSizeZ(), templates[p].getSizeX(), rotation);
-						Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
-						short data = b.getTypeId() == 0 ? 0 : b.getData();
-						MaterialWithData mat = MaterialWithData.get(b.getTypeId(), data).rotate(rotation);
-						String materialName = mat.toString();
-						if (!reverseMap.containsKey(materialName)) {
-							// not seen this material yet
-							reverseMap.put(materialName, nextChar);
-							whiteMap.put(nextChar, mat);
-							LogUtils.finer("Designer: add material mapping: " + nextChar + "->" + materialName);
-							nextChar = getNextChar(nextChar);
+			for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
+				// get the bounding box for the materials in this square
+				Cuboid c = getPieceBox(p, colour);
+				LogUtils.fine("Designer: scan: piece " + Chess.pieceToChar(p) + ", colour " + colour + " = cuboid: " + c);
+
+				ChessPieceTemplate template = createTemplate(c, rotation);
+
+				// scan the cuboid and use the contents to populate the new template
+				for (int x = 0; x < template.getSizeX(); x++) {
+					for (int y = 0; y < template.getSizeY(); y++) {
+						for (int z = 0; z < template.getSizeZ(); z++) {
+							Point rotatedPoint = rotate(x, z, template.getSizeZ(), template.getSizeX(), rotation);
+							Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
+							short data = b.getTypeId() == 0 ? 0 : b.getData();
+							MaterialWithData mat = MaterialWithData.get(b.getTypeId(), data).rotate(rotation);
+							String materialName = mat.toString();
+							if (!reverseMap.containsKey(materialName)) {
+								// not seen this material yet
+								reverseMap.put(materialName, nextChar);
+								materialMaps[colour].put(nextChar, mat);
+								LogUtils.finer("Designer: add material mapping: " + nextChar + "->" + materialName);
+								nextChar = getNextChar(nextChar);
+							}
+							template.put(x, y, z, reverseMap.get(materialName));
 						}
-						templates[p].put(x, y, z, reverseMap.get(materialName));
 					}
+				}
+				templates[colour][p] = template;
+			}
+			if (colour == Chess.WHITE) {
+				materialMaps[Chess.BLACK] = initBlackMaterialMap(materialMaps[Chess.WHITE]);
+				if (materialMaps[Chess.BLACK] != null) {
+					// no need to scan black pieces - we're using the same templates for white & black
+					break;
+				} else {
+					templates[Chess.BLACK] = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
+					materialMaps[Chess.BLACK] = new MaterialMap();
 				}
 			}
 		}
 
-		MaterialMap blackMap = initBlackMaterialMap(whiteMap);
-
-		// no support yet for separate white & black templates
-		chessSet = new BlockChessSet(setName, templates, null, whiteMap, blackMap, "Created in ChessCraft piece designer by " + playerName);
+		chessSet = new BlockChessSet(setName, templates, materialMaps, "Created in ChessCraft piece designer by " + playerName);
 	}
 
 	private char getNextChar(char c) throws ChessException {
@@ -141,6 +154,12 @@ public class PieceDesigner {
 		}
 	}
 
+	/**
+	 * Attempt to initialise the black material map from blocks in squares B2-E2 inclusive.
+	 * 
+	 * @param whiteMap the existing white material map
+	 * @return the black material map, or null if no valid mappings found in B2-E2
+	 */
 	private MaterialMap initBlackMaterialMap(MaterialMap whiteMap) {
 		Map<String,Character> reverseMap = new HashMap<String,Character>();
 		MaterialMap blackMap = new MaterialMap();
@@ -149,6 +168,7 @@ public class PieceDesigner {
 			reverseMap.put(e.getValue().toString(), e.getKey());
 		}
 
+		boolean different = false;
 		// scan just above squares B2-E2 inclusive
 		// any block found with a different block on top is of interest
 		for (int col = 1; col < 5; col++) {
@@ -163,11 +183,12 @@ public class PieceDesigner {
 					MaterialWithData mat2 = MaterialWithData.get(b2);
 					LogUtils.fine("Designer: insert mapping " + mat.toString() + " -> " + reverseMap.get(mat.toString()) + " -> " + mat2.toString());
 					blackMap.put(reverseMap.get(mat.toString()), mat2);
+					different = true;
 				}
 			}
 		}
 
-		return blackMap;
+		return different ? blackMap : null;
 	}
 
 	/**
@@ -188,17 +209,21 @@ public class PieceDesigner {
 		}
 		chessSet = (BlockChessSet) newChessSet;
 
-		Cuboid bounding = null;
-		for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
-			int sqi = getSqi(p);
-			Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
-			bounding = c.getBoundingCuboid(bounding);
-			BlockChessStone whiteStone = (BlockChessStone) chessSet.getStone(Chess.pieceToStone(p,  Chess.WHITE), view.getRotation());
-			LogUtils.fine("Designer: load: stone " + whiteStone.getStone() + " " + whiteStone.getWidth() + " x " + whiteStone.getSizeY());
-			view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), whiteStone.getStone());
+		for (int colour = Chess.WHITE; colour <= Chess.BLACK; colour++) {
+			for (int p = Chess.MIN_PIECE + 1; p <= Chess.MAX_PIECE; p++) {
+				int sqi = getSqi(p, colour);
+				BlockChessStone stone = (BlockChessStone) chessSet.getStone(Chess.pieceToStone(p,  colour), view.getRotation());
+				LogUtils.fine("Designer: load: stone " + stone.getStone() + " " + stone.getWidth() + " x " + stone.getSizeY());
+				view.getChessBoard().paintChessPiece(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), stone.getStone());
+			}
+			if (!chessSet.differentBlackTemplates()) {
+				break;
+			}
 		}
 
-		addMapBlocks(chessSet.getWhiteToBlack());
+		if (!chessSet.differentBlackTemplates()) {
+			addMapBlocks(chessSet.getWhiteToBlack());
+		}
 	}
 
 	private void addMapBlocks(Map<String, String> whiteToBlack) {
@@ -246,41 +271,58 @@ public class PieceDesigner {
 		chessSet = null;
 	}
 
-	private int getSqi(int p) {
-		switch (p) {
-		case Chess.PAWN:
+	private int getSqi(int p, int colour) {
+		switch (Chess.pieceToStone(p, colour)) {
+		case Chess.WHITE_PAWN:
 			return Chess.A2;
-		case Chess.KNIGHT:
+		case Chess.WHITE_KNIGHT:
 			return Chess.B1;
-		case Chess.BISHOP:
+		case Chess.WHITE_BISHOP:
 			return Chess.C1;
-		case Chess.ROOK:
+		case Chess.WHITE_ROOK:
 			return Chess.A1;
-		case Chess.QUEEN:
+		case Chess.WHITE_QUEEN:
 			return Chess.D1;
-		case Chess.KING:
+		case Chess.WHITE_KING:
 			return Chess.E1;
+		case Chess.BLACK_PAWN:
+			return Chess.A7;
+		case Chess.BLACK_KNIGHT:
+			return Chess.B8;
+		case Chess.BLACK_BISHOP:
+			return Chess.C8;
+		case Chess.BLACK_ROOK:
+			return Chess.A8;
+		case Chess.BLACK_QUEEN:
+			return Chess.D8;
+		case Chess.BLACK_KING:
+			return Chess.E8;
 		default:
 			throw new IllegalArgumentException("Invalid chess piece " + p);
 		}
 	}
 
-	private Cuboid getPieceBox(int p) {
-		int sqi = getSqi(p);
+	private Cuboid getPieceBox(int p, int colour) {
+		int sqi = getSqi(p, colour);
 		Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).contract();
 		// c is now the smallest Cuboid which fully contains the piece (with no external air)
 
 		return c;
 	}
 
-	private int rotationNeeded() {
+	private int rotationNeeded(int colour) {
+		int rot;
 		switch (view.getRotation()) {
-		case NORTH: return 0;
-		case EAST: return 270;
-		case SOUTH: return 180;
-		case WEST: return 90;
-		default: return 0;
+		case NORTH: rot = 0; break;
+		case EAST: rot = 270; break;
+		case SOUTH: rot = 180; break;
+		case WEST: rot = 90; break;
+		default: rot = 0; break;
 		}
+		if (colour == Chess.BLACK){
+			rot = (rot + 180) % 360;
+		}
+		return rot;
 	}
 
 	private class Point {
