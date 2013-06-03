@@ -627,7 +627,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		                                    MiscUtil.formatLocation(bounds.getLowerNE()),
 		                                    MiscUtil.formatLocation(bounds.getUpperSW())));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().toString())); //$NON-NLS-1$
+		// TODO:  yeah, we lie about the direction of the board here.  Blame Mojang/Bukkit for changing the meaning of the compass points
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().getLeft().toString())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
