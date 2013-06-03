@@ -42,11 +42,11 @@ public class ControlPanel {
 
 		buttonLocs = new HashMap<PersistableLocation, AbstractSignButton>();
 		buttonNames = new HashMap<String, AbstractSignButton>();
-		
+
 		panelBlocks = getPanelPosition();
-		
+
 		createSignButtons();
-		
+
 		plyCountLabel = new PlyCountLabel(this);
 		halfMoveClockLabel = new HalfmoveClockLabel(this);
 		clockLabels = new ClockLabel[2];
@@ -78,7 +78,7 @@ public class ControlPanel {
 		createSignButton(new WhiteNoButton(this));
 		createSignButton(new WhiteYesButton(this));
 	}
-	
+
 	private void createSignButton(AbstractSignButton button) {
 		buttonLocs.put(button.getLocation(), button);
 		buttonNames.put(button.getClass().getSimpleName(), button);
@@ -91,7 +91,7 @@ public class ControlPanel {
 	public TimeControlDefs getTcDefs() {
 		return getSignButton(TimeControlButton.class).getTcDefs();
 	}
-	
+
 	public void removeSigns() {
 		panelBlocks.shift(signDir.getDirection(), 1).fill(0, (byte)0);
 	}
@@ -99,7 +99,7 @@ public class ControlPanel {
 	public <T extends AbstractSignButton> T getSignButton(Class<T> type) {
 		return type.cast(buttonNames.get(type.getSimpleName()));
 	}
-	
+
 	public boolean isSignButton(Location location) {
 		return buttonLocs.containsKey(new PersistableLocation(location));
 	}
@@ -113,7 +113,7 @@ public class ControlPanel {
 	public Location getTeleportLocation() {
 		double xOff = (panelBlocks.getUpperX() - panelBlocks.getLowerX()) / 2.0 + 0.5 + signDir.getXadjustment() * 3.5;
 		double zOff = (panelBlocks.getUpperZ() - panelBlocks.getLowerZ()) / 2.0 + 0.5 + signDir.getZadjustment() * 3.5;
-	
+
 		return new Location(panelBlocks.getWorld(),
 		                    panelBlocks.getLowerX() + xOff,
 		                    panelBlocks.getLowerY(),
@@ -156,14 +156,14 @@ public class ControlPanel {
 			btn.repaint();
 		}
 	}
-	
+
 	public void signClicked(PlayerInteractEvent event) throws ChessException {
 		AbstractSignButton btn = buttonLocs.get(new PersistableLocation(event.getClickedBlock().getLocation()));
 		if (btn != null) {
 			btn.onClicked(event);
 		}
 	}
-	
+
 	public void updateToMoveIndicator() {
 		int toPlay = Chess.NOBODY;
 		if (view.getGame() != null) {
@@ -171,7 +171,7 @@ public class ControlPanel {
 		}
 		updateToMoveIndicator(toPlay);
 	}
-	
+
 	public void updateToMoveIndicator(int toPlay) {
 		MaterialWithData mat = getView().getControlPanelMaterial();
 		if (toPlay == Chess.WHITE) {
@@ -210,7 +210,7 @@ public class ControlPanel {
 
 		int panelOffset = 4 * view.getSquareSize() - PANEL_WIDTH / 2;
 		int frameOffset = (int) Math.ceil((view.getFrameWidth() + .5) / 2);
-		
+
 		// for the control panel edge, move <panelOffset> blocks in the board's direction, then
 		// <frameOffset> blocks to the left of that.
 		int x = a1.getBlockX() + dir.getXadjustment(panelOffset) + dirLeft.getXadjustment(frameOffset);

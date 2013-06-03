@@ -29,10 +29,12 @@ public class ChessPersistence {
 	}
 
 	public void reload() {
-		for (ChessGame game : ChessGameManager.getManager().listGames()) {
-			game.deleteTemporary();
+		List<ChessGame> games = new ArrayList<ChessGame>(ChessGameManager.getManager().listGames());
+		for (ChessGame game : games) {
+			games.add(game);
 		}
-		for (BoardView view : BoardViewManager.getManager().listBoardViews()) {
+		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
+		for (BoardView view : views) {
 			view.deleteTemporary();
 		}
 
@@ -50,21 +52,8 @@ public class ChessPersistence {
 	}
 
 	public static Location thawLocation(List<?> list) {
-		World w = ChessPersistence.findWorld((String) list.get(0));
-		return new Location(w,
-		                    (Integer) list.get(1),
-		                    (Integer) list.get(2),
-		                    (Integer) list.get(3));
-	}
-
-	private static World findWorld(String worldName) {
-		World w = Bukkit.getServer().getWorld(worldName);
-
-		if (w != null) {
-			return w;
-		} else {
-			throw new ChessException("World " + worldName + " was not found on the server.");
-		}
+		World w = Bukkit.getServer().getWorld((String) list.get(0));
+		return w == null ? null : new Location(w, (Integer) list.get(1), (Integer) list.get(2), (Integer) list.get(3));
 	}
 
 	private void savePersistedData() {
@@ -75,12 +64,12 @@ public class ChessPersistence {
 		for (Entry<String,String> e : ChessGameManager.getManager().getCurrentGames().entrySet()) {
 			conf.set("current_games." + e.getKey(), e.getValue());
 		}
-		
+
 		Location loc = BoardViewManager.getManager().getGlobalTeleportOutDest();
 		if (loc != null) {
 			conf.set("teleport_out_dest", new PersistableLocation(loc));
 		}
-		
+
 		try {
 			conf.save(DirectoryStructure.getPersistFile());
 		} catch (IOException e1) {
@@ -90,12 +79,12 @@ public class ChessPersistence {
 
 	private void loadPersistedData() {
 		int nLoaded = 0;
-		
+
 		// load the boards, and any games on those boards
 		for (File f : DirectoryStructure.getBoardPersistDirectory().listFiles(DirectoryStructure.ymlFilter)) {
 			nLoaded += loadBoard(f) ? 1 : 0;
 		}
-		
+
 		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 			bv.getControlPanel().repaintControls();
 		}
@@ -136,7 +125,7 @@ public class ChessPersistence {
 		LogUtils.fine("loading board: " + f);
 		try {
 			Configuration conf = MiscUtil.loadYamlUTF8(f);
-			
+
 			BoardView bv;
 			if (conf.contains("board")) {
 				bv = (BoardView) conf.get("board");
@@ -148,18 +137,19 @@ public class ChessPersistence {
 				// empty config returned - probably due to corrupted save file of some kind
 				return false;
 			}
-			if (bv.getChessBoard() != null) {
+			if (bv.isWorldAvailable()) {
 				BoardViewManager.getManager().registerView(bv);
 				// load the board's game too, if there is one
 				if (!bv.getSavedGameName().isEmpty()) {
 					File gameFile = new File(DirectoryStructure.getGamesPersistDirectory(), bv.getSavedGameName() + ".yml");
 					loadGame(gameFile);
 				}
+				return true;
 			} else {
 				BoardViewManager.getManager().deferLoading(bv.getWorldName(), f);
 				LogUtils.info("board loading for board '" + bv.getName() + "' deferred (world '" + bv.getWorldName() + "' not available)");
+				return false;
 			}
-			return true;
 		} catch (Exception e) {
 			LogUtils.severe("can't load saved board from " + f.getName() + ": " + e.getMessage(), e);
 			// TODO: restore terrain, if applicable?
@@ -211,7 +201,7 @@ public class ChessPersistence {
 			LogUtils.severe("Can't save " + tag + " " + object.getName(), e1);
 		}
 	}
-	
+
 	public void unpersist(ChessPersistable object) {
 		File f = new File(object.getSaveDirectory(), makeSafeFileName(object.getName()) + ".yml");
 		if (!f.delete()) {
@@ -219,12 +209,11 @@ public class ChessPersistence {
 		}
 	}
 
-	
 	public static void requireSection(Configuration c, String key) throws ChessException {
 		if (!c.contains(key))
 			throw new ChessException("missing required section '" + key + "'");
 	}
-	
+
 	public static String makeSafeFileName(String name) {
 		return name == null ? "" : name.replace("/", "-").replace("\\", "-").replace("?", "-").replace(":", ";").replace("%", "-").replace("|", ";").replace("\"", "'").replace("<", ",").replace(">", ".").replace("+", "=").replace("[", "(").replace("]", ")");
 	}

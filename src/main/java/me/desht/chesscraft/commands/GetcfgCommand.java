@@ -33,7 +33,7 @@ public class GetcfgCommand extends ChessAbstractCommand {
 			for (String line : lines) {
 				pager.add(line);
 			}
-			pager.showPage();		
+			pager.showPage();
 		} else if (lines.size() == 1) {
 			MiscUtil.statusMessage(player, lines.get(0));
 		} else {

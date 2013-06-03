@@ -6,12 +6,13 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.responsehandler.ExpectBase;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ExpectBoardCreation extends ExpectChessBase {
+public class ExpectBoardCreation extends ExpectBase {
 
 	private final String boardName;
 	private final String style;

@@ -28,10 +28,10 @@ public class JChecsAI extends ChessAI {
 		super(name, chessCraftGame, isWhite, params);
 
 		jChecsGame = initGame();
-		
+
 		setReady();
 	}
-	
+
 	/**
 	 * Initialise the jChecs Game object.
 	 * 
