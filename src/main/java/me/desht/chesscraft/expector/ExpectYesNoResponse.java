@@ -5,9 +5,10 @@ import org.bukkit.entity.Player;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.responsehandler.ExpectBase;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 
-public abstract class ExpectYesNoResponse extends ExpectChessBase {
+public abstract class ExpectYesNoResponse extends ExpectBase {
 
 	protected final ChessGame game;
 	protected final String offerer;
@@ -25,7 +26,7 @@ public abstract class ExpectYesNoResponse extends ExpectChessBase {
 	public ChessGame getGame() {
 		return game;
 	}
-	
+
 	/**
 	 * The given player has just typed "yes" or "no" (or used a Yes/No button).  Work out to what offer they're
 	 * responding, and carry out the associated action.

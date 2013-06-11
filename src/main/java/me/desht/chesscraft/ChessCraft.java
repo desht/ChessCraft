@@ -87,7 +87,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private static WorldEditPlugin worldEditPlugin;
 	private static ChessPersistence persistence;
 
-	public final ResponseHandler responseHandler = new ResponseHandler();
+	public final ResponseHandler responseHandler = new ResponseHandler(this);
 
 	public static Economy economy = null;
 

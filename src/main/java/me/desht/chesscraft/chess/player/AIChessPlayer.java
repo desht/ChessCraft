@@ -17,10 +17,10 @@ import chesspresso.move.Move;
 public class AIChessPlayer extends ChessPlayer {
 
 	private final ChessAI ai;
-	
+
 	public AIChessPlayer(String name, ChessGame game, int colour) {
 		super(name, game, colour);
-		
+
 		ai = AIFactory.instance.getNewAI(game, name, colour == Chess.WHITE);
 	}
 
@@ -127,7 +127,7 @@ public class AIChessPlayer extends ChessPlayer {
 	public void checkPendingAction() {
 		ChessGame game = getGame();
 		ChessPlayer otherPlayer = game.getPlayer(Chess.otherPlayer(getColour()));
-		
+
 		if (ai.hasFailed()) {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {

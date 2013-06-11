@@ -125,8 +125,15 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			attributes.set(e.getValue(), conf.getString(e.getKey()));
 		}
 
-		Location where = ChessPersistence.thawLocation(conf.getList("origin"));
-		worldName = where.getWorld().getName();
+		List<?> origin = conf.getList("origin");
+		worldName = (String) origin.get(0);
+		Location where = ChessPersistence.thawLocation(origin);
+		if (where == null) {
+			// world not available
+			chessBoard = null;
+			controlPanel = null;
+			return;
+		}
 		BoardRotation dir = BoardRotation.getRotation(conf.getString("direction"));
 		chessBoard = new ChessBoard(where, dir, (String)attributes.get(BOARD_STYLE), (String)attributes.get(OVERRIDE_PIECE_STYLE));
 		controlPanel = new ControlPanel(this);
@@ -141,6 +148,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 
 		teleportOutDest = conf.contains("teleportOutDest") ? (PersistableLocation) conf.get("teleportOutDest") : null;
+	}
+
+	public boolean isWorldAvailable() {
+		return chessBoard != null;
 	}
 
 	/**
@@ -616,7 +627,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		                                    MiscUtil.formatLocation(bounds.getLowerNE()),
 		                                    MiscUtil.formatLocation(bounds.getUpperSW())));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().toString())); //$NON-NLS-1$
+		// TODO:  yeah, we lie about the direction of the board here.  Blame Mojang/Bukkit for changing the meaning of the compass points
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().getLeft().toString())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$

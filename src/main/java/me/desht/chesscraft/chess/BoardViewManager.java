@@ -278,6 +278,7 @@ public class BoardViewManager {
 		if (!deferred.containsKey(worldName)) {
 			return;
 		}
+		LogUtils.info("loading deferred boards for " + worldName);
 		for (File f : deferred.get(worldName)) {
 			ChessCraft.getPersistenceHandler().loadBoard(f);
 		}

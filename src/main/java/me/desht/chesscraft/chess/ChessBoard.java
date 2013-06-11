@@ -47,9 +47,9 @@ public class ChessBoard {
 	private final Cuboid aboveFullBoard;
 	// the full board region (board, frame, and area above)
 	private final Cuboid fullBoard;
-	// this is the direction white faces
+	// this is the direction the control panel faces
+	// (once upon a time, it was the direction white faced, but directions aren't what they used to be...)
 	private final BoardRotation rotation;
-
 	// if highlight_last_move, what squares (indices) are highlighted
 	private int fromSquare = -1, toSquare = -1;
 	// settings related to how the board is drawn

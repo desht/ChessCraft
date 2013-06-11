@@ -47,7 +47,7 @@ import chesspresso.Chess;
 import chesspresso.move.IllegalMoveException;
 
 public class ChessPlayerListener extends ChessListenerBase {
-	
+
 	public ChessPlayerListener(ChessCraft plugin) {
 		super(plugin);
 	}
@@ -58,7 +58,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		transparent.add((byte) 0); // air
 		transparent.add((byte) 20); // glass
 	}
-	
+
 	private static final long MIN_ANIMATION_WAIT = 200; // milliseconds
 	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
 
@@ -66,9 +66,9 @@ public class ChessPlayerListener extends ChessListenerBase {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		String playerName = player.getName();
-		
+
 		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
-		
+
 		// a left or right-click (even air, where the event is cancelled) cancels any pending player invite response
 		if (resp.isExpecting(playerName, ExpectInvitePlayer.class)) {
 			resp.cancelAction(playerName, ExpectInvitePlayer.class);
@@ -80,7 +80,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (event.isCancelled()) {
 			return;
 		}
-		
+
 		try {
 			Block b = event.getClickedBlock();
 			if (b == null) {
@@ -130,7 +130,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			return;
 		}
 		lastAnimation.put(player.getName(), System.currentTimeMillis());
-		
+
 		Block targetBlock = null;
 
 		try {
@@ -169,7 +169,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		}
 
 	}
-	
+
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
@@ -214,27 +214,27 @@ public class ChessPlayerListener extends ChessListenerBase {
 			event.setItemStack(new ItemStack(Material.BUCKET, 1));
 		}
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getBlockClicked().getLocation(), 0) != null) {
 			event.setCancelled(true);
 		}
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getFrom(), 0) != null) {
 			event.setCancelled(true);
 		}
 	}
-	
+
 	@EventHandler(ignoreCancelled = true, priority=EventPriority.HIGH)
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 		ExpectInvitePlayer ip = resp.getAction(player.getName(), ExpectInvitePlayer.class);
-		
+
 		if (ip != null) {
 			try {
 				ip.setInviteeName(event.getMessage());
@@ -246,7 +246,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			}
 		}
 	}
-	
+
 	private void cancelMove(Location loc) {
 		BoardView bv = BoardViewManager.getManager().onChessBoard(loc);
 		if (bv == null) {
@@ -263,12 +263,12 @@ public class ChessPlayerListener extends ChessListenerBase {
 			teleportToPiece(player, bv, loc);
 			return;
 		}
-		
+
 		ChessGame game = bv.getGame();
 		if (game == null || game.getState() != GameState.RUNNING) {
 			return;
 		}
-		
+
 		ChessGameManager.getManager().setCurrentGame(player.getName(), game);
 
 		int sqi = game.getView().getSquareAt(loc);
@@ -281,7 +281,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					int piece = game.getPosition().getPiece(sqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
 					MiscUtil.statusMessage(player,
-							Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
+					                       Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
 					plugin.getFX().playEffect(player.getLocation(), "piece_selected");
 				}
 			} else {
@@ -294,7 +294,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					// try to move the selected piece
 					game.doMove(player.getName(), sqi);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-							game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
+					                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
@@ -325,11 +325,11 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
 			game.doMove(player.getName(), sqi);
 			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
-					game.getPosition().getLastMove().getSAN()));
+			                                                  game.getPosition().getLastMove().getSAN()));
 		} else {
 			if (player.isSneaking()) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
-				                                                    Chess.sqiToStr(sqi), bv.getName()));
+				                                                  Chess.sqiToStr(sqi), bv.getName()));
 			}
 			if (bv.isPartOfBoard(player.getLocation())) {
 				// allow teleporting around the board, but only if the player is 
@@ -341,7 +341,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			}
 		}
 	}
-	
+
 	private void teleportPlayer(Player player, Location dest) {
 		plugin.getFX().playEffect(player.getLocation(), "teleport_out");
 		player.teleport(dest);
