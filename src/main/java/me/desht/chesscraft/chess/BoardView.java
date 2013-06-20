@@ -564,6 +564,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * vulnerable to mining!
 	 */
 	public void deleteTemporary() {
+		if (getGame() != null) {
+			getGame().deleteTemporary();
+		}
 		deleteCommon();
 	}
 

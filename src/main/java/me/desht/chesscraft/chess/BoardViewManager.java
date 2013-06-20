@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
@@ -283,5 +284,21 @@ public class BoardViewManager {
 			ChessCraft.getPersistenceHandler().loadBoard(f);
 		}
 		deferred.get(worldName).clear();
+	}
+
+	/**
+	 * Called when a world is unloaded.  Put any boards in that world back on the deferred list.
+	 *
+	 * @param worldName
+	 */
+	public void unloadBoardsForWorld(String worldName) {
+		for (BoardView bv : new ArrayList<BoardView>(listBoardViews())) {
+			if (bv.getWorldName().equals(worldName)) {
+				bv.deleteTemporary();
+				File f = new File(bv.getSaveDirectory(), ChessPersistence.makeSafeFileName(bv.getName()) + ".yml");
+				deferLoading(bv.getWorldName(), f);
+				LogUtils.info("unloaded board '" + bv.getName() + "' (world has been unloaded)");
+			}
+		}
 	}
 }
