@@ -250,9 +250,9 @@ public class DirectoryStructure {
 		}
 		if (!f.exists()) {
 			f = new File(dir, filename.toLowerCase() + ".yml");
-			if (!f.exists()) {
-				throw new ChessException("resource file '" + f + "' is not readable");
-			}
+//			if (!f.exists()) {
+//				throw new ChessException("Resource file '" + f + "' does not exist");
+//			}
 		}
 		return f;
 	}

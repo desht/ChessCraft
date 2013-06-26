@@ -58,7 +58,10 @@ public class ChessSetFactory {
 	}
 
 	private static ChessSet loadChessSet(String setName) throws ChessException {
-		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);		
+		File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getPieceStyleDirectory(), setName);
+		if (!f.exists()) {
+			throw new ChessException("No such piece style '" + setName + "'");
+		}
 		try {
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 

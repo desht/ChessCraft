@@ -3,8 +3,10 @@ package me.desht.chesscraft.commands;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -23,6 +25,7 @@ import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessSetFactory;
+import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
 
@@ -75,20 +78,11 @@ public abstract class ChessAbstractCommand extends AbstractCommand {
 	}
 
 	protected List<String> getBoardStyleCompletions(Plugin plugin, CommandSender sender, String prefix) {
-		List<String> styleNames = new ArrayList<String>();
-		for (BoardStyle style : getAllBoardStyles()) {
-			styleNames.add(style.getName());
-		}
-		return filterPrefix(sender, styleNames, prefix);
+		return filterPrefix(sender, getAllBoardStyleNames(), prefix);
 	}
 
-
 	protected List<String> getPieceStyleCompletions(Plugin plugin, CommandSender sender, String prefix) {
-		List<String> styleNames = new ArrayList<String>();
-		for (ChessSet style : getAllPieceStyles()) {
-			styleNames.add(style.getName());
-		}
-		return filterPrefix(sender, styleNames, prefix);
+		return filterPrefix(sender, getAllPieceStyleNames(), prefix);
 	}
 
 	protected List<String> getPlayerCompletions(Plugin plugin, CommandSender sender, String prefix, boolean aiOnly) {
@@ -108,38 +102,47 @@ public abstract class ChessAbstractCommand extends AbstractCommand {
 
 	protected List<ChessSet> getAllPieceStyles() {
 		Map<String,ChessSet> res = new HashMap<String, ChessSet>();
-
-		File dir = DirectoryStructure.getPieceStyleDirectory();
-		File customDir = new File(dir, "custom");
-
-		for (File f : customDir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			res.put(styleName, ChessSetFactory.getChessSet(styleName));
-		}
-		for (File f : dir.listFiles(DirectoryStructure.ymlFilter)) {
-			String styleName = f.getName().replaceAll("\\.yml$", "");
-			if (res.containsKey(styleName)) continue;
-			res.put(styleName, ChessSetFactory.getChessSet(styleName));
+		for (String styleName : getAllPieceStyleNames()) {
+			try {
+				res.put(styleName, ChessSetFactory.getChessSet(styleName));
+			} catch (ChessException e) {
+				// bad piece style?
+			}
 		}
 		return MiscUtil.asSortedList(res.values());
 	}
 
 	protected List<BoardStyle> getAllBoardStyles() {
 		Map<String, BoardStyle> res = new HashMap<String, BoardStyle>();
+		for (String styleName : getAllBoardStyleNames()) {
+			try {
+				res.put(styleName, BoardStyle.loadStyle(styleName));
+			} catch (ChessException e) {
+				// bad board style?
+			}
+		}
+		return MiscUtil.asSortedList(res.values());
+	}
 
-		File dir = DirectoryStructure.getBoardStyleDirectory();
-		File customDir = new File(dir, "custom");
+	protected List<String> getAllBoardStyleNames() {
+		return getAllStyleNames(DirectoryStructure.getBoardStyleDirectory());
+	}
 
-		for (File f : customDir.listFiles(DirectoryStructure.ymlFilter)) {
+	protected List<String> getAllPieceStyleNames() {
+		return getAllStyleNames(DirectoryStructure.getPieceStyleDirectory());
+	}
+
+	private List<String> getAllStyleNames(File dir) {
+		Set<String> res = new HashSet<String>();
+		for (File f : new File(dir, "custom").listFiles(DirectoryStructure.ymlFilter)) {
 			String styleName = f.getName().replaceAll("\\.yml$", "");
-			res.put(styleName, BoardStyle.loadStyle(styleName));
+			res.add(styleName);
 		}
 		for (File f : dir.listFiles(DirectoryStructure.ymlFilter)) {
 			String styleName = f.getName().replaceAll("\\.yml$", "");
-			if (res.containsKey(styleName)) continue;
-			res.put(styleName, BoardStyle.loadStyle(styleName));
+			res.add(styleName);
 		}
-		return MiscUtil.asSortedList(res.values());
+		return MiscUtil.asSortedList(res);
 	}
 
 	@Override

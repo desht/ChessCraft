@@ -21,6 +21,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.AttributeCollection;
 import me.desht.dhutils.ConfigurationListener;
 import me.desht.dhutils.ConfigurationManager;
+import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.MaterialWithData;
 
@@ -57,7 +58,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	 * @param styleName name of this board style
 	 * @param c configuration object which stores this board style
 	 * @param isCustom true if this is a custom-created board style, false if it is a stock style
-	 * @throws ChessException
+	 * @throws ChessException if the board style is any way invalid
 	 */
 	private BoardStyle(String styleName, Configuration c, boolean isCustom) throws ChessException {
 		for (String k : new String[] {
@@ -72,11 +73,18 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		this.squareSize = c.getInt("square_size");
 		this.frameWidth = c.getInt("frame_width");
 		this.height = c.getInt("height");
-		ChessValidate.isTrue(c.contains("lit") || c.contains("light_level"), "board style must have at least one of 'lit' or 'light_level'");
+		ChessValidate.isTrue(squareSize > 0, "Invalid square size " + squareSize + " in board style " + styleName);
+		ChessValidate.isTrue(frameWidth > 1, "Invalid frame width " + frameWidth + " in board style " + styleName);
+		ChessValidate.isTrue(height > 0, "Invalid height " + height + " in board style " + styleName);
+		ChessValidate.isTrue(c.contains("lit") || c.contains("light_level"), "Board style must have at least one of 'lit' or 'light_level'");
 
 		for (String k : c.getKeys(false)) {
 			if (attributes.contains(k)) {
-				attributes.set(k, c.getString(k));
+				try {
+					attributes.set(k, c.getString(k));
+				} catch (DHUtilsException e) {
+					throw new ChessException("Invalid value for style attribute '" + k + "' in style '" + styleName + "': " + e.getMessage());
+				}
 			}
 		}
 	}
@@ -239,6 +247,9 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 		try {
 			File f = DirectoryStructure.getResourceFileForLoad(DirectoryStructure.getBoardStyleDirectory(), styleName);
+			if (!f.exists()) {
+				throw new ChessException("No such board style '" + styleName + "'");
+			}
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 			return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
 		} catch (Exception e) {
