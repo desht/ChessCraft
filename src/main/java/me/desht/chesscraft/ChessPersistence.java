@@ -92,26 +92,29 @@ public class ChessPersistence {
 		LogUtils.fine("loaded " + nLoaded + " saved boards.");
 
 		// load other misc data which isn't tied to any board or game
-		try {
-			YamlConfiguration conf = MiscUtil.loadYamlUTF8(DirectoryStructure.getPersistFile());
-			ConfigurationSection current = conf.getConfigurationSection("current_games");
-			if (current != null) {
-				for (String player : current.getKeys(false)) {
-					try {
-						ChessGameManager.getManager().setCurrentGame(player, current.getString(player));
-					} catch (ChessException e) {
-						LogUtils.warning("can't set current game for player " + player + ": "
-								+ e.getMessage());
+		File persistFile = DirectoryStructure.getPersistFile();
+		if (persistFile.exists()) {
+			try {
+				YamlConfiguration conf = MiscUtil.loadYamlUTF8(DirectoryStructure.getPersistFile());
+				ConfigurationSection current = conf.getConfigurationSection("current_games");
+				if (current != null) {
+					for (String player : current.getKeys(false)) {
+						try {
+							ChessGameManager.getManager().setCurrentGame(player, current.getString(player));
+						} catch (ChessException e) {
+							LogUtils.warning("can't set current game for player " + player + ": "
+									+ e.getMessage());
+						}
 					}
 				}
+				if (conf.contains("teleport_out_dest")) {
+					PersistableLocation pLoc = (PersistableLocation) conf.get("teleport_out_dest");
+					BoardViewManager.getManager().setGlobalTeleportOutDest(pLoc.getLocation());
+				}
+			} catch (Exception e) {
+				LogUtils.severe("Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());
+				LogUtils.severe("Message: " + e.getMessage());
 			}
-			if (conf.contains("teleport_out_dest")) {
-				PersistableLocation pLoc = (PersistableLocation) conf.get("teleport_out_dest");
-				BoardViewManager.getManager().setGlobalTeleportOutDest(pLoc.getLocation());
-			}
-		} catch (Exception e) {
-			LogUtils.severe("Unexpected Error while loading " + DirectoryStructure.getPersistFile().getName());
-			LogUtils.severe("Message: " + e.getMessage());
 		}
 	}
 
