@@ -12,6 +12,7 @@ import me.desht.scrollingmenusign.SMSException;
 import me.desht.scrollingmenusign.SMSHandler;
 import me.desht.scrollingmenusign.SMSMenu;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.enums.SMSMenuAction;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -117,7 +118,7 @@ public class SMSIntegration implements Listener {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.addItem(label, command, ""); //$NON-NLS-1$
-				menu.notifyObservers();
+				menu.notifyObservers(SMSMenuAction.REPAINT);
 			} catch (SMSException e) {
 				// shouldn't get here
 				LogUtils.warning(null, e); //$NON-NLS-1$
@@ -130,7 +131,7 @@ public class SMSIntegration implements Listener {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
 				menu.removeItem(label);
-				menu.notifyObservers();
+				menu.notifyObservers(SMSMenuAction.REPAINT);
 			} catch (SMSException e) {
 				LogUtils.warning(null, e); //$NON-NLS-1$
 			}
