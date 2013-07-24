@@ -328,6 +328,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return instance;
 	}
 
+	public DynmapIntegration getDynmapIntegration() {
+		return dynmapIntegration;
+	}
+
 	public PlayerTracker getPlayerTracker() {
 		return tracker;
 	}

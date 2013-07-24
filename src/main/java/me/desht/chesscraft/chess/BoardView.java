@@ -446,12 +446,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		pieceRidingCheck(fromSqi, toSqi);
 
-		chessBoard.highlightSquares(fromSqi, toSqi);
+		getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
+		getChessBoard().highlightSquares(fromSqi, toSqi);
 	}
 
 	@Override
 	public void notifyMoveUndone(ImmutablePosition position) {
-		// Repaint the last-move indicators
+		// Repaint the selected & last-move indicators
+		getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
 		Move m = getGame().getChesspressoGame().getLastMove();
 		if (m != null) {
 			getChessBoard().highlightSquares(m.getFromSqi(), m.getToSqi());

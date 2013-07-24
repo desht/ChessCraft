@@ -45,6 +45,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	private static final String HIGHLIGHT_STYLE = "highlight_style";
 	private static final String LIGHT_LEVEL = "light_level";
 	private static final String PIECE_STYLE = "piece_style";
+	private static final String HIGHLIGHT_SELECTED = "highlight_selected";
 
 	private final boolean isCustom;
 	private final int frameWidth, squareSize, height;
@@ -92,16 +93,17 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	private void registerAttributes() {
 		attributes.registerAttribute(LIGHT_LEVEL, 15, "Lighting level (0-15) for the board");
 		attributes.registerAttribute(PIECE_STYLE, "Standard", "Default piece style for the board");
-		attributes.registerAttribute(WHITE_SQUARE, MaterialWithData.get("wool:white"), "Block for white board square");
-		attributes.registerAttribute(BLACK_SQUARE, MaterialWithData.get("wool:black"), "Block for black board square");
-		attributes.registerAttribute(FRAME, MaterialWithData.get("wood"), "Block for outer board frame");
-		attributes.registerAttribute(ENCLOSURE, MaterialWithData.get("air"), "Block for board enclosure");
-		attributes.registerAttribute(STRUTS, MaterialWithData.get("wood"), "Block for board edge struts");
-		attributes.registerAttribute(PANEL, MaterialWithData.get("wood"), "Block for control panel");
-		attributes.registerAttribute(HIGHLIGHT_SQUARE, MaterialWithData.get("wool:red"), "Block for last-move highlight");
-		attributes.registerAttribute(HIGHLIGHT_WHITE_SQUARE, MaterialWithData.get("wool:red"), "Block for last-move highlight (white squares)");
-		attributes.registerAttribute(HIGHLIGHT_BLACK_SQUARE, MaterialWithData.get("wool:red"), "Block for last-move highlight (black squares)");
+		attributes.registerAttribute(WHITE_SQUARE, MaterialWithData.get("wool:white"), "Material for white board square");
+		attributes.registerAttribute(BLACK_SQUARE, MaterialWithData.get("wool:black"), "Material for black board square");
+		attributes.registerAttribute(FRAME, MaterialWithData.get("wood"), "Material for outer board frame");
+		attributes.registerAttribute(ENCLOSURE, MaterialWithData.get("air"), "Material for board enclosure");
+		attributes.registerAttribute(STRUTS, MaterialWithData.get("wood"), "Material for board edge struts");
+		attributes.registerAttribute(PANEL, MaterialWithData.get("wood"), "Material for control panel");
+		attributes.registerAttribute(HIGHLIGHT_SQUARE, MaterialWithData.get("wool:red"), "Material for last-move highlight");
+		attributes.registerAttribute(HIGHLIGHT_WHITE_SQUARE, MaterialWithData.get("wool:red"), "Material for last-move highlight (white squares)");
+		attributes.registerAttribute(HIGHLIGHT_BLACK_SQUARE, MaterialWithData.get("wool:red"), "Material for last-move highlight (black squares)");
 		attributes.registerAttribute(HIGHLIGHT_STYLE, HighlightStyle.CORNERS, "Style of last-move highlighting");
+		attributes.registerAttribute(HIGHLIGHT_SELECTED, MaterialWithData.get("wool:yellow"), "Material for selected square highlight");
 	}
 
 	public String getName() {
@@ -176,6 +178,10 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		return (MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE);
 	}
 
+	public MaterialWithData getSelectedHighlightMaterial() {
+		return (MaterialWithData) attributes.get(HIGHLIGHT_SELECTED);
+	}
+
 	private void validateIsBlock(MaterialWithData mat, String tag) {
 		ChessValidate.isTrue(mat.getBukkitMaterial().isBlock(), tag + ": " + mat + " is not a block material!");
 	}
@@ -227,6 +233,8 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 			out.write("highlight_white_square: '" + getWhiteSquareHighlightMaterial() + "'\n");
 			out.write("# highlighting material on black squares (default: 'highlight' setting)\n");
 			out.write("highlight_black_square: '" + getBlackSquareHighlightMaterial() + "'\n");
+			out.write("# highlighting material on selected squares\n");
+			out.write("highlight_selected: '" + getSelectedHighlightMaterial() + "'\n");
 			out.close();
 
 			return loadStyle(newStyleName);

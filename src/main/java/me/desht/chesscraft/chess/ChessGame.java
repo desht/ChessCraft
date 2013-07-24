@@ -68,7 +68,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private String invited;
 	private GameState state;
-	private int fromSquare;
 	private long started, finished, lastMoved, lastOpenInvite;
 	private TimeControl tcWhite, tcBlack;
 	private int result;
@@ -97,7 +96,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[colour] = new HumanChessPlayer(playerName, this, colour);
 		}
 		state = GameState.SETTING_UP;
-		fromSquare = Chess.NO_SQUARE;
+//		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
@@ -153,7 +152,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[Chess.WHITE] = createPlayer(map.getString("playerWhite"), Chess.WHITE);
 		players[Chess.BLACK] = createPlayer(map.getString("playerBlack"), Chess.BLACK);
 		state = GameState.valueOf(map.getString("state")); //$NON-NLS-1$
-		fromSquare = Chess.NO_SQUARE;
 		invited = map.getString("invited"); //$NON-NLS-1$
 		List<Integer> hTmp = map.getIntegerList("moves"); //$NON-NLS-1$
 		for (int m : hTmp) {
@@ -345,10 +343,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		getView().getControlPanel().repaintControls();
 	}
 
-	public int getFromSquare() {
-		return fromSquare;
-	}
-
 	public long getStarted() {
 		return started;
 	}
@@ -359,10 +353,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public long getFinished() {
 		return finished;
-	}
-
-	public void setFromSquare(int fromSquare) {
-		this.fromSquare = fromSquare;
 	}
 
 	public List<Short> getHistory() {
@@ -794,28 +784,15 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Do a move for playerName to toSquare; fromSquare should already be set
-	 * either from the command-line, or by clicking a piece.
-	 * 
-	 * @param playerName
-	 * @param toSquare
-	 * @throws IllegalMoveException
-	 * @throws ChessException
-	 */
-	public void doMove(String playerName, int toSquare) throws IllegalMoveException, ChessException {
-		doMove(playerName, toSquare, fromSquare);
-	}
-
-	/**
 	 * Do a move for player from fromSquare to toSquare.
 	 * 
 	 * @param playerName
-	 * @param toSquare
 	 * @param fromSquare
+	 * @param toSquare
 	 * @throws IllegalMoveException
 	 * @throws ChessException
 	 */
-	public void doMove(String playerName, int toSquare, int fromSquare) throws IllegalMoveException, ChessException {
+	public void doMove(String playerName, int fromSquare, int toSquare) throws IllegalMoveException, ChessException {
 		ensureGameState(GameState.RUNNING);
 		ensurePlayerToMove(playerName);
 		if (fromSquare == Chess.NO_SQUARE) {
@@ -834,15 +811,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		history.add(realMove);
 		toggleChessClocks();
 		autoSave();
-		this.fromSquare = Chess.NO_SQUARE;
 
 		players[prevToMove].cancelOffers();
 
-		if (checkForFinishingPosition())
-			return;
-
-		// the game continues...
-		players[getPosition().getToPlay()].promptForNextMove();
+		if (!checkForFinishingPosition()) {
+			// the game continues...
+			players[getPosition().getToPlay()].promptForNextMove();
+		}
 	}
 
 	/**

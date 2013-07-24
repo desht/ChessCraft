@@ -51,7 +51,9 @@ public class ChessBoard {
 	// (once upon a time, it was the direction white faced, but directions aren't what they used to be...)
 	private final BoardRotation rotation;
 	// if highlight_last_move, what squares (indices) are highlighted
-	private int fromSquare = -1, toSquare = -1;
+	private int fromSquare = Chess.NO_SQUARE, toSquare = Chess.NO_SQUARE;
+	// the currently selected square, if any
+	private int selectedSquare = Chess.NO_SQUARE;
 	// settings related to how the board is drawn
 	private BoardStyle boardStyle = null;
 	// the set of chess pieces that go with this board
@@ -262,6 +264,27 @@ public class ChessBoard {
 	}
 
 	/**
+	 * @return the selectedSquare
+	 */
+	public int getSelectedSquare() {
+		return selectedSquare;
+	}
+
+	/**
+	 * @param selectedSquare the selectedSquare to set
+	 */
+	public void setSelectedSquare(int selectedSquare) {
+		if (this.selectedSquare != Chess.NO_SQUARE) {
+			// un-highlight the previous selection
+			paintBoardSquare(this.selectedSquare, null);
+		}
+		this.selectedSquare = selectedSquare;
+		if (this.selectedSquare != Chess.NO_SQUARE) {
+			highlightSelectedBoardSquare(selectedSquare);
+		}
+	}
+
+	/**
 	 * @return the redrawNeeded
 	 */
 	public boolean isRedrawNeeded() {
@@ -301,6 +324,9 @@ public class ChessBoard {
 		}
 		fullBoard.forceLightLevel(boardStyle.getLightLevel());
 		redrawNeeded = false;
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(fullBoard);
+		}
 	}
 
 	private void paintEnclosure(MassBlockUpdate mbu) {
@@ -365,41 +391,55 @@ public class ChessBoard {
 		} else {
 			square.fill(black ? boardStyle.getBlackSquareMaterial() : boardStyle.getWhiteSquareMaterial(), mbu);
 		}
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(square);
+		}
 	}
 
-	private void highlightBoardSquare(int sqi, boolean highlight) {
-		highlightBoardSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi), highlight);
+	private void highlightBoardSquare(int sqi) {
+		highlightBoardSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
 	}
 
-	private void highlightBoardSquare(int row, int col, boolean highlight) {
-		if (!highlight) {
-			paintBoardSquare(row, col, null);
-		} else {
-			Cuboid sq = getSquare(row, col);
-			MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
-			switch (boardStyle.getHighlightStyle()) {
-			case EDGES:
-				sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
-				sq.getFace(CuboidDirection.North).fill(squareHighlightColor);
-				sq.getFace(CuboidDirection.West).fill(squareHighlightColor);
-				sq.getFace(CuboidDirection.South).fill(squareHighlightColor);
-				break;
-			case CORNERS:
-				for (Block b : sq.corners()) {
-					squareHighlightColor.applyToBlock(b);
-				}
-				break;
-			case CHECKERED:
-			case CHEQUERED:
-				for (Block b : sq) {
-					if ((b.getLocation().getBlockX() - b.getLocation().getBlockZ()) % 2 == 0) {
-						squareHighlightColor.applyToBlock(b.getLocation().getBlock());
-					}
-				}
-				break;
-			default:
-				break;
+	private void highlightSelectedBoardSquare(int sqi) {
+		Cuboid sq = getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
+		MaterialWithData squareHighlightColor = boardStyle.getSelectedHighlightMaterial();
+		sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
+		sq.getFace(CuboidDirection.North).fill(squareHighlightColor);
+		sq.getFace(CuboidDirection.West).fill(squareHighlightColor);
+		sq.getFace(CuboidDirection.South).fill(squareHighlightColor);
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(sq);
+		}
+	}
+
+	private void highlightBoardSquare(int row, int col) {
+		Cuboid sq = getSquare(row, col);
+		MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
+		switch (boardStyle.getHighlightStyle()) {
+		case EDGES:
+			sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
+			sq.getFace(CuboidDirection.North).fill(squareHighlightColor);
+			sq.getFace(CuboidDirection.West).fill(squareHighlightColor);
+			sq.getFace(CuboidDirection.South).fill(squareHighlightColor);
+			break;
+		case CORNERS:
+			for (Block b : sq.corners()) {
+				squareHighlightColor.applyToBlock(b);
 			}
+			break;
+		case CHECKERED:
+		case CHEQUERED:
+			for (Block b : sq) {
+				if ((b.getLocation().getBlockX() - b.getLocation().getBlockZ()) % 2 == 0) {
+					squareHighlightColor.applyToBlock(b.getLocation().getBlock());
+				}
+			}
+			break;
+		default:
+			break;
+		}
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(sq);
 		}
 	}
 
@@ -440,6 +480,9 @@ public class ChessBoard {
 
 		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());	
 		mbu.notifyClients();
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(region);
+		}
 	}
 
 	/**
@@ -487,8 +530,8 @@ public class ChessBoard {
 			if (boardStyle.getHighlightStyle() == HighlightStyle.LINE) {
 				drawHighlightLine(fromSquare, toSquare, true);
 			} else {
-				highlightBoardSquare(fromSquare, true);
-				highlightBoardSquare(toSquare, true);
+				highlightBoardSquare(fromSquare);
+				highlightBoardSquare(toSquare);
 			}
 		}
 	}
@@ -541,6 +584,9 @@ public class ChessBoard {
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), getBoard().getWorld());
 		fullBoard.fill(0, (byte)0, mbu);
 		mbu.notifyClients();
+		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
+			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(fullBoard);
+		}
 	}
 
 	/**

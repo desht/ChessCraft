@@ -12,6 +12,7 @@ import me.desht.chesscraft.event.ChessGameCreatedEvent;
 import me.desht.chesscraft.event.ChessGameDeletedEvent;
 import me.desht.chesscraft.event.ChessGameStateChangedEvent;
 import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.cuboid.Cuboid;
 
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -56,6 +57,11 @@ public class DynmapIntegration implements Listener {
 		priority = plugin.getConfig().getInt("dynmap.layer_priority");
 		hideByDefault = plugin.getConfig().getBoolean("dynmap.hide_by_default");
 		minZoom = plugin.getConfig().getInt("dynmap.min_zoom");
+	}
+
+	public void triggerUpdate(Cuboid c) {
+		LogUtils.finer("dynmap: triggering render of " + c);
+		dynmap.triggerRenderOfVolume(c.getLowerNE(), c.getUpperSW());
 	}
 
 	/**

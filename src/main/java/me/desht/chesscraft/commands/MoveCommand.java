@@ -51,9 +51,9 @@ public class MoveCommand extends ChessAbstractCommand {
 			from = m.getFromSqi();
 			to = m.getToSqi();
 		}
-		game.setFromSquare(from);
+		game.getView().getChessBoard().setSelectedSquare(from);
 		try {
-			game.doMove(sender.getName(), to);
+			game.doMove(sender.getName(), from, to);
 			MiscUtil.statusMessage(sender, Messages.getString("ChessPlayerListener.youPlayed",
 			                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 		} catch (IllegalMoveException e) {

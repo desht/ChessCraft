@@ -4,16 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.World;
-import org.bukkit.block.Block;
-
-import chesspresso.Chess;
+import me.desht.chesscraft.enums.BoardRotation;
+import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.dhutils.LogUtils;
+
+import org.bukkit.World;
+import org.bukkit.block.Block;
+
+import chesspresso.Chess;
 
 public class BlockChessStone extends ChessStone {
 	private final MaterialWithData[][][] pieceArray;
@@ -28,10 +29,6 @@ public class BlockChessStone extends ChessStone {
 	public BlockChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
 		super(stone);
 
-//		int rotation = direction.ordinal() * 90;
-//		if (Chess.stoneHasColor(stone, Chess.BLACK)) {
-//			rotation = (rotation + 180) % 360;
-//		}
 		int rotation = rotationNeeded(direction, Chess.stoneToColor(stone));
 
 		int tmplX = tmpl.getSizeX();

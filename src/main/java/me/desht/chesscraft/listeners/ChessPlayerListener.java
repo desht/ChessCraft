@@ -116,7 +116,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
 			}
 		} catch (DHUtilsException e) {
-			MiscUtil.errorMessage(player, e.getMessage());			
+			MiscUtil.errorMessage(player, e.getMessage());
 		}
 	}
 
@@ -253,7 +253,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 			bv = BoardViewManager.getManager().aboveChessBoard(loc);
 		}
 		if (bv != null && bv.getGame() != null) {
-			bv.getGame().setFromSquare(Chess.NO_SQUARE);
+			bv.getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
 		}
 	}
 
@@ -271,34 +271,36 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		ChessGameManager.getManager().setCurrentGame(player.getName(), game);
 
-		int sqi = game.getView().getSquareAt(loc);
+		int clickedSqi = game.getView().getSquareAt(loc);
+		int selectedSqi = bv.getChessBoard().getSelectedSquare();
 		if (game.isPlayerToMove(player.getName())) {
-			if (game.getFromSquare() == Chess.NO_SQUARE) {
+			if (selectedSqi == Chess.NO_SQUARE) {
 				// select the piece for moving (if it belongs to the player)
-				int colour = game.getPosition().getColor(sqi);
+				int colour = game.getPosition().getColor(clickedSqi);
 				if (colour == game.getPosition().getToPlay()) {
-					game.setFromSquare(sqi);
-					int piece = game.getPosition().getPiece(sqi);
+					bv.getChessBoard().setSelectedSquare(clickedSqi);
+					int piece = game.getPosition().getPiece(clickedSqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					MiscUtil.statusMessage(player,
-					                       Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(sqi))); //$NON-NLS-1$
+					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(clickedSqi))); //$NON-NLS-1$
 					plugin.getFX().playEffect(player.getLocation(), "piece_selected");
 				}
 			} else {
-				if (sqi == game.getFromSquare()) {
+				if (clickedSqi == selectedSqi) {
 					// cancel a selected piece
-					game.setFromSquare(Chess.NO_SQUARE);
+					bv.getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
 					plugin.getFX().playEffect(player.getLocation(), "piece_unselected");
-				} else if (sqi >= 0 && sqi < Chess.NUM_OF_SQUARES) {
+				} else if (clickedSqi >= 0 && clickedSqi < Chess.NUM_OF_SQUARES) {
 					// try to move the selected piece
-					game.doMove(player.getName(), sqi);
+					game.doMove(player.getName(), selectedSqi, clickedSqi);
 					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
 					                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
 			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
+		} else {
+			MiscUtil.errorMessage(player, Messages.getString("Game.notInGame")); //$NON-NLS-1$
 		}
 	}
 
@@ -320,16 +322,17 @@ public class ChessPlayerListener extends ChessListenerBase {
 	}
 
 	private void boardClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
-		int sqi = bv.getSquareAt(loc);
+		int clickedSqi = bv.getSquareAt(loc);
+		int selectedSqi = bv.getChessBoard().getSelectedSquare();
 		ChessGame game = bv.getGame();
-		if (game != null && game.getFromSquare() != Chess.NO_SQUARE) {
-			game.doMove(player.getName(), sqi);
+		if (game != null && selectedSqi != Chess.NO_SQUARE) {
+			game.doMove(player.getName(), selectedSqi, clickedSqi);
 			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
 			                                                  game.getPosition().getLastMove().getSAN()));
 		} else {
 			if (player.isSneaking()) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
-				                                                  Chess.sqiToStr(sqi), bv.getName()));
+				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
 			}
 			if (bv.isPartOfBoard(player.getLocation())) {
 				// allow teleporting around the board, but only if the player is 

@@ -148,7 +148,7 @@ public class AIChessPlayer extends ChessPlayer {
 				int from = ai.getPendingFrom();
 				int to = ai.getPendingTo();
 				try {
-					getGame().doMove(getName(), to, from);
+					getGame().doMove(getName(), from, to);
 				} catch (IllegalMoveException e) {
 					getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 					ai.setFailed(true);
