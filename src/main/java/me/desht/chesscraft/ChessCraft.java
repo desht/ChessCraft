@@ -201,20 +201,23 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		flightListener.restoreSpeeds();
 
+		ChessGameManager gm = ChessGameManager.getManager();
+
 		AIFactory.instance.clearDown();
-		for (ChessGame game : ChessGameManager.getManager().listGames()) {
+		for (ChessGame game : gm.listGames()) {
 			game.clockTick();
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		List<ChessGame> games = new ArrayList<ChessGame>(ChessGameManager.getManager().listGames());
-		for (ChessGame game : games) {
-			game.deleteTemporary();
-		}
+//		List<ChessGame> games = new ArrayList<ChessGame>(gm.listGames());
+//		for (ChessGame game : games) {
+//			gm.deleteGame(game.getName(), false);
+//		}
 		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
 		for (BoardView view : views) {
-			view.deleteTemporary();
-		} 
+			// this will also do a temporary delete on the board's game, if any
+			BoardViewManager.getManager().deleteBoardView(view.getName(), false);
+		}
 		Results.shutdown();
 
 		instance = null;

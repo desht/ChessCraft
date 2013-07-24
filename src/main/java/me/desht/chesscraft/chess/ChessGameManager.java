@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.event.ChessGameCreatedEvent;
 import me.desht.chesscraft.event.ChessGameDeletedEvent;
@@ -51,7 +52,7 @@ public class ChessGameManager {
 		}
 	}
 
-	public void unregisterGame(String gameName) {
+	private void unregisterGame(String gameName) {
 		ChessGame game = getGame(gameName);
 
 		List<String> toRemove = new ArrayList<String>();
@@ -65,6 +66,24 @@ public class ChessGameManager {
 		}
 		chessGames.remove(gameName);
 		Bukkit.getPluginManager().callEvent(new ChessGameDeletedEvent(game));
+	}
+
+	/**
+	 * Delete the game of the given name.  Permanent deletion is when a game is explicitly
+	 * deleted; it is cleaned up and purged from disk.  Temporary deletion occurs when the 
+	 * plugin is reloading games or being disabled and simply unregisters the game from the
+	 * game manager.
+	 *
+	 * @param gameName Name of the game to delete
+	 * @param permanent true if game is to be permanently deleted
+	 */
+	public void deleteGame(String gameName, boolean permanent) {
+		ChessGame game = getGame(gameName);
+		if (permanent) {
+			ChessCraft.getPersistenceHandler().unpersist(game);
+		}
+		game.onDeleted(permanent);
+		unregisterGame(gameName);
 	}
 
 	public boolean checkGame(String gameName) {

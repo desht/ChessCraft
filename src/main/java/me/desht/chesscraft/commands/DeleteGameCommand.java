@@ -31,7 +31,7 @@ public class DeleteGameCommand extends ChessAbstractCommand {
 		}
 
 		game.alert(Messages.getString("ChessCommandExecutor.gameDeletedAlert", sender.getName())); //$NON-NLS-1$
-		game.deletePermanently();
+		ChessGameManager.getManager().deleteGame(gameName, true);
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.gameDeleted", gameName)); //$NON-NLS-1$
 
 		return true;

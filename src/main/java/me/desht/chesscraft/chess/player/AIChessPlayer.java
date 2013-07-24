@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess.player;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
@@ -139,7 +140,7 @@ public class AIChessPlayer extends ChessPlayer {
 			} catch (ChessException e) {
 				// should never get here
 				LogUtils.severe("Unexpected exception caught while trying to draw game - deleted", e);
-				game.deletePermanently();
+				ChessGameManager.getManager().deleteGame(game.getName(), true);
 			}
 		} else {
 			// see if the AI has any pending actions from the other thread that we need to pick up

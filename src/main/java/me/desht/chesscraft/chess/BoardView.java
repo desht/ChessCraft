@@ -560,35 +560,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Remove the board from the global list of boards, but don't remove its data
-	 * from disk or alter any terrain.  Called when the plugin is being disabled or persisted
-	 * data is being reloaded - don't call otherwise, or else board materials may be 
-	 * vulnerable to mining!
+	 * Called by the board view manager when the board is permanently deleted
 	 */
-	public void deleteTemporary() {
-		if (getGame() != null) {
-			getGame().deleteTemporary();
-		}
-		deleteCommon();
-	}
-
-	/**
-	 * Permanently delete a board, purging its data from disk and restoring the terrain behind it.
-	 */
-	public void deletePermanently() {
-		if (getGame() != null) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.boardCantBeDeleted", getName(), getGame().getName()));
-		}
-		deleteCommon();
-		restoreTerrain();
-		ChessCraft.getPersistenceHandler().unpersist(this);
-	}
-
-	private void deleteCommon() {
-		BoardViewManager.getManager().unregisterBoardView(getName());
-	}
-
-	private void restoreTerrain() {
+	void restoreTerrain() {
 		boolean restored = false;
 
 		// signs can get dropped otherwise

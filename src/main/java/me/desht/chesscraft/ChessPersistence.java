@@ -29,13 +29,10 @@ public class ChessPersistence {
 	}
 
 	public void reload() {
-		List<ChessGame> games = new ArrayList<ChessGame>(ChessGameManager.getManager().listGames());
-		for (ChessGame game : games) {
-			games.add(game);
-		}
 		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
 		for (BoardView view : views) {
-			view.deleteTemporary();
+			// this will also do a temporary delete on any games
+			BoardViewManager.getManager().deleteBoardView(view.getName(), false);
 		}
 
 		loadPersistedData();

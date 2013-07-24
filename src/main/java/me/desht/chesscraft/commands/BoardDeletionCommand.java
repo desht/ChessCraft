@@ -24,7 +24,7 @@ public class BoardDeletionCommand extends ChessAbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		BoardView bv = BoardViewManager.getManager().getBoardView(args[0]);
 		String boardName = bv.getName();
-		bv.deletePermanently();
+		BoardViewManager.getManager().deleteBoardView(boardName, true);
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardDeleted", boardName)); //$NON-NLS-1$
 		return true;
 	}

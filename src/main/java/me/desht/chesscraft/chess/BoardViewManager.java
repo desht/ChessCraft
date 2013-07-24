@@ -36,17 +36,17 @@ public class BoardViewManager {
 	private final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
 	private PersistableLocation globalTeleportOutDest = null;
-	
-	private BoardViewManager() {	
+
+	private BoardViewManager() {
 	}
-	
+
 	public static synchronized BoardViewManager getManager() {
 		if (instance == null) {
 			instance = new BoardViewManager();
 		}
 		return instance;
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -68,11 +68,11 @@ public class BoardViewManager {
 
 	public void registerView(BoardView view) {
 		chessBoards.put(view.getName(), view);
-		
+
 		Bukkit.getPluginManager().callEvent(new ChessBoardCreatedEvent(view));
 	}
 
-	public void unregisterBoardView(String name) {
+	private void unregisterBoardView(String name) {
 		BoardView bv;
 		try {
 			bv = getBoardView(name);
@@ -81,6 +81,22 @@ public class BoardViewManager {
 		} catch (ChessException e) {
 			LogUtils.warning("removeBoardView: unknown board name " + name);
 		}
+	}
+
+	public void deleteBoardView(String name, boolean permanent) {
+		BoardView bv = getBoardView(name);
+		if (permanent) {
+			if (bv.getGame() != null) {
+				throw new ChessException(Messages.getString("ChessCommandExecutor.boardCantBeDeleted", name, bv.getGame().getName()));
+			}
+			bv.restoreTerrain();
+			ChessCraft.getPersistenceHandler().unpersist(bv);
+		} else {
+			if (bv.getGame() != null) {
+				ChessGameManager.getManager().deleteGame(bv.getGame().getName(), false);
+			}
+		}
+		unregisterBoardView(name);
 	}
 
 	public void removeAllBoardViews() {
@@ -294,7 +310,7 @@ public class BoardViewManager {
 	public void unloadBoardsForWorld(String worldName) {
 		for (BoardView bv : new ArrayList<BoardView>(listBoardViews())) {
 			if (bv.getWorldName().equals(worldName)) {
-				bv.deleteTemporary();
+				BoardViewManager.getManager().deleteBoardView(bv.getName(), false);
 				File f = new File(bv.getSaveDirectory(), ChessPersistence.makeSafeFileName(bv.getName()) + ".yml");
 				deferLoading(bv.getWorldName(), f);
 				LogUtils.info("unloaded board '" + bv.getName() + "' (world has been unloaded)");

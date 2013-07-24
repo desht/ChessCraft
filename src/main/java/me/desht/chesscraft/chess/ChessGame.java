@@ -1052,38 +1052,28 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Called when a game is permanently deleted.
+	 * Called when a game is deleted; handle any cleanup tasks.
 	 */
-	public void deletePermanently() {
-		ChessCraft.getPersistenceHandler().unpersist(this);
+	void onDeleted(boolean permanent) {
+		if (permanent) {
+			handlePayout();
+			getView().setGame(null);
+		}
 
-		handlePayout();
-
-		getView().setGame(null);
-
-		deleteCommon();
-	}
-
-	/**
-	 * Called for a transitory deletion, where we expect the object to be
-	 * shortly restored, e.g. server reload, plugin disable, /chess reload
-	 * persist command
-	 */
-	public void deleteTemporary() {
-		deleteCommon();
-	}
-
-	private void deleteCommon() {
-		if (players[Chess.WHITE] != null) players[Chess.WHITE].cleanup();
-		if (players[Chess.BLACK] != null) players[Chess.BLACK].cleanup();
-
-		try {
-			ChessGameManager.getManager().unregisterGame(getName());
-		} catch (ChessException e) {
-			LogUtils.warning(e.getMessage());
+		if (players[Chess.WHITE] != null) {
+			players[Chess.WHITE].cleanup();
+		}
+		if (players[Chess.BLACK] != null) {
+			players[Chess.BLACK].cleanup();
 		}
 	}
 
+	/**
+	 * Get the colour for the given player name.
+	 *
+	 * @param name name of the player to check
+	 * @return one of Chess.WHITE, Chess.BLACK or Chess.NOBODY
+	 */
 	public int getPlayerColour(String name) {
 		if (name.equalsIgnoreCase(getWhitePlayerName())) {
 			return Chess.WHITE;
@@ -1136,7 +1126,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Write a PGN file for the game.
 	 * 
-	 * @param force	
+	 * @param force
 	 * @return	the file that has been written
 	 */
 	public File writePGN(boolean force) {
@@ -1220,7 +1210,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (alertStr != null) {
 			alert(alertStr);
 			LogUtils.info(alertStr);
-			deletePermanently();
+			ChessGameManager.getManager().deleteGame(getName(), true);
 		}
 	}
 
