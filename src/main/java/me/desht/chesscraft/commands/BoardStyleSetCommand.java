@@ -87,6 +87,9 @@ public class BoardStyleSetCommand extends ChessAbstractCommand {
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		notFromConsole(sender);
 		BoardView bv = BoardViewManager.getManager().partOfChessBoard(((Player)sender).getLocation());
+		if (bv == null) {
+			return noCompletions(sender);
+		}
 		int l = args.length;
 		AttributeCollection styleAttrs = bv.getChessBoard().getBoardStyle().getAttributes();
 		AttributeCollection viewAttrs = bv.getAttributes();
