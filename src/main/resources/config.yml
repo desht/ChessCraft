@@ -76,6 +76,11 @@ database:
     name: chesscraft
 results:
     pgn_db: true
+dynmap:
+    enabled: true
+    hide_by_default: false
+    min_zoom: 0
+    layer_priority: 1
 coloured_console: true
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3

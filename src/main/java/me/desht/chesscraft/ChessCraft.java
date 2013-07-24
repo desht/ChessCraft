@@ -76,6 +76,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.dynmap.DynmapAPI;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Plotter;
 
@@ -102,6 +103,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private SpecialFX fx;
 
 	private boolean startupFailed = false;
+	private DynmapIntegration dynmapIntegration;
 
 	@Override
 	public void onLoad() {
@@ -159,6 +161,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupVault(pm);
 		setupSMS(pm);
 		setupWorldEdit(pm);
+		setupDynmap(pm);
 
 		new ChessPlayerListener(this);
 		new ChessBlockListener(this);
@@ -176,9 +179,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		persistence.reload();
 
-		if (sms != null)
+		if (sms != null) {
 			sms.setAutosave(true);
-
+		}
+		if (dynmapIntegration != null && dynmapIntegration.isEnabled()) {
+			dynmapIntegration.setActive(true);
+		}
 		tickTask.start(20L);
 
 		setupMetrics();
@@ -284,6 +290,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			LogUtils.fine("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
 			LogUtils.warning("WorldEdit plugin not detected: chess board terrain saving disabled.");
+		}
+	}
+
+	private void setupDynmap(PluginManager pm) {
+		Plugin p = pm.getPlugin("dynmap");
+		if (p != null) {
+			dynmapIntegration = new DynmapIntegration(this, (DynmapAPI) p);
+			LogUtils.fine("dynmap plugin detected.  Boards and games will be labelled.");
+		} else {
+			LogUtils.fine("dynmap plugin not detected.");
 		}
 	}
 
@@ -418,6 +434,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			}
 		} else if (key.equals("coloured_console")) {
 			MiscUtil.setColouredConsole((Boolean)newVal);
+		} else if (key.startsWith("dynmap.") && dynmapIntegration != null) {
+			dynmapIntegration.processConfig();
+			dynmapIntegration.setActive(dynmapIntegration.isEnabled());
 		}
 	}
 
