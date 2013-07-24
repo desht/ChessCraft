@@ -4,6 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
@@ -14,6 +15,8 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class ChessBlockListener extends ChessListenerBase {
 
@@ -97,7 +100,7 @@ public class ChessBlockListener extends ChessListenerBase {
 	 * @param event
 	 */
 	@EventHandler(ignoreCancelled = true)
-	public void onBlockFromTo(BlockFromToEvent event) {		
+	public void onBlockFromTo(BlockFromToEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 0) != null) {
 			event.setCancelled(true);
 		} else if (BoardViewManager.getManager().partOfChessBoard(event.getToBlock().getLocation(), 0) != null) {
@@ -115,6 +118,19 @@ public class ChessBlockListener extends ChessListenerBase {
 	public void onBlockForm(BlockFormEvent event) {
 		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 0) != null) {
 			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation(), 0) != null) {
+			event.setCancelled(true);
+			if (event.getEntity() instanceof FallingBlock) {
+				FallingBlock fb = (FallingBlock) event.getEntity();
+				if (fb.getDropItem()) {
+					fb.getWorld().dropItemNaturally(fb.getLocation(), new ItemStack(fb.getMaterial(), 1, fb.getBlockData()));
+				}
+			}
 		}
 	}
 }
