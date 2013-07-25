@@ -281,26 +281,63 @@ public class ChessPlayerListener extends ChessListenerBase {
 					bv.getChessBoard().setSelectedSquare(clickedSqi);
 					int piece = game.getPosition().getPiece(clickedSqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
-					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(clickedSqi))); //$NON-NLS-1$
+					if (plugin.getConfig().getBoolean("verbose")) {
+						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(clickedSqi))); //$NON-NLS-1$
+					}
 					plugin.getFX().playEffect(player.getLocation(), "piece_selected");
 				}
 			} else {
 				if (clickedSqi == selectedSqi) {
 					// cancel a selected piece
 					bv.getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
-					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
+					if (plugin.getConfig().getBoolean("verbose")) {
+						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
+					}
 					plugin.getFX().playEffect(player.getLocation(), "piece_unselected");
 				} else if (clickedSqi >= 0 && clickedSqi < Chess.NUM_OF_SQUARES) {
 					// try to move the selected piece
 					game.doMove(player.getName(), selectedSqi, clickedSqi);
-					MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-					                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
+					if (plugin.getConfig().getBoolean("verbose")) {
+						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
+						                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
+					}
 				}
 			}
 		} else if (game.isPlayerInGame(player.getName())) {
 			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
 		} else {
 			MiscUtil.errorMessage(player, Messages.getString("Game.notInGame")); //$NON-NLS-1$
+		}
+	}
+
+	private void boardClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
+		ChessGame game = bv.getGame();
+		int clickedSqi = bv.getSquareAt(loc);
+		int colour = game == null ? Chess.NOBODY : game.getPosition().getColor(clickedSqi);
+		int selectedSqi = bv.getChessBoard().getSelectedSquare();
+
+		if (game != null && selectedSqi != Chess.NO_SQUARE) {
+			// a square is already selected; attempt to move the piece in that square to the clicked square
+			game.doMove(player.getName(), selectedSqi, clickedSqi);
+			if (plugin.getConfig().getBoolean("verbose")) {
+				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
+				                                                  game.getPosition().getLastMove().getSAN()));
+			}
+		} else if (game != null && game.isPlayerToMove(player.getName()) && colour == game.getPosition().getToPlay()) {
+			// clicking the square that a piece of our colour is on is equivalent to selecting the piece, if it's our move
+			pieceClicked(player, loc, bv);
+		} else {
+			// just try to teleport to the square, if the player is already on the board
+			if (player.isSneaking()) {
+				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
+			}
+			if (bv.isPartOfBoard(player.getLocation())) {
+				Location newLoc = loc.clone().add(0, 1.0, 0);
+				newLoc.setPitch(player.getLocation().getPitch());
+				newLoc.setYaw(player.getLocation().getYaw());
+				teleportPlayer(player, newLoc);
+			}
 		}
 	}
 
@@ -318,30 +355,6 @@ public class ChessPlayerListener extends ChessListenerBase {
 			dest.setYaw(player.getLocation().getYaw());
 			dest.setPitch(player.getLocation().getPitch());
 			teleportPlayer(player, dest);
-		}
-	}
-
-	private void boardClicked(Player player, Location loc, BoardView bv) throws IllegalMoveException, ChessException {
-		int clickedSqi = bv.getSquareAt(loc);
-		int selectedSqi = bv.getChessBoard().getSelectedSquare();
-		ChessGame game = bv.getGame();
-		if (game != null && selectedSqi != Chess.NO_SQUARE) {
-			game.doMove(player.getName(), selectedSqi, clickedSqi);
-			MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
-			                                                  game.getPosition().getLastMove().getSAN()));
-		} else {
-			if (player.isSneaking()) {
-				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
-				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
-			}
-			if (bv.isPartOfBoard(player.getLocation())) {
-				// allow teleporting around the board, but only if the player is 
-				// already on the board
-				Location newLoc = loc.clone().add(0, 1.0, 0);
-				newLoc.setPitch(player.getLocation().getPitch());
-				newLoc.setYaw(player.getLocation().getYaw());
-				teleportPlayer(player, newLoc);
-			}
 		}
 	}
 
