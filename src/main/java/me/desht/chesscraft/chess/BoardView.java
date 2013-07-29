@@ -259,9 +259,11 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			if (lastMove != null) {
 				chessBoard.highlightSquares(lastMove.getFromSqi(), lastMove.getToSqi());
 			}
+			chessBoard.getChessSet().syncToPosition(game.getPosition(), chessBoard);
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
 			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
+			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 			attributes.set(DEFAULT_TC, getDefaultTcSpec());
 		}
 		mbu.notifyClients();
@@ -366,13 +368,6 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		mbu.notifyClients();
 	}
 
-	private void paintChessPiece(int sqi, int stone) {
-		int col = Chess.sqiToCol(sqi);
-		int row = Chess.sqiToRow(sqi);
-
-		chessBoard.paintChessPiece(row, col, stone);
-	}
-
 	/**
 	 * Get the bounds of the chess board itself (not including the frame).
 	 * 
@@ -416,7 +411,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	@Override
 	public void squareChanged(int sqi, int stone) {
-		paintChessPiece(sqi, stone);
+		int col = Chess.sqiToCol(sqi);
+		int row = Chess.sqiToRow(sqi);
+		chessBoard.paintChessPiece(row, col, stone);
 	}
 
 	@Override
@@ -438,11 +435,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		Location loc = chessBoard.getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter();
 		if (Move.isCapturing(move)) {
+			// TODO: handle differently for entity chess sets?
 			ChessCraft.getInstance().getFX().playEffect(loc, "piece_captured");
 		} else {
 			getGame().getPlayer(Chess.WHITE).playEffect("piece_moved");
 			getGame().getPlayer(Chess.BLACK).playEffect("piece_moved");
 		}
+
+		chessBoard.moveChessPiece(fromSqi, toSqi, Move.isPromotion(move) ? position.getStone(toSqi) : Chess.NO_STONE);
 
 		pieceRidingCheck(fromSqi, toSqi);
 
@@ -472,7 +472,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * Check for players standing on the piece that is being moved, and move them with the piece.
 	 */
 	private void pieceRidingCheck(int fromSqi, int toSqi) {
-		if (!ChessCraft.getInstance().getConfig().getBoolean("effects.piece_riding")) {
+		if (!ChessCraft.getInstance().getConfig().getBoolean("effects.piece_riding") || !chessBoard.getChessSet().canRide()) {
 			return;
 		}
 		Cuboid cFrom = chessBoard.getPieceRegion(Chess.sqiToRow(fromSqi), Chess.sqiToCol(fromSqi));
@@ -628,7 +628,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (chessBoard.getDesigner() != null) {
 			res.add(bullet + Messages.getString("ChessCommandExecutor.designMode", chessBoard.getDesigner().getSetName()));
 		}
-		String setComment = getChessBoard().getPieceStyle().getComment();
+		String setComment = getChessBoard().getChessSet().getComment();
 		if (setComment != null && !setComment.isEmpty()) {
 			for (String s : setComment.split("\n")) {
 				res.add(ChatColor.YELLOW + s);
@@ -670,7 +670,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		} else if (key.equals(BOARD_STYLE) && chessBoard != null) {
 			chessBoard.setBoardStyle(newVal.toString());
 		} else if (key.equals(OVERRIDE_PIECE_STYLE) && chessBoard != null) {
-			chessBoard.setPieceStyle(newVal.toString());
+			chessBoard.setChessSet(newVal.toString());
+			chessBoard.getChessSet().syncToPosition(getGame() == null ? null : getGame().getPosition(), chessBoard);
 		}
 	}
 }

@@ -1,12 +1,14 @@
 package me.desht.chesscraft.chess.pieces;
 
+import org.bukkit.Location;
+
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
 
 public abstract class ChessStone {
 	private final int stone;
 	private int sizeX, sizeY, sizeZ;
-	
+
 	protected ChessStone(int stone) {
 		this.stone = stone;
 	}
@@ -16,9 +18,11 @@ public abstract class ChessStone {
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 	}
-	
+
 	public abstract void paint(Cuboid region, MassBlockUpdate mbu);
-	
+
+	public abstract void move(int fromSqi, int toSqi, Location to, ChessStone captured);
+
 	public int getStone() {
 		return stone;
 	}
@@ -34,9 +38,9 @@ public abstract class ChessStone {
 	public int getSizeZ() {
 		return sizeZ;
 	}
-	
+
 	public int getWidth() {
 		return Math.max(getSizeX(), getSizeZ());
 	}
-	
+
 }

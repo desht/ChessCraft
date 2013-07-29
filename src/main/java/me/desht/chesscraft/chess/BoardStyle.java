@@ -183,6 +183,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	}
 
 	private void validateIsBlock(MaterialWithData mat, String tag) {
+		ChessValidate.notNull(mat.getBukkitMaterial(), mat + " is not a Bukkit material");
 		ChessValidate.isTrue(mat.getBukkitMaterial().isBlock(), tag + ": " + mat + " is not a block material!");
 	}
 
@@ -261,6 +262,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 			return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ChessException(e.getMessage());
 		}
 	}

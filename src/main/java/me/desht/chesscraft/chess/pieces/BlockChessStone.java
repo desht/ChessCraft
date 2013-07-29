@@ -11,6 +11,7 @@ import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
@@ -121,6 +122,12 @@ public class BlockChessStone extends ChessStone {
 		for (Entry<Block,MaterialWithData> e : deferred.entrySet()) {
 			e.getValue().applyToBlock(e.getKey(), mbu);
 		}
+	}
+
+	@Override
+	public void move(int fromSqi, int toSqi, Location to, ChessStone captured) {
+		// no-op for block sets; they're not animated
+//		System.out.println("moveTo: " + fromSqi + " -> " + toSqi + " to loc = " + to);
 	}
 
 	private int rotationNeeded(BoardRotation direction, int colour) {

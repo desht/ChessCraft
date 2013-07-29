@@ -24,9 +24,12 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.cuboid.Cuboid;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class BoardViewManager {
@@ -316,5 +319,26 @@ public class BoardViewManager {
 				LogUtils.info("unloaded board '" + bv.getName() + "' (world has been unloaded)");
 			}
 		}
+	}
+
+	/**
+	 * Get the boardview that the given chunk is in, if any.
+	 *
+	 * @param chunk the chunk to check
+	 * @return the boardview containing the chunk, or null
+	 */
+	public BoardView getBoardViewForChunk(Chunk chunk) {
+		for (BoardView bv : new ArrayList<BoardView>(listBoardViews())) {
+			Cuboid c = bv.getOuterBounds();
+			if (!c.getWorld().equals(chunk.getWorld())) {
+				continue;
+			}
+			for (Chunk boardChunk : c.getChunks()) {
+				if (boardChunk.getX() == chunk.getX() && boardChunk.getZ() == chunk.getZ()) {
+					return bv;
+				}
+			}
+		}
+		return null;
 	}
 }

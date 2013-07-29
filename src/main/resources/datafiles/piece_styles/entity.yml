@@ -1,0 +1,29 @@
+# ChessCraft entity piece style definition file
+# See http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles
+# 
+# 'name' is the name for this set, and should match the filename
+# 
+# 'comment' is a freeform comment about the set (can be multi-line)
+# 
+# 'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
+#  where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K
+#  The piece definition is a RemoteEntities EntityType
+name: entity
+comment: Entity chess set
+type: entity
+
+pieces:
+  white:
+    P: Sheep
+    R: Wolf
+    N: Horse
+    B: Villager
+    Q: Mushroom
+    K: IronGolem
+  black:
+    P: Zombie
+    R: Creeper
+    N: Spider
+    B: Skeleton
+    Q: Witch
+    K: Enderman

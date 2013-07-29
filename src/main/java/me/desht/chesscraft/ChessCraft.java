@@ -72,6 +72,8 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -81,6 +83,9 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Plotter;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+
+import de.kumpelblase2.remoteentities.EntityManager;
+import de.kumpelblase2.remoteentities.RemoteEntities;
 
 public class ChessCraft extends JavaPlugin implements ConfigurationListener, PluginVersionListener {
 
@@ -104,6 +109,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private boolean startupFailed = false;
 	private DynmapIntegration dynmapIntegration;
+	private RemoteEntities remoteEntities;
+	private EntityManager remoteEntityManager;
 
 	@Override
 	public void onLoad() {
@@ -162,6 +169,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupSMS(pm);
 		setupWorldEdit(pm);
 		setupDynmap(pm);
+		setupRemoteEntities(pm);
 
 		new ChessPlayerListener(this);
 		new ChessBlockListener(this);
@@ -306,6 +314,17 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 	}
 
+	private void setupRemoteEntities(PluginManager pm) {
+		Plugin p = pm.getPlugin("RemoteEntities");
+		if (p != null) {
+			remoteEntities = (RemoteEntities) p;
+			remoteEntityManager = RemoteEntities.createManager(this, true);
+			LogUtils.fine("RemoteEntities plugin detected.  Entity chess sets are available.");
+		} else {
+			LogUtils.fine("RemoteEntities plugin not detected.");
+		}
+	}
+
 	private Boolean setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
@@ -333,6 +352,24 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	public DynmapIntegration getDynmapIntegration() {
 		return dynmapIntegration;
+	}
+
+	/**
+	 * @return the remoteEntites
+	 */
+	public RemoteEntities getRemoteEntites() {
+		return remoteEntities;
+	}
+
+	public EntityManager getRemoteEntityManager() {
+		return remoteEntityManager;
+	}
+
+	public boolean isRemoteEntity(Entity entity) {
+		if (remoteEntities == null || !(entity instanceof LivingEntity)) {
+			return false;
+		}
+		return remoteEntityManager.isRemoteEntity((LivingEntity)entity);
 	}
 
 	public PlayerTracker getPlayerTracker() {

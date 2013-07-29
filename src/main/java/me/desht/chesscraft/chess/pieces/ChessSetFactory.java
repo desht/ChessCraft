@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
@@ -44,9 +46,11 @@ public class ChessSetFactory {
 	public static ChessSet getChessSet(String setName) throws ChessException {
 		setName = setName.toLowerCase();
 		if (!isLoaded(setName) || needsReload(setName)) {
-			loadChessSet(setName);
+			ChessSet set = loadChessSet(setName);
+			return set;
+		} else {
+			return allChessSets.get(setName);
 		}
-		return allChessSets.get(setName);
 	}
 
 	private static boolean needsReload(String setName) throws ChessException {
@@ -65,11 +69,23 @@ public class ChessSetFactory {
 		try {
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 
-			BlockChessSet set = new BlockChessSet(c, DirectoryStructure.isCustom(f));
+			ChessSet set;
+			if (!c.contains("type") || c.getString("type").equals("block")) {
+				set = new BlockChessSet(c, DirectoryStructure.isCustom(f));
+			} else if (c.getString("type").equals("entity")) {
+				ChessValidate.notNull(ChessCraft.getInstance().getRemoteEntites(),
+				                      "Entity chess sets are not available (RemoteEntities plugin must be installed)");
+				set = new EntityChessSet(c, DirectoryStructure.isCustom(f));
+			} else {
+				throw new ChessException("Invalid chess set type '" + c.getString("type") + "' in " + f);
+			}
 			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
-
-			allChessSets.put(setName, set);
-			setLoadTime.put(setName, System.currentTimeMillis());
+			if (!set.hasMovablePieces()) {
+				// sets with movable pieces can't be cached, since each board will need its own copy of the set
+				// (the set will be tracking the position of each piece)
+				allChessSets.put(setName, set);
+				setLoadTime.put(setName, System.currentTimeMillis());
+			}
 
 			return set;
 		} catch (Exception e) {

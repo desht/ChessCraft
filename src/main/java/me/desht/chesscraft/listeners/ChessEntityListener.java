@@ -14,22 +14,28 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
 public class ChessEntityListener extends ChessListenerBase {
-	
+
 	public ChessEntityListener(ChessCraft plugin) {
 		super(plugin);
 	}
 
 	@EventHandler(ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (!plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_creatures") || plugin.isRemoteEntity(event.getEntity())) { //$NON-NLS-1$
 			return;
 		}
 
@@ -44,8 +50,10 @@ public class ChessEntityListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityTarget(EntityTargetEvent event) {
-		if (!(event.getTarget() instanceof Player)
-				|| !plugin.getConfig().getBoolean("no_creatures")) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_creatures")) {
+			return;
+		}
+		if (!(event.getTarget() instanceof Player) && !plugin.isRemoteEntity(event.getTarget())) {
 			return;
 		}
 
@@ -56,6 +64,66 @@ public class ChessEntityListener extends ChessListenerBase {
 			if (!(event.getEntity() instanceof Tameable && ((Tameable) event.getEntity()).isTamed())) {
 				event.getEntity().remove();
 			}
+		}
+	}
+
+	/**
+	 * Stop zombie/skeleton pieces from burning in the daytime
+	 *
+	 * @param event
+	 */
+	@EventHandler
+	public void onEntityCombust(EntityCombustEvent event) {
+		if (plugin.isRemoteEntity(event.getEntity())) {
+			event.setCancelled(true);
+		}
+	}
+
+	/**
+	 * Stop e.g. sheep eating grass
+	 *
+	 * @param event
+	 */
+	@EventHandler
+	public void onEntityChangeBlockEvent(EntityChangeBlockEvent event) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+
+	/**
+	 * Stop e.g. snowmen leaving snow trails
+	 *
+	 * @param event
+	 */
+	@EventHandler
+	public void onEntityFormBlockEvent(EntityBlockFormEvent event) {
+		if (BoardViewManager.getManager().partOfChessBoard(event.getBlock().getLocation()) != null) {
+			event.setCancelled(true);
+		}
+	}
+
+	/**
+	 * Stop chess piece entities dropping items when they die.
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onEntityDeath(EntityDeathEvent event) {
+		if (plugin.isRemoteEntity(event.getEntity())) {
+			event.getDrops().clear();
+		}
+	}
+
+	/**
+	 * Stop endermen pieces (or any other mob that can telport) from teleporting away
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onEntityTeleport(EntityTeleportEvent event) {
+		if (plugin.isRemoteEntity(event.getEntity())) {
+			event.setCancelled(true);
 		}
 	}
 
@@ -133,7 +201,7 @@ public class ChessEntityListener extends ChessListenerBase {
 	 */
 	private void displacePlayerSafely(EntityDamageEvent event) {
 		final int MAX_DIST = 100;
-		
+
 		Player p = (Player) event.getEntity();
 		Location loc = p.getLocation().clone();
 		int n = 0;

@@ -6,32 +6,31 @@
  */
 package me.desht.chesscraft.chess.pieces;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import me.desht.chesscraft.ChessPersistence;
-import me.desht.chesscraft.DirectoryStructure;
+import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MaterialWithData;
 
+import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import chesspresso.Chess;
+import chesspresso.position.Position;
 
 import com.google.common.base.Joiner;
 
 public class BlockChessSet extends ChessSet {
 
 	private static final String[] CHESS_SET_HEADER_LINES = new String[] {
-		"ChessCraft piece style definition file",
+		"ChessCraft block piece style definition file",
 		"See http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles",
 		"",
 		"'name' is the name for this set, and should match the filename",
@@ -219,40 +218,30 @@ public class BlockChessSet extends ChessSet {
 		return stoneCache.get(key);
 	}
 
-	/**
-	 * Save this chess set to a file with the new name.
-	 * 
-	 * @param newName
-	 * @throws ChessException
-	 */
-	public void save(String newName) throws ChessException {
-		File f = DirectoryStructure.getResourceFileForSave(DirectoryStructure.getPieceStyleDirectory(), ChessPersistence.makeSafeFileName(newName));
+	@Override
+	public ChessStone getStoneAt(int sqi) {
+		throw new UnsupportedOperationException("Block chess sets don't track pieces by square index");
+	}
 
-		YamlConfiguration conf = getYamlConfig();
-
-		try {
-			for (char c : materialMapWhite.getMap().keySet()) {
-				conf.set("materials.white." + c, materialMapWhite.get(c).toString());
+	@Override
+	protected void addSaveData(Configuration conf) {
+		for (char c : materialMapWhite.getMap().keySet()) {
+			conf.set("materials.white." + c, materialMapWhite.get(c).toString());
+		}
+		for (char c : materialMapBlack.getMap().keySet()) {
+			conf.set("materials.black." + c, materialMapBlack.get(c).toString());
+		}
+		if (templatesBlack != null) {
+			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+				conf.set("pieces.white." + Chess.pieceToChar(piece), templates[piece].getPieceData());
 			}
-			for (char c : materialMapBlack.getMap().keySet()) {
-				conf.set("materials.black." + c, materialMapBlack.get(c).toString());
+			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+				conf.set("pieces.black." + Chess.pieceToChar(piece), templatesBlack[piece].getPieceData());
 			}
-			if (templatesBlack != null) {
-				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-					conf.set("pieces.white." + Chess.pieceToChar(piece), templates[piece].getPieceData());
-				}
-				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-					conf.set("pieces.black." + Chess.pieceToChar(piece), templatesBlack[piece].getPieceData());
-				}
-			} else {
-				for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-					conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
-				}
+		} else {
+			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+				conf.set("pieces." + Chess.pieceToChar(piece), templates[piece].getPieceData());
 			}
-			conf.save(f);
-			LogUtils.fine("saved chess set '" + getName() + "' to " + f);
-		} catch (IOException e) {
-			throw new ChessException(e.getMessage());
 		}
 	}
 
@@ -268,6 +257,26 @@ public class BlockChessSet extends ChessSet {
 
 	public boolean differentBlackTemplates() {
 		return templatesBlack != null;
+	}
+
+	@Override
+	public boolean canRide() {
+		return true;
+	}
+
+	@Override
+	public boolean hasMovablePieces() {
+		return false;
+	}
+
+	@Override
+	public void movePiece(int fromSqi, int toSqi, Location to, int promoteStone) {
+		// no-op
+	}
+
+	@Override
+	public void syncToPosition(Position pos, ChessBoard board) {
+		// no-op
 	}
 }
 

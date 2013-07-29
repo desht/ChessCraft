@@ -74,7 +74,7 @@ public class ChessBoard {
 	 */
 	public ChessBoard(Location origin, BoardRotation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
 		setBoardStyle(boardStyleName);
-		setPieceStyle(pieceStyleName != null && !pieceStyleName.isEmpty() ? pieceStyleName : boardStyle.getPieceStyleName());
+		setChessSet(pieceStyleName != null && !pieceStyleName.isEmpty() ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
 		a1Center = new PersistableLocation(origin);
 		a1Corner = initA1Corner(origin, rotation);
@@ -205,7 +205,7 @@ public class ChessBoard {
 	/**
 	 * @return the ChessSet object associated with this chessboard
 	 */
-	public ChessSet getPieceStyle() {
+	public ChessSet getChessSet() {
 		return chessSet;
 	}
 
@@ -229,7 +229,7 @@ public class ChessBoard {
 		this.designer = designer;
 	}
 
-	public final void setPieceStyle(String pieceStyle) throws ChessException {
+	public final void setChessSet(String pieceStyle) throws ChessException {
 		if (boardStyle == null) {
 			return;
 		}
@@ -237,6 +237,7 @@ public class ChessBoard {
 		ChessSet newChessSet = ChessSetFactory.getChessSet(pieceStyle);
 		boardStyle.verifyCompatibility(newChessSet);
 
+		chessSet.syncToPosition(null, this);
 		chessSet = newChessSet;
 		redrawNeeded = true;
 	}
@@ -294,15 +295,14 @@ public class ChessBoard {
 	/**
 	 * Reload the board and piece styles in-use
 	 * 
-	 * @throws ChessException
-	 *             if board or piece style cannot be loaded
+	 * @throws ChessException if board or piece style cannot be loaded
 	 */
 	void reloadStyles() throws ChessException {
 		if (boardStyle != null) {
 			setBoardStyle(boardStyle.getName());
 		}
 		if (chessSet != null) {
-			setPieceStyle(chessSet.getName());
+			setChessSet(chessSet.getName());
 		}
 	}
 
@@ -449,9 +449,13 @@ public class ChessBoard {
 	 * @param chessGame
 	 */
 	void paintChessPieces(Position chessGame) {
-		for (int row = 0; row < 8; ++row) {
-			for (int col = 0; col < 8; ++col) {
-				paintChessPiece(row, col, chessGame.getStone(row * 8 + col));
+		if (chessSet.hasMovablePieces()) {
+			chessSet.syncToPosition(chessGame, this);
+		} else {
+			for (int row = 0; row < 8; ++row) {
+				for (int col = 0; col < 8; ++col) {
+					paintChessPiece(row, col, chessGame.getStone(row * 8 + col));
+				}
 			}
 		}
 	}
@@ -465,10 +469,16 @@ public class ChessBoard {
 	 * @param stone
 	 */
 	public void paintChessPiece(int row, int col, int stone) {
+		// for entity sets, just check that the entity is still at (row,col)
+		// for block sets, get the stone and paste its data into the region at (row,col)
+		ChessSet cSet = designer != null ? designer.getChessSet() : chessSet;
+		if (cSet.hasMovablePieces()) {
+			// we don't paint movable pieces; moveChessPiece() can handle those
+			return;
+		}
 		Cuboid region = getPieceRegion(row, col);
 		MassBlockUpdate mbu = CraftMassBlockUpdate.createMassBlockUpdater(ChessCraft.getInstance(), getBoard().getWorld());
 		region.fill(0, (byte)0, mbu);
-		ChessSet cSet = designer != null ? designer.getChessSet() : chessSet;
 		if (stone != Chess.NO_STONE) {
 			ChessStone cStone = cSet.getStone(stone, getRotation());
 			if (cStone != null) {
@@ -478,10 +488,26 @@ public class ChessBoard {
 			}
 		}
 
-		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());	
+		region.expand(CuboidDirection.Down, 1).forceLightLevel(boardStyle.getLightLevel());
 		mbu.notifyClients();
 		if (ChessCraft.getInstance().getDynmapIntegration() != null) {
 			ChessCraft.getInstance().getDynmapIntegration().triggerUpdate(region);
+		}
+	}
+
+	public void moveChessPiece(int fromSqi, int toSqi, int promoteStone) {
+		if (chessSet.hasMovablePieces()) {
+			ChessStone stone = chessSet.getStoneAt(fromSqi);
+			int colour = Chess.stoneToColor(stone.getStone());
+			Location to = getSquare(Chess.sqiToRow(toSqi), Chess.sqiToCol(toSqi)).getCenter().add(0, 0.5, 0);
+			float yaw = getRotation().getYaw();
+			if (colour == Chess.BLACK) {
+				yaw = (yaw + 180) % 360;
+			}
+			to.setYaw(yaw);
+			chessSet.movePiece(fromSqi, toSqi, to, promoteStone);
+		} else {
+			// TODO: maybe some particle effect showing move direction?
 		}
 	}
 
