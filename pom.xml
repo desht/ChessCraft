@@ -10,6 +10,21 @@
 	   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<url>http://dev.bukkit.org/server-mods/chesscraft</url>
+
+        <scm>
+          <connection>scm:git:git://github.com/desht/ChessCraft.git</connection>
+          <developerConnection>scm:git:git@github.com:desht/ChessCraft.git</developerConnection>
+          <url>https://github.com/desht/ChessCraft</url>
+        </scm>
+    
+        <licenses>
+          <license>
+            <name>GNU GENERAL PUBLIC LICENSE - Version 2, June 1991</name>
+            <url>http://www.gnu.org/licenses/gpl-2.0.txt</url>
+            <distribution>repo</distribution>
+          </license>
+        </licenses>
+
 	<repositories>
 	       <repository>
 			<id>bukkit-repo</id>
@@ -27,14 +42,23 @@
 		    <id>Plugin Metrics</id>
 		    <url>http://repo.mcstats.org/content/repositories/public</url>
 		</repository>
-		<repository>
+		<!-- <repository>
 		    <id>Genesis-MC</id>
 		    <url>http://jenkins.genesis-mc.com/plugin/repository/everything/</url>
-		</repository>
+		</repository> -->
                 <repository>
                     <id>dynmap-repo</id>
                     <url>http://repo.mikeprimm.com</url>
                 </repository>
+                <repository>
+                    <id>remoteentities-repo</id>
+                    <url>http://repo.infinityblade.de/remoteentities/releases</url>
+                </repository>
+		<repository>
+		    <id>DH Dropbox</id>
+		    <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
+		</repository>
+
 	</repositories>
 	<build>
 		<finalName>${project.name}</finalName>
@@ -137,7 +161,7 @@
 		<dependency>
 			<groupId>net.milkbowl.vault</groupId>
 			<artifactId>Vault</artifactId>
-			<version>1.2.24-SNAPSHOT</version>
+			<version>1.2.27</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
