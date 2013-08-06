@@ -202,7 +202,7 @@
                 <dependency>
                     <groupId>de.kumpelblase2</groupId>
                     <artifactId>remoteentities</artifactId>
-                    <version>1.7</version>
+                    <version>1.8-SNAPSHOT</version>
                     <scope>provided</scope>
                 </dependency>
 	</dependencies>
