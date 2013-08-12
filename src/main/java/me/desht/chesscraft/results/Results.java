@@ -174,36 +174,7 @@ public class Results {
 		}
 
 		queueDatabaseUpdate(re);
-
-//		final String pgnData = ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db") ? game.getPGN() : null;
-//		Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
-//			@Override
-//			public void run() {
-//				addResultToDatabase(re, pgnData);
-//			}
-//		});
 	}
-//
-//	/**
-//	 * Add a result entry to the database.  Runs in a separate thread.
-//	 *
-//	 * @param re the result entry
-//	 * @param pgnData the PGN data to log, possibly null
-//	 */
-//	private synchronized void addResultToDatabase(ResultEntry re, String pgnData) {
-//		try {
-//			int rowId = re.saveToDatabase(getConnection());
-//			if (rowId != -1 && pgnData != null) {
-//				PreparedStatement stmt = getResultsDB().getCachedStatement("INSERT INTO pgn VALUES(?,?)");
-//				stmt.setInt(1, rowId);
-//				stmt.setString(2, pgnData);
-//				LogUtils.fine("execute SQL: " + stmt);
-//				stmt.executeUpdate();
-//			}
-//		} catch (SQLException e) {
-//			LogUtils.warning("can't save result for game " + re.getGameName() + " to database: " + e.getMessage());
-//		}
-//	}
 
 	/**
 	 * Asynchronously load in the result data from database.  Called at startup; results data
