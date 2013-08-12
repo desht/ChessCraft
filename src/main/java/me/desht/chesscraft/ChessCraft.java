@@ -69,6 +69,7 @@ import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -82,6 +83,10 @@ import org.dynmap.DynmapAPI;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Plotter;
 
+import com.comphenix.protocol.Packets;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import de.kumpelblase2.remoteentities.EntityManager;
@@ -111,6 +116,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private DynmapIntegration dynmapIntegration;
 	private RemoteEntities remoteEntities;
 	private EntityManager remoteEntityManager;
+	private boolean protocolLibEnabled;
 
 	@Override
 	public void onLoad() {
@@ -170,6 +176,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupWorldEdit(pm);
 		setupDynmap(pm);
 		setupRemoteEntities(pm);
+		setupProtocolLib(pm);
 
 		new ChessPlayerListener(this);
 		new ChessBlockListener(this);
@@ -192,6 +199,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 		if (dynmapIntegration != null && dynmapIntegration.isEnabled()) {
 			dynmapIntegration.setActive(true);
+		}
+		if (isProtocolLibEnabled()) {
+			registerPlibPacketHandler();
 		}
 		tickTask.start(20L);
 
@@ -217,10 +227,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-//		List<ChessGame> games = new ArrayList<ChessGame>(gm.listGames());
-//		for (ChessGame game : games) {
-//			gm.deleteGame(game.getName(), false);
-//		}
+		//		List<ChessGame> games = new ArrayList<ChessGame>(gm.listGames());
+		//		for (ChessGame game : games) {
+		//			gm.deleteGame(game.getName(), false);
+		//		}
 		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
 		for (BoardView view : views) {
 			// this will also do a temporary delete on the board's game, if any
@@ -325,6 +335,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 	}
 
+	private void setupProtocolLib(PluginManager pm) {
+		Plugin pLib = pm.getPlugin("ProtocolLib");
+		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
+			protocolLibEnabled = true;
+			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
+		} else if (remoteEntities != null) {
+			LogUtils.warning("RemoteEntities detected, but ProtocolLib not detected.  Any entity chess boards you create will be noisy!");
+		}
+	}
+
 	private Boolean setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
@@ -332,6 +352,31 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 
 		return (economy != null);
+	}
+
+	private void registerPlibPacketHandler() {
+		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(PacketAdapter.params(this, Packets.Server.NAMED_SOUND_EFFECT).serverSide()) {
+			@Override
+			public void onPacketSending(PacketEvent event) {
+				switch (event.getPacketID()) {
+				case Packets.Server.NAMED_SOUND_EFFECT: // 0x3E
+					// silence all mob noises if they're on a chess board
+					// this preserves player sanity when using entity chess sets
+					String soundName = event.getPacket().getStrings().read(0);
+					int x = event.getPacket().getIntegers().read(0) >> 3;
+					int y = event.getPacket().getIntegers().read(1) >> 3;
+					int z = event.getPacket().getIntegers().read(2) >> 3;
+					Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
+					if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
+						if (soundName.matches("^mob\\.[a-z]+\\.(say|idle|bark)$")) {
+							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
+							event.setCancelled(true);
+						}
+					}
+					break;
+				}
+			}
+		});
 	}
 
 	public static ChessPersistence getPersistenceHandler() {
@@ -354,9 +399,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return dynmapIntegration;
 	}
 
-	/**
-	 * @return the remoteEntites
-	 */
 	public RemoteEntities getRemoteEntites() {
 		return remoteEntities;
 	}
@@ -370,6 +412,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			return false;
 		}
 		return remoteEntityManager.isRemoteEntity((LivingEntity)entity);
+	}
+
+	/**
+	 * @return the protocolLibEnabled
+	 */
+	public boolean isProtocolLibEnabled() {
+		return protocolLibEnabled;
 	}
 
 	public PlayerTracker getPlayerTracker() {
