@@ -1,25 +1,20 @@
 package me.desht.chesscraft.listeners;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.BlockType;
-import me.desht.dhutils.block.MaterialWithData;
-import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.cuboid.Cuboid;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -44,8 +39,7 @@ public class ChessFlightListener extends ChessListenerBase {
 	// notes if the player is currently allowed to fly due to being on/near a board
 	// maps the player name to the previous flight speed for the player
 	private final Map<String,PreviousSpeed> allowedToFly = new HashMap<String,PreviousSpeed>();
-	// cache of the regions in which board flight is allowed
-	private final List<Cuboid> flightRegions = new ArrayList<Cuboid>();
+
 	// notes when a player was last messaged about flight, to reduce spam
 	private final Map<String,Long> lastMessagedIn = new HashMap<String,Long>();
 	private final Map<String,Long> lastMessagedOut = new HashMap<String,Long>();
@@ -54,10 +48,12 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	private boolean enabled;
 	private boolean captive;
+	private final BoardViewManager bvm;
 
 	public ChessFlightListener(ChessCraft plugin) {
 		super(plugin);
 
+		bvm = BoardViewManager.getManager();
 		enabled = plugin.getConfig().getBoolean("flying.enabled");
 		captive = plugin.getConfig().getBoolean("flying.captive");
 	}
@@ -71,7 +67,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		if (enabled) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				setFlightAllowed(player, getFlightRegion(player.getLocation()) != null);
+				setFlightAllowed(player, bvm.getFlightRegion(player.getLocation()) != null);
 			}
 		} else {
 			for (String playerName : allowedToFly.keySet()) {
@@ -106,7 +102,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			return;
 
 		Player player = event.getPlayer();
-		setFlightAllowed(player, getFlightRegion(player.getLocation()) != null);
+		setFlightAllowed(player, bvm.getFlightRegion(player.getLocation()) != null);
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -152,7 +148,7 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		Player player = event.getPlayer();
 		boolean flyingNow = allowedToFly.containsKey(player.getName()) && player.isFlying();
-		boolean boardFlightAllowed = getFlightRegion(to) != null;
+		boolean boardFlightAllowed = bvm.getFlightRegion(to) != null;
 		boolean otherFlightAllowed = gameModeAllowsFlight(player);
 
 		//		LogUtils.fine("move: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed);
@@ -164,7 +160,7 @@ public class ChessFlightListener extends ChessListenerBase {
 				if (last == null) last = 0L;
 				if (System.currentTimeMillis() - last > BOUNCE_COOLDOWN) {
 					event.setCancelled(true);
-					Cuboid c = getFlightRegion(from);
+					Cuboid c = bvm.getFlightRegion(from);
 					Location origin = c == null ? from : c.getCenter().subtract(0, c.getSizeY(), 0);
 					Vector vec = origin.toVector().subtract(to.toVector()).normalize();
 					player.setVelocity(vec);
@@ -186,7 +182,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			return;
 
 		final Player player = event.getPlayer();
-		final boolean boardFlightAllowed = getFlightRegion(event.getTo()) != null;
+		final boolean boardFlightAllowed = bvm.getFlightRegion(event.getTo()) != null;
 		final boolean crossWorld = event.getTo().getWorld() != event.getFrom().getWorld();
 
 		LogUtils.fine("teleport: boardflight = " + boardFlightAllowed + ", crossworld = " + crossWorld);
@@ -217,7 +213,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		Player player = event.getPlayer();
 		if (allowedToFly.containsKey(player.getName()) && !gameModeAllowsFlight(player) && player.isFlying()) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (BoardViewManager.getManager().partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null) {
+				if (bvm.partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null) {
 					MiscUtil.errorMessage(player, Messages.getString("Flight.interactionStopped"));
 					event.setCancelled(true);
 				}
@@ -227,54 +223,19 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	@EventHandler
 	public void onBoardCreated(ChessBoardCreatedEvent event) {
-		recalculateFlightRegions();
+		bvm.recalculateFlightRegions();
 	}
 
 	@EventHandler
 	public void onBoardDeleted(ChessBoardDeletedEvent event) {
-		recalculateFlightRegions();
+		bvm.recalculateFlightRegions();
 	}
 
 	@EventHandler
 	public void onBoardModifed(ChessBoardModifiedEvent event) {
 		if (event.getChangedAttributes().contains("enclosure")) {
-			recalculateFlightRegions();
+			bvm.recalculateFlightRegions();
 		}
-	}
-
-	/**
-	 * Cache the regions in which flight is allowed.  We do this to avoid calculation in the
-	 * code which is (frequently) called from the PlayerMoveEvent handler.
-	 */
-	public void recalculateFlightRegions() {
-		int above = plugin.getConfig().getInt("flying.upper_limit");
-		int outside = plugin.getConfig().getInt("flying.outer_limit");
-
-		flightRegions.clear();
-
-		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
-			Cuboid c = bv.getOuterBounds();
-			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
-			if (BlockType.canPassThrough(mat.getId())) {
-				c = c.expand(CuboidDirection.Up, Math.max(5, (c.getSizeY() * above) / 100));
-				c = c.outset(CuboidDirection.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
-			}
-			flightRegions.add(c);
-		}
-	}
-
-	/**
-	 * Check if the player may fly (in a ChessCraft context) given their current position.
-	 * 
-	 * @param player
-	 * @return
-	 */
-	public Cuboid getFlightRegion(Location loc) {
-		for (Cuboid c : flightRegions) {
-			if (c.contains(loc))
-				return c;
-		}
-		return null;
 	}
 
 	/**

@@ -505,7 +505,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		} else if (key.equalsIgnoreCase("flying.captive")) {
 			flightListener.setCaptive((Boolean) newVal);
 		} else if (key.equalsIgnoreCase("flying.upper_limit") || key.equalsIgnoreCase("flying.outer_limit")) {
-			flightListener.recalculateFlightRegions();
+			BoardViewManager.getManager().recalculateFlightRegions();
 		} else if (key.equalsIgnoreCase("flying.fly_speed") || key.equalsIgnoreCase("flying.walk_speed")) {
 			flightListener.updateSpeeds();
 		} else if (key.equalsIgnoreCase("pager.enabled")) {
