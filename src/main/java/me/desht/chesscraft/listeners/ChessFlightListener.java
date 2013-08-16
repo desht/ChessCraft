@@ -15,6 +15,7 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.event.ChessBoardModifiedEvent;
+import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.LogUtils;
@@ -233,7 +234,7 @@ public class ChessFlightListener extends ChessListenerBase {
 	public void onBoardDeleted(ChessBoardDeletedEvent event) {
 		recalculateFlightRegions();
 	}
-	
+
 	@EventHandler
 	public void onBoardModifed(ChessBoardModifiedEvent event) {
 		if (event.getChangedAttributes().contains("enclosure")) {
@@ -288,8 +289,9 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		boolean currentlyAllowed = allowedToFly.containsKey(playerName);
 
-		if (flying && currentlyAllowed || !flying && !currentlyAllowed)
+		if (flying == currentlyAllowed) {
 			return;
+		}
 
 		LogUtils.fine("set chess board flight allowed " + player.getName() + " = " + flying);
 
@@ -310,7 +312,7 @@ public class ChessFlightListener extends ChessListenerBase {
 							// give player a kick upwards iff they're standing on something solid
 							player.setVelocity(new Vector(0, 1.0, 0));
 						}
-						player.setFlying(true);	
+						player.setFlying(true);
 					}
 				});
 			}
@@ -337,6 +339,8 @@ public class ChessFlightListener extends ChessListenerBase {
 				player.setFallDistance(dist);
 			}
 		}
+
+		Bukkit.getPluginManager().callEvent(new ChessPlayerFlightToggledEvent(player, flying));
 	}
 
 	private boolean gameModeAllowsFlight(Player player) {
