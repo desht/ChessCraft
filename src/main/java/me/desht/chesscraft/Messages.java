@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.JARUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
@@ -24,9 +25,10 @@ public class Messages {
 	public static void init(String locale) {
 		File langDir = DirectoryStructure.getLanguagesDirectory();
 
+		JARUtil ju = new JARUtil(ChessCraft.getInstance());
 		try {
-			for (String lang : MiscUtil.listFilesinJAR(DirectoryStructure.getJarFile(), "datafiles/lang", ".yml")) {
-				DirectoryStructure.extractResource(lang, langDir);
+			for (String lang : MiscUtil.listFilesinJAR(ju.getJarFile(), "datafiles/lang", ".yml")) {
+				ju.extractResource(lang, langDir);
 			}
 		} catch (IOException e) {
 			LogUtils.severe("can't determine message files to extract!");

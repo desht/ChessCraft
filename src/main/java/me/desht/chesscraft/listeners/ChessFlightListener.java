@@ -8,18 +8,18 @@ import java.util.Map;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.BlockType;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;

@@ -17,6 +17,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.JARUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
@@ -165,7 +166,8 @@ public class AIFactory {
 
 		// first pull in the core definitions from the JAR file resource...
 		try {
-			InputStream in = DirectoryStructure.openResourceNoCache(AI_CORE_DEFS);
+			JARUtil ju = new JARUtil(ChessCraft.getInstance());
+			InputStream in = ju.openResourceNoCache(AI_CORE_DEFS);
 			coreAIdefs = YamlConfiguration.loadConfiguration(in);
 		} catch (Exception e) {
 			LogUtils.severe("Can't load AI definitions: " + e.getMessage());
@@ -188,7 +190,7 @@ public class AIFactory {
 					aliasConf.set(key, core.get(key));
 				}
 			}
-			
+
 			try {
 				AIDefinition aiDef = new AIDefinition(alias, aliasConf);
 				allAliases.put(alias, aiDef);
@@ -202,7 +204,7 @@ public class AIFactory {
 
 		LogUtils.fine("Loaded " + allAliases.size() + " AI definitions");
 	}
-	
+
 	public static void init() {
 	}
 

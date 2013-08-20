@@ -154,7 +154,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		new PluginVersionChecker(this, this);
 
-		DirectoryStructure.setup();
+		DirectoryStructure.setup(this);
 
 		AIFactory.init();
 

@@ -1,29 +1,19 @@
 package me.desht.chesscraft;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.JARUtil;
+import me.desht.dhutils.JARUtil.ExtractWhen;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 
 public class DirectoryStructure {
-	public static final Charset TARGET_ENCODING = Charset.forName("UTF-8");
-	public static final Charset SOURCE_ENCODING = Charset.forName("UTF-8");
-
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static JARUtil jarUtil;
+
 	private static File pgnDir, boardStyleDir, pieceStyleDir, schematicsDir;
 	private static File dataDir, gamePersistDir, boardPersistDir, languagesDir, resultsDir;
 	private static final String pgnFoldername = "pgn"; //$NON-NLS-1$
@@ -35,13 +25,13 @@ public class DirectoryStructure {
 	private static final String gamesFoldername = "games"; //$NON-NLS-1$
 	private static final String boardsFoldername = "boards"; //$NON-NLS-1$
 	private static final String resultsFoldername = "results"; //$NON-NLS-1$
+
 	private static File persistFile;
 	private static final String persistFilename = "persist.yml"; //$NON-NLS-1$
 
-	private enum ExtractWhen { ALWAYS, IF_NOT_EXISTS, IF_NEWER };
-
-	public static void setup() {
+	public static void setup(ChessCraft plugin) {
 		pluginDir = ChessCraft.getInstance().getDataFolder();
+		jarUtil = new JARUtil(plugin);
 
 		setupDirectoryStructure();
 		try {
@@ -139,26 +129,17 @@ public class DirectoryStructure {
 		}
 	}
 
-	public static File getJarFile() {
-		File f = new File("plugins", "ChessCraft.jar");
-		if (!f.exists()) {
-			String ver = ChessCraft.getInstance().getDescription().getVersion();
-			f = new File("plugins", "ChessCraft-" + ver + ".jar");
-		}
-		return f;
-	}
-
 	private static void extractResources() throws IOException {
-		extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NEWER); //$NON-NLS-1$
-		extractResource("/AI.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
-		extractResource("/timecontrols.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
+		jarUtil.extractResource("/AI_settings.yml", pluginDir, ExtractWhen.IF_NEWER); //$NON-NLS-1$
+		jarUtil.extractResource("/AI.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
+		jarUtil.extractResource("/timecontrols.yml", pluginDir, ExtractWhen.IF_NOT_EXISTS); //$NON-NLS-1$
 
-		for (String s : MiscUtil.listFilesinJAR(getJarFile(), "datafiles/board_styles",	".yml")) {
-			extractResource(s, boardStyleDir);
+		for (String s : MiscUtil.listFilesinJAR(jarUtil.getJarFile(), "datafiles/board_styles",	".yml")) {
+			jarUtil.extractResource(s, boardStyleDir);
 		}
 
-		for (String s : MiscUtil.listFilesinJAR(getJarFile(), "datafiles/piece_styles",	".yml")) {
-			extractResource(s, pieceStyleDir);
+		for (String s : MiscUtil.listFilesinJAR(jarUtil.getJarFile(), "datafiles/piece_styles",	".yml")) {
+			jarUtil.extractResource(s, pieceStyleDir);
 		}
 
 		// message resources no longer extracted here - this is now done by Messages.loadMessages()
@@ -171,65 +152,6 @@ public class DirectoryStructure {
 		if (!dir.mkdir()) {
 			LogUtils.warning("Can't make directory " + dir.getName()); //$NON-NLS-1$
 		}
-	}
-
-	static void extractResource(String from, File to) {
-		extractResource(from, to, ExtractWhen.IF_NEWER);
-	}
-
-	static void extractResource(String from, File to, ExtractWhen when) {
-		File of = to;
-		if (to.isDirectory()) {
-			String fname = new File(from).getName();
-			of = new File(to, fname);
-		} else if (!of.isFile()) {
-			LogUtils.warning("not a file: " + of);
-			return;
-		}
-
-		LogUtils.finer("extractResource: file=" + of +
-		               ", file-last-mod=" + of.lastModified() +
-		               ", file-exists=" + of.exists() +
-		               ", jar-last-mod=" +  getJarFile().lastModified() +
-		               ", when=" + when);
-
-		// if the file exists and is newer than the JAR, then we'll leave it alone
-		if (of.exists() && when == ExtractWhen.IF_NOT_EXISTS) {
-			return;
-		}
-		if (of.exists() && of.lastModified() > getJarFile().lastModified() && when != ExtractWhen.ALWAYS) {
-			return;
-		}
-
-		if (!from.startsWith("/")) {
-			from = "/" + from;
-		}
-
-		LogUtils.fine(String.format("extracting resource: %s (%s) -> %s (%s)", from, SOURCE_ENCODING.name(), to, TARGET_ENCODING.name()));
-
-		final char[] cbuf = new char[1024];
-		int read;
-		try {
-			final Reader in = new BufferedReader(new InputStreamReader(openResourceNoCache(from), SOURCE_ENCODING));
-			final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(of), TARGET_ENCODING));
-			while ((read = in.read(cbuf)) > 0) {
-				out.write(cbuf, 0, read);
-			}
-			out.close(); in.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	public static InputStream openResourceNoCache(String resource) throws IOException {
-		URL res = ChessCraft.class.getResource(resource);
-		if (res == null) {
-			LogUtils.warning("can't find " + resource + " in plugin JAR file"); //$NON-NLS-1$
-			return null;
-		}
-		URLConnection resConn = res.openConnection();
-		resConn.setUseCaches(false);
-		return resConn.getInputStream();
 	}
 
 	/**
@@ -250,9 +172,6 @@ public class DirectoryStructure {
 		}
 		if (!f.exists()) {
 			f = new File(dir, filename.toLowerCase() + ".yml");
-//			if (!f.exists()) {
-//				throw new ChessException("Resource file '" + f + "' does not exist");
-//			}
 		}
 		return f;
 	}
