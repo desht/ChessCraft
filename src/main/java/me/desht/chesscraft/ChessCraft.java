@@ -69,7 +69,6 @@ import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -83,10 +82,7 @@ import org.dynmap.DynmapAPI;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Plotter;
 
-import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import de.kumpelblase2.remoteentities.EntityManager;
@@ -201,7 +197,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			dynmapIntegration.setActive(true);
 		}
 		if (isProtocolLibEnabled()) {
-			registerPlibPacketHandler();
+			ProtocolLibIntegration.registerPlibPacketHandler(this);
 		}
 		tickTask.start(20L);
 
@@ -354,30 +350,30 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return (economy != null);
 	}
 
-	private void registerPlibPacketHandler() {
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(PacketAdapter.params(this, Packets.Server.NAMED_SOUND_EFFECT).serverSide()) {
-			@Override
-			public void onPacketSending(PacketEvent event) {
-				switch (event.getPacketID()) {
-				case Packets.Server.NAMED_SOUND_EFFECT: // 0x3E
-					// silence all mob noises if they're on a chess board
-					// this preserves player sanity when using entity chess sets
-					String soundName = event.getPacket().getStrings().read(0);
-					int x = event.getPacket().getIntegers().read(0) >> 3;
-					int y = event.getPacket().getIntegers().read(1) >> 3;
-					int z = event.getPacket().getIntegers().read(2) >> 3;
-					Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
-					if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
-						if (soundName.matches("^mob\\.[a-z]+\\.(say|idle|bark)$")) {
-							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
-							event.setCancelled(true);
-						}
-					}
-					break;
-				}
-			}
-		});
-	}
+//	private void registerPlibPacketHandler() {
+//		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(PacketAdapter.params(this, Packets.Server.NAMED_SOUND_EFFECT).serverSide()) {
+//			@Override
+//			public void onPacketSending(PacketEvent event) {
+//				switch (event.getPacketID()) {
+//				case Packets.Server.NAMED_SOUND_EFFECT: // 0x3E
+//					// silence all mob noises if they're on a chess board
+//					// this preserves player sanity when using entity chess sets
+//					String soundName = event.getPacket().getStrings().read(0);
+//					int x = event.getPacket().getIntegers().read(0) >> 3;
+//					int y = event.getPacket().getIntegers().read(1) >> 3;
+//					int z = event.getPacket().getIntegers().read(2) >> 3;
+//					Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
+//					if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
+//						if (soundName.matches("^mob\\.[a-z]+\\.(say|idle|bark)$")) {
+//							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
+//							event.setCancelled(true);
+//						}
+//					}
+//					break;
+//				}
+//			}
+//		});
+//	}
 
 	public static ChessPersistence getPersistenceHandler() {
 		return persistence;
@@ -511,7 +507,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		} else if (key.equalsIgnoreCase("flying.captive")) {
 			flightListener.setCaptive((Boolean) newVal);
 		} else if (key.equalsIgnoreCase("flying.upper_limit") || key.equalsIgnoreCase("flying.outer_limit")) {
-			flightListener.recalculateFlightRegions();
+			BoardViewManager.getManager().recalculateFlightRegions();
 		} else if (key.equalsIgnoreCase("flying.fly_speed") || key.equalsIgnoreCase("flying.walk_speed")) {
 			flightListener.updateSpeeds();
 		} else if (key.equalsIgnoreCase("pager.enabled")) {

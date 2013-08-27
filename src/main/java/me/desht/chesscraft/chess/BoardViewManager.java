@@ -24,12 +24,14 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class BoardViewManager {
@@ -39,6 +41,8 @@ public class BoardViewManager {
 	private final Map<String, BoardView> chessBoards = new HashMap<String, BoardView>();
 	private final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
 	private PersistableLocation globalTeleportOutDest = null;
+
+	private List<Cuboid> flightRegions = new ArrayList<Cuboid>();
 
 	private BoardViewManager() {
 	}
@@ -174,17 +178,38 @@ public class BoardViewManager {
 	 * Check if a location is any part of any board including the frame & enclosure.
 	 * 
 	 * @param loc	location to check
-	 * @param fudge	fudge factor - check a larger area around the board
 	 * @return the boardview that matches, or null if none
 	 */
 	public BoardView partOfChessBoard(Location loc) {
 		return partOfChessBoard(loc, 0);
 	}
 
+	/**
+	 * Check if a location is any part of any board including the frame & enclosure.
+	 * 
+	 * @param loc	location to check
+	 * @param fudge	fudge factor - check a larger area around the board
+	 * @return the boardview that matches, or null if none
+	 */
 	public BoardView partOfChessBoard(Location loc, int fudge) {
 		for (BoardView bv : listBoardViews()) {
 			if (bv.isPartOfBoard(loc, fudge)) {
 				return bv;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Check if the player may fly (in a ChessCraft context) given their current position.
+	 * 
+	 * @param player the player to check for
+	 * @return the flight region that the player is in, or null if not in a flight region
+	 */
+	public Cuboid getFlightRegion(Location loc) {
+		for (Cuboid c : flightRegions) {
+			if (c.contains(loc)) {
+				return c;
 			}
 		}
 		return null;
@@ -340,5 +365,26 @@ public class BoardViewManager {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Cache the regions in which flight is allowed.  We do this to avoid calculation in the
+	 * code which is (frequently) called from the PlayerMoveEvent handler in the flight listener.
+	 */
+	public void recalculateFlightRegions() {
+		int above = ChessCraft.getInstance().getConfig().getInt("flying.upper_limit");
+		int outside = ChessCraft.getInstance().getConfig().getInt("flying.outer_limit");
+
+		flightRegions.clear();
+
+		for (BoardView bv : listBoardViews()) {
+			Cuboid c = bv.getOuterBounds();
+			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
+			if (BlockType.canPassThrough(mat.getId())) {
+				c = c.expand(CuboidDirection.Up, Math.max(5, (c.getSizeY() * above) / 100));
+				c = c.outset(CuboidDirection.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
+			}
+			flightRegions.add(c);
+		}
 	}
 }
