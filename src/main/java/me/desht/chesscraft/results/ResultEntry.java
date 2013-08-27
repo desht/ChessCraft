@@ -107,8 +107,9 @@ public class ResultEntry implements DatabaseSavable {
 	}
 
 	public void saveToDatabase(Connection connection) throws SQLException {
+		String tableName = Results.getResultsHandler().getTableName("results");
 		PreparedStatement stmt = connection.prepareStatement(
-				"INSERT INTO results (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
+				"INSERT INTO " + tableName + " (playerWhite, playerBlack, gameName, startTime, endTime, result, pgnResult)" +
 				" VALUES (?, ?, ?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
 		stmt.setString(1, playerWhite);
 		stmt.setString(2, playerBlack);
@@ -128,7 +129,8 @@ public class ResultEntry implements DatabaseSavable {
 		if (rs.next()) {
 			int rowId = rs.getInt(1);
 			if (rowId != -1 && pgnData != null) {
-				PreparedStatement pgnStmt = connection.prepareStatement("INSERT INTO pgn VALUES(?,?)");
+				tableName = Results.getResultsHandler().getTableName("pgn");
+				PreparedStatement pgnStmt = connection.prepareStatement("INSERT INTO " + tableName + " VALUES(?,?)");
 				pgnStmt.setInt(1, rowId);
 				pgnStmt.setString(2, pgnData);
 				LogUtils.fine("execute SQL: " + pgnStmt);

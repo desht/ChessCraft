@@ -489,6 +489,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			e.play(null);
 		} else if (key.equals("version")) {
 			throw new DHUtilsException("'version' config item may not be changed");
+		} else if (key.equals("database.table_prefix") && newVal.toString().isEmpty()) {
+			throw new DHUtilsException("'database.table_prefix' may not be empty");
 		}
 	}
 

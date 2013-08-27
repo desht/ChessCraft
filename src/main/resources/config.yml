@@ -74,6 +74,7 @@ database:
     password: chesscraft
     port: 3306
     name: chesscraft
+    table_prefix: chesscraft_
 results:
     pgn_db: true
 dynmap:

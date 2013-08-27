@@ -147,18 +147,20 @@ public abstract class ResultViewBase {
 
 		@Override
 		public void saveToDatabase(Connection conn) throws SQLException {
-			PreparedStatement getPlayer = conn.prepareStatement("SELECT player, score FROM " + viewType + " WHERE player = ?");
+			String fullName = Results.getResultsHandler().getTableName(tableName);
+
+			PreparedStatement getPlayer = conn.prepareStatement("SELECT player, score FROM " + fullName + " WHERE player = ?");
 			getPlayer.setString(1, player);
 			ResultSet rs = getPlayer.executeQuery();
 			PreparedStatement update;
 			if (!rs.next()) {
 				// new insertion
-				update = conn.prepareStatement("INSERT INTO " + tableName + " VALUES (?,?)");
+				update = conn.prepareStatement("INSERT INTO " + fullName + " VALUES (?,?)");
 				update.setString(1, player);
 				update.setInt(2, score);
 			} else if (score != rs.getInt(2)) {
 				// update existing
-				update = conn.prepareStatement("UPDATE " + viewType + " SET score = ? WHERE player = ?");
+				update = conn.prepareStatement("UPDATE " + fullName + " SET score = ? WHERE player = ?");
 				update.setString(2, player);
 				update.setInt(1, score);
 			} else {
