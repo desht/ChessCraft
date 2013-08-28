@@ -443,7 +443,19 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 
 		chessBoard.moveChessPiece(fromSqi, toSqi, Move.isPromotion(move) ? position.getStone(toSqi) : Chess.NO_STONE);
-
+		if (Move.isCastle(move)) {
+			int rook, rookTo;
+			switch (toSqi) {
+			case 2: rook = 0; rookTo = 3; break; // white, queen's side
+			case 6: rook = 7; rookTo = 5; break; // white, king's side
+			case 58: rook = 56; rookTo = 59; break; // black, queen's side
+			case 62: rook = 63; rookTo = 61; break; // black, king's side
+			default: rook = rookTo = Chess.NO_SQUARE; // should never happen
+			}
+			if (rook != Chess.NO_SQUARE) {
+				chessBoard.moveChessPiece(rook, rookTo, Chess.NO_STONE);
+			}
+		}
 		pieceRidingCheck(fromSqi, toSqi);
 
 		getChessBoard().setSelectedSquare(Chess.NO_SQUARE);

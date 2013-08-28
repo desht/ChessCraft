@@ -1,15 +1,12 @@
 package me.desht.chesscraft.chess.pieces;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import chesspresso.Chess;
 import de.kumpelblase2.remoteentities.EntityManager;
@@ -17,7 +14,6 @@ import de.kumpelblase2.remoteentities.RemoteEntities;
 import de.kumpelblase2.remoteentities.api.DespawnReason;
 import de.kumpelblase2.remoteentities.api.RemoteEntity;
 import de.kumpelblase2.remoteentities.api.RemoteEntityType;
-import de.kumpelblase2.remoteentities.api.thinking.goals.DesireLookAtNearest;
 import de.kumpelblase2.remoteentities.api.thinking.goals.DesireMoveToLocation;
 
 public class EntityChessStone extends ChessStone {
@@ -37,15 +33,15 @@ public class EntityChessStone extends ChessStone {
 //		entity.setStationary(true);
 		entity.setPushable(false);
 		entity.setYaw(yaw);
-		entity.setSpeed(0.7);
-		entity.getMind().addMovementDesire(new DesireLookAtNearest(Player.class, 4.0f), 1);
-		entity.getBukkitEntity().setRemoveWhenFarAway(false);
-		Bukkit.getScheduler().runTaskLater(ChessCraft.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				entity.getBukkitEntity().teleport(loc);
-			}
-		}, 10L);
+		entity.setSpeed(0.6);
+//		entity.getMind().addMovementDesire(new DesireLookAtNearest(Player.class, 4.0f), 1);
+//		entity.getBukkitEntity().setRemoveWhenFarAway(false);
+//		Bukkit.getScheduler().runTaskLater(ChessCraft.getInstance(), new Runnable() {
+//			@Override
+//			public void run() {
+//				entity.getBukkitEntity().teleport(loc);
+//			}
+//		}, 10L);
 //		entity.spawn(loc);
 	}
 

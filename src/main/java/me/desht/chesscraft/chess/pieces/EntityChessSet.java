@@ -3,14 +3,12 @@ package me.desht.chesscraft.chess.pieces;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,7 +18,6 @@ import chesspresso.position.Position;
 
 import com.google.common.base.Joiner;
 
-import de.kumpelblase2.remoteentities.api.DespawnReason;
 import de.kumpelblase2.remoteentities.api.RemoteEntityType;
 
 /**
@@ -55,8 +52,6 @@ public class EntityChessSet extends ChessSet {
 	// map piece name to NPC entity type
 	private Map<Integer,RemoteEntityType> stoneTypeMap;
 
-//	private final EntityManager entityManager;
-
 	public EntityChessSet(Configuration c, boolean isCustom) {
 		super(c, isCustom);
 
@@ -65,7 +60,6 @@ public class EntityChessSet extends ChessSet {
 
 		this.stones = new EntityChessStone[Chess.NUM_OF_SQUARES];
 		this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
-//		this.entityManager = ChessCraft.getInstance().getRemoteEntites().createManager(ChessCraft.getInstance());
 	}
 
 	private Map<Integer, RemoteEntityType> loadPieces(ConfigurationSection cs) {
@@ -144,8 +138,8 @@ public class EntityChessSet extends ChessSet {
 		EntityChessStone captured = (EntityChessStone) getStoneAt(toSqi);
 		if (stone != null) {
 			if (promoteStone != Chess.NO_STONE) {
+				stone.cleanup();
 				Location loc = stone.getEntity().getBukkitEntity().getLocation();
-				stone.getEntity().despawn(DespawnReason.CUSTOM);
 				stone = new EntityChessStone(promoteStone, stoneTypeMap.get(promoteStone), loc, loc.getYaw());
 			}
 			stone.move(fromSqi, toSqi, to, captured);
