@@ -683,10 +683,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		cpGame.setTag(PGN.TAG_WHITE, getWhitePlayerName());
 		cpGame.setTag(PGN.TAG_BLACK, getBlackPlayerName());
 
-		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
-			summonPlayers();
-		}
-
 		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {	
 			// just in case stake.max got adjusted after game creation...
 			double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
@@ -698,6 +694,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[Chess.WHITE].withdrawFunds(stake);
 			players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
 			players[Chess.BLACK].withdrawFunds(stake);
+		}
+
+		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
+			summonPlayers();
 		}
 
 		clearInvitation();
