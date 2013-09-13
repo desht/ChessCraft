@@ -554,11 +554,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * @return
 	 */
 	public boolean canDesignHere(Player player, Location location) {
-		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer"))
+		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer")) {
 			return false;
-
+		}
+		if (!isAboveBoard(location)) {
+			return false;
+		}
 		int sqi = chessBoard.getSquareAt(location);
-		return Chess.sqiToCol(sqi) < 5 && Chess.sqiToCol(sqi) >= 0 && Chess.sqiToRow(sqi) < 2 && Chess.sqiToRow(sqi) >= 0;
+		return (sqi >= 0 && sqi <= 4) || (sqi >= 8 && sqi <= 12) || sqi == 48 || (sqi >= 56 && sqi <= 60);
 	}
 
 	/**
