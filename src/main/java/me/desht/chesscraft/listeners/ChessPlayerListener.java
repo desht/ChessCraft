@@ -332,7 +332,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
 				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
 			}
-			if (bv.isPartOfBoard(player.getLocation())) {
+			if (bv.isPartOfBoard(player.getLocation()) && player.getLocation().distanceSquared(loc) >= 16) {
 				Location newLoc = loc.clone().add(0, 1.0, 0);
 				newLoc.setPitch(player.getLocation().getPitch());
 				newLoc.setYaw(player.getLocation().getYaw());
