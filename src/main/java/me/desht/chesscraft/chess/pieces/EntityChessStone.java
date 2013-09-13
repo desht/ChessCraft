@@ -60,7 +60,7 @@ public class EntityChessStone extends ChessStone {
 	@Override
 	public void move(int fromSqi, int toSqi, Location to, ChessStone captured) {
 		LogUtils.fine("move " + getStone() + " " + entity.getName() + " to " + to);
-		entity.getMind().addMovementDesire(new DesireMovePiece(to, captured), 100);
+		entity.getMind().addMovementDesire(new DesireMovePiece(to, captured), entity.getMind().getHighestMovementPriority() + 1);
 //		if (captured != null) {
 //			entity.getMind().addMovementDesire(new DesireMovePiece(to, captured), 100);
 //		} else {
