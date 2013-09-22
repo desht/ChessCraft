@@ -34,7 +34,7 @@ public class ChessEntityListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-		if (!plugin.getConfig().getBoolean("no_creatures") || plugin.isRemoteEntity(event.getEntity())) { //$NON-NLS-1$
+		if (!plugin.getConfig().getBoolean("no_creatures") || plugin.isChessNPC(event.getEntity())) { //$NON-NLS-1$
 			return;
 		}
 
@@ -52,7 +52,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		if (!plugin.getConfig().getBoolean("no_creatures")) {
 			return;
 		}
-		if (!(event.getTarget() instanceof Player) && !plugin.isRemoteEntity(event.getTarget())) {
+		if (!(event.getTarget() instanceof Player) && !plugin.isChessNPC(event.getTarget())) {
 			return;
 		}
 
@@ -73,7 +73,7 @@ public class ChessEntityListener extends ChessListenerBase {
 	 */
 	@EventHandler
 	public void onEntityCombust(EntityCombustEvent event) {
-		if (plugin.isRemoteEntity(event.getEntity())) {
+		if (plugin.isChessNPC(event.getEntity())) {
 			event.setCancelled(true);
 		}
 	}
@@ -109,7 +109,7 @@ public class ChessEntityListener extends ChessListenerBase {
 	 */
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (plugin.isRemoteEntity(event.getEntity())) {
+		if (plugin.isChessNPC(event.getEntity())) {
 			event.getDrops().clear();
 		}
 	}
@@ -121,7 +121,7 @@ public class ChessEntityListener extends ChessListenerBase {
 	 */
 	@EventHandler
 	public void onEntityTeleport(EntityTeleportEvent event) {
-		if (plugin.isRemoteEntity(event.getEntity())) {
+		if (plugin.isChessNPC(event.getEntity())) {
 			event.setCancelled(true);
 		}
 	}

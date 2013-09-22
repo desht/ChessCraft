@@ -12,13 +12,12 @@ import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 
 import chesspresso.Chess;
 import chesspresso.position.Position;
 
 import com.google.common.base.Joiner;
-
-import de.kumpelblase2.remoteentities.api.RemoteEntityType;
 
 /**
  * @author des
@@ -50,7 +49,7 @@ public class EntityChessSet extends ChessSet {
 	// stores which piece is standing on which chess square
 	private final EntityChessStone[] stones;
 	// map piece name to NPC entity type
-	private Map<Integer,RemoteEntityType> stoneTypeMap;
+	private Map<Integer,EntityType> stoneTypeMap;
 
 	public EntityChessSet(Configuration c, boolean isCustom) {
 		super(c, isCustom);
@@ -62,16 +61,16 @@ public class EntityChessSet extends ChessSet {
 		this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
 	}
 
-	private Map<Integer, RemoteEntityType> loadPieces(ConfigurationSection cs) {
-		Map<Integer,RemoteEntityType> map = new HashMap<Integer, RemoteEntityType>();
+	private Map<Integer, EntityType> loadPieces(ConfigurationSection cs) {
+		Map<Integer,EntityType> map = new HashMap<Integer, EntityType>();
 		loadPieces(map, Chess.WHITE, cs.getConfigurationSection("white"));
 		loadPieces(map, Chess.BLACK, cs.getConfigurationSection("black"));
 		return map;
 	}
 
-	private void loadPieces(Map<Integer, RemoteEntityType> map, int colour, ConfigurationSection cs) {
+	private void loadPieces(Map<Integer, EntityType> map, int colour, ConfigurationSection cs) {
 		for (String k : cs.getKeys(false)) {
-			RemoteEntityType et = getByName(cs.getString(k));
+			EntityType et = getByName(cs.getString(k).toUpperCase());
 			ChessValidate.notNull(et, "Unknown entity type for " + k + ": [" + cs.getString(k) + "]");
 			int piece = Chess.charToPiece(Character.toUpperCase(k.charAt(0)));
 			if (piece == Chess.NO_PIECE) {
@@ -82,13 +81,10 @@ public class EntityChessSet extends ChessSet {
 		}
 	}
 
-	private RemoteEntityType getByName(String name) {
-		// this is ugly, but RemoteEntityType.valueOf() does not do what you would expect it to
+	private EntityType getByName(String name) {
 		try {
-			return (RemoteEntityType) RemoteEntityType.class.getField(name).get(null);
-		} catch (Exception e) {
-			// TODO: distinguish between unknown name and other problems
-			e.printStackTrace();
+			return EntityType.valueOf(name);
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}
@@ -139,7 +135,7 @@ public class EntityChessSet extends ChessSet {
 		if (stone != null) {
 			if (promoteStone != Chess.NO_STONE) {
 				stone.cleanup();
-				Location loc = stone.getEntity().getBukkitEntity().getLocation();
+				Location loc = stone.getBukkitEntity().getLocation();
 				stone = new EntityChessStone(promoteStone, stoneTypeMap.get(promoteStone), loc, loc.getYaw());
 			}
 			stone.move(fromSqi, toSqi, to, captured);

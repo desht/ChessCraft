@@ -14,16 +14,16 @@ type: entity
 
 pieces:
   white:
-    P: Sheep
-    R: Wolf
-    N: Horse
-    B: Villager
-    Q: Mushroom
-    K: IronGolem
+    P: sheep
+    R: wolf
+    N: horse
+    B: villager
+    Q: mushroom_cow
+    K: iron_golem
   black:
-    P: Zombie
-    R: Creeper
-    N: Spider
-    B: Skeleton
-    Q: Witch
-    K: Enderman
+    P: zombie
+    R: creeper
+    N: spider
+    B: skeleton
+    Q: witch
+    K: enderman
