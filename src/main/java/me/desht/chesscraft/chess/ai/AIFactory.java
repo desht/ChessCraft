@@ -41,10 +41,22 @@ public class AIFactory {
 	private final Map<String, AIDefinition> allAliases = new HashMap<String, AIDefinition>();
 	private final Map<String, AIDefinition> coreDefs = new HashMap<String, AIDefinition>();
 
-	public static final AIFactory instance = new AIFactory();
+	private static AIFactory instance;
 
 	public AIFactory() {
 		loadAIDefinitions();
+	}
+
+	public static synchronized AIFactory getInstance() {
+		if (instance == null) {
+			instance = new AIFactory();
+		}
+		return instance;
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
 	}
 
 	public ChessAI getNewAI(ChessGame game, String aiName, boolean isWhiteAI) {

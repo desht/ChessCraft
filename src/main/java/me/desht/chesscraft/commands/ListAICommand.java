@@ -26,7 +26,7 @@ public class ListAICommand extends ChessAbstractCommand {
 		MessagePager pager = MessagePager.getPager(sender).clear().setParseColours(true);
 
 		if (args.length == 0) {
-			List<AIDefinition> aiDefs = AIFactory.instance.listAIDefinitions(true);
+			List<AIDefinition> aiDefs = AIFactory.getInstance().listAIDefinitions(true);
 			List<String> lines = new ArrayList<String>(aiDefs.size());
 			for (AIDefinition aiDef : aiDefs) {
 				if (!aiDef.isEnabled())
@@ -42,7 +42,7 @@ public class ListAICommand extends ChessAbstractCommand {
 			}
 			pager.add(lines);
 		} else {
-			AIDefinition aiDef = AIFactory.instance.getAIDefinition(args[0], true);
+			AIDefinition aiDef = AIFactory.getInstance().getAIDefinition(args[0], true);
 			pager.add(aiDef.getDetails());
 		}
 

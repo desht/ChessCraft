@@ -218,7 +218,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		ChessGameManager gm = ChessGameManager.getManager();
 
-		AIFactory.instance.clearDown();
+		AIFactory.getInstance().clearDown();
 		for (ChessGame game : gm.listGames()) {
 			game.clockTick();
 		}

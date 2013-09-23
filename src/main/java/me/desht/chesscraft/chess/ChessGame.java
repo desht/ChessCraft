@@ -119,7 +119,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private ChessPlayer createPlayer(String name, int colour) {
 		if (name == null) {
-			String aiName = AIFactory.instance.getFreeAIName();
+			String aiName = AIFactory.getInstance().getFreeAIName();
 			return new AIChessPlayer(aiName, this, colour);
 		} else if (ChessAI.isAIPlayer(name)) {
 			return new AIChessPlayer(name, this, colour);
