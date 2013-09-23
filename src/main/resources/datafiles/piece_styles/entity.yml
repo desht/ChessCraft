@@ -17,14 +17,14 @@ pieces:
   white:
     P: sheep
     R: wolf
-    N: horse
-    B: villager
+    N: horse:horse,white,none
+    B: villager:priest
     Q: mushroom_cow
     K: iron_golem
   black:
-    P: zombie
-    R: creeper
-    N: spider
-    B: skeleton
+    P: magma_cube:2
+    R: pig_zombie
+    N: horse:skeleton_horse,black,none
+    B: skeleton:wither
     Q: witch
     K: enderman

@@ -42,7 +42,7 @@ public class EntityChessSet extends ChessSet {
 	// stores which piece is standing on which chess square
 	private final EntityChessStone[] stones;
 	// map piece name to NPC entity type
-	private Map<Integer,EntityType> stoneTypeMap;
+	private Map<Integer,EntityDetails> stoneTypeMap;
 
 	public EntityChessSet(Configuration c, boolean isCustom) {
 		super(c, isCustom);
@@ -54,23 +54,25 @@ public class EntityChessSet extends ChessSet {
 		this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
 	}
 
-	private Map<Integer, EntityType> loadPieces(ConfigurationSection cs) {
-		Map<Integer,EntityType> map = new HashMap<Integer, EntityType>();
+	private Map<Integer, EntityDetails> loadPieces(ConfigurationSection cs) {
+		Map<Integer,EntityDetails> map = new HashMap<Integer, EntityDetails>();
 		loadPieces(map, Chess.WHITE, cs.getConfigurationSection("white"));
 		loadPieces(map, Chess.BLACK, cs.getConfigurationSection("black"));
 		return map;
 	}
 
-	private void loadPieces(Map<Integer, EntityType> map, int colour, ConfigurationSection cs) {
+	private void loadPieces(Map<Integer, EntityDetails> map, int colour, ConfigurationSection cs) {
 		for (String k : cs.getKeys(false)) {
-			EntityType et = getByName(cs.getString(k).toUpperCase());
+			String[] f = cs.getString(k).split(":");
+			EntityType et = getByName(f[0].toUpperCase());
+			String str = f.length > 1 ? f[1] : "";
 			ChessValidate.notNull(et, "Unknown entity type for " + k + ": [" + cs.getString(k) + "]");
 			int piece = Chess.charToPiece(Character.toUpperCase(k.charAt(0)));
 			if (piece == Chess.NO_PIECE) {
 				throw new ChessException("Unknown piece type: " + k);
 			}
 			int stone = Chess.pieceToStone(piece, colour);
-			map.put(stone, et);
+			map.put(stone, new EntityDetails(et, str));
 		}
 	}
 
@@ -127,8 +129,8 @@ public class EntityChessSet extends ChessSet {
 		EntityChessStone captured = (EntityChessStone) getStoneAt(toSqi);
 		if (stone != null) {
 			if (promoteStone != Chess.NO_STONE) {
-				stone.cleanup();
 				Location loc = stone.getBukkitEntity().getLocation();
+				stone.cleanup();
 				stone = new EntityChessStone(promoteStone, stoneTypeMap.get(promoteStone), loc, loc.getYaw());
 			}
 			stone.move(fromSqi, toSqi, to, captured);
@@ -153,6 +155,27 @@ public class EntityChessSet extends ChessSet {
 				}
 				stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
 			}
+		}
+	}
+
+	public class EntityDetails {
+		private final EntityType type;
+		private final String extraData;
+		public EntityDetails(EntityType type, String extraData) {
+			this.type = type;
+			this.extraData = extraData;
+		}
+		/**
+		 * @return the type
+		 */
+		public EntityType getType() {
+			return type;
+		}
+		/**
+		 * @return the extraData
+		 */
+		public String getExtraData() {
+			return extraData;
 		}
 	}
 }
