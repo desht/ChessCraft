@@ -18,13 +18,13 @@ pieces:
     P: sheep
     R: wolf
     N: horse:horse,white,none
-    B: villager:priest
+    B: villager:librarian
     Q: mushroom_cow
     K: iron_golem
   black:
     P: magma_cube:2
     R: pig_zombie
-    N: horse:skeleton_horse,black,none
+    N: horse:undead_horse,black,none
     B: skeleton:wither
     Q: witch
-    K: enderman
+    K: blaze

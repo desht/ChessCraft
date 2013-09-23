@@ -10,9 +10,11 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Horse;
+import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.entity.Slime;
@@ -34,7 +36,7 @@ public class EntityChessStone extends ChessStone {
 		npc = CitizensAPI.getNamedNPCRegistry("chesscraft").createNPC(entityDetails.getType(), name);
 		npc.setProtected(true);
 		npc.addTrait(ChessPieceTrait.class);
-		npc.getNavigator().getLocalParameters().speedModifier(1.25f).distanceMargin(0.0);
+		npc.getNavigator().getLocalParameters().speedModifier(2.0f).distanceMargin(0.0);
 		npc.spawn(loc);
 		setExtraDetails(npc, entityDetails);
 
@@ -86,7 +88,18 @@ public class EntityChessStone extends ChessStone {
 			} catch (IllegalArgumentException e) {
 				LogUtils.warning("invalid villager profession: " + details.getExtraData());
 			}
+			// villagers are really fast by default
+			npc.getNavigator().getLocalParameters().speedModifier(1.0f);
 			break;
+		case SHEEP:
+			try {
+				DyeColor c = DyeColor.valueOf(details.getExtraData().toUpperCase());
+				((Sheep)entity).setColor(c);
+			} catch (IllegalArgumentException e) {
+				LogUtils.warning("invalid sheep colour: " + details.getExtraData());
+			}
+		case BLAZE:
+			npc.getNavigator().getLocalParameters().speedModifier(4.0f);
 		default:
 			break;
 		}
