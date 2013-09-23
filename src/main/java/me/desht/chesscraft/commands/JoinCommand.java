@@ -51,7 +51,7 @@ public class JoinCommand extends ChessAbstractCommand {
 		                                                  game.getName(), ChessUtils.getDisplayColour(playingAs)));
 
 		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) { //$NON-NLS-1$
-			game.summonPlayers();
+			game.getPlayer(playingAs).summonToGame();
 		} else {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
 		}

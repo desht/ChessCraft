@@ -7,6 +7,7 @@ autosave: true
 wand_item: air
 tick_interval: 1
 auto_teleport_on_join: true
+auto_teleport_on_start: true
 timeout_forfeit: 60 sec
 no_pvp: true
 teleporting: true

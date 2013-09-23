@@ -695,7 +695,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[Chess.BLACK].withdrawFunds(stake);
 		}
 
-		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
+		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_start")) {
 			summonPlayers();
 		}
 

@@ -7,10 +7,10 @@ import chesspresso.Chess;
 public abstract class ChessPlayer {
 	private final String name;
 	private final ChessGame game;
-	
+
 	private int colour;
 	private int promotionPiece;
-	
+
 	public ChessPlayer(String name, ChessGame game, int colour) {
 		if (name == null) throw new NullPointerException("ChessPlayer: name must not be null");
 		if (game == null) throw new NullPointerException("ChessPlayer: game must not be null");
@@ -19,11 +19,11 @@ public abstract class ChessPlayer {
 		this.colour = colour;
 		this.promotionPiece = Chess.QUEEN;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getDisplayName() {
 		return name;
 	}
@@ -31,11 +31,11 @@ public abstract class ChessPlayer {
 	public int getColour() {
 		return colour;
 	}
-	
+
 	public int getOtherColour() {
 		return Chess.otherPlayer(colour);
 	}
-	
+
 	public void setColour(int colour) {
 		this.colour = colour;
 	}
@@ -43,7 +43,7 @@ public abstract class ChessPlayer {
 	public ChessGame getGame() {
 		return game;
 	}
-	
+
 	public void setPromotionPiece(int promotionPiece) {
 		this.promotionPiece = promotionPiece;
 	}
@@ -70,7 +70,7 @@ public abstract class ChessPlayer {
 
 	public abstract void validateAffordability(String error);
 	public abstract void validateInvited(String error);
-	
+
 	public abstract void promptForFirstMove();
 	public abstract void promptForNextMove();
 
@@ -80,23 +80,23 @@ public abstract class ChessPlayer {
 	public abstract void replayMoves();
 
 	public abstract void cleanup();
-	
+
 	public abstract boolean isHuman();
-	
+
 	public abstract void withdrawFunds(double amount);
 	public abstract void depositFunds(double amount);
-	
+
 	public abstract void summonToGame();
 
 	public abstract void cancelOffers();
 
 	public abstract double getPayoutMultiplier();
-	
+
 	public abstract void drawOffered();
 	public abstract void swapOffered();
-	
+
 	public abstract void undoLastMove();
-	
+
 	public abstract void checkPendingAction();
 
 	public abstract void playEffect(String effect);
