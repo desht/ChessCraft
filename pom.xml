@@ -50,13 +50,13 @@
                     <id>dynmap-repo</id>
                     <url>http://repo.mikeprimm.com</url>
                 </repository>
-                <!--<repository>
-                    <id>remoteentities-repo</id>
-                    <url>http://repo.infinityblade.de/remoteentities/releases</url>
-                </repository>-->
 		<repository>
 		    <id>DH Dropbox</id>
 		    <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
+		</repository>
+		<repository>
+		    <id>citizens-repo</id>
+		    <url>http://ci.citizensnpcs.co/plugin/repository/everything</url>
 		</repository>
                 <repository>
                     <id>comphenix-repo</id>
