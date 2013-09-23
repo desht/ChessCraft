@@ -327,12 +327,12 @@ public class ChessPlayerListener extends ChessListenerBase {
 			// clicking the square that a piece of our colour is on is equivalent to selecting the piece, if it's our move
 			pieceClicked(player, loc, bv);
 		} else {
-			// just try to teleport to the square, if the player is already on the board
+			// just try to teleport to the square, if the player is already on the board, and the square is empty
 			if (player.isSneaking()) {
 				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
 				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
 			}
-			if (bv.isPartOfBoard(player.getLocation()) && player.getLocation().distanceSquared(loc) >= 16) {
+			if (bv.isPartOfBoard(player.getLocation()) && player.getLocation().distanceSquared(loc) >= 16 && colour == Chess.NOBODY) {
 				Location newLoc = loc.clone().add(0, 1.0, 0);
 				newLoc.setPitch(player.getLocation().getPitch());
 				newLoc.setYaw(player.getLocation().getYaw());
