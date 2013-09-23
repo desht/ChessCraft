@@ -316,7 +316,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		int colour = game == null ? Chess.NOBODY : game.getPosition().getColor(clickedSqi);
 		int selectedSqi = bv.getChessBoard().getSelectedSquare();
 
-		if (game != null && selectedSqi != Chess.NO_SQUARE) {
+		if (game != null && selectedSqi != Chess.NO_SQUARE && selectedSqi != clickedSqi) {
 			// a square is already selected; attempt to move the piece in that square to the clicked square
 			game.doMove(player.getName(), selectedSqi, clickedSqi);
 			if (plugin.getConfig().getBoolean("verbose")) {

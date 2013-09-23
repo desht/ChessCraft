@@ -33,13 +33,6 @@ public class EntityChessSet extends ChessSet {
 		"",
 		"'comment' is a freeform comment about the set (can be multi-line)",
 		"",
-		"'materials.white' & 'materials.black' are lists of materials used in this set",
-		" Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)",
-		" or material plus data (e.g. 35:0, wool:white)",
-		" If you use plain integers, they must be quoted, or the set will not load!",
-		" If you use material names, they must match the org.bukkit.Material definitions",
-		" - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html",
-		"",
 		"'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
 				" where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K",
 				" The piece definition is a Bukkit EntityType - see",
@@ -146,27 +139,19 @@ public class EntityChessSet extends ChessSet {
 
 	@Override
 	public void syncToPosition(Position pos, final ChessBoard board) {
-		if (pos == null) {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-				if (stones[sqi] != null) {
-					stones[sqi].cleanup();
-				}
+		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+			if (stones[sqi] != null) {
+				stones[sqi].cleanup();
 				stones[sqi] = null;
 			}
-		} else {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+			if (pos != null && pos.getStone(sqi) != Chess.NO_STONE) {
 				int stone = pos.getStone(sqi);
-				if (stones[sqi] != null) {
-					stones[sqi].cleanup();
+				Location loc = board.getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).getCenter().add(0, 0.5, 0);
+				float yaw = board.getRotation().getYaw();
+				if (Chess.stoneToColor(stone) == Chess.BLACK) {
+					yaw = (yaw + 180) % 360;
 				}
-				if (stone != Chess.NO_STONE) {
-					Location loc = board.getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).getCenter().add(0, 0.5, 0);
-					float yaw = board.getRotation().getYaw();
-					if (Chess.stoneToColor(stone) == Chess.BLACK) {
-						yaw = (yaw + 180) % 360;
-					}
-					stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
-				}
+				stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
 			}
 		}
 	}

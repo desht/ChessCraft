@@ -11,6 +11,7 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.pieces.ChessPieceTrait;
+import me.desht.chesscraft.citizens.NullStorage;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.BoardDeletionCommand;
@@ -70,6 +71,7 @@ import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.CitizensPlugin;
+import net.citizensnpcs.api.npc.SimpleNPCDataStore;
 import net.citizensnpcs.api.trait.TraitInfo;
 import net.milkbowl.vault.economy.Economy;
 
@@ -333,6 +335,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			citizensEnabled = true;
 			LogUtils.fine("Hooked Citizens2 v" + citizens.getDescription().getVersion());
 			CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(ChessPieceTrait.class).withName("chesspiece"));
+			CitizensAPI.createNamedNPCRegistry("chesscraft", SimpleNPCDataStore.create(new NullStorage()));
 		}
 	}
 
@@ -530,6 +533,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	public boolean isChessNPC(Entity entity) {
-		return entity.hasMetadata("NPC");
+		return entity != null && entity.hasMetadata("NPC");
 	}
 }

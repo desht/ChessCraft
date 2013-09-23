@@ -7,7 +7,8 @@
 # 
 # 'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
 #  where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K
-#  The piece definition is a RemoteEntities EntityType
+#  The piece definition is a Bukkit EntityType - see
+#  http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html
 name: entity
 comment: Entity chess set
 type: entity

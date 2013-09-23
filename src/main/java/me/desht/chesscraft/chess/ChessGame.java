@@ -96,7 +96,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[colour] = new HumanChessPlayer(playerName, this, colour);
 		}
 		state = GameState.SETTING_UP;
-//		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();

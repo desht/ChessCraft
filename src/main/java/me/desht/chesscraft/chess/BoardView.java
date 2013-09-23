@@ -265,6 +265,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 			attributes.set(DEFAULT_TC, getDefaultTcSpec());
+			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 		}
 		mbu.notifyClients();
 		controlPanel.repaintClocks();

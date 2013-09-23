@@ -102,6 +102,7 @@ public class BoardViewManager {
 			if (bv.getGame() != null) {
 				ChessGameManager.getManager().deleteGame(bv.getGame().getName(), false);
 			}
+			bv.getChessBoard().getChessSet().syncToPosition(null, bv.getChessBoard());
 		}
 		unregisterBoardView(name);
 	}
