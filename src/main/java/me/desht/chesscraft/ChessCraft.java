@@ -93,8 +93,9 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 public class ChessCraft extends JavaPlugin implements ConfigurationListener, PluginVersionListener {
 
 	private static ChessCraft instance;
-	private static WorldEditPlugin worldEditPlugin;
-	private static ChessPersistence persistence;
+
+	private WorldEditPlugin worldEditPlugin;
+	private ChessPersistence persistence;
 
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
 
@@ -224,10 +225,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		//		List<ChessGame> games = new ArrayList<ChessGame>(gm.listGames());
-		//		for (ChessGame game : games) {
-		//			gm.deleteGame(game.getName(), false);
-		//		}
 		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
 		for (BoardView view : views) {
 			// this will also do a temporary delete on the board's game, if any
@@ -237,8 +234,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		instance = null;
 		economy = null;
-		worldEditPlugin = null;
-		persistence = null;
 
 		LogUtils.fine("disabled!");
 	}
@@ -348,11 +343,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return (economy != null);
 	}
 
-	public static ChessPersistence getPersistenceHandler() {
+	public ChessPersistence getPersistenceHandler() {
 		return persistence;
 	}
 
-	public static WorldEditPlugin getWorldEdit() {
+	public WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}
 

@@ -210,7 +210,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void save() {
-		ChessCraft.getPersistenceHandler().savePersistable("board", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
 
 	public void autoSave() {
@@ -584,7 +584,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		// signs can get dropped otherwise
 		getControlPanel().removeSigns();
 
-		if (ChessCraft.getWorldEdit() != null) {
+		if (ChessCraft.getInstance().getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
 			restored = TerrainBackup.reload(this);
 		}

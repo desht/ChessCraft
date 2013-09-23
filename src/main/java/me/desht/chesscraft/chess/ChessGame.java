@@ -270,7 +270,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void save() {
-		ChessCraft.getPersistenceHandler().savePersistable("game", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("game", this);
 	}
 
 	public void autoSave() {

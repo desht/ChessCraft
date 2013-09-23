@@ -18,7 +18,7 @@ public class SaveCommand extends ChessAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
-		ChessCraft.getPersistenceHandler().save();
+		((ChessCraft)plugin).getPersistenceHandler().save();
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.chessSaved")); //$NON-NLS-1$
 		return true;
 	}
