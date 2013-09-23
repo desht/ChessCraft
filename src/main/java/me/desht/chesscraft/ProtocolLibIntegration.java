@@ -1,7 +1,9 @@
 package me.desht.chesscraft;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import me.desht.chesscraft.chess.BoardViewManager;
-import me.desht.dhutils.LogUtils;
 
 import org.bukkit.Location;
 
@@ -11,6 +13,8 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 
 public class ProtocolLibIntegration {
+	private static Pattern soundPat = Pattern.compile("mob\\.[a-z]+\\.(say|idle|bark)$");
+
 	public static void registerPlibPacketHandler(ChessCraft plugin) {
 		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(PacketAdapter.params(plugin, Packets.Server.NAMED_SOUND_EFFECT).serverSide()) {
 			@Override
@@ -25,8 +29,9 @@ public class ProtocolLibIntegration {
 					int z = event.getPacket().getIntegers().read(2) >> 3;
 					Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
 					if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
-						if (soundName.matches("^mob\\.[a-z]+\\.(say|idle|bark)$")) {
-							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
+						Matcher m = soundPat.matcher(soundName);
+						if (m.find()) {
+//							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
 							event.setCancelled(true);
 						}
 					}
