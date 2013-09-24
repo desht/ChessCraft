@@ -262,7 +262,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 			return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			throw new ChessException(e.getMessage());
 		}
 	}

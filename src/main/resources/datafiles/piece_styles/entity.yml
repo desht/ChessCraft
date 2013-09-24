@@ -15,16 +15,16 @@ type: entity
 
 pieces:
   white:
-    P: sheep
-    R: wolf
-    N: horse:horse,white,none
-    B: villager:librarian
-    Q: mushroom_cow
-    K: iron_golem
+    P: { entity: sheep, baby: true }
+    R: { entity: wolf, tame: true, color: blue }
+    N: { entity: horse, variant: horse, color: white, style: none }
+    B: { entity: villager, profession: librarian }
+    Q: { entity: mushroom_cow }
+    K: { entity: iron_golem }
   black:
-    P: magma_cube:2
-    R: pig_zombie
-    N: horse:undead_horse,black,none
-    B: skeleton:wither
-    Q: witch
-    K: blaze
+    P: { entity: magma_cube, size: 2 }
+    R: { entity: pig_zombie, held: gold_sword }
+    N: { entity: horse, variant: undead_horse }
+    B: { entity: skeleton, variant: wither, held: stone_sword, helmet: leather_helmet }
+    Q: { entity: witch, held: stick }
+    K: { entity: blaze }

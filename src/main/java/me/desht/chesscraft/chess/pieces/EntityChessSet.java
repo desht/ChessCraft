@@ -42,7 +42,7 @@ public class EntityChessSet extends ChessSet {
 	// stores which piece is standing on which chess square
 	private final EntityChessStone[] stones;
 	// map piece name to NPC entity type
-	private Map<Integer,EntityDetails> stoneTypeMap;
+	private Map<Integer,ConfigurationSection> stoneTypeMap;
 
 	public EntityChessSet(Configuration c, boolean isCustom) {
 		super(c, isCustom);
@@ -51,36 +51,28 @@ public class EntityChessSet extends ChessSet {
 		ChessPersistence.requireSection(c, "pieces.black");
 
 		this.stones = new EntityChessStone[Chess.NUM_OF_SQUARES];
-		this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
+		try {
+			this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
+		} catch (Exception e) {
+			throw new ChessException(e.getMessage());
+		}
 	}
 
-	private Map<Integer, EntityDetails> loadPieces(ConfigurationSection cs) {
-		Map<Integer,EntityDetails> map = new HashMap<Integer, EntityDetails>();
+	private Map<Integer, ConfigurationSection> loadPieces(ConfigurationSection cs) {
+		Map<Integer,ConfigurationSection> map = new HashMap<Integer, ConfigurationSection>();
 		loadPieces(map, Chess.WHITE, cs.getConfigurationSection("white"));
 		loadPieces(map, Chess.BLACK, cs.getConfigurationSection("black"));
 		return map;
 	}
 
-	private void loadPieces(Map<Integer, EntityDetails> map, int colour, ConfigurationSection cs) {
-		for (String k : cs.getKeys(false)) {
-			String[] f = cs.getString(k).split(":");
-			EntityType et = getByName(f[0].toUpperCase());
-			String str = f.length > 1 ? f[1] : "";
-			ChessValidate.notNull(et, "Unknown entity type for " + k + ": [" + cs.getString(k) + "]");
-			int piece = Chess.charToPiece(Character.toUpperCase(k.charAt(0)));
-			if (piece == Chess.NO_PIECE) {
-				throw new ChessException("Unknown piece type: " + k);
-			}
-			int stone = Chess.pieceToStone(piece, colour);
-			map.put(stone, new EntityDetails(et, str));
-		}
-	}
-
-	private EntityType getByName(String name) {
-		try {
-			return EntityType.valueOf(name);
-		} catch (IllegalArgumentException e) {
-			return null;
+	private void loadPieces(Map<Integer, ConfigurationSection> map, int colour, ConfigurationSection cs) {
+		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+			String s = Character.toString(Chess.pieceToChar(piece));
+			ConfigurationSection details = cs.getConfigurationSection(s);
+			ChessValidate.notNull(details, "missing definition for chess piece: " + s);
+			ChessPersistence.requireSection(details, "entity");
+			details.set("_entity", EntityType.valueOf(details.getString("entity").toUpperCase()));
+			map.put(Chess.pieceToStone(piece, colour), details);
 		}
 	}
 
@@ -155,27 +147,6 @@ public class EntityChessSet extends ChessSet {
 				}
 				stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
 			}
-		}
-	}
-
-	public class EntityDetails {
-		private final EntityType type;
-		private final String extraData;
-		public EntityDetails(EntityType type, String extraData) {
-			this.type = type;
-			this.extraData = extraData;
-		}
-		/**
-		 * @return the type
-		 */
-		public EntityType getType() {
-			return type;
-		}
-		/**
-		 * @return the extraData
-		 */
-		public String getExtraData() {
-			return extraData;
 		}
 	}
 }
