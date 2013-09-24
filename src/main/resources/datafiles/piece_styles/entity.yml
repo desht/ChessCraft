@@ -7,8 +7,15 @@
 # 
 # 'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
 #  where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K
-#  The piece definition is a Bukkit EntityType - see
+#
+#  The piece definition is a compound structure with a mandatory "entity"
+#  field, which must be a Bukkit EntityType for a living entity - see
 #  http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html
+#
+#  Other fields are optional and modify the appearance of the piece.
+#  Different entities understand different fields - see
+#  http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles for
+#  full information.
 name: entity
 comment: Entity chess set
 type: entity

@@ -34,9 +34,16 @@ public class EntityChessSet extends ChessSet {
 		"'comment' is a freeform comment about the set (can be multi-line)",
 		"",
 		"'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
-				" where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K",
-				" The piece definition is a Bukkit EntityType - see",
-				" http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html",
+		" where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K",
+		"",
+		"The piece definition is a compound structure with a mandatory 'entity'",
+		"field, which must be a Bukkit EntityType for a living entity - see",
+		"http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html",
+		"",
+		"Other fields are optional and modify the appearance of the piece.",
+		"Different entities understand different fields - see",
+		"http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles for",
+		"full information.",
 	};
 
 	// stores which piece is standing on which chess square
