@@ -68,7 +68,7 @@ public class ResultsDB {
 			Class.forName("org.sqlite.JDBC");
 			Connection oldConn = DriverManager.getConnection("jdbc:sqlite:" + oldDbFile.getAbsolutePath());
 			Statement st = oldConn.createStatement();
-			ResultSet rs = st.executeQuery("select * from results");
+			ResultSet rs = st.executeQuery("select * from " + Results.getResultsHandler().getTableName("results"));
 			List<ResultEntry> entries = new ArrayList<ResultEntry>();
 			while (rs.next()) {
 				ResultEntry e = new ResultEntry(rs);
@@ -120,54 +120,57 @@ public class ResultsDB {
 
 	private void setupTablesSQLite() throws SQLException {
 		createTableIfNotExists("results",
-				"gameID INTEGER PRIMARY KEY," +
-				"playerWhite VARCHAR(32) NOT NULL," +
-				"playerBlack VARCHAR(32) NOT NULL," +
-				"gameName VARCHAR(64) NOT NULL," +
-				"startTime DATETIME NOT NULL," +
-				"endTime DATETIME NOT NULL," +
-				"result TEXT NOT NULL," +
+		                       "gameID INTEGER PRIMARY KEY," +
+		                    		   "playerWhite VARCHAR(32) NOT NULL," +
+		                    		   "playerBlack VARCHAR(32) NOT NULL," +
+		                    		   "gameName VARCHAR(64) NOT NULL," +
+		                    		   "startTime DATETIME NOT NULL," +
+		                    		   "endTime DATETIME NOT NULL," +
+		                    		   "result TEXT NOT NULL," +
 				"pgnResult TEXT NOT NULL");
 	}
 
 	private void setupTablesMySQL() throws SQLException {
 		createTableIfNotExists("results",
-				"gameID INTEGER NOT NULL AUTO_INCREMENT," +
-				"playerWhite VARCHAR(32) NOT NULL," +
-				"playerBlack VARCHAR(32) NOT NULL," +
-				"gameName VARCHAR(64) NOT NULL," +
-				"startTime DATETIME NOT NULL," +
-				"endTime DATETIME NOT NULL," +
-				"result TEXT NOT NULL," +
-				"pgnResult TEXT NOT NULL," +
+		                       "gameID INTEGER NOT NULL AUTO_INCREMENT," +
+		                    		   "playerWhite VARCHAR(32) NOT NULL," +
+		                    		   "playerBlack VARCHAR(32) NOT NULL," +
+		                    		   "gameName VARCHAR(64) NOT NULL," +
+		                    		   "startTime DATETIME NOT NULL," +
+		                    		   "endTime DATETIME NOT NULL," +
+		                    		   "result TEXT NOT NULL," +
+		                    		   "pgnResult TEXT NOT NULL," +
 				"PRIMARY KEY (gameID)");
 	}
 
 	private void setupTablesCommon() throws SQLException {
 		createTableIfNotExists("ladder",
-				"player VARCHAR(32) NOT NULL," +
-				"score INTEGER NOT NULL," +
+		                       "player VARCHAR(32) NOT NULL," +
+		                    		   "score INTEGER NOT NULL," +
 				"PRIMARY KEY (player)");
 		createTableIfNotExists("league",
-				"player VARCHAR(32) NOT NULL," +
-				"score INTEGER NOT NULL," +
+		                       "player VARCHAR(32) NOT NULL," +
+		                    		   "score INTEGER NOT NULL," +
 				"PRIMARY KEY (player)");
 		createTableIfNotExists("pgn",
-				"gameID INTEGER NOT NULL," +
-				"pgnData TEXT NOT NULL," +
+		                       "gameID INTEGER NOT NULL," +
+		                    		   "pgnData TEXT NOT NULL," +
 				"FOREIGN KEY (gameID) REFERENCES results(gameID) ON DELETE CASCADE");
 	}
 
 	private void createTableIfNotExists(String tableName, String ddl) throws SQLException {
-		if (!tableExists(tableName)) {
-			try {
-				ddl = "CREATE TABLE " + tableName + "(" + ddl + ")";
-				Statement stmt = connection.createStatement();
-				stmt.executeUpdate(ddl);
-			} catch (SQLException e) {
-				LogUtils.warning("can't create table " + tableName + ": " + e.getMessage());
-				throw e;
+		String fullName = ChessCraft.getInstance().getConfig().getString("database.table_prefix", "chesscraft_") + tableName;
+		Statement stmt = connection.createStatement();
+		try {
+			if (tableExists(tableName)) {
+				stmt.executeUpdate("ALTER TABLE " + tableName + " RENAME TO " + fullName);
+				LogUtils.info("renamed DB table " + tableName + " to " + fullName);
+			} else if (!tableExists(fullName)) {
+				stmt.executeUpdate("CREATE TABLE " + fullName + "(" + ddl + ")");
 			}
+		} catch (SQLException e) {
+			LogUtils.warning("can't execute " + stmt + ": " + e.getMessage());
+			throw e;
 		}
 	}
 

@@ -48,11 +48,11 @@ public class ReloadCommand extends ChessAbstractCommand {
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.configReloaded")); //$NON-NLS-1$
 		}
 		if (reloadAI) {
-			AIFactory.instance.loadAIDefinitions();
+			AIFactory.getInstance().loadAIDefinitions();
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.AIdefsReloaded")); //$NON-NLS-1$
 		}
 		if (reloadPersisted) {
-			ChessCraft.getPersistenceHandler().reload();
+			((ChessCraft)plugin).getPersistenceHandler().reload();
 			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.persistedReloaded")); //$NON-NLS-1$
 		}
 		if (reloadTimeControls) {

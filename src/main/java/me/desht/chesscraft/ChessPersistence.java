@@ -209,7 +209,7 @@ public class ChessPersistence {
 		}
 	}
 
-	public static void requireSection(Configuration c, String key) throws ChessException {
+	public static void requireSection(ConfigurationSection c, String key) throws ChessException {
 		if (!c.contains(key))
 			throw new ChessException("missing required section '" + key + "'");
 	}

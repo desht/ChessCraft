@@ -73,18 +73,26 @@ public class TeleportCommand extends ChessAbstractCommand {
 			}
 		} else if (getBooleanOption("b") && args.length > 0) {
 			// teleport to board
-			PermissionUtils.requirePerms(sender, "chesscraft.commands.teleport.board");
-			BoardViewManager.getManager().getBoardView(args[0]).summonPlayer(player);
+			portToBoard(player, args[0]);
 		} else if (args.length == 0) {
 			// teleport out of (or back to) current game
 			BoardViewManager.getManager().teleportOut(player);
 		} else {
-			// teleport to game
-			ChessGame game = ChessGameManager.getManager().getGame(args[0], true);
-			game.getView().summonPlayer(player);
+			// teleport to game, or maybe board
+			if (ChessGameManager.getManager().checkGame(args[0])) {
+				ChessGameManager.getManager().getGame(args[0]).getView().summonPlayer(player);
+			} else {
+				portToBoard(player, args[0]);
+			}
 		}
 
 		return true;
+	}
+
+	private void portToBoard(Player player, String boardName) {
+		BoardView bv = BoardViewManager.getManager().getBoardView(boardName);
+		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport.board");
+		bv.summonPlayer(player);
 	}
 
 	private void showTeleportDests(CommandSender sender) {

@@ -80,7 +80,7 @@ public class ChessGameManager {
 	public void deleteGame(String gameName, boolean permanent) {
 		ChessGame game = getGame(gameName);
 		if (permanent) {
-			ChessCraft.getPersistenceHandler().unpersist(game);
+			ChessCraft.getInstance().getPersistenceHandler().unpersist(game);
 		}
 		game.onDeleted(permanent);
 		unregisterGame(gameName);

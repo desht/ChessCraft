@@ -210,7 +210,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void save() {
-		ChessCraft.getPersistenceHandler().savePersistable("board", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
 
 	public void autoSave() {
@@ -265,6 +265,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 			attributes.set(DEFAULT_TC, getDefaultTcSpec());
+			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 		}
 		mbu.notifyClients();
 		controlPanel.repaintClocks();
@@ -443,7 +444,19 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 
 		chessBoard.moveChessPiece(fromSqi, toSqi, Move.isPromotion(move) ? position.getStone(toSqi) : Chess.NO_STONE);
-
+		if (Move.isCastle(move)) {
+			int rook, rookTo;
+			switch (toSqi) {
+			case 2: rook = 0; rookTo = 3; break; // white, queen's side
+			case 6: rook = 7; rookTo = 5; break; // white, king's side
+			case 58: rook = 56; rookTo = 59; break; // black, queen's side
+			case 62: rook = 63; rookTo = 61; break; // black, king's side
+			default: rook = rookTo = Chess.NO_SQUARE; // should never happen
+			}
+			if (rook != Chess.NO_SQUARE) {
+				chessBoard.moveChessPiece(rook, rookTo, Chess.NO_STONE);
+			}
+		}
 		pieceRidingCheck(fromSqi, toSqi);
 
 		getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
@@ -542,11 +555,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	 * @return
 	 */
 	public boolean canDesignHere(Player player, Location location) {
-		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer"))
+		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer")) {
 			return false;
-
+		}
+		if (!isAboveBoard(location)) {
+			return false;
+		}
 		int sqi = chessBoard.getSquareAt(location);
-		return Chess.sqiToCol(sqi) < 5 && Chess.sqiToCol(sqi) >= 0 && Chess.sqiToRow(sqi) < 2 && Chess.sqiToRow(sqi) >= 0;
+		return (sqi >= 0 && sqi <= 4) || (sqi >= 8 && sqi <= 12) || sqi == 48 || (sqi >= 56 && sqi <= 60);
 	}
 
 	/**
@@ -568,7 +584,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		// signs can get dropped otherwise
 		getControlPanel().removeSigns();
 
-		if (ChessCraft.getWorldEdit() != null) {
+		if (ChessCraft.getInstance().getWorldEdit() != null) {
 			// WorldEdit will take care of changes being pushed to client
 			restored = TerrainBackup.reload(this);
 		}

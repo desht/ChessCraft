@@ -84,7 +84,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 				try {
 					attributes.set(k, c.getString(k));
 				} catch (DHUtilsException e) {
-					throw new ChessException("Invalid value for style attribute '" + k + "' in style '" + styleName + "': " + e.getMessage());
+					throw new ChessException("Invalid value for '" + k + "' in board style '" + styleName + "': " + e.getMessage());
 				}
 			}
 		}
@@ -262,7 +262,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 			Configuration c = MiscUtil.loadYamlUTF8(f);
 			return new BoardStyle(styleName, c, DirectoryStructure.isCustom(f));
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			throw new ChessException(e.getMessage());
 		}
 	}

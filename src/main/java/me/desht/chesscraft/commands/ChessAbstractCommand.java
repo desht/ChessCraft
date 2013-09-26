@@ -92,7 +92,7 @@ public abstract class ChessAbstractCommand extends AbstractCommand {
 				res.add(p.getName());
 			}
 		}
-		for (AIDefinition aiDef : AIFactory.instance.listAIDefinitions()) {
+		for (AIDefinition aiDef : AIFactory.getInstance().listAIDefinitions()) {
 			if (!aiDef.isEnabled())
 				continue;
 			res.add(aiDef.getName());

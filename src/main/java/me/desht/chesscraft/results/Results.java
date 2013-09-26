@@ -187,7 +187,7 @@ public class Results {
 				try {
 					entries.clear();
 					Statement stmt = getConnection().createStatement();
-					ResultSet rs = stmt.executeQuery("SELECT * FROM results");
+					ResultSet rs = stmt.executeQuery("SELECT * FROM " + getTableName("results"));
 					while (rs.next()) {
 						ResultEntry e = new ResultEntry(rs);
 						entries.add(e);
@@ -213,7 +213,7 @@ public class Results {
 		try {
 			getConnection().setAutoCommit(false);
 			Statement clear = getConnection().createStatement();
-			clear.executeUpdate("DELETE FROM results WHERE playerWhite LIKE 'testplayer%' OR playerBlack LIKE 'testplayer%'");
+			clear.executeUpdate("DELETE FROM " + getTableName("results") + " WHERE playerWhite LIKE 'testplayer%' OR playerBlack LIKE 'testplayer%'");
 			Random rnd = new Random();
 			for (int i = 0; i < N_PLAYERS; i++) {
 				for (int j = 0; j < N_PLAYERS; j++) {
@@ -257,5 +257,9 @@ public class Results {
 
 	public DatabaseSavable pollDatabaseUpdate() throws InterruptedException {
 		return pendingUpdates.take();
+	}
+
+	public String getTableName(String base) {
+		return ChessCraft.getInstance().getConfig().getString("database.table_prefix") + base;
 	}
 }

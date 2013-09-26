@@ -1,59 +1,157 @@
 package me.desht.chesscraft.chess.pieces;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.npc.NPC;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Skeleton.SkeletonType;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 import chesspresso.Chess;
-import de.kumpelblase2.remoteentities.EntityManager;
-import de.kumpelblase2.remoteentities.RemoteEntities;
-import de.kumpelblase2.remoteentities.api.DespawnReason;
-import de.kumpelblase2.remoteentities.api.RemoteEntity;
-import de.kumpelblase2.remoteentities.api.RemoteEntityType;
-import de.kumpelblase2.remoteentities.api.thinking.goals.DesireLookAtNearest;
-import de.kumpelblase2.remoteentities.api.thinking.goals.DesireMoveToLocation;
 
 public class EntityChessStone extends ChessStone {
 
-	private final RemoteEntity entity;
+	private final NPC npc;
 
-	protected EntityChessStone(int stone, RemoteEntityType entityType, final Location loc, float yaw) {
+	private enum EquipmentLocation { HELD, BOOTS, LEGS, CHEST, HELMET };
+
+	protected EntityChessStone(int stone, ConfigurationSection entityDetails, final Location loc, float yaw) {
 		super(stone);
 
 		loc.setYaw(yaw);
-		LogUtils.fine("create " + stone + "[" + entityType + "] @" + loc);
-		EntityManager mgr = RemoteEntities.getManagerOfPlugin("ChessCraft");
-		ChessValidate.notNull(mgr, "remote entities manager is null???");
+		LogUtils.finer("create " + stone + "[" + entityDetails.get("_entity") + "] @" + loc);
 
 		String name = ChessUtils.getColour(Chess.stoneToColor(stone)) + " " + ChessUtils.pieceToStr(Chess.stoneToPiece(stone));
-		entity = mgr.createNamedEntity(entityType, loc, name, false);
-//		entity.setStationary(true);
-		entity.setPushable(false);
-		entity.setYaw(yaw);
-		entity.setSpeed(0.7);
-		entity.getMind().addMovementDesire(new DesireLookAtNearest(Player.class, 4.0f), 1);
-		entity.getBukkitEntity().setRemoveWhenFarAway(false);
-		Bukkit.getScheduler().runTaskLater(ChessCraft.getInstance(), new Runnable() {
-			@Override
-			public void run() {
-				entity.getBukkitEntity().teleport(loc);
+		npc = CitizensAPI.getNamedNPCRegistry("chesscraft").createNPC((EntityType) entityDetails.get("_entity"), name);
+		npc.setProtected(true);
+		npc.addTrait(ChessPieceTrait.class);
+		npc.getNavigator().getLocalParameters().speedModifier(2.0f).distanceMargin(0.0);
+		npc.spawn(loc);
+		setEntityDetails(entityDetails);
+
+		Bukkit.getPluginManager().registerEvents(npc.getTrait(ChessPieceTrait.class), ChessCraft.getInstance());
+	}
+
+	private void setEntityDetails(ConfigurationSection details) {
+		Entity entity = npc.getBukkitEntity();
+		switch (entity.getType()) {
+		case SLIME: case MAGMA_CUBE:
+			int size = details.getInt("size", 1);
+			((Slime) entity).setSize(size);
+			// slimes are really slow by default
+			npc.getNavigator().getLocalParameters().speedModifier(4.5f);
+			break;
+		case SKELETON:
+			SkeletonType st = SkeletonType.valueOf(details.getString("variant", "normal").toUpperCase());
+			((Skeleton)entity).setSkeletonType(st);
+			break;
+		case HORSE:
+			Horse.Variant hv = Horse.Variant.valueOf(details.getString("variant", "horse").toUpperCase());
+			Horse.Color hc = Horse.Color.valueOf(details.getString("color", "brown").toUpperCase());
+			Horse.Style hs = Horse.Style.valueOf(details.getString("style", "none").toUpperCase());
+			((Horse) entity).setVariant(hv);
+			((Horse) entity).setColor(hc);
+			((Horse) entity).setStyle(hs);
+			break;
+		case VILLAGER:
+			Villager.Profession p = Villager.Profession.valueOf(details.getString("profession", "farmer").toUpperCase());
+			((Villager)entity).setProfession(p);
+			// villagers are really fast by default
+			npc.getNavigator().getLocalParameters().speedModifier(1.0f);
+			break;
+		case SHEEP:
+			DyeColor c = DyeColor.valueOf(details.getString("color", "white").toUpperCase());
+			((Sheep)entity).setColor(c);
+			break;
+		case BLAZE:
+			npc.getNavigator().getLocalParameters().speedModifier(4.0f);
+			break;
+		case OCELOT:
+			Ocelot.Type ot = Ocelot.Type.valueOf(details.getString("variant", "wild_ocelot").toUpperCase());
+			((Ocelot)entity).setCatType(ot);
+			break;
+		case WOLF:
+			DyeColor wc = DyeColor.valueOf(details.getString("color", "red").toUpperCase());
+			((Wolf)entity).setCollarColor(wc);
+		default:
+			break;
+		}
+		if (entity instanceof Ageable) {
+			if (details.getBoolean("baby", false)) {
+				((Ageable)entity).setBaby();
+			} else {
+				((Ageable)entity).setAdult();
 			}
-		}, 10L);
-//		entity.spawn(loc);
+		}
+		if (entity instanceof Tameable) {
+			((Tameable)entity).setTamed(details.getBoolean("tame", false));
+		}
+		if (entity instanceof LivingEntity && ((LivingEntity)entity).getEquipment() != null) {
+			EntityEquipment eq = ((LivingEntity)entity).getEquipment();
+			setEquipment(eq, EquipmentLocation.HELD, details.getString("held"));
+			setEquipment(eq, EquipmentLocation.BOOTS, details.getString("boots"));
+			setEquipment(eq, EquipmentLocation.LEGS, details.getString("legs"));
+			setEquipment(eq, EquipmentLocation.CHEST, details.getString("chest"));
+			setEquipment(eq, EquipmentLocation.HELMET, details.getString("helmet"));
+		}
+	}
+
+	private void setEquipment(EntityEquipment eq, EquipmentLocation where, String materialName) {
+		if (materialName == null || materialName.isEmpty()) {
+			return;
+		}
+		Material mat = Material.matchMaterial(materialName);
+		Validate.notNull(mat);
+		ItemStack stack = new ItemStack(mat, 1);
+		switch (where) {
+		case HELD: eq.setItemInHand(stack); break;
+		case BOOTS: eq.setBoots(stack); break;
+		case LEGS: eq.setLeggings(stack); break;
+		case CHEST: eq.setChestplate(stack); break;
+		case HELMET: eq.setHelmet(stack); break;
+		default: break;
+		}
 	}
 
 	/**
-	 * @return the entity
+	 * Get the Citizens2 NPC for this chess stone.
+	 *
+	 * @return the NPC
 	 */
-	public RemoteEntity getEntity() {
-		return entity;
+	public NPC getNPC() {
+		return npc;
+	}
+
+	/**
+	 * Get the Bukkit Entity for this chess stone.
+	 *
+	 * @return the Entity
+	 */
+	public Entity getBukkitEntity() {
+		return npc.getBukkitEntity();
 	}
 
 	@Override
@@ -63,42 +161,19 @@ public class EntityChessStone extends ChessStone {
 
 	@Override
 	public void move(int fromSqi, int toSqi, Location to, ChessStone captured) {
-		LogUtils.fine("move " + getStone() + " " + entity.getName() + " to " + to);
-		entity.getMind().addMovementDesire(new DesireMovePiece(to, captured), 100);
-//		if (captured != null) {
-//			entity.getMind().addMovementDesire(new DesireMovePiece(to, captured), 100);
-//		} else {
-//			entity.getMind().addMovementDesire(new DesireMoveToLocation(to), 100);
-//		}
+		LogUtils.fine("move " + getStone() + " " + npc.getName() + " to " + to);
+		ChessPieceTrait chessTrait = npc.getTrait(ChessPieceTrait.class);
+		chessTrait.setCapturingTarget((EntityChessStone)captured);
+		npc.getNavigator().setTarget(to);
 	}
 
 	/**
-	 * Destroy any Entity for this stone.
+	 * Despawn and unregister the NPC for this stone.
 	 */
 	public void cleanup() {
-		// the manager is set to auto-remove despawned entities
-		entity.despawn(DespawnReason.CUSTOM);
+		LogUtils.finer("destroy NPC " + npc.getFullName());
+		npc.despawn();
+		npc.destroy();
 	}
 
-	private class DesireMovePiece extends DesireMoveToLocation {
-
-		private final ChessStone captured;
-		private final Location realDest;
-
-		public DesireMovePiece(Location inTargetLocation, ChessStone captured) {
-			super(inTargetLocation);
-			this.realDest = inTargetLocation;
-			this.captured = captured;
-		}
-
-		@Override
-		public void stopExecuting() {
-			entity.teleport(realDest);
-			if (captured != null) {
-				RemoteEntity re = ((EntityChessStone)captured).getEntity();
-				re.getBukkitEntity().damage(1000);
-				re.despawn(DespawnReason.CUSTOM);
-			}
-		}
-	}
 }

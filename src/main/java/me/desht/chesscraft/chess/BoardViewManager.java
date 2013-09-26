@@ -97,11 +97,12 @@ public class BoardViewManager {
 				throw new ChessException(Messages.getString("ChessCommandExecutor.boardCantBeDeleted", name, bv.getGame().getName()));
 			}
 			bv.restoreTerrain();
-			ChessCraft.getPersistenceHandler().unpersist(bv);
+			ChessCraft.getInstance().getPersistenceHandler().unpersist(bv);
 		} else {
 			if (bv.getGame() != null) {
 				ChessGameManager.getManager().deleteGame(bv.getGame().getName(), false);
 			}
+			bv.getChessBoard().getChessSet().syncToPosition(null, bv.getChessBoard());
 		}
 		unregisterBoardView(name);
 	}
@@ -291,7 +292,7 @@ public class BoardViewManager {
 	public BoardView createBoard(String boardName, Location loc, BoardRotation rotation, String style, String pieceStyle) {
 		BoardView view = new BoardView(boardName, loc, rotation, style, pieceStyle);
 		registerView(view);
-		if (ChessCraft.getWorldEdit() != null) {
+		if (ChessCraft.getInstance().getWorldEdit() != null) {
 			TerrainBackup.save(view);
 		}
 		view.save();
@@ -325,7 +326,7 @@ public class BoardViewManager {
 		}
 		LogUtils.info("loading deferred boards for " + worldName);
 		for (File f : deferred.get(worldName)) {
-			ChessCraft.getPersistenceHandler().loadBoard(f);
+			ChessCraft.getInstance().getPersistenceHandler().loadBoard(f);
 		}
 		deferred.get(worldName).clear();
 	}

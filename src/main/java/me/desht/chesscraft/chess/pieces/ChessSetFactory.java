@@ -73,8 +73,8 @@ public class ChessSetFactory {
 			if (!c.contains("type") || c.getString("type").equals("block")) {
 				set = new BlockChessSet(c, DirectoryStructure.isCustom(f));
 			} else if (c.getString("type").equals("entity")) {
-				ChessValidate.notNull(ChessCraft.getInstance().getRemoteEntites(),
-				                      "Entity chess sets are not available (RemoteEntities plugin must be installed)");
+				ChessValidate.isTrue(ChessCraft.getInstance().isCitizensEnabled(),
+				                      "Entity chess sets are not available (Citizens 2 plugin must be installed)");
 				set = new EntityChessSet(c, DirectoryStructure.isCustom(f));
 			} else {
 				throw new ChessException("Invalid chess set type '" + c.getString("type") + "' in " + f);
@@ -89,8 +89,8 @@ public class ChessSetFactory {
 
 			return set;
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ChessException("can't load chess set from [" + f + "]: " + e.getMessage());
+//			e.printStackTrace();
+			throw new ChessException("Can't load chess set '" + setName + "': " + e.getMessage());
 		}
 	}
 }

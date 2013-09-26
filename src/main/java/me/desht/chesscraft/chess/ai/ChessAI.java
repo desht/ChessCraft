@@ -172,7 +172,7 @@ public abstract class ChessAI implements Runnable {
 	 */
 	public void delete() {
 		setActive(false);
-		AIFactory.instance.deleteAI(this);
+		AIFactory.getInstance().deleteAI(this);
 		shutdown();
 	}
 

@@ -10,6 +10,9 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
+import me.desht.chesscraft.chess.pieces.ChessPieceTrait;
+import me.desht.chesscraft.citizens.CitizensUtil;
+import me.desht.chesscraft.citizens.NullStorage;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.BoardCreationCommand;
 import me.desht.chesscraft.commands.BoardDeletionCommand;
@@ -67,13 +70,16 @@ import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
+import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.CitizensPlugin;
+import net.citizensnpcs.api.npc.SimpleNPCDataStore;
+import net.citizensnpcs.api.trait.TraitInfo;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -85,14 +91,12 @@ import org.mcstats.Metrics.Plotter;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
-import de.kumpelblase2.remoteentities.EntityManager;
-import de.kumpelblase2.remoteentities.RemoteEntities;
-
 public class ChessCraft extends JavaPlugin implements ConfigurationListener, PluginVersionListener {
 
 	private static ChessCraft instance;
-	private static WorldEditPlugin worldEditPlugin;
-	private static ChessPersistence persistence;
+
+	private WorldEditPlugin worldEditPlugin;
+	private ChessPersistence persistence;
 
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
 
@@ -110,9 +114,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private boolean startupFailed = false;
 	private DynmapIntegration dynmapIntegration;
-	private RemoteEntities remoteEntities;
-	private EntityManager remoteEntityManager;
 	private boolean protocolLibEnabled;
+	private boolean citizensEnabled;
 
 	@Override
 	public void onLoad() {
@@ -150,7 +153,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		new PluginVersionChecker(this, this);
 
-		DirectoryStructure.setup();
+		DirectoryStructure.setup(this);
 
 		AIFactory.init();
 
@@ -171,7 +174,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupSMS(pm);
 		setupWorldEdit(pm);
 		setupDynmap(pm);
-		setupRemoteEntities(pm);
+		setupCitizens2(pm);
 		setupProtocolLib(pm);
 
 		new ChessPlayerListener(this);
@@ -217,16 +220,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		ChessGameManager gm = ChessGameManager.getManager();
 
-		AIFactory.instance.clearDown();
+		AIFactory.getInstance().clearDown();
 		for (ChessGame game : gm.listGames()) {
 			game.clockTick();
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
-		//		List<ChessGame> games = new ArrayList<ChessGame>(gm.listGames());
-		//		for (ChessGame game : games) {
-		//			gm.deleteGame(game.getName(), false);
-		//		}
 		List<BoardView> views = new ArrayList<BoardView>(BoardViewManager.getManager().listBoardViews());
 		for (BoardView view : views) {
 			// this will also do a temporary delete on the board's game, if any
@@ -236,8 +235,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		instance = null;
 		economy = null;
-		worldEditPlugin = null;
-		persistence = null;
 
 		LogUtils.fine("disabled!");
 	}
@@ -320,24 +317,22 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 	}
 
-	private void setupRemoteEntities(PluginManager pm) {
-		Plugin p = pm.getPlugin("RemoteEntities");
-		if (p != null) {
-			remoteEntities = (RemoteEntities) p;
-			remoteEntityManager = RemoteEntities.createManager(this, true);
-			LogUtils.fine("RemoteEntities plugin detected.  Entity chess sets are available.");
-		} else {
-			LogUtils.fine("RemoteEntities plugin not detected.");
-		}
-	}
-
 	private void setupProtocolLib(PluginManager pm) {
 		Plugin pLib = pm.getPlugin("ProtocolLib");
 		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
 			protocolLibEnabled = true;
 			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
-		} else if (remoteEntities != null) {
-			LogUtils.warning("RemoteEntities detected, but ProtocolLib not detected.  Any entity chess boards you create will be noisy!");
+		}
+	}
+
+	private void setupCitizens2(PluginManager pm) {
+		Plugin citizens = pm.getPlugin("Citizens");
+		if (citizens != null && citizens instanceof CitizensPlugin) {
+			citizensEnabled = true;
+			LogUtils.fine("Hooked Citizens2 v" + citizens.getDescription().getVersion());
+			CitizensUtil.initCitizens();
+		} else {
+			LogUtils.warning("Citizens plugin not detected: entity-based chess sets will not be available");
 		}
 	}
 
@@ -350,36 +345,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return (economy != null);
 	}
 
-//	private void registerPlibPacketHandler() {
-//		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(PacketAdapter.params(this, Packets.Server.NAMED_SOUND_EFFECT).serverSide()) {
-//			@Override
-//			public void onPacketSending(PacketEvent event) {
-//				switch (event.getPacketID()) {
-//				case Packets.Server.NAMED_SOUND_EFFECT: // 0x3E
-//					// silence all mob noises if they're on a chess board
-//					// this preserves player sanity when using entity chess sets
-//					String soundName = event.getPacket().getStrings().read(0);
-//					int x = event.getPacket().getIntegers().read(0) >> 3;
-//					int y = event.getPacket().getIntegers().read(1) >> 3;
-//					int z = event.getPacket().getIntegers().read(2) >> 3;
-//					Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
-//					if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
-//						if (soundName.matches("^mob\\.[a-z]+\\.(say|idle|bark)$")) {
-//							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
-//							event.setCancelled(true);
-//						}
-//					}
-//					break;
-//				}
-//			}
-//		});
-//	}
-
-	public static ChessPersistence getPersistenceHandler() {
+	public ChessPersistence getPersistenceHandler() {
 		return persistence;
 	}
 
-	public static WorldEditPlugin getWorldEdit() {
+	public WorldEditPlugin getWorldEdit() {
 		return worldEditPlugin;
 	}
 
@@ -395,26 +365,18 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return dynmapIntegration;
 	}
 
-	public RemoteEntities getRemoteEntites() {
-		return remoteEntities;
-	}
-
-	public EntityManager getRemoteEntityManager() {
-		return remoteEntityManager;
-	}
-
-	public boolean isRemoteEntity(Entity entity) {
-		if (remoteEntities == null || !(entity instanceof LivingEntity)) {
-			return false;
-		}
-		return remoteEntityManager.isRemoteEntity((LivingEntity)entity);
-	}
-
 	/**
 	 * @return the protocolLibEnabled
 	 */
 	public boolean isProtocolLibEnabled() {
 		return protocolLibEnabled;
+	}
+
+	/**
+	 * @return the citizensEnabled
+	 */
+	public boolean isCitizensEnabled() {
+		return citizensEnabled;
 	}
 
 	public PlayerTracker getPlayerTracker() {
@@ -485,6 +447,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			e.play(null);
 		} else if (key.equals("version")) {
 			throw new DHUtilsException("'version' config item may not be changed");
+		} else if (key.equals("database.table_prefix") && newVal.toString().isEmpty()) {
+			throw new DHUtilsException("'database.table_prefix' may not be empty");
 		}
 	}
 
@@ -563,5 +527,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		if (changed) {
 			saveConfig();
 		}
+	}
+
+	public boolean isChessNPC(Entity entity) {
+		return entity != null && entity.hasMetadata("NPC");
 	}
 }

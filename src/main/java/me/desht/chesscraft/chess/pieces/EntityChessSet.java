@@ -3,25 +3,21 @@ package me.desht.chesscraft.chess.pieces;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.EntityType;
 
 import chesspresso.Chess;
 import chesspresso.position.Position;
 
 import com.google.common.base.Joiner;
-
-import de.kumpelblase2.remoteentities.api.DespawnReason;
-import de.kumpelblase2.remoteentities.api.RemoteEntityType;
 
 /**
  * @author des
@@ -37,25 +33,23 @@ public class EntityChessSet extends ChessSet {
 		"",
 		"'comment' is a freeform comment about the set (can be multi-line)",
 		"",
-		"'materials.white' & 'materials.black' are lists of materials used in this set",
-		" Can be specified as plain integer (e.g. '0' - air), material name (e.g. iron_block)",
-		" or material plus data (e.g. 35:0, wool:white)",
-		" If you use plain integers, they must be quoted, or the set will not load!",
-		" If you use material names, they must match the org.bukkit.Material definitions",
-		" - see http://jd.bukkit.org/apidocs/org/bukkit/Material.html",
-		"",
 		"'pieces.<colour>.<X>' defines the NPC used for a chess piece," +
-				" where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K",
-				" The piece definition is a Bukkit EntityType - see",
-				" http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html",
+		" where <colour> is one of black, white and <X> is one of P,R,N,B,Q,K",
+		"",
+		"The piece definition is a compound structure with a mandatory 'entity'",
+		"field, which must be a Bukkit EntityType for a living entity - see",
+		"http://jd.bukkit.org/dev/apidocs/org/bukkit/entity/EntityType.html",
+		"",
+		"Other fields are optional and modify the appearance of the piece.",
+		"Different entities understand different fields - see",
+		"http://dev.bukkit.org/server-mods/chesscraft/pages/piece-styles for",
+		"full information.",
 	};
 
 	// stores which piece is standing on which chess square
 	private final EntityChessStone[] stones;
 	// map piece name to NPC entity type
-	private Map<Integer,RemoteEntityType> stoneTypeMap;
-
-//	private final EntityManager entityManager;
+	private Map<Integer,ConfigurationSection> stoneTypeMap;
 
 	public EntityChessSet(Configuration c, boolean isCustom) {
 		super(c, isCustom);
@@ -64,38 +58,28 @@ public class EntityChessSet extends ChessSet {
 		ChessPersistence.requireSection(c, "pieces.black");
 
 		this.stones = new EntityChessStone[Chess.NUM_OF_SQUARES];
-		this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
-//		this.entityManager = ChessCraft.getInstance().getRemoteEntites().createManager(ChessCraft.getInstance());
+		try {
+			this.stoneTypeMap = loadPieces(c.getConfigurationSection("pieces"));
+		} catch (Exception e) {
+			throw new ChessException(e.getMessage());
+		}
 	}
 
-	private Map<Integer, RemoteEntityType> loadPieces(ConfigurationSection cs) {
-		Map<Integer,RemoteEntityType> map = new HashMap<Integer, RemoteEntityType>();
+	private Map<Integer, ConfigurationSection> loadPieces(ConfigurationSection cs) {
+		Map<Integer,ConfigurationSection> map = new HashMap<Integer, ConfigurationSection>();
 		loadPieces(map, Chess.WHITE, cs.getConfigurationSection("white"));
 		loadPieces(map, Chess.BLACK, cs.getConfigurationSection("black"));
 		return map;
 	}
 
-	private void loadPieces(Map<Integer, RemoteEntityType> map, int colour, ConfigurationSection cs) {
-		for (String k : cs.getKeys(false)) {
-			RemoteEntityType et = getByName(cs.getString(k));
-			ChessValidate.notNull(et, "Unknown entity type for " + k + ": [" + cs.getString(k) + "]");
-			int piece = Chess.charToPiece(Character.toUpperCase(k.charAt(0)));
-			if (piece == Chess.NO_PIECE) {
-				throw new ChessException("Unknown piece type: " + k);
-			}
-			int stone = Chess.pieceToStone(piece, colour);
-			map.put(stone, et);
-		}
-	}
-
-	private RemoteEntityType getByName(String name) {
-		// this is ugly, but RemoteEntityType.valueOf() does not do what you would expect it to
-		try {
-			return (RemoteEntityType) RemoteEntityType.class.getField(name).get(null);
-		} catch (Exception e) {
-			// TODO: distinguish between unknown name and other problems
-			e.printStackTrace();
-			return null;
+	private void loadPieces(Map<Integer, ConfigurationSection> map, int colour, ConfigurationSection cs) {
+		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
+			String s = Character.toString(Chess.pieceToChar(piece));
+			ConfigurationSection details = cs.getConfigurationSection(s);
+			ChessValidate.notNull(details, "missing definition for chess piece: " + s);
+			ChessPersistence.requireSection(details, "entity");
+			details.set("_entity", EntityType.valueOf(details.getString("entity").toUpperCase()));
+			map.put(Chess.pieceToStone(piece, colour), details);
 		}
 	}
 
@@ -144,8 +128,8 @@ public class EntityChessSet extends ChessSet {
 		EntityChessStone captured = (EntityChessStone) getStoneAt(toSqi);
 		if (stone != null) {
 			if (promoteStone != Chess.NO_STONE) {
-				Location loc = stone.getEntity().getBukkitEntity().getLocation();
-				stone.getEntity().despawn(DespawnReason.CUSTOM);
+				Location loc = stone.getBukkitEntity().getLocation();
+				stone.cleanup();
 				stone = new EntityChessStone(promoteStone, stoneTypeMap.get(promoteStone), loc, loc.getYaw());
 			}
 			stone.move(fromSqi, toSqi, to, captured);
@@ -156,27 +140,19 @@ public class EntityChessSet extends ChessSet {
 
 	@Override
 	public void syncToPosition(Position pos, final ChessBoard board) {
-		if (pos == null) {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
-				if (stones[sqi] != null) {
-					stones[sqi].cleanup();
-				}
+		for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+			if (stones[sqi] != null) {
+				stones[sqi].cleanup();
 				stones[sqi] = null;
 			}
-		} else {
-			for (int sqi = 0; sqi < Chess.NUM_OF_SQUARES; sqi++) {
+			if (pos != null && pos.getStone(sqi) != Chess.NO_STONE) {
 				int stone = pos.getStone(sqi);
-				if (stones[sqi] != null) {
-					stones[sqi].cleanup();
+				Location loc = board.getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).getCenter().add(0, 0.5, 0);
+				float yaw = board.getRotation().getYaw();
+				if (Chess.stoneToColor(stone) == Chess.BLACK) {
+					yaw = (yaw + 180) % 360;
 				}
-				if (stone != Chess.NO_STONE) {
-					Location loc = board.getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).getCenter().add(0, 0.5, 0);
-					float yaw = board.getRotation().getYaw();
-					if (Chess.stoneToColor(stone) == Chess.BLACK) {
-						yaw = (yaw + 180) % 360;
-					}
-					stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
-				}
+				stones[sqi] = new EntityChessStone(stone, stoneTypeMap.get(stone), loc, yaw);
 			}
 		}
 	}

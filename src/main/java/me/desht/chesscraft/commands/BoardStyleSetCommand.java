@@ -57,10 +57,13 @@ public class BoardStyleSetCommand extends ChessAbstractCommand {
 			if (styleAttrs.contains(attr)) {
 				styleAttrs.set(attr, val);
 				styleHasChanged = true;
-			} else if (viewAttrs.contains(attr)) {
-				viewAttrs.set(attr, val);
 			} else {
-				throw new ChessException("Unknown attribute '" + attr + "'.");
+				attr = attr.replace("_", "");
+				if (viewAttrs.contains(attr)) {
+					viewAttrs.set(attr, val);
+				} else {
+					throw new ChessException("Unknown attribute '" + attr + "'.");
+				}
 			}
 
 			changedAttrs.add(attr);

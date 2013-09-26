@@ -22,7 +22,7 @@ public class AIChessPlayer extends ChessPlayer {
 	public AIChessPlayer(String name, ChessGame game, int colour) {
 		super(name, game, colour);
 
-		ai = AIFactory.instance.getNewAI(game, name, colour == Chess.WHITE);
+		ai = AIFactory.getInstance().getNewAI(game, name, colour == Chess.WHITE);
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class AIChessPlayer extends ChessPlayer {
 
 	@Override
 	public double getPayoutMultiplier() {
-		AIDefinition aiDef = AIFactory.instance.getAIDefinition(getName());
+		AIDefinition aiDef = AIFactory.getInstance().getAIDefinition(getName());
 		if (aiDef == null) {
 			LogUtils.warning("can't find AI definition for " + getName());
 			return 2.0;

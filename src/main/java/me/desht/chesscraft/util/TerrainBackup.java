@@ -15,8 +15,7 @@ public class TerrainBackup {
 	public static boolean save(BoardView view) {
 		boolean saved = false;
 		try {
-			TerrainManager tm = new TerrainManager(ChessCraft.getWorldEdit(), view.getA1Square().getWorld());
-			
+			TerrainManager tm = new TerrainManager(ChessCraft.getInstance().getWorldEdit(), view.getA1Square().getWorld());
 			Cuboid c = view.getOuterBounds();
 			Location l1 = c.getLowerNE();
 			Location l2 = c.getUpperSW();
@@ -28,10 +27,10 @@ public class TerrainBackup {
 		return saved;
 	}
 
-	public static boolean reload(BoardView view) {	
+	public static boolean reload(BoardView view) {
 		boolean restored = false;
 		try {
-			TerrainManager tm = new TerrainManager(ChessCraft.getWorldEdit(), view.getA1Square().getWorld());
+			TerrainManager tm = new TerrainManager(ChessCraft.getInstance().getWorldEdit(), view.getA1Square().getWorld());
 			tm.loadSchematic(new File(DirectoryStructure.getSchematicsDirectory(), view.getName()));
 			restored = true;
 		} catch (Exception e) {

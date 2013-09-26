@@ -96,7 +96,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[colour] = new HumanChessPlayer(playerName, this, colour);
 		}
 		state = GameState.SETTING_UP;
-//		fromSquare = Chess.NO_SQUARE;
 		invited = "";
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
@@ -120,7 +119,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private ChessPlayer createPlayer(String name, int colour) {
 		if (name == null) {
-			String aiName = AIFactory.instance.getFreeAIName();
+			String aiName = AIFactory.getInstance().getFreeAIName();
 			return new AIChessPlayer(aiName, this, colour);
 		} else if (ChessAI.isAIPlayer(name)) {
 			return new AIChessPlayer(name, this, colour);
@@ -271,7 +270,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void save() {
-		ChessCraft.getPersistenceHandler().savePersistable("game", this);
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("game", this);
 	}
 
 	public void autoSave() {
@@ -683,10 +682,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		cpGame.setTag(PGN.TAG_WHITE, getWhitePlayerName());
 		cpGame.setTag(PGN.TAG_BLACK, getBlackPlayerName());
 
-		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
-			summonPlayers();
-		}
-
 		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {	
 			// just in case stake.max got adjusted after game creation...
 			double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
@@ -698,6 +693,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[Chess.WHITE].withdrawFunds(stake);
 			players[Chess.BLACK].validateAffordability("Game.cantAffordToStart");
 			players[Chess.BLACK].withdrawFunds(stake);
+		}
+
+		if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_start")) {
+			summonPlayers();
 		}
 
 		clearInvitation();
