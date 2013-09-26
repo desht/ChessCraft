@@ -50,10 +50,6 @@
                     <id>dynmap-repo</id>
                     <url>http://repo.mikeprimm.com</url>
                 </repository>
-                <repository>
-                    <id>remoteentities-repo</id>
-                    <url>http://repo.infinityblade.de/remoteentities/releases</url>
-                </repository>
 		<repository>
 		    <id>DH Dropbox</id>
 		    <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
@@ -202,12 +198,6 @@
                     <groupId>org.dynmap</groupId>
                     <artifactId>dynmap-api</artifactId>
                     <version>1.8</version>
-                    <scope>provided</scope>
-                </dependency>
-                <dependency>
-                    <groupId>de.kumpelblase2</groupId>
-                    <artifactId>remoteentities</artifactId>
-                    <version>1.7</version>
                     <scope>provided</scope>
                 </dependency>
                 <dependency>
