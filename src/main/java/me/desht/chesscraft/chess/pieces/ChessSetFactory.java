@@ -90,7 +90,7 @@ public class ChessSetFactory {
 			return set;
 		} catch (Exception e) {
 //			e.printStackTrace();
-			throw new ChessException("can't load chess set from [" + f + "]: " + e.getMessage());
+			throw new ChessException("Can't load chess set '" + setName + "': " + e.getMessage());
 		}
 	}
 }

@@ -11,6 +11,7 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.pieces.ChessPieceTrait;
+import me.desht.chesscraft.citizens.CitizensUtil;
 import me.desht.chesscraft.citizens.NullStorage;
 import me.desht.chesscraft.commands.ArchiveCommand;
 import me.desht.chesscraft.commands.BoardCreationCommand;
@@ -329,8 +330,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		if (citizens != null && citizens instanceof CitizensPlugin) {
 			citizensEnabled = true;
 			LogUtils.fine("Hooked Citizens2 v" + citizens.getDescription().getVersion());
-			CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(ChessPieceTrait.class).withName("chesspiece"));
-			CitizensAPI.createNamedNPCRegistry("chesscraft", SimpleNPCDataStore.create(new NullStorage()));
+			CitizensUtil.initCitizens();
+		} else {
+			LogUtils.warning("Citizens plugin not detected: entity-based chess sets will not be available");
 		}
 	}
 
