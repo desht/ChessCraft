@@ -11,25 +11,25 @@ materials:
   black:
     O: AIR
     X: OBSIDIAN
-    P: '89'
-    L: '65:4'
-    K: '65:5'
-    T: '50:5'
-    Y: '50:4'
-    U: '50:3'
-    I: '50:1'
-    R: '50:2'
+    P: GLOWSTONE
+    L: 'LADDER:4'
+    K: 'LADDER:5'
+    T: 'TORCH:5'
+    Y: 'TORCH:4'
+    U: 'TORCH:3'
+    I: 'TORCH:1'
+    R: 'TORCH:2'
   white:
     O: AIR
     X: IRON_BLOCK
-    P: '89'
-    L: '65:4'
-    K: '65:5'
-    T: '50:5'
-    Y: '50:4'
-    U: '50:3'
-    I: '50:1'
-    R: '50:2'
+    P: GLOWSTONE
+    L: 'LADDER:4'
+    K: 'LADDER:5'
+    T: 'TORCH:5'
+    Y: 'TORCH:4'
+    U: 'TORCH:3'
+    I: 'TORCH:1'
+    R: 'TORCH:2'
 
 # Piece definitions
 # This is a list of list of strings such that:
