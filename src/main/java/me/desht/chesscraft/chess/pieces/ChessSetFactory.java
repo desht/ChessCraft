@@ -28,7 +28,7 @@ public class ChessSetFactory {
 
 	/**
 	 * Check if the given set is loaded.
-	 * 
+	 *
 	 * @param setName
 	 * @return
 	 */
@@ -38,7 +38,7 @@ public class ChessSetFactory {
 
 	/**
 	 * Retrieve a chess set with the given name, loading it from file if necessary.
-	 * 
+	 *
 	 * @param setName
 	 * @return
 	 * @throws ChessException
@@ -46,8 +46,7 @@ public class ChessSetFactory {
 	public static ChessSet getChessSet(String setName) throws ChessException {
 		setName = setName.toLowerCase();
 		if (!isLoaded(setName) || needsReload(setName)) {
-			ChessSet set = loadChessSet(setName);
-			return set;
+			return loadChessSet(setName);
 		} else {
 			return allChessSets.get(setName);
 		}

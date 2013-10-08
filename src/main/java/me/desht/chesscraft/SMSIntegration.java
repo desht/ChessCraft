@@ -96,7 +96,7 @@ public class SMSIntegration implements Listener {
 	}
 
 	private void createMenu(String name, String title) {
-		SMSMenu menu = null;
+		SMSMenu menu;
 		if (!smsHandler.checkMenu(name)) {
 			menu = smsHandler.createMenu(name, title, "&ChessCraft"); //$NON-NLS-1$
 			menu.setAutosort(true);

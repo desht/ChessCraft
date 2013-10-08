@@ -65,7 +65,7 @@ public class ChessBoard {
 
 	/**
 	 * Board constructor.
-	 * 
+	 *
 	 * @param origin
 	 * @param rotation
 	 * @param boardStyleName
@@ -121,7 +121,7 @@ public class ChessBoard {
 
 	/**
 	 * Ensure this board isn't built too high and doesn't intersect any other boards
-	 * 
+	 *
 	 * @throws ChessException if an intersection would occur
 	 */
 	private void validateBoardPosition() throws ChessException {
@@ -294,7 +294,7 @@ public class ChessBoard {
 
 	/**
 	 * Reload the board and piece styles in-use
-	 * 
+	 *
 	 * @throws ChessException if board or piece style cannot be loaded
 	 */
 	void reloadStyles() throws ChessException {
@@ -445,7 +445,7 @@ public class ChessBoard {
 
 	/**
 	 * Paint all chess pieces according to the given Chesspresso Position.
-	 * 
+	 *
 	 * @param chessGame
 	 */
 	void paintChessPieces(Position chessGame) {
@@ -463,7 +463,7 @@ public class ChessBoard {
 	/**
 	 * Draw the chess piece represented by stone into the given row and column.  The actual blocks
 	 * drawn depend on the board's current chess set.
-	 * 
+	 *
 	 * @param row
 	 * @param col
 	 * @param stone
@@ -531,7 +531,7 @@ public class ChessBoard {
 	 * Highlight two squares on the chessboard, erasing previous highlight, if
 	 * any. Use the highlight square colors per-square color, if set, or just
 	 * the global highlight block otherwise.
-	 * 
+	 *
 	 * @param from	square index of the first square
 	 * @param to	square index of the second square
 	 */
@@ -564,7 +564,7 @@ public class ChessBoard {
 
 	/**
 	 * Use Bresenham's algorithm to draw line between two squares on the board
-	 * 
+	 *
 	 * @param from	Square index of the first square
 	 * @param to	Square index of the second square
 	 * @param isHighlighting	True if drawing a highlight, false if erasing it
@@ -587,7 +587,7 @@ public class ChessBoard {
 
 		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
 			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ? 
+			MaterialWithData m = isHighlighting ?
 					boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) :
 						(Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
 					m.applyToBlock(loc1.getBlock());
@@ -617,14 +617,14 @@ public class ChessBoard {
 
 	/**
 	 * Get the Cuboid region for this square <i>of the chessboard itself</i>
-	 * 
+	 *
 	 * @param row
 	 * @param col
 	 * @return a Cuboid representing the square
 	 */
 	public Cuboid getSquare(int row, int col) {
 		if (row < 0 || col < 0 || row > 7 || col > 7) {
-			throw new ChessException("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");	
+			throw new ChessException("ChessBoard: getSquare: bad (row, col): (" + row + "," + col + ")");
 		}
 
 		Cuboid sq = new Cuboid(a1Corner.getLocation());
@@ -641,7 +641,7 @@ public class ChessBoard {
 
 	/**
 	 * Get the region above a square into which a chesspiece gets drawn
-	 * 
+	 *
 	 * @param row
 	 *            the board row
 	 * @param col
@@ -649,13 +649,12 @@ public class ChessBoard {
 	 * @return a Cuboid representing the drawing space
 	 */
 	public Cuboid getPieceRegion(int row, int col) {
-		Cuboid sq = getSquare(row, col).expand(CuboidDirection.Up, boardStyle.getHeight() - 1).shift(CuboidDirection.Up, 1);
-		return sq;
+		return getSquare(row, col).expand(CuboidDirection.Up, boardStyle.getHeight() - 1).shift(CuboidDirection.Up, 1);
 	}
 
 	/**
 	 * Get the Chesspresso square index of the given location
-	 * 
+	 *
 	 * @param loc	desired location
 	 * @return the square index, or Chess.NO_SQUARE if not on the board
 	 */

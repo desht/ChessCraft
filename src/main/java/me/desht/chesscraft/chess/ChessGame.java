@@ -75,7 +75,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Constructor: Creating a new Chess game.
-	 * 
+	 *
 	 * @param name	Name of the game
 	 * @param view	The board on which to create the game
 	 * @param playerName	Name of the player who is setting up the game
@@ -133,7 +133,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Constructor: Restoring a saved Chess game.
-	 * 
+	 *
 	 * @param map	Saved game data
 	 * @throws ChessException	If the game can't be created for any reason
 	 * @throws IllegalMoveException	If the game data contains an illegal Chess move
@@ -232,7 +232,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * Replay the move history to restore the saved board position.  We do this
 	 * instead of just saving the position so that the Chesspresso ChessGame model
 	 * includes a history of the moves, suitable for creating a PGN file.
-	 * 
+	 *
 	 * @throws IllegalMoveException
 	 */
 	private void replayMoves() throws IllegalMoveException {
@@ -293,7 +293,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Return the player object for the given colour (Chess.WHITE or Chess.BLACK).
-	 * 
+	 *
 	 * @param colour
 	 * @return
 	 */
@@ -308,7 +308,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Get the name of the player for the given colour (Chess.WHITE or Chess.BLACK),
 	 * or the empty string if there's no player of that colour (yet).
-	 * 
+	 *
 	 * @param colour
 	 * @return
 	 */
@@ -372,7 +372,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * A player is trying to adjust the stake for this game.
-	 * 
+	 *
 	 * @param playerName	Name of the player setting the stake
 	 * @param newStake		The stake being set
 	 * @throws ChessException	if the stake is out of range or not affordable or the game isn't in setup phase
@@ -411,7 +411,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Adjust the game's stake by the given amount.
-	 * 
+	 *
 	 * @param playerName	Name of the player adjusting the stake
 	 * @param adjustment	amount to adjust by (may be negative)
 	 * @throws ChessException	if the new stake is out of range or not affordable or the game isn't in setup phase
@@ -465,7 +465,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Update one chess clock.
-	 * 
+	 *
 	 * @param colour	Colour of the player's clock
 	 * @param tc		The clock to update
 	 * @param force		Force an update even if the clock is not active
@@ -529,7 +529,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Add the named player (might be an AI) to the game.
-	 * 
+	 *
 	 * @param playerName
 	 * @throws ChessException
 	 */
@@ -558,7 +558,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Add the given player (human or AI) to the first empty slot (white or black, in order)
 	 * found in the game.
-	 * 
+	 *
 	 * @param playerName
 	 * @throws ChessException if the player may not join for any reason
 	 */
@@ -582,7 +582,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * One player has just invited another player to this game.
-	 * 
+	 *
 	 * @param inviterName
 	 * @param inviteeName
 	 * @throws ChessException
@@ -599,7 +599,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		Player player = Bukkit.getServer().getPlayer(inviteeName);
 		if (player != null) {
 			inviteeName = player.getName();
-			alert(player, Messages.getString("Game.youAreInvited", inviterName)); //$NON-NLS-1$ 
+			alert(player, Messages.getString("Game.youAreInvited", inviterName)); //$NON-NLS-1$
 			if (ChessCraft.economy != null && getStake() > 0.0) {
 				alert(player, Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 			}
@@ -617,7 +617,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Broadcast an open invitation to the server and allow anyone to join the game.
-	 * 
+	 *
 	 * @param inviterName
 	 */
 	public void inviteOpen(String inviterName) {
@@ -634,7 +634,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (ChessCraft.economy != null && getStake() > 0.0) {
 			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
-		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$ 
+		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName())); //$NON-NLS-1$
 		invited = OPEN_INVITATION;
 		lastOpenInvite = now;
 	}
@@ -647,10 +647,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// if one player is an AI, allow the AI to leave
 			if (!players[Chess.WHITE].isHuman()) {
 				players[Chess.WHITE].cleanup();
-				players[Chess.WHITE] = null; 
+				players[Chess.WHITE] = null;
 			} else if (!players[Chess.BLACK].isHuman()) {
 				players[Chess.BLACK].cleanup();
-				players[Chess.BLACK] = null; 	
+				players[Chess.BLACK] = null;
 			} else {
 				throw new ChessException(Messages.getString("Game.gameIsFull")); //$NON-NLS-1$
 			}
@@ -666,7 +666,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Start the game.
-	 * 
+	 *
 	 * @param playerName	Player who is starting the game
 	 * @throws ChessException	if anything goes wrong
 	 */
@@ -682,7 +682,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		cpGame.setTag(PGN.TAG_WHITE, getWhitePlayerName());
 		cpGame.setTag(PGN.TAG_BLACK, getBlackPlayerName());
 
-		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {	
+		if (stake > 0.0 && !getWhitePlayerName().equalsIgnoreCase(getBlackPlayerName())) {
 			// just in case stake.max got adjusted after game creation...
 			double max = ChessCraft.getInstance().getConfig().getDouble("stake.max");
 			if (max >= 0 && stake > max) {
@@ -719,7 +719,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * The given player is resigning.
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void resign(String playerName) {
@@ -731,8 +731,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 		setState(GameState.FINISHED);
 		String winner;
-		String loser = playerName;
-		if (loser.equalsIgnoreCase(getWhitePlayerName())) {
+		if (playerName.equalsIgnoreCase(getWhitePlayerName())) {
 			winner = getBlackPlayerName();
 			cpGame.setTag(PGN.TAG_RESULT, "0-1"); //$NON-NLS-1$
 			result = Chess.RES_BLACK_WINS;
@@ -741,22 +740,21 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			cpGame.setTag(PGN.TAG_RESULT, "1-0"); //$NON-NLS-1$
 			result = Chess.RES_WHITE_WINS;
 		}
-		announceResult(winner, loser, GameResult.Resigned);
+		announceResult(winner, playerName, GameResult.Resigned);
 	}
 
 	/**
 	 * Player has won by default (other player has exhausted their time control,
 	 * or has been offline too long).
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void winByDefault(String playerName) {
 		ensurePlayerInGame(playerName);
 
 		setState(GameState.FINISHED);
-		String winner = playerName;
 		String loser;
-		if (winner.equalsIgnoreCase(getWhitePlayerName())) {
+		if (playerName.equalsIgnoreCase(getWhitePlayerName())) {
 			loser = getBlackPlayerName();
 			cpGame.setTag(PGN.TAG_RESULT, "1-0"); //$NON-NLS-1$
 			result = Chess.RES_WHITE_WINS;
@@ -765,12 +763,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			cpGame.setTag(PGN.TAG_RESULT, "0-1"); //$NON-NLS-1$
 			result = Chess.RES_BLACK_WINS;
 		}
-		announceResult(winner, loser, GameResult.Forfeited);
+		announceResult(playerName, loser, GameResult.Forfeited);
 	}
 
 	/**
 	 * The game is a draw.
-	 * 
+	 *
 	 * @param res	the reason for the draw
 	 */
 	public void drawn(GameResult res) {
@@ -784,7 +782,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Do a move for player from fromSquare to toSquare.
-	 * 
+	 *
 	 * @param playerName
 	 * @param fromSquare
 	 * @param toSquare
@@ -821,7 +819,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Check the current game position to see if the game is over.
-	 * 
+	 *
 	 * @return	true if game is over, false if not
 	 */
 	private boolean checkForFinishingPosition() {
@@ -850,7 +848,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Check if the move is really allowed.  Also account for special cases:
 	 * castling, en passant, pawn promotion
-	 * 
+	 *
 	 * @param move	move to check
 	 * @return 	move, if allowed
 	 * @throws IllegalMoveException if not allowed
@@ -892,9 +890,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	/**
-	 * Given a move in SAN format, try to find the Chesspresso Move for that SAN move in the 
+	 * Given a move in SAN format, try to find the Chesspresso Move for that SAN move in the
 	 * current position.
-	 * 
+	 *
 	 * @param moveSAN	the move in SAN format
 	 * @return	the Move object, or null if not found (i.e the supplied move was not legal)
 	 */
@@ -954,7 +952,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Announce the result of the game to the server
-	 * 
+	 *
 	 * @param p1
 	 *            the winner
 	 * @param p2
@@ -1124,7 +1122,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Write a PGN file for the game.
-	 * 
+	 *
 	 * @param force
 	 * @return	the file that has been written
 	 */
@@ -1168,7 +1166,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Force the board position to the given FEN string.  This should only be used for testing
 	 * since the move history for the game is invalidated.
-	 * 
+	 *
 	 * @param fen
 	 */
 	public void setPositionFEN(String fen) {
@@ -1215,7 +1213,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Validate that the given player is in this game.
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void ensurePlayerInGame(String playerName) {
@@ -1226,7 +1224,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Validate that it's the given player's move in this game.
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void ensurePlayerToMove(String playerName) {
@@ -1237,7 +1235,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Validate that this game is in the given state.
-	 * 
+	 *
 	 * @param state
 	 */
 	public void ensureGameState(GameState state) {
@@ -1248,7 +1246,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Check if the given player is allowed to delete this game
-	 * 
+	 *
 	 * @param pl
 	 * @return
 	 */
@@ -1277,7 +1275,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Have the given player offer a draw.
-	 * 
+	 *
 	 * @param playerName 	Name of the player making the offer
 	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
@@ -1297,7 +1295,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Have the given player offer to swap sides.
-	 * 
+	 *
 	 * @param playerName	Name of the player making the offer
 	 * 						(could be human or AI, not necessarily a valid Bukkit player)
 	 * @throws ChessException
@@ -1320,7 +1318,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Have the given player offer to undo the last move they made.
-	 * 
+	 *
 	 * @param playerName	Name of the player making the offer
 	 * @throws ChessException
 	 */
@@ -1351,9 +1349,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Undo the most recent moves until it's the turn of the given player again.  Not
-	 * supported for AI vs AI games, only human vs human or human vs AI.  The undoer 
+	 * supported for AI vs AI games, only human vs human or human vs AI.  The undoer
 	 * must be human.
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void undoMove(String playerName) {
@@ -1389,7 +1387,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Return detailed information about the game.
-	 * 
+	 *
 	 * @return a string list of game information
 	 */
 	public List<String> getGameDetail() {
@@ -1399,13 +1397,13 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		String black = players[Chess.BLACK] == null ? "?" : players[Chess.BLACK].getDisplayName();
 		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
 
-		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$ 
-		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$ 
+		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState())); //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName())); //$NON-NLS-1$
 		res.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size())); //$NON-NLS-1$
 		if (ChessCraft.economy != null) {
 			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessUtils.formatStakeStr(getStake()))); //$NON-NLS-1$
 		}
-		res.add(bullet + (getPosition().getToPlay() == Chess.WHITE ? 
+		res.add(bullet + (getPosition().getToPlay() == Chess.WHITE ?
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :  //$NON-NLS-1$
 					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay"))); //$NON-NLS-1$
 
@@ -1445,7 +1443,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	/**
 	 * Called when a (human) player has logged out.
-	 * 
+	 *
 	 * @param playerName
 	 */
 	public void playerLeft(String playerName) {

@@ -1,12 +1,6 @@
 package me.desht.chesscraft.chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
@@ -70,7 +64,7 @@ public class ChessGameManager {
 
 	/**
 	 * Delete the game of the given name.  Permanent deletion is when a game is explicitly
-	 * deleted; it is cleaned up and purged from disk.  Temporary deletion occurs when the 
+	 * deleted; it is cleaned up and purged from disk.  Temporary deletion occurs when the
 	 * plugin is reloading games or being disabled and simply unregisters the game from the
 	 * game manager.
 	 *
@@ -106,12 +100,13 @@ public class ChessGameManager {
 	public ChessGame getGame(String name) {
 		return getGame(name, true);
 	}
-	
+
 	public ChessGame getGame(String name, boolean fuzzy) {
 		if (!chessGames.containsKey(name)) {
 			if (fuzzy && chessGames.size() > 0) {
 				// try "fuzzy" search
-				String keys[] = chessGames.keySet().toArray(new String[0]);
+				Set<String> strings = chessGames.keySet();
+				String keys[] = strings.toArray(new String[strings.size()]);
 				String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
 
 				if (matches.length == 1) {
@@ -172,7 +167,7 @@ public class ChessGameManager {
 
 	/**
 	 * Create a unique game name based on the player's name.
-	 * 
+	 *
 	 * @param playerName
 	 * @return
 	 */
@@ -188,7 +183,7 @@ public class ChessGameManager {
 
 	/**
 	 * Convenience method to create a new chess game.
-	 * 
+	 *
 	 * @param player		The player who is creating the game
 	 * @param gameName		Name of the game - may be null, in which case a name will be generated
 	 * @param boardName		Name of the board for the game - may be null, in which case a free board will be picked
@@ -220,7 +215,7 @@ public class ChessGameManager {
 
 		game.autoSave();
 
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$ 
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$
 
 		return game;
 	}

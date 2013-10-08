@@ -14,7 +14,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import com.google.common.base.Joiner;
 
 public class TimeControl implements ConfigurationSerializable {
-	public enum ControlType { NONE, ROLLOVER, MOVE_IN, GAME_IN };
+	public enum ControlType { NONE, ROLLOVER, MOVE_IN, GAME_IN }
 
 	private final String spec;
 	private final ControlType controlType;
@@ -31,7 +31,7 @@ public class TimeControl implements ConfigurationSerializable {
 	public TimeControl() {
 		this(0L);
 	}
-	
+
 	public TimeControl(String specStr) {
 		spec = specStr.toUpperCase();
 		if (spec.isEmpty() || spec.startsWith("N")) {
@@ -154,14 +154,14 @@ public class TimeControl implements ConfigurationSerializable {
 		case NONE:
 			return "None";
 		default:
-			return "???";	
+			return "???";
 		}
 	}
-	
+
 	public String phaseString() {
 		return rollovers.get(rolloverPhase).toString();
 	}
-	
+
 	public String phaseString(int phase) {
 		return rollovers.get(phase).toString();
 	}
@@ -175,7 +175,7 @@ public class TimeControl implements ConfigurationSerializable {
 		if (active) {
 			elapsed += offset;
 			if (controlType != ControlType.NONE) {
-				remainingTime -= offset;	
+				remainingTime -= offset;
 			}
 		}
 	}
@@ -183,7 +183,7 @@ public class TimeControl implements ConfigurationSerializable {
 	public RolloverPhase getCurrentPhase() {
 		return rollovers.get(rolloverPhase);
 	}
-	
+
 	/**
 	 * The player has made a move - adjust time control accordingly, and deactivate the clock.
 	 */
@@ -241,7 +241,7 @@ public class TimeControl implements ConfigurationSerializable {
 		public int getMinutes() {
 			return minutes;
 		}
-		
+
 		@Override
 		public String toString() {
 			StringBuilder s = new StringBuilder();

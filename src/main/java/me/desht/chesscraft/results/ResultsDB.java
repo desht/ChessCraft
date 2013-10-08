@@ -21,8 +21,8 @@ import org.bukkit.configuration.Configuration;
 public class ResultsDB {
 	private enum SupportedDrivers {
 		MYSQL,
-		SQLITE;
-	};
+		SQLITE
+	}
 
 	private final Connection connection;
 

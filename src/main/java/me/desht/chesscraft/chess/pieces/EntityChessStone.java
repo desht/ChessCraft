@@ -36,7 +36,7 @@ public class EntityChessStone extends ChessStone {
 
 	private final NPC npc;
 
-	private enum EquipmentLocation { HELD, BOOTS, LEGS, CHEST, HELMET };
+	private enum EquipmentLocation { HELD, BOOTS, LEGS, CHEST, HELMET }
 
 	protected EntityChessStone(int stone, ConfigurationSection entityDetails, final Location loc, float yaw) {
 		super(stone);

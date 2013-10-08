@@ -44,18 +44,14 @@ public class ResultEntry implements DatabaseSavable {
 	}
 
 	ResultEntry(ResultSet rs) throws SQLException {
-		try {
-			playerWhite = rs.getString("playerwhite");
-			playerBlack = rs.getString("playerBlack");
-			gameName = rs.getString("gameName");
-			startTime = rs.getDate("startTime").getTime();
-			endTime = rs.getDate("endTime").getTime();
-			result = GameResult.valueOf(rs.getString("result"));
-			pgnResult = rs.getString("pgnResult");
-			pgnData = null;
-		} catch (SQLException e) {
-			throw e;
-		}
+		playerWhite = rs.getString("playerwhite");
+		playerBlack = rs.getString("playerBlack");
+		gameName = rs.getString("gameName");
+		startTime = rs.getDate("startTime").getTime();
+		endTime = rs.getDate("endTime").getTime();
+		result = GameResult.valueOf(rs.getString("result"));
+		pgnResult = rs.getString("pgnResult");
+		pgnData = null;
 	}
 
 	public String getPlayerWhite() {

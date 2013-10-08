@@ -7,6 +7,7 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.dhutils.MiscUtil;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -104,7 +105,7 @@ public class ChessEntityListener extends ChessListenerBase {
 
 	/**
 	 * Stop chess piece entities dropping items when they die.
-	 * 
+	 *
 	 * @param event
 	 */
 	@EventHandler
@@ -116,7 +117,7 @@ public class ChessEntityListener extends ChessListenerBase {
 
 	/**
 	 * Stop endermen pieces (or any other mob that can telport) from teleporting away
-	 * 
+	 *
 	 * @param event
 	 */
 	@EventHandler
@@ -195,7 +196,7 @@ public class ChessEntityListener extends ChessListenerBase {
 
 	/**
 	 * Safely displace a player out of the way so they are not entombed by a chess piece
-	 * 
+	 *
 	 * @param event	The suffocation event that triggered this
 	 */
 	private void displacePlayerSafely(EntityDamageEvent event) {
@@ -206,8 +207,7 @@ public class ChessEntityListener extends ChessListenerBase {
 		int n = 0;
 		do {
 			loc.add(0, 0, -1); // east
-		} while (loc.getBlock().getTypeId() != 0 && loc.getBlock().getRelative(BlockFace.UP).getTypeId() != 0
-				&& n < MAX_DIST);
+		} while (loc.getBlock().getType() != Material.AIR && loc.getBlock().getRelative(BlockFace.UP).getType() != Material.AIR && n < MAX_DIST);
 		if (n >= MAX_DIST) {
 			MiscUtil.errorMessage(p, Messages.getString("ChessEntityListener.goingToSpawn")); //$NON-NLS-1$
 			p.teleport(p.getWorld().getSpawnLocation());

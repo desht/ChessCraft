@@ -42,7 +42,7 @@ public class BoardViewManager {
 	private final Map<String, Set<File>> deferred = new HashMap<String, Set<File>>();
 	private PersistableLocation globalTeleportOutDest = null;
 
-	private List<Cuboid> flightRegions = new ArrayList<Cuboid>();
+	private final List<Cuboid> flightRegions = new ArrayList<Cuboid>();
 
 	private BoardViewManager() {
 	}
@@ -107,13 +107,6 @@ public class BoardViewManager {
 		unregisterBoardView(name);
 	}
 
-	public void removeAllBoardViews() {
-		for (BoardView bv : listBoardViews()) {
-			Bukkit.getPluginManager().callEvent(new ChessBoardDeletedEvent(bv));
-		}
-		chessBoards.clear();
-	}
-
 	public boolean boardViewExists(String name) {
 		return chessBoards.containsKey(name);
 	}
@@ -122,7 +115,8 @@ public class BoardViewManager {
 		if (!chessBoards.containsKey(name)) {
 			if (chessBoards.size() > 0) {
 				// try "fuzzy" search
-				String keys[] = chessBoards.keySet().toArray(new String[0]);
+				Set<String> strings = chessBoards.keySet();
+				String keys[] = strings.toArray(new String[strings.size()]);
 				String matches[] = ChessUtils.fuzzyMatch(name, keys, 3);
 
 				if (matches.length == 1) {
@@ -162,7 +156,7 @@ public class BoardViewManager {
 
 	/**
 	 * Get a board that does not have a game running.
-	 * 
+	 *
 	 * @return the first free board found
 	 * @throws ChessException if no free board was found
 	 */
@@ -177,7 +171,7 @@ public class BoardViewManager {
 
 	/**
 	 * Check if a location is any part of any board including the frame & enclosure.
-	 * 
+	 *
 	 * @param loc	location to check
 	 * @return the boardview that matches, or null if none
 	 */
@@ -187,7 +181,7 @@ public class BoardViewManager {
 
 	/**
 	 * Check if a location is any part of any board including the frame & enclosure.
-	 * 
+	 *
 	 * @param loc	location to check
 	 * @param fudge	fudge factor - check a larger area around the board
 	 * @return the boardview that matches, or null if none
@@ -203,7 +197,7 @@ public class BoardViewManager {
 
 	/**
 	 * Check if the player may fly (in a ChessCraft context) given their current position.
-	 * 
+	 *
 	 * @param player the player to check for
 	 * @return the flight region that the player is in, or null if not in a flight region
 	 */
@@ -218,7 +212,7 @@ public class BoardViewManager {
 
 	/**
 	 * Check if location is above a board square but below the roof
-	 * 
+	 *
 	 * @param loc  location to check
 	 * @return the boardview that matches, or null if none
 	 */
@@ -233,7 +227,7 @@ public class BoardViewManager {
 
 	/**
 	 * Check if location is part of a board square
-	 * 
+	 *
 	 * @param loc	location to check
 	 * @return the boardview that matches, or null if none
 	 */
@@ -248,7 +242,7 @@ public class BoardViewManager {
 
 	/**
 	 * Teleport the player in a sensible manner, depending on where they are now.
-	 * 
+	 *
 	 * @param player
 	 * @throws ChessException
 	 */
@@ -282,7 +276,7 @@ public class BoardViewManager {
 
 	/**
 	 * Convenience method to create a new board and do all the associated setup tasks.
-	 * 
+	 *
 	 * @param boardName
 	 * @param loc
 	 * @param style
@@ -304,7 +298,7 @@ public class BoardViewManager {
 	/**
 	 * Mark a board as deferred loading - its world wasn't available so we'll record the board
 	 * file name for later.
-	 * 
+	 *
 	 * @param worldName
 	 * @param f
 	 */
@@ -317,7 +311,7 @@ public class BoardViewManager {
 
 	/**
 	 * Load any deferred boards for the given world.
-	 * 
+	 *
 	 * @param worldName
 	 */
 	public void loadDeferred(String worldName) {

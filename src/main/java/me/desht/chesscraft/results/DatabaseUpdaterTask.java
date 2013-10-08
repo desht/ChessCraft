@@ -17,6 +17,9 @@ public class DatabaseUpdaterTask implements Runnable {
 		while (true) {
 			try {
 				DatabaseSavable savable = handler.pollDatabaseUpdate();	// block until there's a record available
+				if (savable == null) {
+					break;
+				}
 				savable.saveToDatabase(handler.getConnection());
 			} catch (InterruptedException e) {
 				LogUtils.warning("interrupted while saving database results");

@@ -155,8 +155,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		DirectoryStructure.setup(this);
 
-		AIFactory.init();
-
 		Messages.init(getConfig().getString("locale", "default"));
 
 		tickTask = new ChessTickTask();

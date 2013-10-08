@@ -1,6 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import me.desht.chesscraft.ChessCraft;
@@ -31,9 +32,8 @@ public class SetcfgCommand extends ChessAbstractCommand {
 		try {
 			if (args.length > 2) {
 				List<String> list = new ArrayList<String>(args.length - 1);
-				for (int i = 1; i < args.length; i++)
-					list.add(args[i]);
-				configManager.set(key, list);	
+				list.addAll(Arrays.asList(args).subList(1, args.length));
+				configManager.set(key, list);
 			} else {
 				configManager.set(key, val);
 			}

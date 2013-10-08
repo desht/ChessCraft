@@ -93,7 +93,7 @@ public class DesignCommand extends ChessAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			return filterPrefix(sender, Arrays.asList(new String[] { "start", "clear", "exit", "save", "load" }), args[0]);
+			return filterPrefix(sender, Arrays.asList("start", "clear", "exit", "save", "load"), args[0]);
 		} else {
 			showUsage(sender);
 			return noCompletions(sender);

@@ -49,7 +49,7 @@ public class PromoteCommand extends ChessAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		if (args.length == 1) {
-			return filterPrefix(sender, Arrays.asList(new String[] { "Q", "R", "B", "N" }), args[0]);
+			return filterPrefix(sender, Arrays.asList("Q", "R", "B", "N"), args[0]);
 		} else {
 			showUsage(sender);
 			return noCompletions(sender);

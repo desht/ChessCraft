@@ -16,6 +16,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MaterialWithData;
 import chesspresso.Chess;
+import org.bukkit.Material;
 
 /**
  * @author jacob
@@ -24,7 +25,7 @@ public class ChessUtils {
 
 	/**
 	 * Get the colour string for the given Chesspresso colour.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -35,10 +36,10 @@ public class ChessUtils {
 		default: throw new IllegalArgumentException("Invalid colour: " + c);
 		}
 	}
-	
+
 	/**
 	 * Get the colour string for the given colour, with markup for display purposes.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -50,7 +51,7 @@ public class ChessUtils {
 	/**
 	 * get PGN format of the date (the version in chesspresso.pgn.PGN gets the
 	 * month wrong :( )
-	 * 
+	 *
 	 * @param date
 	 *            date to convert
 	 * @return PGN format of the date
@@ -61,7 +62,7 @@ public class ChessUtils {
 
 	/**
 	 * Format an elapsed time.
-	 * 
+	 *
 	 * @param l		time in milliseconds
 	 * @return	A time string in HH:MM:SS format
 	 */
@@ -77,7 +78,7 @@ public class ChessUtils {
 
 	/**
 	 * Get a piece name from a Chesspresso piece number.
-	 * 
+	 *
 	 * @param piece
 	 * @return
 	 */
@@ -117,13 +118,13 @@ public class ChessUtils {
 				}
 			}
 		}
-		return matches.toArray(new String[0]);
+		return matches.toArray(new String[matches.size()]);
 	}
 
 	/**
 	 * Compute the Levenshtein distance between two strings. This is
 	 * appropriated from the Apache Jakarta Commons project.
-	 * 
+	 *
 	 * @param s
 	 *            The first string
 	 * @param t
@@ -149,7 +150,7 @@ public class ChessUtils {
 		 * calculated). (Note that the arrays aren't really copied anymore, just
 		 * switched...this is clearly much better than cloning an array or doing
 		 * a System.arraycopy() each time through the outer loop.)
-		 * 
+		 *
 		 * Effectively, the difference between the two implementations is this
 		 * one does not cause an out of memory condition when calculating the LD
 		 * over two very large strings.
@@ -202,19 +203,19 @@ public class ChessUtils {
 		return p[n];
 	}
 
-	public static int getWandId() {
-		String wand = ChessCraft.getInstance().getConfig().getString("wand_item"); //$NON-NLS-1$
+	public static Material getWandMaterial() {
+		String wand = ChessCraft.getInstance().getConfig().getString("wand_item");
 		if (wand.isEmpty() || wand.equalsIgnoreCase("*")) {
-			return -1;
+			return null;
+		} else {
+			MaterialWithData mat = MaterialWithData.get(wand);
+			return mat == null ? null : mat.getBukkitMaterial();
 		}
-		MaterialWithData mat = MaterialWithData.get(wand);
-		return mat == null ? 0 : mat.getId();
 	}
 
 	public static String getWandDescription() {
-		int id = getWandId();
-
-		return id < 0 ? Messages.getString("ChessUtils.anything") : MaterialWithData.get(id).toString();
+		Material mat = getWandMaterial();
+		return mat == null ? Messages.getString("ChessUtils.anything") : mat.toString();
 	}
 
 	public static String formatStakeStr(double stake) {
@@ -230,6 +231,6 @@ public class ChessUtils {
 		return new DecimalFormat("#0.00").format(stake);
 	}
 
-	
+
 } // end class ChessUtils
 

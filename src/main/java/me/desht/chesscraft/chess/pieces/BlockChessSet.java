@@ -97,7 +97,7 @@ public class BlockChessSet extends ChessSet {
 	/**
 	 * Package protected constructor. Initialise a chess set from template and material map information.
 	 * This constructor is used to create a new set from piece designer information.
-	 * 
+	 *
 	 * @param name the chess set name
 	 * @param templates the templates to copy in for the white (or both) pieces
 	 * @param materialMaps the material maps for the white and black pieces
@@ -110,15 +110,11 @@ public class BlockChessSet extends ChessSet {
 		this.materialMapBlack = materialMaps[Chess.BLACK];
 
 		this.templates = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
-		for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-			this.templates[piece] = templates[Chess.WHITE][piece];
-		}
+		System.arraycopy(templates[Chess.WHITE], Chess.MIN_PIECE + 1, this.templates, Chess.MIN_PIECE + 1, Chess.MAX_PIECE);
 
 		if (templates[Chess.BLACK] != null) {
 			this.templatesBlack = new ChessPieceTemplate[Chess.MAX_PIECE + 1];
-			for (int piece = Chess.MIN_PIECE + 1; piece <= Chess.MAX_PIECE; piece++) {
-				this.templatesBlack[piece] = templates[Chess.BLACK][piece];
-			}
+			System.arraycopy(templates[Chess.BLACK], Chess.MIN_PIECE + 1, this.templatesBlack, Chess.MIN_PIECE + 1, Chess.MAX_PIECE);
 		} else {
 			this.templatesBlack = null;
 		}
@@ -180,7 +176,7 @@ public class BlockChessSet extends ChessSet {
 	/**
 	 * Return a mapping of white material to black material for those materials in this set
 	 * which differ for the white and black pieces.
-	 * 
+	 *
 	 * @return
 	 */
 	Map<String, String> getWhiteToBlack() {
@@ -201,7 +197,7 @@ public class BlockChessSet extends ChessSet {
 	/**
 	 * Retrieve a fully instantiated chess stone, of the appropriate material for the stone's
 	 * colour, and facing the right direction.
-	 * 
+	 *
 	 * @param stone		Chesspresso stone number (Chess.WHITE_PAWN etc.)
 	 * @param direction		Board orientation
 	 * @return

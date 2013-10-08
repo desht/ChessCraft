@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -86,7 +87,7 @@ public class PieceDesigner {
 						for (int z = 0; z < template.getSizeZ(); z++) {
 							Point rotatedPoint = rotate(x, z, template.getSizeZ(), template.getSizeX(), rotation);
 							Block b = c.getRelativeBlock(world, rotatedPoint.x, y, rotatedPoint.z);
-							short data = b.getTypeId() == 0 ? 0 : b.getData();
+							short data = b.getType() == Material.AIR ? 0 : b.getData();
 							MaterialWithData mat = MaterialWithData.get(b.getTypeId(), data).rotate(rotation);
 							String materialName = mat.toString();
 							if (!reverseMap.containsKey(materialName)) {
@@ -156,7 +157,7 @@ public class PieceDesigner {
 
 	/**
 	 * Attempt to initialise the black material map from blocks in squares B2-E2 inclusive.
-	 * 
+	 *
 	 * @param whiteMap the existing white material map
 	 * @return the black material map, or null if no valid mappings found in B2-E2
 	 */
@@ -175,7 +176,7 @@ public class PieceDesigner {
 			Cuboid c = view.getChessBoard().getSquare(1, col).shift(CuboidDirection.Up, 1);
 			for (Block b : c) {
 				Block b2 = b.getRelative(BlockFace.UP);
-				if (b.getTypeId() == b2.getTypeId() && b.getData() == b2.getData()) {
+				if (b.getType() == b2.getType() && b.getData() == b2.getData()) {
 					continue;
 				}
 				MaterialWithData mat = MaterialWithData.get(b);
@@ -193,7 +194,7 @@ public class PieceDesigner {
 
 	/**
 	 * Load the current design's set data onto the board.
-	 * 
+	 *
 	 * @throws ChessException if the set doesn't exist or doesn't fit the board
 	 */
 	public void load() throws ChessException {
@@ -234,7 +235,7 @@ public class PieceDesigner {
 			c.expand(CuboidDirection.Up, 1).fill(0, (byte)0);
 			int n = 0;
 			for (Block b : c) {
-				if (!iter.hasNext()) 
+				if (!iter.hasNext())
 					break;
 				if (n++ % 2 == 1)
 					continue;	// skip alternate squares
@@ -248,7 +249,7 @@ public class PieceDesigner {
 
 	/**
 	 * Save the current design to a piece style file.
-	 * 
+	 *
 	 * @throws ChessException if the file can't be written
 	 */
 	public void save() throws ChessException {
@@ -304,10 +305,8 @@ public class PieceDesigner {
 
 	private Cuboid getPieceBox(int p, int colour) {
 		int sqi = getSqi(p, colour);
-		Cuboid c = view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).contract();
-		// c is now the smallest Cuboid which fully contains the piece (with no external air)
-
-		return c;
+		// get the smallest Cuboid which fully contains the piece (with no external air)
+		return view.getChessBoard().getPieceRegion(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi)).contract();
 	}
 
 	private int rotationNeeded(int colour) {
@@ -326,7 +325,7 @@ public class PieceDesigner {
 	}
 
 	private class Point {
-		public int x, z;
+		public final int x, z;
 		public Point(int x, int z) {
 			this.x = x; this.z = z;
 		}

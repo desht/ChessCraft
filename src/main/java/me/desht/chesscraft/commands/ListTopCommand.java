@@ -55,7 +55,7 @@ public class ListTopCommand extends ChessAbstractCommand {
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		if (args.length == 2) {
-			return filterPrefix(sender, Arrays.asList(new String[] { "ladder", "league" }), args[1]);
+			return filterPrefix(sender, Arrays.asList("ladder", "league"), args[1]);
 		} else {
 			showUsage(sender);
 			return noCompletions(sender);

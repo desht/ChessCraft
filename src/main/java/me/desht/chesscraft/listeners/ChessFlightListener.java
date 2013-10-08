@@ -1,9 +1,5 @@
 package me.desht.chesscraft.listeners;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.Map;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardViewManager;
@@ -13,23 +9,21 @@ import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.cuboid.Cuboid;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.util.Vector;
+
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChessFlightListener extends ChessListenerBase {
 
@@ -89,8 +83,8 @@ public class ChessFlightListener extends ChessListenerBase {
 	/**
 	 * Set the "captive" mode.  Captive prevents flying players from flying too far from a
 	 * board.  Non-captive just disables flight if players try to fly too far.
-	 * 
-	 * @param captive
+	 *
+	 * @param captive the captive mode
 	 */
 	public void setCaptive(boolean captive) {
 		this.captive = captive;
@@ -205,8 +199,8 @@ public class ChessFlightListener extends ChessListenerBase {
 	/**
 	 * Prevent the player from interacting with any block outside a board while enjoying temporary flight.  It's
 	 * called early (priority LOWEST) to cancel the event ASAP.
-	 * 
-	 * @param event
+	 *
+	 * @param event the event
 	 */
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onFlyingInteraction(PlayerInteractEvent event) {
@@ -241,9 +235,9 @@ public class ChessFlightListener extends ChessListenerBase {
 	/**
 	 * Mark the player as being allowed to fly or not.  If the player was previously allowed to fly by
 	 * virtue of creative mode, he can continue to fly even if chess board flying is being disabled.
-	 * 
-	 * @param player
-	 * @param flying
+	 *
+	 * @param player the player
+	 * @param flying true if flight allowed, false otherwise
 	 */
 	private void setFlightAllowed(final Player player, boolean flying) {
 		String playerName = player.getName();
@@ -265,11 +259,11 @@ public class ChessFlightListener extends ChessListenerBase {
 			player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 			player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
 			if (plugin.getConfig().getBoolean("flying.auto")) {
-				final int blockId = player.getLocation().subtract(0, 2, 0).getBlock().getTypeId();
+				final Material mat = player.getLocation().subtract(0, 2, 0).getBlock().getType();
 				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 					@Override
 					public void run() {
-						if (!BlockType.canPassThrough(blockId)) {
+						if (mat.isSolid()) {
 							// give player a kick upwards iff they're standing on something solid
 							player.setVelocity(new Vector(0, 1.0, 0));
 						}

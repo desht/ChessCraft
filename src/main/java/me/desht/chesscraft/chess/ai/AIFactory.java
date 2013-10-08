@@ -31,7 +31,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * @author desht
  *
  * This class is responsible for creating and managing the AI definitions and instances.
- * 
+ *
  */
 public class AIFactory {
 	private static final String AI_ALIASES_FILE = "AI.yml";
@@ -91,7 +91,7 @@ public class AIFactory {
 
 	/**
 	 * Check if the given AI name is available (i.e. not in a game).
-	 * 
+	 *
 	 * @param aiName
 	 * @return
 	 */
@@ -130,7 +130,7 @@ public class AIFactory {
 
 	/**
 	 * Return the AI definition for the given AI name.
-	 * 
+	 *
 	 * @param aiName
 	 * @return
 	 */
@@ -154,7 +154,7 @@ public class AIFactory {
 
 	/**
 	 * Get the name of a random free and enabled AI.
-	 * 
+	 *
 	 * @return
 	 * @throws ChessException if there are no free AIs
 	 */
@@ -215,9 +215,6 @@ public class AIFactory {
 		}
 
 		LogUtils.fine("Loaded " + allAliases.size() + " AI definitions");
-	}
-
-	public static void init() {
 	}
 
 	public class AIDefinition {
