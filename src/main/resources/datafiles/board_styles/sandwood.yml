@@ -16,15 +16,15 @@ frame_width: 3
 # height of the board - number of squares of clear air between board and enclosure roof
 height: 6
 # material/data for the white squares
-white_square: sandstone
+white_square: SANDSTONE
 # material/data for the black squares
-black_square: wood
+black_square: WOOD
 # material/data for the frame
-frame: '49'
+frame: OBSIDIAN
 # material/data for the enclosure (if you don't use glass, then you better have lit = true!)
-enclosure: air
+enclosure: AIR
 # material/data for the struts
-struts: wood
+struts: WOOD
 # the board's light level
 light_level: 15
 # style of chess set to use (see ../pieces/*.yml)

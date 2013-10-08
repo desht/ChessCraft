@@ -16,16 +16,16 @@ black_square: 'WOOL:BLACK'
 # material/data for the frame
 frame: 'WOOD:0'
 # material/data for the enclosure
-enclosure: 'AIR:0'
+enclosure: AIR
 # material/data for the enclosure struts (default: 'enclosure' setting)
-struts: 'AIR:0'
+struts: AIR
 # board lighting level (0-15)
 light_level: 15
 # style of chess set to use (see ../pieces/*.yml)
 # the style chosen must fit within the square_size specified above
 piece_style: yazpanda
 # material/data for the control panel (default: 'frame' setting)
-panel: 'WOOD:0'
+panel: WOOD
 # highlighting style (one of NONE, CORNERS, EDGES, LINE, CHECKERED)
 highlight_style: LINE
 # highlighting material (default: glowstone)

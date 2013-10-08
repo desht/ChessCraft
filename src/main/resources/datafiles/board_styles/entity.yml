@@ -16,9 +16,9 @@ frame_width: 2
 # height of the board - number of squares of clear air between board and enclosure roof
 height: 6
 # material/data for the white squares
-white_square: '159:0'
+white_square: 'stained_clay:0'
 # material/data for the black squares
-black_square: '159:15'
+black_square: 'stained_clay:15'
 # material/data for the frame
 frame: log
 # material/data for the enclosure (if you don't use glass, then you better have lit = true!)
