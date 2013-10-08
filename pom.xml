@@ -63,7 +63,6 @@
             <name>Comphenix Repository</name>
             <url>http://repo.comphenix.net/content/groups/public</url>
         </repository>
-
     </repositories>
     <build>
         <finalName>${project.name}</finalName>
