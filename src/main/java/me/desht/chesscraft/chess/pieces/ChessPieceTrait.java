@@ -31,7 +31,7 @@ public class ChessPieceTrait extends Trait {
 		if (event.getNPC() == getNPC()) {
 			LogUtils.fine("navigation completed for " + event.getNPC().getFullName() + ", NPC id " + event.getNPC().getId());
 
-			if (capturingTarget != null) {
+			if (capturingTarget != null && capturingTarget.getBukkitEntity() != null) {
 				capturingTarget.getBukkitEntity().setVelocity(new Vector(0.0, 1.7, 0.0));
 				final NPC npc = capturingTarget.getNPC();
 				Bukkit.getScheduler().runTaskLater(ChessCraft.getInstance(), new Runnable() {

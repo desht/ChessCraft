@@ -151,7 +151,7 @@ public class EntityChessStone extends ChessStone {
 	 * @return the Entity
 	 */
 	public Entity getBukkitEntity() {
-		return npc.getBukkitEntity();
+		return npc == null ? null : npc.getBukkitEntity();
 	}
 
 	@Override
