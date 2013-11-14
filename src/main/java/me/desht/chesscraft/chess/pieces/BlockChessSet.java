@@ -266,7 +266,7 @@ public class BlockChessSet extends ChessSet {
 	}
 
 	@Override
-	public void movePiece(int fromSqi, int toSqi, Location to, int promoteStone) {
+	public void movePiece(int fromSqi, int toSqi, int captureSqi, Location to, int promoteStone) {
 		// no-op
 	}
 

@@ -495,7 +495,7 @@ public class ChessBoard {
 		}
 	}
 
-	public void moveChessPiece(int fromSqi, int toSqi, int promoteStone) {
+	public void moveChessPiece(int fromSqi, int toSqi, int captureSqi, int promoteStone) {
 		if (chessSet.hasMovablePieces()) {
 			ChessStone stone = chessSet.getStoneAt(fromSqi);
 			int colour = Chess.stoneToColor(stone.getStone());
@@ -505,7 +505,7 @@ public class ChessBoard {
 				yaw = (yaw + 180) % 360;
 			}
 			to.setYaw(yaw);
-			chessSet.movePiece(fromSqi, toSqi, to, promoteStone);
+			chessSet.movePiece(fromSqi, toSqi, captureSqi, to, promoteStone);
 		} else {
 			// TODO: maybe some particle effect showing move direction?
 		}

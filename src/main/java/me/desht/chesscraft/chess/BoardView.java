@@ -156,8 +156,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Get the game name from the save file.  This is set even if the game hasn't actually been loaded yet.
-	 *  
-	 * @return
+	 *
+	 * @return the saved game name
 	 */
 	public String getSavedGameName() {
 		return savedGameName;
@@ -165,8 +165,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Get the world name from the save file.  This is set even if the world is not loaded.
-	 * 
-	 * @return
+	 *
+	 * @return the world name
 	 */
 	public String getWorldName() {
 		return worldName;
@@ -371,7 +371,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Get the bounds of the chess board itself (not including the frame).
-	 * 
+	 *
 	 * @return the bounds of the chess board
 	 */
 	public Cuboid getBounds() {
@@ -379,9 +379,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	/**
-	 * Get the region that encloses the outer extremities of this board, which 
+	 * Get the region that encloses the outer extremities of this board, which
 	 * includes the frame and enclosure.
-	 * 
+	 *
 	 * @return	The outermost bounding box - outer edge of the frame
 	 */
 	public Cuboid getOuterBounds() {
@@ -443,20 +443,29 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			getGame().getPlayer(Chess.BLACK).playEffect("piece_moved");
 		}
 
-		chessBoard.moveChessPiece(fromSqi, toSqi, Move.isPromotion(move) ? position.getStone(toSqi) : Chess.NO_STONE);
+		if (Move.isEPMove(move)) {
+			// en passant capture - the piece to actually capture isn't in the square we're moving to
+			int captureSqi = toSqi + (getGame().getPosition().getToPlay() == Chess.WHITE ? 8 : -8);
+			chessBoard.moveChessPiece(fromSqi, toSqi, captureSqi, Chess.NO_STONE);
+		} else {
+			chessBoard.moveChessPiece(fromSqi, toSqi, toSqi, Move.isPromotion(move) ? position.getStone(toSqi) : Chess.NO_STONE);
+		}
+
 		if (Move.isCastle(move)) {
-			int rook, rookTo;
+			// if the king has done a castling move, also move the rook to the right place
+			int rookFrom, rookTo;
 			switch (toSqi) {
-			case 2: rook = 0; rookTo = 3; break; // white, queen's side
-			case 6: rook = 7; rookTo = 5; break; // white, king's side
-			case 58: rook = 56; rookTo = 59; break; // black, queen's side
-			case 62: rook = 63; rookTo = 61; break; // black, king's side
-			default: rook = rookTo = Chess.NO_SQUARE; // should never happen
+			case 2: rookFrom = 0; rookTo = 3; break; // white, queen's side
+			case 6: rookFrom = 7; rookTo = 5; break; // white, king's side
+			case 58: rookFrom = 56; rookTo = 59; break; // black, queen's side
+			case 62: rookFrom = 63; rookTo = 61; break; // black, king's side
+			default: rookFrom = rookTo = Chess.NO_SQUARE; // should never happen
 			}
-			if (rook != Chess.NO_SQUARE) {
-				chessBoard.moveChessPiece(rook, rookTo, Chess.NO_STONE);
+			if (rookFrom != Chess.NO_SQUARE) {
+				chessBoard.moveChessPiece(rookFrom, rookTo, rookTo, Chess.NO_STONE);
 			}
 		}
+
 		pieceRidingCheck(fromSqi, toSqi);
 
 		getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
@@ -508,7 +517,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Check if the location is a part of the board itself.
-	 * 
+	 *
 	 * @param loc	location to check
 	 * @return true if the location is part of the board itself
 	 */
@@ -518,7 +527,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Check if the location is above the board but below the enclosure roof.
-	 * 
+	 *
 	 * @param loc	location to check
 	 * @return true if the location is above the board AND within the board's height range
 	 */
@@ -528,7 +537,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Check if this is somewhere within the board bounds.
-	 * 
+	 *
 	 * @param loc		location to check
 	 * @param fudge		fudge factor - check within a slightly larger area
 	 * @return true if the location is *anywhere* within the board <br>
@@ -550,9 +559,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Check if the given location is OK for designing on by the given player.
-	 * 
+	 *
 	 * @param location
-	 * @return
+	 * @return true is designing is OK here
 	 */
 	public boolean canDesignHere(Player player, Location location) {
 		if (!isDesigning() || !PermissionUtils.isAllowedTo(player, "chesscraft.designer")) {
@@ -567,8 +576,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Get the Chesspresso square index (sqi) of the given Location.
-	 * 
-	 * @param loc	The Location to check	
+	 *
+	 * @param loc	The Location to check
 	 * @return		The sqi of the Location or Chess.NO_SQUARE if not on the board
 	 */
 	public int getSquareAt(Location loc) {
@@ -597,7 +606,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	/**
 	 * Find a safe location to teleport a player out of this board.
-	 * 
+	 *
 	 * @return	The location
 	 */
 	public Location findSafeLocationOutside() {

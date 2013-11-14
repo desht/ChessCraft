@@ -123,9 +123,9 @@ public class EntityChessSet extends ChessSet {
 	}
 
 	@Override
-	public void movePiece(int fromSqi, int toSqi, Location to, int promoteStone) {
+	public void movePiece(int fromSqi, int toSqi, int captureSqi, Location to, int promoteStone) {
 		EntityChessStone stone = (EntityChessStone) getStoneAt(fromSqi);
-		EntityChessStone captured = (EntityChessStone) getStoneAt(toSqi);
+		EntityChessStone captured = (EntityChessStone) getStoneAt(captureSqi);
 		if (stone != null) {
 			if (promoteStone != Chess.NO_STONE) {
 				Location loc = stone.getBukkitEntity().getLocation();

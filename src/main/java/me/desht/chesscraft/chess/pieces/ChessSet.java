@@ -43,12 +43,12 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 	public abstract ChessStone getStoneAt(int sqi);
 	public abstract boolean canRide();
 	public abstract boolean hasMovablePieces();
-	public abstract void movePiece(int fromSqi, int toSqi, Location to, int promoteStone);
+	public abstract void movePiece(int fromSqi, int toSqi, int captureSqi, Location to, int promoteStone);
 	public abstract void syncToPosition(Position pos, ChessBoard board);
 
 	/**
 	 * Get this chess set's name.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getName() {
@@ -57,7 +57,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 
 	/**
 	 * Get the comment for this chess set.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getComment() {
@@ -75,7 +75,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 
 	/**
 	 * Get the height of the tallest piece in the set
-	 * 
+	 *
 	 * @return
 	 */
 	public int getMaxHeight() {
