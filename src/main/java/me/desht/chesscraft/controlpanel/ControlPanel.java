@@ -1,25 +1,22 @@
 package me.desht.chesscraft.controlpanel;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.TimeControlDefs;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import me.desht.chesscraft.enums.BoardRotation;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.block.MassBlockUpdate;
+import me.desht.dhutils.block.MaterialWithData;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import chesspresso.Chess;
-
-import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
-import me.desht.dhutils.PersistableLocation;
-import me.desht.chesscraft.enums.BoardRotation;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ControlPanel {
 
@@ -107,7 +104,7 @@ public class ControlPanel {
 	/**
 	 * Get a teleport-in location for this control panel.  Player will be standing in front of the
 	 * control panel, facing it.
-	 * 
+	 *
 	 * @return	The teleport-in location
 	 */
 	public Location getTeleportLocation() {
@@ -200,7 +197,7 @@ public class ControlPanel {
 	/**
 	 * Calculate the control panel position based on the boardview's position
 	 * and rotation.
-	 * 
+	 *
 	 * @return	a Cuboid representing the panel position
 	 */
 	private Cuboid getPanelPosition() {

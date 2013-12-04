@@ -1,20 +1,18 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.io.File;
-import java.io.IOException;
-
+import chesspresso.position.Position;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import chesspresso.position.Position;
+import java.io.File;
+import java.io.IOException;
 
 public abstract class ChessSet implements Comparable<ChessSet>{
 	private final String name;

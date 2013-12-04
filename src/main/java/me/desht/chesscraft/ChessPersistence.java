@@ -1,11 +1,5 @@
 package me.desht.chesscraft;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
@@ -14,13 +8,18 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class ChessPersistence {
 
@@ -117,7 +116,7 @@ public class ChessPersistence {
 
 	/**
 	 * Load one board file, plus the game on that board, if there is one.
-	 * 
+	 *
 	 * @param f
 	 * @return
 	 */

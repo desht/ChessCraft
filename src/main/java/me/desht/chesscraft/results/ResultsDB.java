@@ -1,22 +1,16 @@
 package me.desht.chesscraft.results;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
+
+import java.io.File;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResultsDB {
 	private enum SupportedDrivers {

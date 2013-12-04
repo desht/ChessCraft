@@ -1,19 +1,13 @@
 package me.desht.chesscraft;
 
-import java.io.InputStream;
-
+import chesspresso.Chess;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ai.ChessAI;
-import me.desht.chesscraft.event.ChessBoardCreatedEvent;
-import me.desht.chesscraft.event.ChessBoardDeletedEvent;
-import me.desht.chesscraft.event.ChessGameCreatedEvent;
-import me.desht.chesscraft.event.ChessGameDeletedEvent;
-import me.desht.chesscraft.event.ChessGameStateChangedEvent;
+import me.desht.chesscraft.event.*;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.cuboid.Cuboid;
-
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -24,7 +18,7 @@ import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerIcon;
 import org.dynmap.markers.MarkerSet;
 
-import chesspresso.Chess;
+import java.io.InputStream;
 
 public class DynmapIntegration implements Listener {
 	private static final String MARKER_SET = "chess.boards";

@@ -1,16 +1,5 @@
 package me.desht.chesscraft.chess;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.Messages;
@@ -28,11 +17,13 @@ import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.io.File;
+import java.util.*;
 
 public class BoardViewManager {
 

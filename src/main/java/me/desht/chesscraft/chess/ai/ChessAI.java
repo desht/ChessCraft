@@ -1,20 +1,18 @@
 package me.desht.chesscraft.chess.ai;
 
-import java.util.List;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.scheduler.BukkitTask;
-
 import chesspresso.Chess;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.dhutils.LogUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.List;
 
 /**
  * @author desht
@@ -28,7 +26,7 @@ public abstract class ChessAI implements Runnable {
 	 * colors, if wanted.
 	 */
 	public static final String AI_PREFIX = ChatColor.WHITE.toString();
-	
+
 	public enum PendingAction { NONE, MOVED, DRAW_OFFERED, DRAW_ACCEPTED, DRAW_DECLINED }
 
 	private boolean active = false;
@@ -38,7 +36,7 @@ public abstract class ChessAI implements Runnable {
 	private int pendingFrom, pendingTo;
 	private boolean ready = false;
 	private boolean drawOffered = false; // draw offered *to* the AI
-	
+
 	private final String name;
 	private final ChessGame chessCraftGame;
 	private final boolean isWhite;
@@ -74,7 +72,7 @@ public abstract class ChessAI implements Runnable {
 	/**
 	 * Perform the implementation-specfic steps needed to update the AI's internal game model with
 	 * the given move.  Square indices are always in Chesspresso sqi format.
-	 * 
+	 *
 	 * @param fromSqi	Square being moved from
 	 * @param toSqi		Square being move to
 	 * @param otherPlayer	true if this is the other player moving, false if it's us
@@ -88,10 +86,10 @@ public abstract class ChessAI implements Runnable {
 	public void offerDraw() {
 		rejectDrawOffer();
 	}
-	
+
 	/**
 	 * Get the AI's canonical name.  This is dependent only on the internal prefix.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getName() {
@@ -100,7 +98,7 @@ public abstract class ChessAI implements Runnable {
 
 	/**
 	 * Get the AI's displayed name.  This may vary depending on the "ai.name_format" config setting.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getDisplayName() {
@@ -115,7 +113,7 @@ public abstract class ChessAI implements Runnable {
 	protected boolean isDrawOfferedToAI() {
 		return drawOffered;
 	}
-	
+
 	protected void setDrawOfferedToAI(boolean drawOffered) {
 		this.drawOffered = drawOffered;
 	}
@@ -127,7 +125,7 @@ public abstract class ChessAI implements Runnable {
 	public PendingAction getPendingAction() {
 		return pendingAction;
 	}
-	
+
 	public void clearPendingAction() {
 		pendingAction = PendingAction.NONE;
 	}
@@ -151,22 +149,22 @@ public abstract class ChessAI implements Runnable {
 	protected void setReady() {
 		ready = true;
 	}
-	
+
 	public boolean isReady() {
 		return ready;
 	}
-	
+
 	/**
 	 * Check if it's the AI's move.  Note this does not necessarily mean the AI is actively thinking
 	 * right now, just that it's the AI's move.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean toMove() {
 		int toMove = getChessCraftGame().getPosition().getToPlay();
 		return isWhite && toMove == Chess.WHITE || !isWhite && toMove == Chess.BLACK;
 	}
-	
+
 	/**
 	 * Delete a running AI instance.  Called when a game is finished, deleted, or the plugin is disabled.
 	 */
@@ -178,7 +176,7 @@ public abstract class ChessAI implements Runnable {
 
 	/**
 	 * Set the AI-active state.  Will cause either the launch or termination of the AI calculation thread.
-	 *   
+	 *
 	 * @param active
 	 */
 	public void setActive(boolean active) {
@@ -200,7 +198,7 @@ public abstract class ChessAI implements Runnable {
 	 * Inform the AI that the other player has made the given move.  We are assuming the move is legal,
 	 * since it's already been validated by Chesspresso in the ChessGame object.  This also sets this AI to active,
 	 * so it starts calculating the next move.
-	 * 
+	 *
 	 * @param fromSqi	the square the other player has moved from
 	 * @param toSqi		the square the other player has moved to
 	 */
@@ -224,7 +222,7 @@ public abstract class ChessAI implements Runnable {
 	/**
 	 * Replay a list of Chesspresso moves into the AI object.  Called when a game is restored
 	 * from persisted data.
-	 * 
+	 *
 	 * @param moves
 	 */
 	public void replayMoves(List<Short> moves) {
@@ -242,7 +240,7 @@ public abstract class ChessAI implements Runnable {
 	}
 
 	/**
-	 * Tell the AI to start thinking.  This will call a run() method, implemented in subclasses, 
+	 * Tell the AI to start thinking.  This will call a run() method, implemented in subclasses,
 	 * which will analyze the current board position and culminate by calling aiHasMoved() with the
 	 * AI's next move.
 	 */
@@ -265,7 +263,7 @@ public abstract class ChessAI implements Runnable {
 	/**
 	 * Called when the AI has come up with its next move.  Square indices always use the
 	 * Chesspresso sqi representation.
-	 * 
+	 *
 	 * @param fromSqi	the square the AI is moving from
 	 * @param toSqi		the square the AI is moving to.
 	 */
@@ -279,7 +277,7 @@ public abstract class ChessAI implements Runnable {
 			// making a move effectively rejects any pending draw offer
 			rejectDrawOffer();
 		}
-		
+
 		setActive(false);
 		movePiece(fromSqi, toSqi, false);
 		LogUtils.fine(gameDetails + "aiHasMoved: " + fromSqi + "->" + toSqi);
@@ -295,28 +293,28 @@ public abstract class ChessAI implements Runnable {
 	protected void makeDrawOffer() {
 		pendingAction = PendingAction.DRAW_OFFERED;
 	}
-	
+
 	protected void acceptDrawOffer() {
 		pendingAction = PendingAction.DRAW_ACCEPTED;
 	}
-	
+
 	protected void rejectDrawOffer() {
 		pendingAction = PendingAction.DRAW_DECLINED;
 	}
-	
+
 	public ChessPlayer getChessPlayer() {
 		int colour = isWhite ? Chess.WHITE : Chess.BLACK;
 		return getChessCraftGame().getPlayer(colour);
 	}
-	
+
 	public ChessPlayer getOtherChessPlayer() {
 		int colour = isWhite ? Chess.BLACK : Chess.WHITE;
 		return getChessCraftGame().getPlayer(colour);
 	}
-	
+
 	/**
 	 * Something has gone horribly wrong.  Need to abandon this game.
-	 * 
+	 *
 	 * @param e
 	 */
 	protected void aiHasFailed(Exception e) {

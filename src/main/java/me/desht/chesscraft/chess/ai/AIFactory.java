@@ -1,17 +1,5 @@
 package me.desht.chesscraft.chess.ai;
 
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
@@ -20,12 +8,17 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.JARUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * @author desht

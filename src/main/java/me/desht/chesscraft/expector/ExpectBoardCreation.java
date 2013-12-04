@@ -7,7 +7,6 @@ import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.responsehandler.ExpectBase;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

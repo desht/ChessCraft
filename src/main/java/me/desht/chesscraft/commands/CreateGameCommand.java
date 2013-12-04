@@ -1,16 +1,14 @@
 package me.desht.chesscraft.commands;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
-import chesspresso.Chess;
 
 public class CreateGameCommand extends ChessAbstractCommand {
 

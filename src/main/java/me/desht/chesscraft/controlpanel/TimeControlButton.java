@@ -1,17 +1,15 @@
 package me.desht.chesscraft.controlpanel;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControlDefs;
 import me.desht.chesscraft.enums.GameState;
-
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import chesspresso.Chess;
 
 public class TimeControlButton extends AbstractSignButton {
 
 	private final TimeControlDefs tcDefs;
-	
+
 	public TimeControlButton(ControlPanel panel) {
 		super(panel, "timeControl", "tc", 3, 0);
 
@@ -21,7 +19,7 @@ public class TimeControlButton extends AbstractSignButton {
 	public TimeControlDefs getTcDefs() {
 		return tcDefs;
 	}
-	
+
 	public void reloadDefs() {
 		tcDefs.reload();
 		repaint();
@@ -31,7 +29,7 @@ public class TimeControlButton extends AbstractSignButton {
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		if (game == null) return;
-		
+
 		switch (event.getAction()) {
 		case LEFT_CLICK_BLOCK:
 			tcDefs.nextDef(); break;
@@ -43,7 +41,7 @@ public class TimeControlButton extends AbstractSignButton {
 		game.setTimeControl(tcDefs.currentDef().getSpec());
 		getPanel().updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));
 		getPanel().updateClock(Chess.BLACK, game.getTimeControl(Chess.BLACK));
-		
+
 		repaint();
 	}
 
@@ -51,7 +49,7 @@ public class TimeControlButton extends AbstractSignButton {
 	public boolean isEnabled() {
 		return getGame() != null;
 	}
-	
+
 	@Override
 	public boolean isReactive() {
 		return gameInState(GameState.SETTING_UP) && !getView().getLockTcSpec();
@@ -60,14 +58,14 @@ public class TimeControlButton extends AbstractSignButton {
 	@Override
 	protected String[] getCustomSignText() {
 		String[] text = getSignText();
-		
+
 		String[] tcText = tcDefs.currentDef().getLabel();
 		int start = tcText.length < 3 ? 2 : 1;
-		
+
 		for (int l = start, i = 0; l < 4; l++, i++) {
 			text[l] = getIndicatorColour() + (i < tcText.length ? tcText[i] : "");
 		}
-		
+
 		return text;
 	}
 }

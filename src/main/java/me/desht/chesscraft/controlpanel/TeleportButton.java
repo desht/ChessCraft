@@ -2,7 +2,6 @@ package me.desht.chesscraft.controlpanel;
 
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardViewManager;
-
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class TeleportButton extends AbstractSignButton {

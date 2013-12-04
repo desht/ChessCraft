@@ -1,21 +1,21 @@
 package me.desht.chesscraft;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author des
  *
  * Keeps track of players' last teleport position, and when they last logged out.
- * 
+ *
  */
 public class PlayerTracker {
 	private final Map<String, Location> lastPos = new HashMap<String, Location>();
 	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
-	
+
 	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
 		ChessCraft.getInstance().getFX().playEffect(player.getLocation(), "teleport_out");

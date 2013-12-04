@@ -1,17 +1,11 @@
 package me.desht.chesscraft.chess;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.ChessPersistable;
-import me.desht.chesscraft.ChessPersistence;
-import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.Messages;
+import chesspresso.Chess;
+import chesspresso.move.Move;
+import chesspresso.position.ImmutablePosition;
+import chesspresso.position.PositionChangeListener;
+import chesspresso.position.PositionListener;
+import me.desht.chesscraft.*;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
@@ -19,19 +13,12 @@ import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.chesscraft.util.TerrainBackup;
-import me.desht.dhutils.AttributeCollection;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.PermissionUtils;
-import me.desht.dhutils.PersistableLocation;
+import me.desht.dhutils.*;
 import me.desht.dhutils.block.CraftMassBlockUpdate;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
@@ -40,11 +27,12 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-import chesspresso.Chess;
-import chesspresso.move.Move;
-import chesspresso.position.ImmutablePosition;
-import chesspresso.position.PositionChangeListener;
-import chesspresso.position.PositionListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable, ConfigurationListener {
 

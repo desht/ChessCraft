@@ -1,17 +1,16 @@
 package me.desht.chesscraft.controlpanel;
 
-import java.util.List;
-
 import me.desht.dhutils.MessagePager;
-
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.List;
+
 public class BoardInfoButton extends AbstractSignButton {
-	
+
 	public BoardInfoButton(ControlPanel panel) {
 		super(panel, "boardInfoBtn", "list.board", 0, 2);
 	}
-	
+
 	@Override
 	public void execute(PlayerInteractEvent event) {
 		MessagePager pager = MessagePager.getPager(event.getPlayer()).clear();

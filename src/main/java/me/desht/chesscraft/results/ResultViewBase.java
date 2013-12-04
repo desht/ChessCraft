@@ -1,20 +1,15 @@
 package me.desht.chesscraft.results;
 
+import me.desht.chesscraft.chess.ai.ChessAI;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-
-import me.desht.chesscraft.chess.ai.ChessAI;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
 
 /**
  * Abstract base class to represent a view on the raw results data.  Subclass
@@ -123,7 +118,7 @@ public abstract class ResultViewBase {
 	/**
 	 * Get the score for the given player.  If the player is not yet in the database,
 	 * return the initial score (and add the player with that score).
-	 * 
+	 *
 	 * @param player	The player to check for
 	 * @return			The player's score
 	 */

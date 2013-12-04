@@ -1,10 +1,5 @@
 package me.desht.chesscraft.commands;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.BoardView;
@@ -13,12 +8,16 @@ import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.AttributeCollection;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class BoardStyleSetCommand extends ChessAbstractCommand {
 

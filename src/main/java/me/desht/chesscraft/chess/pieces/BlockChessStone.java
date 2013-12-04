@@ -1,28 +1,26 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import chesspresso.Chess;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import chesspresso.Chess;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class BlockChessStone extends ChessStone {
 	private final MaterialWithData[][][] pieceArray;
 
 	/**
 	 * Instantiate a new chess stone
-	 * 
+	 *
 	 * @param chessPieceTemplate
 	 * @param matMap
 	 * @param direction

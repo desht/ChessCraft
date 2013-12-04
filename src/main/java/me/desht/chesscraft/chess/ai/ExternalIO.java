@@ -1,18 +1,14 @@
 package me.desht.chesscraft.chess.ai;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-
 import me.desht.dhutils.LogUtils;
+
+import java.io.*;
 
 public class ExternalIO {
 	private Process process;
 	private BufferedReader reader;
 	private PrintWriter writer;
-	
+
 	private final String command;
 
 	public ExternalIO(String command) {

@@ -1,7 +1,6 @@
 package me.desht.chesscraft.enums;
 
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -41,7 +40,7 @@ public enum BoardRotation {
 
 	/**
 	 * Get the rotation to the right (clockwise) of the current rotation
-	 * 
+	 *
 	 * @return the rotation to the right
 	 */
 	public BoardRotation getRight() {
@@ -54,7 +53,7 @@ public enum BoardRotation {
 
 	/**
 	 * Get the rotation to the left (anti-clockwise) of the current rotation
-	 * 
+	 *
 	 * @return the rotation to the left
 	 */
 	public BoardRotation getLeft() {

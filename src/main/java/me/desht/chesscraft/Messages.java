@@ -1,21 +1,19 @@
 package me.desht.chesscraft;
 
+import com.google.common.base.Joiner;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.JARUtil;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.JARUtil;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import com.google.common.base.Joiner;
 
 public class Messages {
 

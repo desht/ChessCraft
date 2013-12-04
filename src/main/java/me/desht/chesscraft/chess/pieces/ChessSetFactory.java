@@ -1,17 +1,16 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.configuration.Configuration;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author desht

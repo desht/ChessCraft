@@ -1,14 +1,14 @@
 package me.desht.chesscraft;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.JARUtil;
 import me.desht.dhutils.JARUtil.ExtractWhen;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 
 public class DirectoryStructure {
 	private static File pluginDir = new File("plugins", "ChessCraft"); //$NON-NLS-1$ //$NON-NLS-2$

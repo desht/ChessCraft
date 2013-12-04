@@ -1,9 +1,8 @@
 package me.desht.chesscraft.chess.pieces;
 
-import org.bukkit.Location;
-
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
+import org.bukkit.Location;
 
 public abstract class ChessStone {
 	private final int stone;

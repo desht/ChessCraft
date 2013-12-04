@@ -1,16 +1,15 @@
 package me.desht.chesscraft.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.dhutils.MessagePager;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListAICommand extends ChessAbstractCommand {
 

@@ -1,11 +1,10 @@
 package me.desht.chesscraft.expector;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.dhutils.MiscUtil;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public class ExpectUndoResponse extends ExpectYesNoResponse {
 

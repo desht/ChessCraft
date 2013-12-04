@@ -1,16 +1,15 @@
 package me.desht.chesscraft.commands;
 
-import java.util.Arrays;
-import java.util.List;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.results.ScoreRecord;
 import me.desht.dhutils.MessagePager;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ListTopCommand extends ChessAbstractCommand {
 

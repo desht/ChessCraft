@@ -1,17 +1,16 @@
 package me.desht.chesscraft.commands;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.ConfigurationManager;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SetcfgCommand extends ChessAbstractCommand {
 

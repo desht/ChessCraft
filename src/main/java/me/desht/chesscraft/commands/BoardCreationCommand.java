@@ -1,16 +1,15 @@
 package me.desht.chesscraft.commands;
 
-import java.util.List;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public class BoardCreationCommand extends ChessAbstractCommand {
 

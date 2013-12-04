@@ -1,17 +1,15 @@
 package me.desht.chesscraft.chess;
 
+import com.google.common.base.Joiner;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.LogUtils;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import me.desht.dhutils.LogUtils;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
-
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-
-import com.google.common.base.Joiner;
 
 public class TimeControl implements ConfigurationSerializable {
 	public enum ControlType { NONE, ROLLOVER, MOVE_IN, GAME_IN }

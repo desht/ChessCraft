@@ -1,12 +1,9 @@
 package me.desht.chesscraft.listeners;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
+import chesspresso.Chess;
+import chesspresso.move.IllegalMoveException;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.block.BlockType;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
@@ -16,15 +13,15 @@ import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.DHUtilsException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.block.BlockType;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -32,19 +29,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerAnimationType;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-import chesspresso.Chess;
-import chesspresso.move.IllegalMoveException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class ChessPlayerListener extends ChessListenerBase {
 

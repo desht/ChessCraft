@@ -6,7 +6,6 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 

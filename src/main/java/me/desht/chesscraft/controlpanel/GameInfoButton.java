@@ -1,11 +1,10 @@
 package me.desht.chesscraft.controlpanel;
 
-import java.util.List;
-
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.dhutils.MessagePager;
-
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.List;
 
 public class GameInfoButton extends AbstractSignButton {
 

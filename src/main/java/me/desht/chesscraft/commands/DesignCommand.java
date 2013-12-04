@@ -1,8 +1,5 @@
 package me.desht.chesscraft.commands;
 
-import java.util.Arrays;
-import java.util.List;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
@@ -10,10 +7,12 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class DesignCommand extends ChessAbstractCommand {
 

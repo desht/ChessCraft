@@ -6,17 +6,17 @@
  */
 package me.desht.chesscraft.util;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
+import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MaterialWithData;
-import chesspresso.Chess;
 import org.bukkit.Material;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * @author jacob

@@ -5,11 +5,10 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.GameState;
-import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.MaterialWithData;
-
+import me.desht.dhutils.cuboid.Cuboid;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -96,7 +95,7 @@ public abstract class AbstractSignLabel {
 	/**
 	 * Override this in subclasses if the button/label needs some special
 	 * processing to display its text.
-	 * 
+	 *
 	 * @return
 	 */
 	protected String[] getCustomSignText() {

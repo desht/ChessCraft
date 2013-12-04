@@ -1,7 +1,5 @@
 package me.desht.chesscraft.chess;
 
-import java.util.*;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.event.ChessGameCreatedEvent;
@@ -9,9 +7,10 @@ import me.desht.chesscraft.event.ChessGameDeletedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.*;
 
 public class ChessGameManager {
 	private static ChessGameManager instance = null;

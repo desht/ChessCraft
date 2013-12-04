@@ -6,6 +6,8 @@
  */
 package me.desht.chesscraft.chess;
 
+import chesspresso.Chess;
+import chesspresso.position.Position;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.pieces.ChessSet;
@@ -22,12 +24,8 @@ import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-
-import chesspresso.Chess;
-import chesspresso.position.Position;
 
 public class ChessBoard {
 

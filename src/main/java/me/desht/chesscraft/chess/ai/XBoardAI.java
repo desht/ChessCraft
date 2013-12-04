@@ -1,17 +1,8 @@
 package me.desht.chesscraft.chess.ai;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import chesspresso.Chess;
+import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
@@ -19,19 +10,21 @@ import me.desht.chesscraft.chess.TimeControl.RolloverPhase;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
-import chesspresso.Chess;
-import chesspresso.move.IllegalMoveException;
-import chesspresso.move.Move;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class XBoardAI extends ChessAI {
 
 	private static final Pattern patternMove =
 			Pattern.compile("(my)?\\s*move\\s*(is)?\\s*[:>=\\-]?\\s*([a-h][1-8][a-h][1-8][nbrq]?)", Pattern.CASE_INSENSITIVE);
-	private static final Pattern patternSanMove = 
+	private static final Pattern patternSanMove =
 			Pattern.compile("(my)?\\s*move\\s*(is)?\\s*[:>=\\-]?\\s*(.+)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern patternIllegal =
 			Pattern.compile("(Illegal move.+)|(Error.+)", Pattern.CASE_INSENSITIVE);
@@ -140,7 +133,7 @@ public class XBoardAI extends ChessAI {
 			// stop the AI thinking, and back up one move
 			io.writeLine("force");
 			setActive(false);
-			io.writeLine("undo");	
+			io.writeLine("undo");
 		} else {
 			// undo the AI's last move and the other player's last move
 			io.writeLine("undo");
@@ -153,7 +146,7 @@ public class XBoardAI extends ChessAI {
 	protected void movePiece(int fromSqi, int toSqi, boolean otherPlayer) {
 		// we only send the move if it's the other player doing the move
 		if (otherPlayer) {
-			String move = Chess.sqiToStr(fromSqi) + Chess.sqiToStr(toSqi); 
+			String move = Chess.sqiToStr(fromSqi) + Chess.sqiToStr(toSqi);
 			io.writeLine(move);
 		}
 	}
@@ -163,7 +156,7 @@ public class XBoardAI extends ChessAI {
 		long totalSecs = timeControl.getTotalTime() / 1000;
 		long secs = totalSecs % 60;
 		long mins = totalSecs / 60;
-		
+
 		switch (timeControl.getControlType()) {
 		case MOVE_IN:
 			io.writeLine("st " + totalSecs);

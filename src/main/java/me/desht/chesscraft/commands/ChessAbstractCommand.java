@@ -1,26 +1,8 @@
 package me.desht.chesscraft.commands;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
 import chesspresso.Chess;
-
 import me.desht.chesscraft.DirectoryStructure;
-import me.desht.chesscraft.chess.BoardStyle;
-import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.chess.BoardViewManager;
-import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.chess.ChessGameManager;
+import me.desht.chesscraft.chess.*;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
 import me.desht.chesscraft.chess.pieces.ChessSet;
@@ -28,6 +10,13 @@ import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.commands.AbstractCommand;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
+import java.io.File;
+import java.util.*;
 
 public abstract class ChessAbstractCommand extends AbstractCommand {
 

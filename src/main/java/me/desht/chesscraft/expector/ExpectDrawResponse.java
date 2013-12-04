@@ -4,7 +4,6 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

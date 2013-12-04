@@ -4,13 +4,11 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
-import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -52,7 +50,7 @@ public class TeleportCommand extends ChessAbstractCommand {
 			if (args.length == 0) {
 				// set global teleport-out location
 				BoardViewManager.getManager().setGlobalTeleportOutDest(player.getLocation());
-				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.globalTeleportSet")); 
+				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.globalTeleportSet"));
 			} else {
 				// set per-board teleport-out location
 				BoardView bv = BoardViewManager.getManager().getBoardView(args[0]);

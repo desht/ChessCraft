@@ -3,7 +3,6 @@ package me.desht.chesscraft.expector;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.dhutils.responsehandler.ExpectBase;
-
 import org.bukkit.Bukkit;
 
 public class ExpectInvitePlayer extends ExpectBase {

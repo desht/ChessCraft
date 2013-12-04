@@ -1,17 +1,16 @@
 package me.desht.chesscraft.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class JoinCommand extends ChessAbstractCommand {
 

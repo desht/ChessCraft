@@ -1,31 +1,29 @@
 package me.desht.chesscraft.chess;
 
+import com.google.common.base.Joiner;
+import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.MiscUtil;
+import org.bukkit.configuration.Configuration;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MiscUtil;
-
-import org.bukkit.configuration.Configuration;
-
-import com.google.common.base.Joiner;
-
 public class TimeControlDefs {
 	private static final String TIME_CONTROLS_FILE = "timecontrols.yml";
-	
+
 	private static List<TCDef> baseDefs;
-	
+
 	private int idx;
 	private final List<TCDef> allDefs;
 	private final List<TCDef> extraDefs;
-	
+
 	public static void loadBaseDefs() {
 		baseDefs = new ArrayList<TimeControlDefs.TCDef>();
-		
+
 		File f = new File(ChessCraft.getInstance().getDataFolder(), TIME_CONTROLS_FILE);
 		Configuration c;
 		try {
@@ -58,11 +56,11 @@ public class TimeControlDefs {
 			}
 		}
 	}
-	
+
 	public TimeControlDefs() {
 		if (baseDefs == null)
 			loadBaseDefs();
-		
+
 		idx = 0;
 		allDefs = new ArrayList<TCDef>(baseDefs);
 		extraDefs = new ArrayList<TCDef>();
@@ -90,7 +88,7 @@ public class TimeControlDefs {
 				return;
 			}
 		}
-		
+
 		TCDef tcd = new TCDef("Custom;" + customSpec, customSpec);
 		allDefs.add(tcd);
 		extraDefs.add(tcd);
@@ -99,7 +97,7 @@ public class TimeControlDefs {
 
 	/**
 	 * Get the next time control definition in the list, wrapping round at the end of the list.
-	 * 
+	 *
 	 * @return
 	 */
 	public TCDef nextDef() {
@@ -112,7 +110,7 @@ public class TimeControlDefs {
 		}
 		return allDefs.get(idx);
 	}
-	
+
 	/**
 	 * Get the previous time control definition in the list, wrapping round at the start of the list.
 	 * @return
@@ -127,7 +125,7 @@ public class TimeControlDefs {
 		}
 		return allDefs.get(idx);
 	}
-	
+
 	public TCDef currentDef() {
 		if (allDefs.isEmpty()) {
 			return new TCDef("None", "None");
@@ -139,11 +137,11 @@ public class TimeControlDefs {
 		}
 		return allDefs.get(idx);
 	}
-	
+
 	public static class TCDef {
 		private final String[] label;
 		private final String spec;
-		
+
 		public TCDef(String label, String spec) {
 			this.label = label.split(";");
 			this.spec = spec;
@@ -152,7 +150,7 @@ public class TimeControlDefs {
 			}
 			new TimeControl(spec);	// ensure the spec. is valid
 		}
-		
+
 		public String getSpec() {
 			return spec;
 		}
@@ -160,11 +158,11 @@ public class TimeControlDefs {
 		public String[] getLabel() {
 			return label;
 		}
-		
+
 		public TimeControl createTimeControl() {
 			return new TimeControl(spec);
 		}
-		
+
 		@Override
 		public String toString() {
 			return "TCDef[label='" + Joiner.on(";").join(label) + "' spec='" + spec + "']";

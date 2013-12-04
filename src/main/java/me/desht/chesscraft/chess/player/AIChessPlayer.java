@@ -1,5 +1,8 @@
 package me.desht.chesscraft.chess.player;
 
+import chesspresso.Chess;
+import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
@@ -11,9 +14,6 @@ import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
-import chesspresso.Chess;
-import chesspresso.move.IllegalMoveException;
-import chesspresso.move.Move;
 
 public class AIChessPlayer extends ChessPlayer {
 

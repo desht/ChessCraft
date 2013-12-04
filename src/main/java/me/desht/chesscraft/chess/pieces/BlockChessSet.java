@@ -6,26 +6,23 @@
  */
 package me.desht.chesscraft.chess.pieces;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import chesspresso.Chess;
+import chesspresso.position.Position;
+import com.google.common.base.Joiner;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.block.MaterialWithData;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 
-import chesspresso.Chess;
-import chesspresso.position.Position;
-
-import com.google.common.base.Joiner;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class BlockChessSet extends ChessSet {
 

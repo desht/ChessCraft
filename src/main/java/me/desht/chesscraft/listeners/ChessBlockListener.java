@@ -3,18 +3,9 @@ package me.desht.chesscraft.listeners;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
-
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFormEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -96,7 +87,7 @@ public class ChessBlockListener extends ChessListenerBase {
 
 	/**
 	 * Cancelling liquid flow events makes it possible to use water & lava for walls & chess pieces.
-	 * 
+	 *
 	 * @param event
 	 */
 	@EventHandler(ignoreCancelled = true)
@@ -111,7 +102,7 @@ public class ChessBlockListener extends ChessListenerBase {
 	/**
 	 * Snow doesn't usually form on chessboards due to the high light level.  But if the light level
 	 * is dimmed, we might see boards getting covered.
-	 * 
+	 *
 	 * @param event
 	 */
 	@EventHandler(ignoreCancelled = true)

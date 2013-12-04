@@ -1,15 +1,12 @@
 package me.desht.chesscraft.chess;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import chesspresso.Chess;
+import chesspresso.game.Game;
+import chesspresso.move.IllegalMoveException;
+import chesspresso.move.Move;
+import chesspresso.pgn.PGN;
+import chesspresso.pgn.PGNWriter;
+import chesspresso.position.Position;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessPersistable;
 import me.desht.chesscraft.DirectoryStructure;
@@ -31,7 +28,6 @@ import me.desht.dhutils.Duration;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -42,13 +38,15 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
-import chesspresso.Chess;
-import chesspresso.game.Game;
-import chesspresso.move.IllegalMoveException;
-import chesspresso.move.Move;
-import chesspresso.pgn.PGN;
-import chesspresso.pgn.PGNWriter;
-import chesspresso.position.Position;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author des

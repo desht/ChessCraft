@@ -1,7 +1,6 @@
 package me.desht.chesscraft.event;
 
 import me.desht.chesscraft.chess.BoardView;
-
 import org.bukkit.event.HandlerList;
 
 public class ChessBoardDeletedEvent extends ChessBoardEvent {

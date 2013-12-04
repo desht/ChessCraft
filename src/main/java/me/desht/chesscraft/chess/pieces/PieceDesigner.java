@@ -1,24 +1,22 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import chesspresso.Chess;
+import me.desht.chesscraft.chess.BoardStyle;
+import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.block.MaterialWithData;
+import me.desht.dhutils.cuboid.Cuboid;
+import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import chesspresso.Chess;
-
-import me.desht.dhutils.block.MaterialWithData;
-import me.desht.chesscraft.chess.BoardStyle;
-import me.desht.chesscraft.chess.BoardView;
-import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.cuboid.Cuboid;
-import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class PieceDesigner {
 	private final BoardView view;

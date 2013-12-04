@@ -1,10 +1,9 @@
 package me.desht.chesscraft.results;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.chesscraft.results.ResultEntry;
 
 /**
- * 
+ *
  * Implements a sort-of-ELO ladder.  Similar algorithm for adjusting player scores.
  *
  */
@@ -21,7 +20,7 @@ public class Ladder extends ResultViewBase {
 
 	/**
 	 * Add one result to the ladder.
-	 * 
+	 *
 	 * @param re	The ResultEntry to add
 	 */
 	@Override
@@ -53,7 +52,7 @@ public class Ladder extends ResultViewBase {
 	/**
 	 * Calculate win probability based on ratings difference.
 	 * Taken from FIDE handbook, section 8.0.
-	 * 
+	 *
 	 * @param diff	Ratings difference
 	 * @return		Win probability for higher-rated player
 	 */

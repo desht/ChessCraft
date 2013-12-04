@@ -1,7 +1,6 @@
 package me.desht.chesscraft.event;
 
 import me.desht.chesscraft.chess.ChessGame;
-
 import org.bukkit.event.HandlerList;
 
 public class ChessGameStateChangedEvent extends ChessGameEvent {

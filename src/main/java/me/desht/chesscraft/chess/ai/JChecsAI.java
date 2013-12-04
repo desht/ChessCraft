@@ -1,24 +1,18 @@
 package me.desht.chesscraft.chess.ai;
 
+import fr.free.jchecs.ai.Engine;
+import fr.free.jchecs.ai.EngineFactory;
+import fr.free.jchecs.core.*;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
-
 import org.bukkit.configuration.ConfigurationSection;
-
-import fr.free.jchecs.ai.Engine;
-import fr.free.jchecs.ai.EngineFactory;
-import fr.free.jchecs.core.Game;
-import fr.free.jchecs.core.Move;
-import fr.free.jchecs.core.MoveGenerator;
-import fr.free.jchecs.core.Player;
-import fr.free.jchecs.core.Square;
 
 /**
  * @author des
- * 
+ *
  */
 public class JChecsAI extends ChessAI {
 
@@ -34,7 +28,7 @@ public class JChecsAI extends ChessAI {
 
 	/**
 	 * Initialise the jChecs Game object.
-	 * 
+	 *
 	 * @return
 	 */
 	private Game initGame() {

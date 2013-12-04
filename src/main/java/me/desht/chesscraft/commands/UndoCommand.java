@@ -2,7 +2,6 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 

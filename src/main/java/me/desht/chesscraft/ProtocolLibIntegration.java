@@ -1,16 +1,14 @@
 package me.desht.chesscraft;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import me.desht.chesscraft.chess.BoardViewManager;
-
-import org.bukkit.Location;
-
 import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import me.desht.chesscraft.chess.BoardViewManager;
+import org.bukkit.Location;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProtocolLibIntegration {
 	private static Pattern soundPat = Pattern.compile("mob\\.[a-z]+\\.(say|idle|bark)$");

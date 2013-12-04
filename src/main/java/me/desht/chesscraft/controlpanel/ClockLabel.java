@@ -1,9 +1,9 @@
 package me.desht.chesscraft.controlpanel;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.util.ChessUtils;
-import chesspresso.Chess;
 
 public class ClockLabel extends AbstractSignLabel {
 

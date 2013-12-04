@@ -1,23 +1,20 @@
 package me.desht.chesscraft.chess.pieces;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import chesspresso.Chess;
+import chesspresso.position.Position;
+import com.google.common.base.Joiner;
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 
-import chesspresso.Chess;
-import chesspresso.position.Position;
-
-import com.google.common.base.Joiner;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author des

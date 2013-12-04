@@ -6,11 +6,6 @@
  */
 package me.desht.chesscraft.chess;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.DirectoryStructure;
@@ -18,14 +13,14 @@ import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.ChessSetFactory;
 import me.desht.chesscraft.enums.HighlightStyle;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.AttributeCollection;
-import me.desht.dhutils.ConfigurationListener;
-import me.desht.dhutils.ConfigurationManager;
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.*;
 import me.desht.dhutils.block.MaterialWithData;
-
 import org.bukkit.configuration.Configuration;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener {
 	public static final String DEFAULT_BOARD_STYLE = "standard";
@@ -55,7 +50,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 	/**
 	 * Private constructor.  Use {@link #loadStyle(String)} to get new BoardStyle objects.
-	 * 
+	 *
 	 * @param styleName name of this board style
 	 * @param c configuration object which stores this board style
 	 * @param isCustom true if this is a custom-created board style, false if it is a stock style
@@ -246,7 +241,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 	/**
 	 * Load a new style.
-	 * 
+	 *
 	 * @param styleName		Name of the style to load
 	 * @return				The new loaded style
 	 * @throws ChessException
@@ -269,7 +264,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 
 	/**
 	 * Ensure the given piece style will fit on the given board style.
-	 * 
+	 *
 	 * @param boardStyleName	name of the board style
 	 * @param pieceStyleName	name of the piece style (null means to use board's default piece style)
 	 * @throws ChessException	if the piece style will not fit

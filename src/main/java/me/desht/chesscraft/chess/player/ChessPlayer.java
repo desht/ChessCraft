@@ -1,8 +1,8 @@
 package me.desht.chesscraft.chess.player;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
-import chesspresso.Chess;
 
 public abstract class ChessPlayer {
 	private final String name;

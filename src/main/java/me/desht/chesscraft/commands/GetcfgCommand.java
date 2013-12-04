@@ -1,21 +1,16 @@
 package me.desht.chesscraft.commands;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
+
+import java.util.*;
 
 public class GetcfgCommand extends ChessAbstractCommand {
 
@@ -37,7 +32,7 @@ public class GetcfgCommand extends ChessAbstractCommand {
 		} else if (lines.size() == 1) {
 			MiscUtil.statusMessage(player, lines.get(0));
 		} else {
-			MiscUtil.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[0])); //$NON-NLS-1$	
+			MiscUtil.errorMessage(player, Messages.getString("ChessConfig.noSuchKey", args[0])); //$NON-NLS-1$
 		}
 		return true;
 	}
@@ -73,7 +68,7 @@ public class GetcfgCommand extends ChessAbstractCommand {
 		Collections.sort(res);
 		return res;
 	}
-	
+
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
 		switch (args.length) {

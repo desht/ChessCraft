@@ -1,14 +1,13 @@
 package me.desht.chesscraft.commands;
 
-import java.util.List;
-
 import me.desht.chesscraft.chess.BoardStyle;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.dhutils.MessagePager;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+
+import java.util.List;
 
 public class ListStylesCommand extends ChessAbstractCommand {
 

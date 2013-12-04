@@ -1,8 +1,8 @@
 package me.desht.chesscraft.results;
 
-import java.sql.SQLException;
-
 import me.desht.dhutils.LogUtils;
+
+import java.sql.SQLException;
 
 public class DatabaseUpdaterTask implements Runnable {
 

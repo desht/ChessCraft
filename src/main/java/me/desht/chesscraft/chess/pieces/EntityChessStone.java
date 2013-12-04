@@ -1,5 +1,6 @@
 package me.desht.chesscraft.chess.pieces;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.LogUtils;
@@ -7,30 +8,16 @@ import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
-
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Ocelot;
-import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Skeleton.SkeletonType;
-import org.bukkit.entity.Slime;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-
-import chesspresso.Chess;
 
 public class EntityChessStone extends ChessStone {
 

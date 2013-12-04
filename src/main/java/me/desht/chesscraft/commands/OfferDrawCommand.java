@@ -3,7 +3,6 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 

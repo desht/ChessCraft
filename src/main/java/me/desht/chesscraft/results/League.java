@@ -1,8 +1,7 @@
 package me.desht.chesscraft.results;
 
-import org.bukkit.configuration.Configuration;
-
 import me.desht.chesscraft.ChessCraft;
+import org.bukkit.configuration.Configuration;
 
 public class League extends ResultViewBase {
 

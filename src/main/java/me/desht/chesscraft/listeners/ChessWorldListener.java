@@ -4,7 +4,6 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.dhutils.LogUtils;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;

@@ -4,7 +4,6 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.util.ChessUtils;
-
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 

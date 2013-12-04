@@ -1,15 +1,14 @@
 package me.desht.chesscraft.controlpanel;
 
-import org.bukkit.event.player.PlayerInteractEvent;
-
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.util.ChessUtils;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public abstract class PromoteButton extends AbstractSignButton {
 
 	private final int colour;
-	
+
 	public PromoteButton(ControlPanel panel, String labelKey, String permissionNode, int x, int y, int colour) {
 		super(panel, labelKey, permissionNode, x, y);
 		this.colour = colour;
@@ -20,7 +19,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 		int playerColour = getGame().getPlayerColour(event.getPlayer().getName());
 		if (playerColour != colour)
 			return;
-		
+
 		ChessPlayer p = getGame().getPlayer(playerColour);
 		if (p != null) {
 			p.cyclePromotionPiece();
@@ -40,7 +39,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 		ChessGame game = getGame();
 		return game != null && !game.getPlayerName(colour).isEmpty();
 	}
-	
+
 	private String getPromoStr() {
 		if (getGame() == null) {
 			return "";

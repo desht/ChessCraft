@@ -1,16 +1,12 @@
 package me.desht.chesscraft.results;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-
+import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.dhutils.LogUtils;
-import chesspresso.Chess;
+
+import java.sql.*;
 
 public class ResultEntry implements DatabaseSavable {
 
