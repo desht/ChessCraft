@@ -83,6 +83,7 @@ public class ChessPersistence {
 		}
 
 		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
+			LogUtils.finer("repainting controls for board " + bv.getName());
 			bv.getControlPanel().repaintControls();
 		}
 
@@ -117,7 +118,7 @@ public class ChessPersistence {
 
 	/**
 	 * Load one board file, plus the game on that board, if there is one.
-	 * 
+	 *
 	 * @param f
 	 * @return
 	 */

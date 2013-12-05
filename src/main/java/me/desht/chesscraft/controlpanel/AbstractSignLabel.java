@@ -96,7 +96,7 @@ public abstract class AbstractSignLabel {
 	/**
 	 * Override this in subclasses if the button/label needs some special
 	 * processing to display its text.
-	 * 
+	 *
 	 * @return
 	 */
 	protected String[] getCustomSignText() {
@@ -106,6 +106,7 @@ public abstract class AbstractSignLabel {
 	public void repaint() {
 		Block block = loc.getBlock();
 
+		LogUtils.finer("about to repaint sign: " + block);
 		byte data = getSignDirection();
 		if (block.getType() != Material.WALL_SIGN || block.getData() != data) {
 			MaterialWithData.get("wall_sign:" + data).applyToBlock(block);
