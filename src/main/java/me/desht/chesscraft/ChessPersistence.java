@@ -82,6 +82,7 @@ public class ChessPersistence {
 		}
 
 		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
+			LogUtils.finer("repainting controls for board " + bv.getName());
 			bv.getControlPanel().repaintControls();
 		}
 
