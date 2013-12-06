@@ -138,7 +138,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			dynmapIntegration.setActive(true);
 		}
 		if (isProtocolLibEnabled()) {
-			ProtocolLibIntegration.registerPlibPacketHandler(this);
+			ProtocolLibIntegration.registerPacketHandler(this);
+			ProtocolLibIntegration.setEntityVolume(getConfig().getDouble("entity_volume"));
 		}
 		tickTask.start(20L);
 
@@ -434,6 +435,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
 				bv.defaultTimeControlChanged();
 			}
+		} else if (key.equals("entity_volume") && isProtocolLibEnabled()) {
+			ProtocolLibIntegration.setEntityVolume((Double) newVal);
 		}
 	}
 
