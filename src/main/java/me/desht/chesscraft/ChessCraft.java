@@ -428,6 +428,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		} else if (key.startsWith("dynmap.") && dynmapIntegration != null) {
 			dynmapIntegration.processConfig();
 			dynmapIntegration.setActive(dynmapIntegration.isEnabled());
+		} else if (key.equals("time_control.default")) {
+			// force any board which doesn't have a specific time control to update
+			// its time control button to the new global default
+			for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
+				bv.defaultTimeControlChanged();
+			}
 		}
 	}
 

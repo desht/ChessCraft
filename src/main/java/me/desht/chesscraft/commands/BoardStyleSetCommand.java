@@ -25,6 +25,7 @@ public class BoardStyleSetCommand extends ChessAbstractCommand {
 		super("chess board set", 2);
 		setPermissionNode("chesscraft.commands.board.set");
 		setUsage("/chess board set <attribute> <value> [<attribute> <value>...]");
+		setQuotedArgs(true);
 	}
 
 	@Override

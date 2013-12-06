@@ -675,16 +675,19 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equals(DEFAULT_TC) && getControlPanel() != null) {
-			String spec = newVal.toString();
-			if (spec.isEmpty())
-				spec = ChessCraft.getInstance().getConfig().getString("time_control.default");
-			getControlPanel().getTcDefs().addCustomSpec(spec);
-			getControlPanel().getSignButton(TimeControlButton.class).repaint();
+			getControlPanel().setTimeControl(newVal.toString());
 		} else if (key.equals(BOARD_STYLE) && chessBoard != null) {
 			chessBoard.setBoardStyle(newVal.toString());
 		} else if (key.equals(OVERRIDE_PIECE_STYLE) && chessBoard != null) {
 			chessBoard.setChessSet(newVal.toString());
 			chessBoard.getChessSet().syncToPosition(getGame() == null ? null : getGame().getPosition(), chessBoard);
+		}
+	}
+
+	public void defaultTimeControlChanged() {
+		String spec = (String) getAttributes().get(DEFAULT_TC);
+		if (spec.isEmpty()) {
+			getControlPanel().setTimeControl("");
 		}
 	}
 }

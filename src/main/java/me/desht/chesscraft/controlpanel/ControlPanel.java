@@ -1,6 +1,7 @@
 package me.desht.chesscraft.controlpanel;
 
 import chesspresso.Chess;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
@@ -44,6 +45,8 @@ public class ControlPanel {
 
 		createSignButtons();
 
+		setTimeControl(getView().getDefaultTcSpec());
+
 		plyCountLabel = new PlyCountLabel(this);
 		halfMoveClockLabel = new HalfmoveClockLabel(this);
 		clockLabels = new ClockLabel[2];
@@ -79,6 +82,14 @@ public class ControlPanel {
 	private void createSignButton(AbstractSignButton button) {
 		buttonLocs.put(button.getLocation(), button);
 		buttonNames.put(button.getClass().getSimpleName(), button);
+	}
+
+	public void setTimeControl(String spec) {
+		if (spec.isEmpty()) {
+			spec = ChessCraft.getInstance().getConfig().getString("time_control.default");
+		}
+		getTcDefs().addCustomSpec(spec);
+		getSignButton(TimeControlButton.class).repaint();
 	}
 
 	public BoardView getView() {
