@@ -46,10 +46,15 @@
             <id>dynmap-repo</id>
             <url>http://repo.mikeprimm.com</url>
         </repository>
-        <repository>
+        <!--<repository>
 	    <id>DH Dropbox</id>
 	    <url>http://dl.dropboxusercontent.com/u/12467600/maven-repo</url>
-	</repository>
+	</repository>-->
+        <repository>
+            <id>hawkfalcon-repo</id>
+            <name>Hawkfalcon Repository</name>
+            <url>http://ci.hawkfalcon.com/plugin/repository/everything</url>
+        </repository>
         <repository>
             <id>citizens-repo</id>
             <url>http://ci.citizensnpcs.co/plugin/repository/everything</url>
@@ -113,6 +118,7 @@
                                         <exclude>me/desht/dhutils/ItemGlow*</exclude>
                                         <exclude>me/desht/dhutils/ItemMessage*</exclude>
                                         <exclude>me/desht/dhutils/ItemNames*</exclude>
+                                        <exclude>me/desht/dhutils/MapUtil*</exclude>
                                         <exclude>me/desht/dhutils/repo/*</exclude>
                                         <exclude>me/desht/dhutils/TextMarkup*</exclude>
                                     </excludes>
@@ -193,7 +199,7 @@
         <dependency>
             <groupId>me.desht</groupId>
             <artifactId>dhutils-lib</artifactId>
-            <version>2.9.1-SNAPSHOT</version>
+            <version>2.9.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.mcstats.bukkit</groupId>
