@@ -5,6 +5,7 @@ import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.enums.GameState;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.MaterialWithData;
@@ -96,7 +97,7 @@ public abstract class AbstractSignLabel {
 	 * Override this in subclasses if the button/label needs some special
 	 * processing to display its text.
 	 *
-	 * @return
+	 * @return a 4-element string array representing the sign's text
 	 */
 	protected String[] getCustomSignText() {
 		return null;
@@ -105,7 +106,7 @@ public abstract class AbstractSignLabel {
 	public void repaint() {
 		Block block = loc.getBlock();
 
-		LogUtils.finer("about to repaint sign: " + block);
+		Debugger.getInstance().debug(3, "about to repaint control panel sign: " + block + " on board " + getView().getName());
 		byte data = getSignDirection();
 		if (block.getType() != Material.WALL_SIGN || block.getData() != data) {
 			MaterialWithData.get("wall_sign:" + data).applyToBlock(block);

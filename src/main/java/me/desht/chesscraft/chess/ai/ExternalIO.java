@@ -1,5 +1,6 @@
 package me.desht.chesscraft.chess.ai;
 
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 
 import java.io.*;
@@ -41,13 +42,13 @@ public class ExternalIO {
 
 	public String readLine() throws IOException {
 		String string = reader.readLine();
-		LogUtils.fine("ExternalIO: " + command + ": read [" + string + "]");
+		Debugger.getInstance().debug("ExternalIO: " + command + ": read [" + string + "]");
 		return string;
 	}
 
 	public void writeLine(String string) {
 		writer.println(string);
-		LogUtils.fine("ExternalIO: " + command + ": wrote [" +string + "]");
+		Debugger.getInstance().debug("ExternalIO: " + command + ": wrote [" +string + "]");
 	}
 
 	public void restart() {

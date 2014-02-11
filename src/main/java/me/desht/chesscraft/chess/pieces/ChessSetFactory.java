@@ -4,7 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.configuration.Configuration;
 
@@ -28,8 +28,8 @@ public class ChessSetFactory {
 	/**
 	 * Check if the given set is loaded.
 	 *
-	 * @param setName
-	 * @return
+	 * @param setName the set name to check
+	 * @return true if the set if loaded
 	 */
 	public static boolean isLoaded(String setName) {
 		return allChessSets.containsKey(setName);
@@ -38,9 +38,9 @@ public class ChessSetFactory {
 	/**
 	 * Retrieve a chess set with the given name, loading it from file if necessary.
 	 *
-	 * @param setName
-	 * @return
-	 * @throws ChessException
+	 * @param setName name of the set to get
+	 * @return the chess set
+	 * @throws ChessException if the set could not be loaded for some reason
 	 */
 	public static ChessSet getChessSet(String setName) throws ChessException {
 		setName = setName.toLowerCase();
@@ -77,7 +77,7 @@ public class ChessSetFactory {
 			} else {
 				throw new ChessException("Invalid chess set type '" + c.getString("type") + "' in " + f);
 			}
-			LogUtils.fine("loaded chess set '" + set.getName() + "' from " + f);
+			Debugger.getInstance().debug("loaded chess set '" + set.getName() + "' from " + f);
 			if (!set.hasMovablePieces()) {
 				// sets with movable pieces can't be cached, since each board will need its own copy of the set
 				// (the set will be tracking the position of each piece)

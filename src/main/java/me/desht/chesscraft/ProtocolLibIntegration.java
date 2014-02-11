@@ -27,7 +27,7 @@ public class ProtocolLibIntegration {
 						Location loc = new Location(event.getPlayer().getWorld(), x, y, z);
 						if (BoardViewManager.getManager().partOfChessBoard(loc) != null) {
 							if (soundName.startsWith("mob.") || soundName.equals("fire.fire")) {
-//							LogUtils.finer("cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
+//							Debugger.getInstance().debug(2, "cancel sound " + soundName + " -> " + event.getPlayer().getName() + " @ " + loc);
 								if (entityVolume == 0.0) {
 									event.setCancelled(true);
 								} else {

@@ -5,6 +5,7 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PersistableLocation;
@@ -82,11 +83,11 @@ public class ChessPersistence {
 		}
 
 		for (BoardView bv : BoardViewManager.getManager().listBoardViews()) {
-			LogUtils.finer("repainting controls for board " + bv.getName());
+			Debugger.getInstance().debug(2, "repainting controls for board " + bv.getName());
 			bv.getControlPanel().repaintControls();
 		}
 
-		LogUtils.fine("loaded " + nLoaded + " saved boards.");
+		Debugger.getInstance().debug("loaded " + nLoaded + " saved boards.");
 
 		// load other misc data which isn't tied to any board or game
 		File persistFile = DirectoryStructure.getPersistFile();
@@ -118,11 +119,11 @@ public class ChessPersistence {
 	/**
 	 * Load one board file, plus the game on that board, if there is one.
 	 *
-	 * @param f
-	 * @return
+	 * @param f the file to load from
+	 * @return true if the board was loaded, false otherwise
 	 */
 	public boolean loadBoard(File f) {
-		LogUtils.fine("loading board: " + f);
+		Debugger.getInstance().debug("loading board: " + f);
 		try {
 			Configuration conf = MiscUtil.loadYamlUTF8(f);
 
@@ -158,7 +159,7 @@ public class ChessPersistence {
 	}
 
 	private boolean loadGame(File f) {
-		LogUtils.fine("loading game: " + f);
+		Debugger.getInstance().debug("loading game: " + f);
 		try {
 			Configuration conf = MiscUtil.loadYamlUTF8(f);
 			ChessGame game = null;

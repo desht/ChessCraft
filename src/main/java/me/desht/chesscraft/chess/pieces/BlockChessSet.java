@@ -13,7 +13,7 @@ import me.desht.chesscraft.ChessPersistence;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.block.MaterialWithData;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
@@ -183,7 +183,7 @@ public class BlockChessSet extends ChessSet {
 			String w = e.getValue().toString();
 			String b = materialMapBlack.get(e.getKey()).toString();
 			if (!w.equals(b)) {
-				LogUtils.finer("ChessSet: " + getName() + ": add white->black material map: " + w + "->" + b);
+				Debugger.getInstance().debug(2, "ChessSet: " + getName() + ": add white->black material map: " + w + "->" + b);
 				res.put(w, b);
 			}
 		}

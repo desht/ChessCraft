@@ -6,7 +6,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.ChessBoard;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import org.bukkit.Location;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -114,7 +114,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 
 		try {
 			conf.save(f);
-			LogUtils.fine("saved " + getType() + " chess set '" + getName() + "' to " + f);
+			Debugger.getInstance().debug("saved " + getType() + " chess set '" + getName() + "' to " + f);
 		} catch (IOException e) {
 			throw new ChessException(e.getMessage());
 		}

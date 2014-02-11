@@ -6,6 +6,7 @@ import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.event.*;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.cuboid.Cuboid;
 import org.bukkit.Location;
@@ -54,7 +55,7 @@ public class DynmapIntegration implements Listener {
 	}
 
 	public void triggerUpdate(Cuboid c) {
-		LogUtils.finer("dynmap: triggering render of " + c);
+		Debugger.getInstance().debug(2, "dynmap: triggering render of " + c);
 		dynmap.triggerRenderOfVolume(c.getLowerNE(), c.getUpperSW());
 	}
 
@@ -73,13 +74,13 @@ public class DynmapIntegration implements Listener {
 	/**
 	 * Activate or deactivate dynmap integration.
 	 *
-	 * @param newActive
+	 * @param newActive the new active integration state
 	 */
 	public void setActive(boolean newActive) {
 		if (active == newActive) {
 			return;
 		}
-		LogUtils.fine("dynmap integration activation: " + active + " -> " + newActive);
+		Debugger.getInstance().debug("dynmap integration activation: " + active + " -> " + newActive);
 		active = newActive;
 		if (active)	{
 			// activate

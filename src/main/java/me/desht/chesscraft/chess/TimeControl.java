@@ -3,6 +3,7 @@ package me.desht.chesscraft.chess;
 import com.google.common.base.Joiner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -193,8 +194,8 @@ public class TimeControl implements ConfigurationSerializable {
 			break;
 		case ROLLOVER:
 			rolloverMovesMade++;
-			LogUtils.fine("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
-			LogUtils.fine("need " + rollovers.get(rolloverPhase).getMoves());
+			Debugger.getInstance().debug("moves made = " + rolloverMovesMade + ", phase = " + rolloverPhase);
+			Debugger.getInstance().debug("need " + rollovers.get(rolloverPhase).getMoves());
 			if (rolloverMovesMade == rollovers.get(rolloverPhase).getMoves()) {
 				rolloverMovesMade = 0;
 				rolloverPhase = (rolloverPhase + 1) % rollovers.size();

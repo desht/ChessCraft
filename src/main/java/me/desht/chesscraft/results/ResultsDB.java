@@ -3,6 +3,7 @@ package me.desht.chesscraft.results;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
@@ -37,7 +38,7 @@ public class ResultsDB {
 		}
 		setupTablesCommon();
 		checkForOldFormatData();
-		LogUtils.fine("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
+		Debugger.getInstance().debug("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
 	}
 
 	void shutdown() {
@@ -45,7 +46,7 @@ public class ResultsDB {
 			if (!connection.getAutoCommit()) {
 				connection.rollback();
 			}
-			LogUtils.fine("Closing DB connection to " + connection.getMetaData().getDatabaseProductName());
+			Debugger.getInstance().debug("Closing DB connection to " + connection.getMetaData().getDatabaseProductName());
 			connection.close();
 		} catch (SQLException e) {
 			LogUtils.warning("can't cleanly shut down DB connection: " + e.getMessage());

@@ -6,6 +6,7 @@ import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.player.ChessPlayer;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -185,7 +186,7 @@ public abstract class ChessAI implements Runnable {
 
 		this.active = active;
 
-		LogUtils.fine(gameDetails + "active => " + active);
+		Debugger.getInstance().debug(gameDetails + "active => " + active);
 
 		if (active) {
 			startThinking();
@@ -210,7 +211,7 @@ public abstract class ChessAI implements Runnable {
 
 		try {
 			movePiece(fromSqi, toSqi, true);
-			LogUtils.fine(gameDetails + "userHasMoved: " + fromSqi + "->" + toSqi);
+			Debugger.getInstance().debug(gameDetails + "userHasMoved: " + fromSqi + "->" + toSqi);
 		} catch (Exception e) {
 			// oops
 			aiHasFailed(e);
@@ -233,7 +234,7 @@ public abstract class ChessAI implements Runnable {
 			movePiece(from, to, !active);
 			active = !active;
 		}
-		LogUtils.fine(gameDetails + "ChessAI: replayed " + moves.size() + " moves: AI to move = " + active);
+		Debugger.getInstance().debug(gameDetails + "ChessAI: replayed " + moves.size() + " moves: AI to move = " + active);
 		if (active) {
 			startThinking();
 		}
@@ -254,7 +255,7 @@ public abstract class ChessAI implements Runnable {
 	 */
 	private void stopThinking() {
 		if (Bukkit.getScheduler().isCurrentlyRunning(aiTask.getTaskId())) {
-			LogUtils.fine(gameDetails + "forcing shutdown for AI task #" + aiTask);
+			Debugger.getInstance().debug(gameDetails + "forcing shutdown for AI task #" + aiTask);
 			aiTask.cancel();
 		}
 		aiTask = null;
@@ -280,7 +281,7 @@ public abstract class ChessAI implements Runnable {
 
 		setActive(false);
 		movePiece(fromSqi, toSqi, false);
-		LogUtils.fine(gameDetails + "aiHasMoved: " + fromSqi + "->" + toSqi);
+		Debugger.getInstance().debug(gameDetails + "aiHasMoved: " + fromSqi + "->" + toSqi);
 
 		// Moving directly isn't thread-safe: we'd end up altering the Minecraft world from a separate thread,
 		// which is Very Bad.  So we just note the move made now, and let the ChessGame object check for it on

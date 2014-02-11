@@ -1,7 +1,7 @@
 package me.desht.chesscraft.chess.pieces;
 
 import me.desht.chesscraft.ChessCraft;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import net.citizensnpcs.api.ai.event.NavigationCompleteEvent;
 import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
@@ -28,7 +28,7 @@ public class ChessPieceTrait extends Trait {
 	@EventHandler
 	public void onNavigationCompleted(NavigationCompleteEvent event) {
 		if (event.getNPC() == getNPC()) {
-			LogUtils.fine("navigation completed for " + event.getNPC().getFullName() + ", NPC id " + event.getNPC().getId());
+			Debugger.getInstance().debug("navigation completed for " + event.getNPC().getFullName() + ", NPC id " + event.getNPC().getId());
 
 			if (capturingTarget != null && capturingTarget.getBukkitEntity() != null) {
 				capturingTarget.getBukkitEntity().setVelocity(new Vector(0.0, 1.7, 0.0));

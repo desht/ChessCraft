@@ -2,7 +2,7 @@ package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class ChessTickTask {
 			}
 		}, initialDelay, interval);
 
-		LogUtils.fine("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
+		Debugger.getInstance().debug("ticker task initialised: interval = " + interval + " ticks, task ID = " + tickTaskId);
 	}
 
 	public void cancel() {

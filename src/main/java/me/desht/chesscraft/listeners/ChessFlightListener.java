@@ -7,8 +7,11 @@ import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
 import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.FlightController;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.cuboid.Cuboid;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -19,6 +22,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
 import java.lang.ref.WeakReference;
@@ -43,11 +48,19 @@ public class ChessFlightListener extends ChessListenerBase {
 	private boolean enabled;
 	private boolean captive;
 	private final BoardViewManager bvm;
+	private final FlightController controller;
 
 	public ChessFlightListener(ChessCraft plugin) {
 		super(plugin);
 
 		bvm = BoardViewManager.getManager();
+		controller = new FlightController(plugin);
+		controller.setControllerListener(new FlightController.OnControllerChanged() {
+			@Override
+			public void onChanged(Player player, Plugin controller) {
+				System.out.println("ChessCraft: controller changed: now " + (controller == null ? "(none)" : controller.getName()));
+			}
+		});
 		enabled = plugin.getConfig().getBoolean("flying.enabled");
 		captive = plugin.getConfig().getBoolean("flying.captive");
 	}
@@ -61,13 +74,17 @@ public class ChessFlightListener extends ChessListenerBase {
 
 		if (enabled) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				setFlightAllowed(player, bvm.getFlightRegion(player.getLocation()) != null);
+				if (bvm.getFlightRegion(player.getLocation()) != null) {
+					controller.changeFlight(player, true);
+				}
+//				setFlightAllowed(player, bvm.getFlightRegion(player.getLocation()) != null);
 			}
 		} else {
 			for (String playerName : allowedToFly.keySet()) {
 				Player player = Bukkit.getPlayerExact(playerName);
 				if (player != null) {
-					player.setAllowFlight(gameModeAllowsFlight(player));
+					controller.yieldControl(player, gameModeAllowsFlight(player));
+//					player.setAllowFlight(gameModeAllowsFlight(player));
 					// restore previous flight/walk speed
 					allowedToFly.get(playerName).restoreSpeeds();
 					MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabledByAdmin"));
@@ -119,8 +136,11 @@ public class ChessFlightListener extends ChessListenerBase {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 				@Override
 				public void run() {
-					player.setAllowFlight(true);
-					player.setFlying(isFlying);
+					if (controller.changeFlight(player, true)) {
+						player.setFlying(isFlying);
+					}
+//					player.setAllowFlight(true);
+//					player.setFlying(isFlying);
 				}
 			});
 		}
@@ -145,7 +165,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		boolean boardFlightAllowed = bvm.getFlightRegion(to) != null;
 		boolean otherFlightAllowed = gameModeAllowsFlight(player);
 
-		//		LogUtils.fine("move: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed);
+		//		Debugger.getInstance().debug("move: boardflight = " + boardFlightAllowed + " otherflight = " + otherFlightAllowed);
 		if (captive) {
 			// captive mode - if flying, prevent movement too far from a board by bouncing the
 			// player towards the centre of the board they're trying to leave
@@ -179,7 +199,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		final boolean boardFlightAllowed = bvm.getFlightRegion(event.getTo()) != null;
 		final boolean crossWorld = event.getTo().getWorld() != event.getFrom().getWorld();
 
-		LogUtils.fine("teleport: boardflight = " + boardFlightAllowed + ", crossworld = " + crossWorld);
+		Debugger.getInstance().debug("teleport: boardflight = " + boardFlightAllowed + ", crossworld = " + crossWorld);
 
 		// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
 		// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
@@ -207,7 +227,8 @@ public class ChessFlightListener extends ChessListenerBase {
 		Player player = event.getPlayer();
 		if (allowedToFly.containsKey(player.getName()) && !gameModeAllowsFlight(player) && player.isFlying()) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				if (bvm.partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null) {
+				if (bvm.partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null
+						&& !PermissionUtils.isAllowedTo(player, "chesscraft.flight.interact")) {
 					MiscUtil.errorMessage(player, Messages.getString("Flight.interactionStopped"));
 					event.setCancelled(true);
 				}
@@ -237,24 +258,35 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * virtue of creative mode, he can continue to fly even if chess board flying is being disabled.
 	 *
 	 * @param player the player
-	 * @param flying true if flight allowed, false otherwise
+	 * @param allowed true if flight allowed, false otherwise
 	 */
-	private void setFlightAllowed(final Player player, boolean flying) {
+	private void setFlightAllowed(final Player player, boolean allowed) {
 		String playerName = player.getName();
 
 		boolean currentlyAllowed = allowedToFly.containsKey(playerName);
 
-		if (flying == currentlyAllowed) {
+		if (allowed == currentlyAllowed) {
 			return;
 		}
 
-		LogUtils.fine("set chess board flight allowed " + player.getName() + " = " + flying);
+		Debugger.getInstance().debug("set chess board flight allowed " + player.getName() + " = " + allowed);
 
-		player.setAllowFlight(flying || gameModeAllowsFlight(player));
+		if (allowed) {
+			controller.changeFlight(player, true);
+		} else {
+			controller.yieldControl(player, gameModeAllowsFlight(player));
+		}
+//		player.setAllowFlight(flying || gameModeAllowsFlight(player));
+
+		// DEBUG
+		System.out.println("--- " + player.getMetadata("flight_controller_change").size() + " metadata entries");
+		for (MetadataValue value : player.getMetadata("flight_controller_change")) {
+			System.out.println("  metadata: " + value.asString() + " - from " + value.getOwningPlugin().getName());
+		}
 
 		long now = System.currentTimeMillis();
 
-		if (flying) {
+		if (allowed) {
 			allowedToFly.put(playerName, new PreviousSpeed(player));
 			player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 			player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
@@ -295,7 +327,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			}
 		}
 
-		Bukkit.getPluginManager().callEvent(new ChessPlayerFlightToggledEvent(player, flying));
+		Bukkit.getPluginManager().callEvent(new ChessPlayerFlightToggledEvent(player, allowed));
 	}
 
 	private boolean gameModeAllowsFlight(Player player) {
@@ -338,7 +370,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			player = new WeakReference<Player>(p);
 			flySpeed = p.getFlySpeed();
 			walkSpeed = p.getWalkSpeed();
-			LogUtils.fine("player " + p.getName() + ": store previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
+			Debugger.getInstance().debug("player " + p.getName() + ": store previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 
 		public void restoreSpeeds() {
@@ -347,7 +379,7 @@ public class ChessFlightListener extends ChessListenerBase {
 				return;
 			p.setFlySpeed(flySpeed);
 			p.setWalkSpeed(walkSpeed);
-			LogUtils.fine("player " + p.getName() + " restore previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
+			Debugger.getInstance().debug("player " + p.getName() + " restore previous speed: walk=" + walkSpeed + " fly=" + flySpeed);
 		}
 	}
 }

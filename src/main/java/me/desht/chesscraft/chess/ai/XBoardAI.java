@@ -8,6 +8,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.chess.TimeControl.RolloverPhase;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.Bukkit;
@@ -184,7 +185,7 @@ public class XBoardAI extends ChessAI {
 			while (!done) {
 				try {
 					String s = io.readLine();
-					LogUtils.finer("featurereader: [" + s + "]");
+					Debugger.getInstance().debug(2, "featurereader: [" + s + "]");
 					if (s.startsWith("feature ")) {
 						List<String> f = MiscUtil.splitQuotedString(s.replace("=", " "));
 						for (int i = 1; i < f.size(); i += 2) {
@@ -193,7 +194,7 @@ public class XBoardAI extends ChessAI {
 							String v = f.get(i+1);
 							features.put(k, v);
 							if (k.equals("done") && v.equals("1")) {
-								LogUtils.fine("feature reader done: " + features.size() + " features reported");
+								Debugger.getInstance().debug("feature reader done: " + features.size() + " features reported");
 								done = true;
 							}
 						}

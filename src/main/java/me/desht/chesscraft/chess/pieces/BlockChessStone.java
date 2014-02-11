@@ -2,7 +2,7 @@ package me.desht.chesscraft.chess.pieces;
 
 import chesspresso.Chess;
 import me.desht.chesscraft.enums.BoardRotation;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.block.MaterialWithData;
@@ -21,7 +21,8 @@ public class BlockChessStone extends ChessStone {
 	/**
 	 * Instantiate a new chess stone
 	 *
-	 * @param chessPieceTemplate
+	 * @param stone
+	 * @param tmpl
 	 * @param matMap
 	 * @param direction
 	 */
@@ -40,7 +41,7 @@ public class BlockChessStone extends ChessStone {
 		} else {
 			setSize(tmplX, tmplY, tmplZ);
 		}
-		LogUtils.finest("ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + getSizeX() + "," + getSizeY() + "," + getSizeZ());
+		Debugger.getInstance().debug(3, "ChessStone: tmpl size = " + tmplX + "," + tmplY + "," + tmplZ + ", stone size = " + getSizeX() + "," + getSizeY() + "," + getSizeZ());
 		pieceArray = new MaterialWithData[getSizeX()][getSizeY()][getSizeZ()];
 
 		int sx = getSizeX();
@@ -86,7 +87,7 @@ public class BlockChessStone extends ChessStone {
 		default:
 			throw new IllegalArgumentException("rotation must be 0, 90, 180 or 270");
 		}
-		LogUtils.finer("ChessStone: instantiated stone " + stone + ", rotation " + rotation);
+		Debugger.getInstance().debug(2, "ChessStone: instantiated stone " + stone + ", rotation " + rotation);
 	}
 
 	@Override

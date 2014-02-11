@@ -5,6 +5,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import org.bukkit.Bukkit;
 
@@ -187,7 +188,7 @@ public class Results {
 						entries.add(e);
 					}
 					rebuildViews();
-					LogUtils.fine("Results data loaded from database");
+					Debugger.getInstance().debug("Results data loaded from database");
 					databaseLoaded = true;
 				} catch (SQLException e) {
 					LogUtils.warning("SQL query failed: " + e.getMessage());

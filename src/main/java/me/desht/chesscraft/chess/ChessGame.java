@@ -24,10 +24,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.Duration;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -901,7 +898,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			try {
 				tempPos.doMove(aMove);
 				Move m = tempPos.getLastMove();
-				LogUtils.finer("getMoveFromSAN: check supplied move: " + moveSAN + " vs possible: " + m.getSAN());
+				Debugger.getInstance().debug(2, "getMoveFromSAN: check supplied move: " + moveSAN + " vs possible: " + m.getSAN());
 				if (moveSAN.equals(m.getSAN()))
 					return m;
 				tempPos.undoMove();

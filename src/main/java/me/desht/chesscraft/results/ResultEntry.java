@@ -4,6 +4,7 @@ import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 
 import java.sql.*;
@@ -110,8 +111,11 @@ public class ResultEntry implements DatabaseSavable {
 		stmt.setTimestamp(5, new Timestamp(endTime));
 		stmt.setString(6, result.toString());
 		stmt.setString(7, pgnResult);
-		LogUtils.fine("execute SQL: " + stmt);
-		stmt.executeUpdate();
+		Debugger.getInstance().debug("execute SQL: " + stmt);
+		int inserted = stmt.executeUpdate();
+		if (inserted != 1) {
+			LogUtils.warning("SQL insertion in '" + tableName + "' returned " + inserted + " rows - expected 1");
+		}
 
 		if (pgnData == null) {
 			return;
@@ -125,8 +129,11 @@ public class ResultEntry implements DatabaseSavable {
 				PreparedStatement pgnStmt = connection.prepareStatement("INSERT INTO " + tableName + " VALUES(?,?)");
 				pgnStmt.setInt(1, rowId);
 				pgnStmt.setString(2, pgnData);
-				LogUtils.fine("execute SQL: " + pgnStmt);
-				pgnStmt.executeUpdate();
+				Debugger.getInstance().debug("execute SQL: " + pgnStmt);
+				inserted = pgnStmt.executeUpdate();
+				if (inserted != 1) {
+					LogUtils.warning("SQL insertion in '" + tableName + "' returned " + inserted + " rows - expected 1");
+				}
 			}
 		} else {
 			LogUtils.warning("can't get generated key for SQL insert, aux tables will not be updated");

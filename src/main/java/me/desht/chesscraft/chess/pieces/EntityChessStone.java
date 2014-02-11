@@ -3,7 +3,7 @@ package me.desht.chesscraft.chess.pieces;
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.block.MassBlockUpdate;
 import me.desht.dhutils.cuboid.Cuboid;
 import net.citizensnpcs.api.CitizensAPI;
@@ -29,7 +29,7 @@ public class EntityChessStone extends ChessStone {
 		super(stone);
 
 		loc.setYaw(yaw);
-		LogUtils.finer("create " + stone + "[" + entityDetails.get("_entity") + "] @" + loc);
+		Debugger.getInstance().debug(2, "create " + stone + "[" + entityDetails.get("_entity") + "] @" + loc);
 
 		String name = ChessUtils.getColour(Chess.stoneToColor(stone)) + " " + ChessUtils.pieceToStr(Chess.stoneToPiece(stone));
 		npc = CitizensAPI.getNamedNPCRegistry("chesscraft").createNPC((EntityType) entityDetails.get("_entity"), name);
@@ -43,7 +43,7 @@ public class EntityChessStone extends ChessStone {
 	}
 
 	private void setEntityDetails(ConfigurationSection details) {
-		Entity entity = npc.getBukkitEntity();
+		Entity entity = npc.getEntity();
 		switch (entity.getType()) {
 		case SLIME: case MAGMA_CUBE:
 			int size = details.getInt("size", 1);
@@ -138,7 +138,7 @@ public class EntityChessStone extends ChessStone {
 	 * @return the Entity
 	 */
 	public Entity getBukkitEntity() {
-		return npc == null ? null : npc.getBukkitEntity();
+		return npc == null ? null : npc.getEntity();
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class EntityChessStone extends ChessStone {
 
 	@Override
 	public void move(int fromSqi, int toSqi, Location to, ChessStone captured) {
-		LogUtils.fine("move " + getStone() + " " + npc.getName() + " to " + to);
+		Debugger.getInstance().debug("move " + getStone() + " " + npc.getName() + " to " + to);
 		ChessPieceTrait chessTrait = npc.getTrait(ChessPieceTrait.class);
 		chessTrait.setCapturingTarget((EntityChessStone)captured);
 		npc.getNavigator().setTarget(to);
@@ -158,7 +158,7 @@ public class EntityChessStone extends ChessStone {
 	 * Despawn and unregister the NPC for this stone.
 	 */
 	public void cleanup() {
-		LogUtils.finer("destroy NPC " + npc.getFullName());
+		Debugger.getInstance().debug(2, "destroy NPC " + npc.getFullName());
 		npc.despawn();
 		npc.destroy();
 	}

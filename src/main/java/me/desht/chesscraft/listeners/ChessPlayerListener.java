@@ -14,10 +14,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.DHUtilsException;
-import me.desht.dhutils.LogUtils;
-import me.desht.dhutils.MessagePager;
-import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.*;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
@@ -128,7 +125,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 				Material wandMat = ChessUtils.getWandMaterial();
 				if (wandMat == null || player.getItemInHand().getType() == wandMat) {
 					targetBlock = player.getTargetBlock(transparent, 120);
-					LogUtils.finer("Player " + player.getName() + " waved at block " + targetBlock);
+					Debugger.getInstance().debug(2, "Player " + player.getName() + " waved at block " + targetBlock);
 					Location loc = targetBlock.getLocation();
 					BoardView bv;
 					if ((bv = BoardViewManager.getManager().onChessBoard(loc)) != null) {

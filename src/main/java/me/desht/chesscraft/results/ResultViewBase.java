@@ -2,7 +2,7 @@ package me.desht.chesscraft.results;
 
 import me.desht.chesscraft.chess.ai.ChessAI;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.Debugger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -106,7 +106,6 @@ public abstract class ResultViewBase {
 	 *
 	 * @param player
 	 * @param score
-	 * @param updateOnly
 	 */
 	public void setScore(String player, int score) {
 		scoreMap.put(player, score);
@@ -161,7 +160,7 @@ public abstract class ResultViewBase {
 			} else {
 				return;
 			}
-			LogUtils.fine("execute SQL: " + update);
+			Debugger.getInstance().debug("execute SQL: " + update);
 			update.executeUpdate();
 		}
 	}

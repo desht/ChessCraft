@@ -71,6 +71,12 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		LogUtils.init(this);
 
+		Debugger.getInstance().setPrefix("[ChessCraft] ");
+		Debugger.getInstance().setLevel(getConfig().getInt("debug_level"));
+		if (getConfig().getInt("debug_level") > 0) {
+			Debugger.getInstance().setTarget(getServer().getConsoleSender());
+		}
+
 		try {
 			NMSHelper.init(this);
 		} catch (Exception e) {
@@ -89,7 +95,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		MiscUtil.init(this);
 		MiscUtil.setColouredConsole(getConfig().getBoolean("coloured_console"));
 
-		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
+//		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
 
 		new PluginVersionChecker(this, this);
 
@@ -145,7 +151,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		setupMetrics();
 
-		LogUtils.fine("Version " + getDescription().getVersion() + " is enabled!");
+		Debugger.getInstance().debug("Version " + getDescription().getVersion() + " enable complete");
 	}
 
 	@Override
@@ -175,7 +181,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		instance = null;
 		economy = null;
 
-		LogUtils.fine("disabled!");
+		Debugger.getInstance().debug("disable complete");
 	}
 
 	@Override
@@ -212,7 +218,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
 		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
-			LogUtils.fine("Loaded Vault v" + vault.getDescription().getVersion());
+			Debugger.getInstance().debug("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - game stakes not available");
 			}
@@ -226,13 +232,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			Plugin p = pm.getPlugin("ScrollingMenuSign");
 			if (p != null && p instanceof ScrollingMenuSign) {
 				sms = new SMSIntegration((ScrollingMenuSign) p);
-				LogUtils.fine("ScrollingMenuSign plugin detected: ChessCraft menus created.");
+				Debugger.getInstance().debug("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 			} else {
-				LogUtils.fine("ScrollingMenuSign plugin not detected.");
+				Debugger.getInstance().debug("ScrollingMenuSign plugin not detected.");
 			}
 		} catch (NoClassDefFoundError e) {
 			// this can happen if ScrollingMenuSign was disabled
-			LogUtils.fine("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
+			LogUtils.warning("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
 		}
 	}
 
@@ -240,7 +246,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin p = pm.getPlugin("WorldEdit");
 		if (p != null && p instanceof WorldEditPlugin) {
 			worldEditPlugin = (WorldEditPlugin) p;
-			LogUtils.fine("WorldEdit plugin detected: chess board terrain saving enabled.");
+			Debugger.getInstance().debug("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
 			LogUtils.warning("WorldEdit plugin not detected: chess board terrain saving disabled.");
 		}
@@ -250,9 +256,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin p = pm.getPlugin("dynmap");
 		if (p != null) {
 			dynmapIntegration = new DynmapIntegration(this, (DynmapAPI) p);
-			LogUtils.fine("dynmap plugin detected.  Boards and games will be labelled.");
+			Debugger.getInstance().debug("dynmap plugin detected.  Boards and games will be labelled.");
 		} else {
-			LogUtils.fine("dynmap plugin not detected.");
+			Debugger.getInstance().debug("dynmap plugin not detected.");
 		}
 	}
 
@@ -260,7 +266,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin pLib = pm.getPlugin("ProtocolLib");
 		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
 			protocolLibEnabled = true;
-			LogUtils.fine("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
+			Debugger.getInstance().debug("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
 		}
 	}
 
@@ -268,7 +274,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin citizens = pm.getPlugin("Citizens");
 		if (citizens != null && citizens instanceof CitizensPlugin) {
 			citizensEnabled = true;
-			LogUtils.fine("Hooked Citizens2 v" + citizens.getDescription().getVersion());
+			Debugger.getInstance().debug("Hooked Citizens2 v" + citizens.getDescription().getVersion());
 			CitizensUtil.initCitizens();
 		} else {
 			LogUtils.warning("Citizens plugin not detected: entity-based chess sets will not be available");
@@ -393,15 +399,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equalsIgnoreCase("tick_interval")) { //$NON-NLS-1$
+		if (key.equalsIgnoreCase("tick_interval")) {
 			tickTask.start(0L);
-		} else if (key.equalsIgnoreCase("locale")) { //$NON-NLS-1$
+		} else if (key.equalsIgnoreCase("locale")) {
 			Messages.setMessageLocale(newVal.toString());
 			// redraw control panel signs in the right language
 			updateAllControlPanels();
-		} else if (key.equalsIgnoreCase("log_level")) { //$NON-NLS-1$
-			LogUtils.setLogLevel(newVal.toString());
-		} else if (key.equalsIgnoreCase("teleporting")) { //$NON-NLS-1$
+		} else if (key.equalsIgnoreCase("debug_level")) {
+			Debugger.getInstance().setLevel((Integer) newVal);
+			System.out.println("debugger level = " + Debugger.getInstance().getLevel());
+		} else if (key.equalsIgnoreCase("teleporting")) {
 			updateAllControlPanels();
 		} else if (key.equalsIgnoreCase("flying.allowed")) {
 			flightListener.setEnabled((Boolean) newVal);

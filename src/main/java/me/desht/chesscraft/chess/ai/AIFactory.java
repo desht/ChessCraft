@@ -5,6 +5,7 @@ import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.exceptions.ChessException;
+import me.desht.dhutils.Debugger;
 import me.desht.dhutils.JARUtil;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
@@ -47,6 +48,7 @@ public class AIFactory {
 		return instance;
 	}
 
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -85,8 +87,8 @@ public class AIFactory {
 	/**
 	 * Check if the given AI name is available (i.e. not in a game).
 	 *
-	 * @param aiName
-	 * @return
+	 * @param aiName name of the AI to check
+	 * @return true if the AI is available
 	 */
 	public boolean isAvailable(String aiName) {
 		return !runningAIs.containsKey(aiName);
@@ -124,8 +126,8 @@ public class AIFactory {
 	/**
 	 * Return the AI definition for the given AI name.
 	 *
-	 * @param aiName
-	 * @return
+	 * @param aiName the name of the AI
+	 * @return the AI definition
 	 */
 	public AIDefinition getAIDefinition(String aiName) {
 		if (aiName.startsWith(ChessAI.AI_PREFIX)) {
@@ -148,7 +150,7 @@ public class AIFactory {
 	/**
 	 * Get the name of a random free and enabled AI.
 	 *
-	 * @return
+	 * @return a random AI name which is currently available
 	 * @throws ChessException if there are no free AIs
 	 */
 	public String getFreeAIName() {
@@ -207,7 +209,7 @@ public class AIFactory {
 			}
 		}
 
-		LogUtils.fine("Loaded " + allAliases.size() + " AI definitions");
+		Debugger.getInstance().debug("Loaded " + allAliases.size() + " AI definitions");
 	}
 
 	public class AIDefinition {
@@ -228,7 +230,7 @@ public class AIFactory {
 				params.set(k, conf.get(k));
 			}
 
-			LogUtils.finer("loaded " + aiImplClass.getName() + " for AI " + name);
+			Debugger.getInstance().debug(2, "loaded " + aiImplClass.getName() + " for AI " + name);
 		}
 
 		public ChessAI createInstance(ChessGame game, boolean isWhiteAI) {

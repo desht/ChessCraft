@@ -58,7 +58,6 @@ effects:
     teleport_in: effect,name=ender_signal
     piece_riding: true
     volume: 1.0
-log_level: INFO
 mcstats: true
 flying:
     allowed: true
@@ -86,5 +85,6 @@ dynmap:
 entity_volume: 0.0
 verbose: false
 coloured_console: true
+debug_level: 0
 # 0.3.3 is the last version released which didn't put a version number in the config
 version: 0.3.3
