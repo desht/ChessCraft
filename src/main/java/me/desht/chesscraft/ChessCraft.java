@@ -407,7 +407,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			updateAllControlPanels();
 		} else if (key.equalsIgnoreCase("debug_level")) {
 			Debugger.getInstance().setLevel((Integer) newVal);
-			System.out.println("debugger level = " + Debugger.getInstance().getLevel());
 		} else if (key.equalsIgnoreCase("teleporting")) {
 			updateAllControlPanels();
 		} else if (key.equalsIgnoreCase("flying.allowed")) {
