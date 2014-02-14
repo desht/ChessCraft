@@ -15,14 +15,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Results {
 	private static Results results = null;	// this is a singleton class
 
 	private final ResultsDB db;
-	private final List<ResultEntry> entries = new ArrayList<ResultEntry>();
-	private final Map<String, ResultViewBase> views = new HashMap<String, ResultViewBase>();
+	private final List<ResultEntry> entries = Collections.synchronizedList(new ArrayList<ResultEntry>());
+	private final Map<String, ResultViewBase> views = new ConcurrentHashMap<String, ResultViewBase>();
 
 	private boolean databaseLoaded = false;
 
@@ -77,6 +78,7 @@ public class Results {
 		return results != null;
 	}
 
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -97,6 +99,7 @@ public class Results {
 	 */
 	public static synchronized void shutdown() {
 		if (results != null) {
+			results.queueDatabaseUpdate(new EndMarker());
 			if (results.db != null) {
 				results.db.shutdown();
 			}
@@ -256,5 +259,12 @@ public class Results {
 
 	public String getTableName(String base) {
 		return ChessCraft.getInstance().getConfig().getString("database.table_prefix") + base;
+	}
+
+	static class EndMarker implements DatabaseSavable {
+		@Override
+		public void saveToDatabase(Connection conn) throws SQLException {
+			// no-op
+		}
 	}
 }

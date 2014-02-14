@@ -75,9 +75,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		Debugger.getInstance().setPrefix("[ChessCraft] ");
 		Debugger.getInstance().setLevel(getConfig().getInt("debug_level"));
-		if (getConfig().getInt("debug_level") > 0) {
-			Debugger.getInstance().setTarget(getServer().getConsoleSender());
-		}
+		Debugger.getInstance().setTarget(getServer().getConsoleSender());
 
 		try {
 			NMSHelper.init(this);
