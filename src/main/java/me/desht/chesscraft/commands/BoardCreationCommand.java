@@ -18,7 +18,7 @@ public class BoardCreationCommand extends ChessAbstractCommand {
 		addAlias("chess create board");	// backwards compat
 		setPermissionNode("chesscraft.commands.create.board");
 		setUsage("/chess board create <board-name> [-style <style-name>] [-pstyle <style-name>]");
-		setOptions(new String[] { "style:s", "pstyle:s" });
+		setOptions("style:s", "pstyle:s");
 	}
 
 	@Override

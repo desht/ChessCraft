@@ -15,7 +15,7 @@ public class ListStylesCommand extends ChessAbstractCommand {
 		super("chess list style", 0, 1);
 		setPermissionNode("chesscraft.commands.list.style");
 		setUsage("/chess list style [-b] [-p]");
-		setOptions(new String[] { "b", "p" });
+		setOptions("b", "p");
 	}
 
 	@Override

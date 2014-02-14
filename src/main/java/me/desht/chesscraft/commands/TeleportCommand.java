@@ -28,7 +28,7 @@ public class TeleportCommand extends ChessAbstractCommand {
 				"/chess tp -clear [<board-name>]",
 				"/chess tp -list"
 		});
-		setOptions(new String[] { "b", "set", "clear", "list" });
+		setOptions("b", "set", "clear", "list");
 	}
 
 	@Override
