@@ -278,10 +278,11 @@ public class ChessFlightListener extends ChessListenerBase {
 		}
 //		player.setAllowFlight(flying || gameModeAllowsFlight(player));
 
-		// DEBUG
-		System.out.println("--- " + player.getMetadata("flight_controller_change").size() + " metadata entries");
-		for (MetadataValue value : player.getMetadata("flight_controller_change")) {
-			System.out.println("  metadata: " + value.asString() + " - from " + value.getOwningPlugin().getName());
+		if (Debugger.getInstance().getLevel() > 0) {
+			Debugger.getInstance().debug("--- " + player.getMetadata("flight_controller_change").size() + " metadata entries");
+			for (MetadataValue value : player.getMetadata("flight_controller_change")) {
+				Debugger.getInstance().debug("  metadata: " + value.asString() + " - from " + value.getOwningPlugin().getName());
+			}
 		}
 
 		long now = System.currentTimeMillis();

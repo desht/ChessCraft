@@ -71,6 +71,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		LogUtils.init(this);
 
+		configManager = new ConfigurationManager(this, this);
+
 		Debugger.getInstance().setPrefix("[ChessCraft] ");
 		Debugger.getInstance().setLevel(getConfig().getInt("debug_level"));
 		if (getConfig().getInt("debug_level") > 0) {
@@ -89,8 +91,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			setEnabled(false);
 			return;
 		}
-
-		configManager = new ConfigurationManager(this, this);
 
 		MiscUtil.init(this);
 		MiscUtil.setColouredConsole(getConfig().getBoolean("coloured_console"));
