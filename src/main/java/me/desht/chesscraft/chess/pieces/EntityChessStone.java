@@ -83,6 +83,12 @@ public class EntityChessStone extends ChessStone {
 		case WOLF:
 			DyeColor wc = DyeColor.valueOf(details.getString("color", "red").toUpperCase());
 			((Wolf)entity).setCollarColor(wc);
+			break;
+		case ZOMBIE:
+			// zombies don't implement Ageable; they have their own adult/baby API
+			((Zombie)entity).setBaby(details.getBoolean("baby", false));
+			((Zombie)entity).setVillager(details.getBoolean("villager", false));
+			break;
 		default:
 			break;
 		}
