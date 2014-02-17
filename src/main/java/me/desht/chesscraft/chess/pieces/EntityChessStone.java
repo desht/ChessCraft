@@ -88,6 +88,9 @@ public class EntityChessStone extends ChessStone {
 			// zombies don't implement Ageable; they have their own adult/baby API
 			((Zombie)entity).setBaby(details.getBoolean("baby", false));
 			((Zombie)entity).setVillager(details.getBoolean("villager", false));
+			if (((Zombie)entity).isBaby()) {
+				npc.getNavigator().getLocalParameters().speedModifier(1.0f);
+			}
 			break;
 		default:
 			break;
