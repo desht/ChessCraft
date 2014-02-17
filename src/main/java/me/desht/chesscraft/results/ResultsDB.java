@@ -147,10 +147,11 @@ public class ResultsDB {
 		                       "player VARCHAR(32) NOT NULL," +
 		                    		   "score INTEGER NOT NULL," +
 				"PRIMARY KEY (player)");
+		String resultsTable = ChessCraft.getInstance().getConfig().getString("database.table_prefix", "chesscraft_") + "results";
 		createTableIfNotExists("pgn",
 		                       "gameID INTEGER NOT NULL," +
 		                    		   "pgnData TEXT NOT NULL," +
-				"FOREIGN KEY (gameID) REFERENCES results(gameID) ON DELETE CASCADE");
+				"FOREIGN KEY (gameID) REFERENCES " + resultsTable + "(gameID) ON DELETE CASCADE");
 	}
 
 	private void createTableIfNotExists(String tableName, String ddl) throws SQLException {
