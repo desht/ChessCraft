@@ -19,26 +19,10 @@ public class ResultsDB {
 		SQLITE
 	}
 
-	private final Connection connection;
+	private Connection connection;
 
 	ResultsDB() throws ClassNotFoundException, SQLException {
-		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
-		SupportedDrivers driver = SupportedDrivers.valueOf(dbType.toUpperCase());
-		switch (driver) {
-		case MYSQL:
-			connection = connectMySQL();
-			setupTablesMySQL();
-			break;
-		case SQLITE:
-			connection = connectSQLite();
-			setupTablesSQLite();
-			break;
-		default:
-			throw new ChessException("unsupported database type: " + dbType);
-		}
-		setupTablesCommon();
-		checkForOldFormatData();
-		Debugger.getInstance().debug("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
+		makeDBConnection();
 	}
 
 	void shutdown() {
@@ -51,6 +35,30 @@ public class ResultsDB {
 		} catch (SQLException e) {
 			LogUtils.warning("can't cleanly shut down DB connection: " + e.getMessage());
 		}
+	}
+
+	Connection getConnection() {
+		return connection;
+	}
+
+	void makeDBConnection() throws SQLException, ClassNotFoundException {
+		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
+		SupportedDrivers driver = SupportedDrivers.valueOf(dbType.toUpperCase());
+		switch (driver) {
+			case MYSQL:
+				connection = connectMySQL();
+				setupTablesMySQL();
+				break;
+			case SQLITE:
+				connection = connectSQLite();
+				setupTablesSQLite();
+				break;
+			default:
+				throw new ChessException("unsupported database type: " + dbType);
+		}
+		setupTablesCommon();
+		checkForOldFormatData();
+		Debugger.getInstance().debug("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
 	}
 
 	private void checkForOldFormatData() {
@@ -89,10 +97,6 @@ public class ResultsDB {
 		} catch (Exception e) {
 			LogUtils.warning("Could not migrate old-format game results: " + e.getMessage());
 		}
-	}
-
-	public Connection getConnection() {
-		return connection;
 	}
 
 	private Connection connectSQLite() throws ClassNotFoundException, SQLException {

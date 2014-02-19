@@ -3,6 +3,7 @@ package me.desht.chesscraft.results;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseUpdaterTask implements Runnable {
@@ -21,7 +22,10 @@ public class DatabaseUpdaterTask implements Runnable {
 				if (savable instanceof Results.EndMarker) {
 					break;
 				}
-				savable.saveToDatabase(handler.getConnection());
+				Connection conn = handler.getConnection();
+				if (conn != null) {
+					savable.saveToDatabase(conn);
+				}
 			} catch (InterruptedException e) {
 				LogUtils.warning("interrupted while saving database results");
 				e.printStackTrace();

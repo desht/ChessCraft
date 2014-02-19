@@ -136,6 +136,18 @@ public class Results {
 	 * @return	A SQL Connection object
 	 */
 	public Connection getConnection() {
+		try {
+			if (!db.getConnection().isValid(5)) {
+				// stale handler
+				LogUtils.info("DB connection no longer valid - attempting reconnection");
+				db.makeDBConnection();
+				LogUtils.info("Reconnection successful");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LogUtils.severe("No database connection available - results will not be saved.");
+			return null;
+		}
 		return db.getConnection();
 	}
 
@@ -184,15 +196,18 @@ public class Results {
 			public void run() {
 				try {
 					entries.clear();
-					Statement stmt = getConnection().createStatement();
-					ResultSet rs = stmt.executeQuery("SELECT * FROM " + getTableName("results"));
-					while (rs.next()) {
-						ResultEntry e = new ResultEntry(rs);
-						entries.add(e);
+					Connection conn = getConnection();
+					if (conn != null) {
+						Statement stmt = conn.createStatement();
+						ResultSet rs = stmt.executeQuery("SELECT * FROM " + getTableName("results"));
+						while (rs.next()) {
+							ResultEntry e = new ResultEntry(rs);
+							entries.add(e);
+						}
+						rebuildViews();
+						Debugger.getInstance().debug("Results data loaded from database");
+						databaseLoaded = true;
 					}
-					rebuildViews();
-					Debugger.getInstance().debug("Results data loaded from database");
-					databaseLoaded = true;
 				} catch (SQLException e) {
 					LogUtils.warning("SQL query failed: " + e.getMessage());
 				}
@@ -209,8 +224,12 @@ public class Results {
 		String[] pgnResults = { "1-0", "0-1", "1/2-1/2" };
 
 		try {
-			getConnection().setAutoCommit(false);
-			Statement clear = getConnection().createStatement();
+			Connection conn = getConnection();
+			if (conn == null) {
+				return;
+			}
+			conn.setAutoCommit(false);
+			Statement clear = conn.createStatement();
 			clear.executeUpdate("DELETE FROM " + getTableName("results") + " WHERE playerWhite LIKE 'testplayer%' OR playerBlack LIKE 'testplayer%'");
 			Random rnd = new Random();
 			for (int i = 0; i < N_PLAYERS; i++) {
@@ -232,10 +251,10 @@ public class Results {
 					}
 					ResultEntry re = new ResultEntry(plw, plb, gn, start, end, pgnRes, rt);
 					entries.add(re);
-					re.saveToDatabase(getConnection());
+					re.saveToDatabase(conn);
 				}
 			}
-			getConnection().setAutoCommit(true);
+			conn.setAutoCommit(true);
 			rebuildViews();
 			LogUtils.info("test data added & committed");
 		} catch (SQLException e) {
