@@ -69,28 +69,10 @@ public class Results {
 		return results;
 	}
 
-	/**
-	 * Check that the results handler has been initialised sucessfully.
-	 *
-	 * @return	true if the results handler is OK, false otherwise
-	 */
-	public synchronized static boolean resultsHandlerOK() {
-		return results != null;
-	}
-
 	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
-	}
-
-	/**
-	 * Get the database handler for the results
-	 *
-	 * @return	The database handler
-	 */
-	ResultsDB getResultsDB() {
-		return db;
 	}
 
 	/**
@@ -135,9 +117,9 @@ public class Results {
 	 *
 	 * @return	A SQL Connection object
 	 */
-	public Connection getConnection() {
+	Connection getDBConnection() {
 		try {
-			if (!db.getConnection().isValid(5)) {
+			if (db.getConnection() != null && !db.getConnection().isValid(5)) {
 				// stale handler
 				LogUtils.info("DB connection no longer valid - attempting reconnection");
 				db.makeDBConnection();
@@ -146,7 +128,6 @@ public class Results {
 		} catch (Exception e) {
 			e.printStackTrace();
 			LogUtils.severe("No database connection available - results will not be saved.");
-			return null;
 		}
 		return db.getConnection();
 	}
@@ -154,7 +135,7 @@ public class Results {
 	/**
 	 * @return the databaseLoaded
 	 */
-	public boolean isDatabaseLoaded() {
+	boolean isDatabaseLoaded() {
 		return databaseLoaded;
 	}
 
@@ -196,7 +177,7 @@ public class Results {
 			public void run() {
 				try {
 					entries.clear();
-					Connection conn = getConnection();
+					Connection conn = getDBConnection();
 					if (conn != null) {
 						Statement stmt = conn.createStatement();
 						ResultSet rs = stmt.executeQuery("SELECT * FROM " + getTableName("results"));
@@ -224,7 +205,7 @@ public class Results {
 		String[] pgnResults = { "1-0", "0-1", "1/2-1/2" };
 
 		try {
-			Connection conn = getConnection();
+			Connection conn = getDBConnection();
 			if (conn == null) {
 				return;
 			}
@@ -262,6 +243,9 @@ public class Results {
 		}
 	}
 
+	/**
+	 * Force a rebuild of all registered result views.
+	 */
 	public void rebuildViews() {
 		for (ResultViewBase view : views.values()) {
 			view.rebuild();
@@ -272,11 +256,11 @@ public class Results {
 		pendingUpdates.add(update);
 	}
 
-	public DatabaseSavable pollDatabaseUpdate() throws InterruptedException {
+	DatabaseSavable pollDatabaseUpdate() throws InterruptedException {
 		return pendingUpdates.take();
 	}
 
-	public String getTableName(String base) {
+	String getTableName(String base) {
 		return ChessCraft.getInstance().getConfig().getString("database.table_prefix") + base;
 	}
 

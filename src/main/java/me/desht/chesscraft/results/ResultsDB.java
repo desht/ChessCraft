@@ -42,6 +42,7 @@ public class ResultsDB {
 	}
 
 	void makeDBConnection() throws SQLException, ClassNotFoundException {
+		connection = null;
 		String dbType = ChessCraft.getInstance().getConfig().getString("database.driver", "sqlite");
 		SupportedDrivers driver = SupportedDrivers.valueOf(dbType.toUpperCase());
 		switch (driver) {

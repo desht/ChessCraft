@@ -22,7 +22,7 @@ public class DatabaseUpdaterTask implements Runnable {
 				if (savable instanceof Results.EndMarker) {
 					break;
 				}
-				Connection conn = handler.getConnection();
+				Connection conn = handler.getDBConnection();
 				if (conn != null) {
 					savable.saveToDatabase(conn);
 				}
