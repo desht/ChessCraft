@@ -21,10 +21,10 @@ public class BlockChessStone extends ChessStone {
 	/**
 	 * Instantiate a new chess stone
 	 *
-	 * @param stone
-	 * @param tmpl
-	 * @param matMap
-	 * @param direction
+	 * @param stone the numeric Chesspresso stone ID
+	 * @param tmpl the piece template
+	 * @param matMap the material map
+	 * @param direction the board orientation
 	 */
 	public BlockChessStone(int stone, ChessPieceTemplate tmpl, MaterialMap matMap, BoardRotation direction) {
 		super(stone);

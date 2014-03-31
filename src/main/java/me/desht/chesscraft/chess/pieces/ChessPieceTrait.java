@@ -42,7 +42,7 @@ public class ChessPieceTrait extends Trait {
 				}, 20L);
 				capturingTarget = null;
 			}
-			getNPC().getBukkitEntity().teleport(getNPC().getNavigator().getTargetAsLocation());
+			getNPC().getEntity().teleport(getNPC().getNavigator().getTargetAsLocation());
 		}
 	}
 

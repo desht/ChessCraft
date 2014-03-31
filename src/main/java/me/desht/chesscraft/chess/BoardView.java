@@ -9,7 +9,6 @@ import me.desht.chesscraft.*;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
-import me.desht.chesscraft.controlpanel.TimeControlButton;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
@@ -555,7 +554,8 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	/**
 	 * Check if the given location is OK for designing on by the given player.
 	 *
-	 * @param location
+	 * @param player the player to check
+	 * @param location the location to check
 	 * @return true is designing is OK here
 	 */
 	public boolean canDesignHere(Player player, Location location) {

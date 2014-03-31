@@ -47,7 +47,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 	/**
 	 * Get this chess set's name.
 	 *
-	 * @return
+	 * @return the chess set name
 	 */
 	public String getName() {
 		return name;
@@ -56,7 +56,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 	/**
 	 * Get the comment for this chess set.
 	 *
-	 * @return
+	 * @return the comment for the set
 	 */
 	public String getComment() {
 		return comment;
@@ -65,7 +65,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 	/**
 	 * Get the width (X or Z) of the widest piece in the set
 	 *
-	 * @return
+	 * @return the width
 	 */
 	public int getMaxWidth() {
 		return maxWidth;
@@ -74,7 +74,7 @@ public abstract class ChessSet implements Comparable<ChessSet>{
 	/**
 	 * Get the height of the tallest piece in the set
 	 *
-	 * @return
+	 * @return the height
 	 */
 	public int getMaxHeight() {
 		return maxHeight;

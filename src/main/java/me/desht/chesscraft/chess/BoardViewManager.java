@@ -45,6 +45,7 @@ public class BoardViewManager {
 		return instance;
 	}
 
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -187,10 +188,10 @@ public class BoardViewManager {
 	}
 
 	/**
-	 * Check if the player may fly (in a ChessCraft context) given their current position.
+	 * Get the flight region for the given location, if any.
 	 *
-	 * @param player the player to check for
-	 * @return the flight region that the player is in, or null if not in a flight region
+	 * @param loc the location to check
+	 * @return the flight region for the location, or null if not in a flight region
 	 */
 	public Cuboid getFlightRegion(Location loc) {
 		for (Cuboid c : flightRegions) {
@@ -234,7 +235,7 @@ public class BoardViewManager {
 	/**
 	 * Teleport the player in a sensible manner, depending on where they are now.
 	 *
-	 * @param player
+	 * @param player the player to check
 	 * @throws ChessException
 	 */
 	public void teleportOut(Player player) throws ChessException {
@@ -268,10 +269,10 @@ public class BoardViewManager {
 	/**
 	 * Convenience method to create a new board and do all the associated setup tasks.
 	 *
-	 * @param boardName
-	 * @param loc
-	 * @param style
-	 * @param pieceStyle
+	 * @param boardName name of the new board
+	 * @param loc location of the A1 centre
+	 * @param style the board style name
+	 * @param pieceStyle the piece style name
 	 * @return a fully initialised and painted board
 	 */
 	public BoardView createBoard(String boardName, Location loc, BoardRotation rotation, String style, String pieceStyle) {
@@ -290,8 +291,8 @@ public class BoardViewManager {
 	 * Mark a board as deferred loading - its world wasn't available so we'll record the board
 	 * file name for later.
 	 *
-	 * @param worldName
-	 * @param f
+	 * @param worldName name if the world
+	 * @param f file the board is being loaded from
 	 */
 	public void deferLoading(String worldName, File f) {
 		if (!deferred.containsKey(worldName)) {
@@ -303,7 +304,7 @@ public class BoardViewManager {
 	/**
 	 * Load any deferred boards for the given world.
 	 *
-	 * @param worldName
+	 * @param worldName name of the world
 	 */
 	public void loadDeferred(String worldName) {
 		if (!deferred.containsKey(worldName)) {
@@ -319,7 +320,7 @@ public class BoardViewManager {
 	/**
 	 * Called when a world is unloaded.  Put any boards in that world back on the deferred list.
 	 *
-	 * @param worldName
+	 * @param worldName name of the world
 	 */
 	public void unloadBoardsForWorld(String worldName) {
 		for (BoardView bv : new ArrayList<BoardView>(listBoardViews())) {

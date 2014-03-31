@@ -98,7 +98,7 @@ public class TimeControlDefs {
 	/**
 	 * Get the next time control definition in the list, wrapping round at the end of the list.
 	 *
-	 * @return
+	 * @return the next time control definition
 	 */
 	public TCDef nextDef() {
 		if (allDefs.isEmpty()) {
@@ -113,7 +113,8 @@ public class TimeControlDefs {
 
 	/**
 	 * Get the previous time control definition in the list, wrapping round at the start of the list.
-	 * @return
+	 *
+	 * @return the previous time control definition
 	 */
 	public TCDef prevDef() {
 		if (allDefs.isEmpty()) {

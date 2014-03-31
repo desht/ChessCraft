@@ -174,7 +174,7 @@ public class BlockChessSet extends ChessSet {
 	 * Return a mapping of white material to black material for those materials in this set
 	 * which differ for the white and black pieces.
 	 *
-	 * @return
+	 * @return the mapping
 	 */
 	Map<String, String> getWhiteToBlack() {
 		Map<String,String> res = new HashMap<String, String>();
@@ -197,7 +197,7 @@ public class BlockChessSet extends ChessSet {
 	 *
 	 * @param stone		Chesspresso stone number (Chess.WHITE_PAWN etc.)
 	 * @param direction		Board orientation
-	 * @return
+	 * @return the chess stone
 	 */
 	public ChessStone getStone(int stone, BoardRotation direction) {
 		int piece = Chess.stoneToPiece(stone);
