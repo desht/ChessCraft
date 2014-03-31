@@ -6,6 +6,7 @@ import chesspresso.position.ImmutablePosition;
 import chesspresso.position.PositionChangeListener;
 import chesspresso.position.PositionListener;
 import me.desht.chesscraft.*;
+import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.controlpanel.TimeControlButton;
@@ -474,6 +475,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		getControlPanel().updatePlyCount(getGame().getChesspressoGame().getCurrentPly());
 
 		getControlPanel().repaintAll(null);
+
+		// for entity sets, we need to ensure a redraw is done
+		ChessSet cs = getChessBoard().getChessSet();
+		if (cs.hasMovablePieces()) {
+			cs.syncToPosition(getGame().getPosition(), getChessBoard());
+		}
 	}
 
 	// -------------------------------------------------------------------------------
