@@ -34,4 +34,4 @@ pieces:
     N: { entity: horse, variant: undead_horse }
     B: { entity: skeleton, variant: wither, held: stone_sword, helmet: leather_helmet }
     Q: { entity: witch, held: stick }
-    K: { entity: blaze }
+    K: { entity: creeper }

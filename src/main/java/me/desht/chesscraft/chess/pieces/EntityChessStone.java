@@ -76,6 +76,9 @@ public class EntityChessStone extends ChessStone {
 		case BLAZE:
 			npc.getNavigator().getLocalParameters().speedModifier(4.0f);
 			break;
+		case CREEPER:
+			((Creeper) entity).setPowered(details.getBoolean("powered", false));
+			break;
 		case OCELOT:
 			Ocelot.Type ot = Ocelot.Type.valueOf(details.getString("variant", "wild_ocelot").toUpperCase());
 			((Ocelot)entity).setCatType(ot);
