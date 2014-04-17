@@ -17,28 +17,29 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 public class PieceDesigner {
 	private final BoardView view;
-	private final String playerName;
+	private final UUID playerId;
 	private String setName;	// name of the set currently being designed
 	private BlockChessSet chessSet;	// the set currently being designed
 
-	public PieceDesigner(BoardView view, String setName, String playerName) throws ChessException {
+	public PieceDesigner(BoardView view, String setName, UUID playerId) throws ChessException {
 		if (view.isDesigning()) {
 			throw new ChessException("This board is already in design mode.");
 		}
 		this.view = view;
 		this.setName = setName;
-		this.playerName = playerName;
+		this.playerId = playerId;
 	}
 
 	public String getSetName() {
 		return setName;
 	}
 
-	public String getPlayerName() {
-		return playerName;
+	public UUID getPlayerId() {
+		return playerId;
 	}
 
 	public void setSetName(String setName) {
@@ -113,7 +114,7 @@ public class PieceDesigner {
 			}
 		}
 
-		chessSet = new BlockChessSet(setName, templates, materialMaps, "Created in ChessCraft piece designer by " + playerName);
+		chessSet = new BlockChessSet(setName, templates, materialMaps, "Created in ChessCraft piece designer by " + getPlayerId());
 	}
 
 	private char getNextChar(char c) throws ChessException {

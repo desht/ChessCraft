@@ -53,7 +53,7 @@ public class DesignCommand extends ChessAbstractCommand {
 				return true;
 			} else {
 				// toggle into design mode
-				designer = new PieceDesigner(bv, bv.getPieceStyleName(), player.getName());
+				designer = new PieceDesigner(bv, bv.getPieceStyleName(), player.getUniqueId());
 				bv.getChessBoard().setDesigner(designer);
 				MiscUtil.statusMessage(sender, Messages.getString("Designer.inDesignMode", bv.getName()));
 				if (ChessCraft.getInstance().getConfig().getBoolean("designer.auto_load")) {

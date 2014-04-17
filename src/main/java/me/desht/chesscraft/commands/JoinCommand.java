@@ -1,5 +1,7 @@
 package me.desht.chesscraft.commands;
 
+import chesspresso.Chess;
+import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
@@ -7,6 +9,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -21,60 +24,59 @@ public class JoinCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		Player player = (Player) sender;
 
 		ChessGameManager cMgr = ChessGameManager.getManager();
 
 		String gameName = null;
+		int colour = Chess.NOBODY;
 		if (args.length >= 1) {
 			gameName = args[0];
-			cMgr.getGame(gameName).addPlayer(player.getName());
+			colour = cMgr.getGame(gameName).addPlayer(player.getUniqueId().toString(), player.getDisplayName());
 		} else {
 			// find a game (or games) with an invitation for us
 			for (ChessGame game : cMgr.listGames()) {
-				if (game.getInvited().equalsIgnoreCase(player.getName())) {
-					game.addPlayer(player.getName());
+				if (game.getInvited().equals(player.getUniqueId())) {
+					colour = game.addPlayer(player.getUniqueId().toString(), player.getDisplayName());
 					gameName = game.getName();
 				}
 			}
-			if (gameName == null) {
-				throw new ChessException(Messages.getString("ChessCommandExecutor.noPendingInvitation")); //$NON-NLS-1$
-			}
+			ChessValidate.notNull(gameName, Messages.getString("ChessCommandExecutor.noPendingInvitation"));
 		}
 
 		ChessGame game = cMgr.getGame(gameName);
-		cMgr.setCurrentGame(player.getName(), game);
-		int playingAs = game.getPlayerColour(player.getName());
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.joinedGame", //$NON-NLS-1$
-		                                                  game.getName(), ChessUtils.getDisplayColour(playingAs)));
+		cMgr.setCurrentGame(player, game);
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.joinedGame",
+		                                                  game.getName(), ChessUtils.getDisplayColour(colour)));
 
-		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) { //$NON-NLS-1$
-			game.getPlayer(playingAs).summonToGame();
+		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) {
+			game.getPlayer(colour).summonToGame();
 		} else {
-			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.canTeleport", game.getName()));
 		}
 		return true;
 	}
 
 	@Override
 	public List<String> onTabComplete(Plugin plugin, CommandSender sender, String[] args) {
-		if (args.length == 1) {
-			return getInvitedGameCompletions(plugin, sender, args[0]);
+		if (args.length == 1 && sender instanceof Player) {
+			return getInvitedGameCompletions((Player) sender, args[0]);
 		} else {
 			showUsage(sender);
 			return noCompletions(sender);
 		}
 	}
 
-	protected List<String> getInvitedGameCompletions(Plugin plugin, CommandSender sender, String prefix) {
+	private List<String> getInvitedGameCompletions(Player player, String prefix) {
 		List<String> res = new ArrayList<String>();
 
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
-			if (game.getName().startsWith(prefix) && game.getInvited().equalsIgnoreCase(sender.getName())) {
+			if (game.getName().startsWith(prefix) && game.getInvited().equals(player.getUniqueId())) {
 				res.add(game.getName());
 			}
 		}
-		return getResult(res, sender, true);
+		return getResult(res, player, true);
 	}
 }

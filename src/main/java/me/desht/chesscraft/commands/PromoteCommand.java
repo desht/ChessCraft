@@ -10,6 +10,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
@@ -24,21 +25,18 @@ public class PromoteCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
-
-		ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
-		game.ensurePlayerInGame(player.getName());
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		Player player = (Player) sender;
 
 		int piece = Chess.charToPiece(Character.toUpperCase(args[0].charAt(0)));
-		int colour = game.getPlayerColour(player.getName());
-		game.getPlayer(colour).setPromotionPiece(piece);
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.promotionPieceSet", //$NON-NLS-1$
-		                                                    game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
-		if (colour == Chess.WHITE) {
-			game.getView().getControlPanel().getSignButton(PromoteWhiteButton.class).repaint();
-		} else {
-			game.getView().getControlPanel().getSignButton(PromoteBlackButton.class).repaint();
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(player, true);
+		int colour = game.getPlayerColour(player.getUniqueId().toString());
+		if (colour != Chess.NOBODY) {
+			game.getPlayer(colour).setPromotionPiece(piece);
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.promotionPieceSet",
+					game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
+			game.getView().getControlPanel().getSignButton(colour == Chess.WHITE ? PromoteWhiteButton.class : PromoteBlackButton.class).repaint();
 		}
 
 		return true;

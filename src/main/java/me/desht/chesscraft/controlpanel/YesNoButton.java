@@ -13,6 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.UUID;
+
 public abstract class YesNoButton extends AbstractSignButton {
 
 	private final int colour;
@@ -47,24 +49,24 @@ public abstract class YesNoButton extends AbstractSignButton {
 		ChessGame game = getGame();
 		if (game == null) return "";
 
-		ChessPlayer player = game.getPlayer(colour);
-		if (player == null || !player.isHuman())
+		ChessPlayer cp = game.getPlayer(colour);
+		if (cp == null || !cp.isHuman())
 			return "";
 
-		Player p = Bukkit.getPlayer(player.getName());
+		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 
-		ResponseHandler rh = ChessCraft.getInstance().responseHandler;
-		if (p == null) {
+		Player player = Bukkit.getPlayer(UUID.fromString(cp.getId()));
+		if (player == null) {
 			// gone offline, perhaps?
-			return ""; //$NON-NLS-1$
-		} else if (rh.isExpecting(p.getName(), ExpectDrawResponse.class)) {
-			return Messages.getString("ControlPanel.acceptDrawBtn"); //$NON-NLS-1$
-		} else if (rh.isExpecting(p.getName(), ExpectSwapResponse.class)) {
-			return Messages.getString("ControlPanel.acceptSwapBtn"); //$NON-NLS-1$
-		} else if (rh.isExpecting(p.getName(), ExpectUndoResponse.class)) {
-			return Messages.getString("ControlPanel.acceptUndoBtn"); //$NON-NLS-1$
+			return "";
+		} else if (resp.isExpecting(player, ExpectDrawResponse.class)) {
+			return Messages.getString("ControlPanel.acceptDrawBtn");
+		} else if (resp.isExpecting(player, ExpectSwapResponse.class)) {
+			return Messages.getString("ControlPanel.acceptSwapBtn");
+		} else if (resp.isExpecting(player, ExpectUndoResponse.class)) {
+			return Messages.getString("ControlPanel.acceptUndoBtn");
 		} else {
-			return ""; //$NON-NLS-1$
+			return "";
 		}
 	}
 }

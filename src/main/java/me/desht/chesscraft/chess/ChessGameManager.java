@@ -16,7 +16,7 @@ public class ChessGameManager {
 	private static ChessGameManager instance = null;
 
 	private final Map<String,ChessGame> chessGames = new HashMap<String,ChessGame>();
-	private final Map<String,ChessGame> currentGame = new HashMap<String, ChessGame>();
+	private final Map<UUID,ChessGame> currentGame = new HashMap<UUID, ChessGame>();
 
 	private ChessGameManager() {
 
@@ -29,6 +29,7 @@ public class ChessGameManager {
 		return instance;
 	}
 
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
@@ -48,13 +49,13 @@ public class ChessGameManager {
 	private void unregisterGame(String gameName) {
 		ChessGame game = getGame(gameName);
 
-		List<String> toRemove = new ArrayList<String>();
-		for (String playerName : currentGame.keySet()) {
-			if (currentGame.get(playerName) == game) {
-				toRemove.add(playerName);
+		List<UUID> toRemove = new ArrayList<UUID>();
+		for (UUID playerId : currentGame.keySet()) {
+			if (currentGame.get(playerId) == game) {
+				toRemove.add(playerId);
 			}
 		}
-		for (String p : toRemove) {
+		for (UUID p : toRemove) {
 			currentGame.remove(p);
 		}
 		chessGames.remove(gameName);
@@ -132,30 +133,29 @@ public class ChessGameManager {
 		return chessGames.get(name);
 	}
 
-	public void setCurrentGame(String playerName, String gameName) {
-		ChessGame game = getGame(gameName);
-		setCurrentGame(playerName, game);
+	public void setCurrentGame(UUID uuid, String gameName) {
+		currentGame.put(uuid, getGame(gameName));
 	}
 
-	public void setCurrentGame(String playerName, ChessGame game) {
-		currentGame.put(playerName, game);
+	public void setCurrentGame(Player player, ChessGame game) {
+		currentGame.put(player.getUniqueId(), game);
 	}
 
-	public ChessGame getCurrentGame(String playerName) {
-		return getCurrentGame(playerName, false);
+	public ChessGame getCurrentGame(Player player) {
+		return getCurrentGame(player, false);
 	}
 
-	public ChessGame getCurrentGame(String playerName, boolean verify) {
-		ChessGame game = currentGame.get(playerName);
+	public ChessGame getCurrentGame(Player player, boolean verify) {
+		ChessGame game = currentGame.get(player.getUniqueId());
 		if (verify && game == null) {
 			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
 		}
 		return game;
 	}
 
-	public Map<String, String> getCurrentGames() {
-		Map<String, String> res = new HashMap<String, String>();
-		for (String s : currentGame.keySet()) {
+	public Map<UUID, String> getCurrentGames() {
+		Map<UUID, String> res = new HashMap<UUID, String>();
+		for (UUID s : currentGame.keySet()) {
 			ChessGame game = currentGame.get(s);
 			if (game != null) {
 				res.put(s, game.getName());
@@ -167,8 +167,8 @@ public class ChessGameManager {
 	/**
 	 * Create a unique game name based on the player's name.
 	 *
-	 * @param playerName
-	 * @return
+	 * @param playerName player's name
+	 * @return a unique game name
 	 */
 	private String makeGameName(String playerName) {
 		String res;
@@ -201,20 +201,18 @@ public class ChessGameManager {
 	}
 
 	public ChessGame createGame(Player player, String gameName, BoardView bv, int colour) {
-		String playerName = player.getName();
-
 		if (gameName == null || gameName.equals("-")) {
-			gameName = makeGameName(playerName);
+			gameName = makeGameName(player.getName());
 		}
 
-		ChessGame game = new ChessGame(gameName, bv, playerName, colour);
+		ChessGame game = new ChessGame(gameName, player, bv, colour);
 		registerGame(game);
-		setCurrentGame(playerName, game);
+		setCurrentGame(player, game);
 		bv.getControlPanel().repaintControls();
 
 		game.autoSave();
 
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName())); //$NON-NLS-1$
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName()));
 
 		return game;
 	}

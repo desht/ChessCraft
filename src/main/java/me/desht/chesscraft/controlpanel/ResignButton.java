@@ -15,7 +15,7 @@ public class ResignButton extends AbstractSignButton {
 		ChessGame game = getGame();
 
 		if (game != null) {
-			game.resign(event.getPlayer().getName());
+			game.resign(event.getPlayer().getUniqueId().toString());
 		}
 	}
 

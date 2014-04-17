@@ -19,8 +19,8 @@ public class ResultEntry implements DatabaseSavable {
 	private final String pgnData;
 
 	ResultEntry(ChessGame game, GameResult rt) {
-		playerWhite = game.getPlayer(Chess.WHITE).getName();
-		playerBlack = game.getPlayer(Chess.BLACK).getName();
+		playerWhite = game.getPlayer(Chess.WHITE).getDisplayName();
+		playerBlack = game.getPlayer(Chess.BLACK).getDisplayName();
 		gameName = game.getName();
 		startTime = game.getStarted();
 		endTime = game.getFinished();

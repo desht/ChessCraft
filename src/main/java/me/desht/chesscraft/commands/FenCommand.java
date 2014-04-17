@@ -7,6 +7,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class FenCommand extends ChessAbstractCommand {
@@ -20,11 +21,11 @@ public class FenCommand extends ChessAbstractCommand {
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
 
-		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
+		ChessGame game = ChessGameManager.getManager().getCurrentGame((Player) sender, true);
 
 		game.setPositionFEN(combine(args, 1));
 
-		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.positionUpdatedFEN", //$NON-NLS-1$
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.positionUpdatedFEN",
 		                                                    game.getName(), ChessUtils.getDisplayColour(game.getPosition().getToPlay())));
 		return true;
 	}

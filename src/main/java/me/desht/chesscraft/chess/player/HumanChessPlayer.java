@@ -1,5 +1,6 @@
 package me.desht.chesscraft.chess.player;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
@@ -7,24 +8,27 @@ import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
+import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class HumanChessPlayer extends ChessPlayer {
-
 	private Player player;
+	private final UUID uuid;
 
-	public HumanChessPlayer(String name, ChessGame game, int colour) {
-		super(name, game, colour);
+	public HumanChessPlayer(String id, String name, ChessGame game, int colour) {
+		super(id, name, game, colour);
+		uuid = UUID.fromString(id);
 	}
 
 	private Player getBukkitPlayer() {
 		if (player == null) {
-			player = Bukkit.getPlayer(getName());
+			player = Bukkit.getPlayer(uuid);
 		} else {
 			if (!player.isOnline())
 				player = null;
@@ -33,10 +37,10 @@ public class HumanChessPlayer extends ChessPlayer {
 		return player;
 	}
 
-	@Override
-	public String getDisplayName() {
-		return ChatColor.GOLD + getName() + ChatColor.RESET;
-	}
+//	@Override
+//	public String getDisplayName() {
+//		return ChatColor.GOLD + getDisplayName() + ChatColor.RESET;
+//	}
 
 	@Override
 	public void promptForFirstMove() {
@@ -87,15 +91,16 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void validateAffordability(String error) {
 		if (error == null) error = "Game.cantAffordToJoin";
 		double stake = getGame().getStake();
-		if (ChessCraft.economy != null && !ChessCraft.economy.has(getName(), stake)) {
+		Player player = Bukkit.getPlayer(uuid);
+		if (ChessCraft.economy != null && player == null || !ChessCraft.economy.has(player.getName(), stake)) {
 			throw new ChessException(Messages.getString(error, ChessUtils.formatStakeStr(stake)));
 		}
 	}
 
 	@Override
 	public void validateInvited(String error) {
-		String invited = getGame().getInvited();
-		if (!invited.equals(ChessGame.OPEN_INVITATION) && !invited.equalsIgnoreCase(getName())) {
+		UUID invited = getGame().getInvited();
+		if (!invited.equals(ChessGame.OPEN_INVITATION) && !invited.equals(uuid)) {
 			throw new ChessException(Messages.getString(error));
 		}
 	}
@@ -107,13 +112,13 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void withdrawFunds(double amount) {
-		ChessCraft.economy.withdrawPlayer(getName(), amount);
+		ChessCraft.economy.withdrawPlayer(getDisplayName(), amount);
 		alert(Messages.getString("Game.paidStake", ChessUtils.formatStakeStr(amount)));
 	}
 
 	@Override
 	public void depositFunds(double amount) {
-		ChessCraft.economy.depositPlayer(getName(), amount);
+		ChessCraft.economy.depositPlayer(getDisplayName(), amount);
 	}
 
 	@Override
@@ -121,8 +126,6 @@ public class HumanChessPlayer extends ChessPlayer {
 		Player p = getBukkitPlayer();
 		if (p != null) {
 			getGame().getView().summonPlayer(p);
-		} else {
-			// TODO: player's gone offline...
 		}
 	}
 
@@ -143,21 +146,25 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void drawOffered() {
-		String offerer = getGame().getOtherPlayerName(getName());
-
-		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectDrawResponse(getGame(), offerer));
-
-		alert(Messages.getString("ChessCommandExecutor.drawOfferedOther", offerer));
+		ChessPlayer other = getGame().getPlayer(Chess.otherPlayer(getColour()));
+		ChessCraft.getInstance().responseHandler.expect(getBukkitPlayer(), new ExpectDrawResponse(getGame(), getColour()));
+		alert(Messages.getString("ChessCommandExecutor.drawOfferedOther", other.getDisplayName()));
 		alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 	}
 
 	@Override
 	public void swapOffered() {
-		String offerer = getGame().getOtherPlayerName(getName());
+		ChessPlayer other = getGame().getPlayer(Chess.otherPlayer(getColour()));
+		ChessCraft.getInstance().responseHandler.expect(getBukkitPlayer(), new ExpectSwapResponse(getGame(), getColour()));
+		alert(Messages.getString("ChessCommandExecutor.swapOfferedOther", other.getDisplayName()));
+		alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
+	}
 
-		ChessCraft.getInstance().responseHandler.expect(getName(), new ExpectSwapResponse(getGame(), offerer));
-
-		alert(Messages.getString("ChessCommandExecutor.swapOfferedOther", offerer));
+	@Override
+	public void undoOffered() {
+		ChessPlayer other = getGame().getPlayer(Chess.otherPlayer(getColour()));
+		ChessCraft.getInstance().responseHandler.expect(getBukkitPlayer(), new ExpectUndoResponse(getGame(), getColour()));
+		alert(Messages.getString("ChessCommandExecutor.undoOfferedOther", other.getDisplayName()));
 		alert(Messages.getString("ChessCommandExecutor.typeYesOrNo"));
 	}
 

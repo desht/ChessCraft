@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ResultsDB {
-	private enum SupportedDrivers {
+	private SupportedDrivers activeDriver;
+
+	enum SupportedDrivers {
 		MYSQL,
 		SQLITE
 	}
@@ -57,9 +59,14 @@ public class ResultsDB {
 			default:
 				throw new ChessException("unsupported database type: " + dbType);
 		}
+		this.activeDriver = driver;
 		setupTablesCommon();
 		checkForOldFormatData();
 		Debugger.getInstance().debug("Connected to DB: " + connection.getMetaData().getDatabaseProductName());
+	}
+
+	public SupportedDrivers getActiveDriver() {
+		return activeDriver;
 	}
 
 	private void checkForOldFormatData() {

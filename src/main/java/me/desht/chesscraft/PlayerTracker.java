@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author des
@@ -13,8 +14,8 @@ import java.util.Map;
  *
  */
 public class PlayerTracker {
-	private final Map<String, Location> lastPos = new HashMap<String, Location>();
-	private final Map<String, Long> loggedOutAt = new HashMap<String, Long>();
+	private final Map<UUID, Location> lastPos = new HashMap<UUID, Location>();
+	private final Map<UUID, Long> loggedOutAt = new HashMap<UUID, Long>();
 
 	public void teleportPlayer(Player player, Location loc) {
 		setLastPos(player, player.getLocation());
@@ -24,22 +25,22 @@ public class PlayerTracker {
 	}
 
 	public Location getLastPos(Player player) {
-		return lastPos.get(player.getName());
+		return lastPos.get(player.getUniqueId());
 	}
 
 	private void setLastPos(Player player, Location loc) {
-		lastPos.put(player.getName(), loc);
+		lastPos.put(player.getUniqueId(), loc);
 	}
 
-	public void playerLeft(String who) {
-		loggedOutAt.put(who, System.currentTimeMillis());
+	public void playerLeft(Player player) {
+		loggedOutAt.put(player.getUniqueId(), System.currentTimeMillis());
 	}
 
-	public void playerRejoined(String who) {
-		loggedOutAt.remove(who);
+	public void playerRejoined(Player player) {
+		loggedOutAt.remove(player.getUniqueId());
 	}
 
-	public long getPlayerLeftAt(String who) {
+	public long getPlayerLeftAt(UUID who) {
 		return loggedOutAt.containsKey(who) ? loggedOutAt.get(who) : 0;
 	}
 }

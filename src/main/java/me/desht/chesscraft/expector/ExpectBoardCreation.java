@@ -11,6 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class ExpectBoardCreation extends ExpectBase {
 
 	private final String boardName;
@@ -30,10 +32,10 @@ public class ExpectBoardCreation extends ExpectBase {
 	}
 
 	@Override
-	public void doResponse(String playerName) {
-		Player player = Bukkit.getPlayer(playerName);
+	public void doResponse(UUID playerID) {
+		Player player = Bukkit.getPlayer(playerID);
 		if (player == null) {
-			LogUtils.warning("Board creation: player " + playerName + " gone offline?");
+			LogUtils.warning("Board creation: player " + player.getDisplayName() + " gone offline?");
 			return;
 		}
 

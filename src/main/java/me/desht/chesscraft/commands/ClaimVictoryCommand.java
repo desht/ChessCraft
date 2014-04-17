@@ -1,16 +1,21 @@
 package me.desht.chesscraft.commands;
 
+import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
+import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ClaimVictoryCommand extends ChessAbstractCommand {
 
@@ -23,27 +28,28 @@ public class ClaimVictoryCommand extends ChessAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		notFromConsole(sender);
+		Player player = (Player) sender;
 
-		ChessGame game = ChessGameManager.getManager().getCurrentGame(sender.getName(), true);
-
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(player, true);
 		game.ensureGameState(GameState.RUNNING);
-
-		String other = game.getOtherPlayerName(sender.getName());
-		if (other.isEmpty()) {
+		ChessPlayer cp = game.getPlayer(player.getUniqueId().toString());
+		if (cp == null) {
+			return true;
+		}
+		ChessPlayer other = game.getPlayer(Chess.otherPlayer(cp.getColour()));
+		if (other == null || !other.isHuman()) {
 			return true;
 		}
 
-		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
-		long leftAt = ((ChessCraft)plugin).getPlayerTracker().getPlayerLeftAt(other);
-		if (leftAt == 0) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline")); //$NON-NLS-1$
-		}
+		int timeout = plugin.getConfig().getInt("forfeit_timeout");
+		long leftAt = ((ChessCraft)plugin).getPlayerTracker().getPlayerLeftAt(UUID.fromString(other.getId()));
+		ChessValidate.isTrue(leftAt > 0, Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline"));
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
 		if (elapsed >= timeout) {
-			game.winByDefault(sender.getName());
+			game.winByDefault(player.getUniqueId().toString());
 		} else {
-			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed)); //$NON-NLS-1$
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed));
 		}
 
 		return true;

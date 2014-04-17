@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 public class ChessPersistence {
 
@@ -58,7 +59,7 @@ public class ChessPersistence {
 		saveBoards();
 
 		YamlConfiguration conf = new YamlConfiguration();
-		for (Entry<String,String> e : ChessGameManager.getManager().getCurrentGames().entrySet()) {
+		for (Entry<UUID,String> e : ChessGameManager.getManager().getCurrentGames().entrySet()) {
 			conf.set("current_games." + e.getKey(), e.getValue());
 		}
 
@@ -96,12 +97,11 @@ public class ChessPersistence {
 				YamlConfiguration conf = MiscUtil.loadYamlUTF8(DirectoryStructure.getPersistFile());
 				ConfigurationSection current = conf.getConfigurationSection("current_games");
 				if (current != null) {
-					for (String player : current.getKeys(false)) {
+					for (String playerId : current.getKeys(false)) {
 						try {
-							ChessGameManager.getManager().setCurrentGame(player, current.getString(player));
+							ChessGameManager.getManager().setCurrentGame(UUID.fromString(playerId), current.getString(playerId));
 						} catch (ChessException e) {
-							LogUtils.warning("can't set current game for player " + player + ": "
-									+ e.getMessage());
+							LogUtils.warning("can't set current game for player " + playerId + ": " + e.getMessage());
 						}
 					}
 				}

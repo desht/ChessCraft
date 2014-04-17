@@ -25,7 +25,7 @@ public class StakeButton extends AbstractSignButton {
 			stakeIncr = -stakeIncr;
 		}
 
-		getGame().adjustStake(event.getPlayer().getName(), stakeIncr);
+		getGame().adjustStake(event.getPlayer(), stakeIncr);
 
 		repaint();
 	}
@@ -38,11 +38,8 @@ public class StakeButton extends AbstractSignButton {
 	@Override
 	public boolean isReactive() {
 		ChessGame game = getGame();
-		if (game == null) return false;
-		if (getView().getLockStake()) return false;
+		return game != null && !getView().getLockStake() && game.getState() == GameState.SETTING_UP && !game.isFull();
 
-		return game.getState() == GameState.SETTING_UP &&
-				(game.getBlackPlayerName().isEmpty() || game.getWhitePlayerName().isEmpty());
 	}
 
 	@Override

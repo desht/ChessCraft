@@ -32,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChessPlayerListener extends ChessListenerBase {
 
@@ -47,18 +48,17 @@ public class ChessPlayerListener extends ChessListenerBase {
 	}
 
 	private static final long MIN_ANIMATION_WAIT = 200; // milliseconds
-	private final Map<String,Long> lastAnimation = new HashMap<String, Long>();
+	private final Map<UUID,Long> lastAnimation = new HashMap<UUID, Long>();
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-		String playerName = player.getName();
 
 		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
 
 		// a left or right-click (even air, where the event is cancelled) cancels any pending player invite response
-		if (resp.isExpecting(playerName, ExpectInvitePlayer.class)) {
-			resp.cancelAction(playerName, ExpectInvitePlayer.class);
+		if (resp.isExpecting(player, ExpectInvitePlayer.class)) {
+			resp.cancelAction(player, ExpectInvitePlayer.class);
 			MiscUtil.alertMessage(player, Messages.getString("ChessPlayerListener.playerInviteCancelled"));
 			event.setCancelled(true);
 			return;
@@ -73,16 +73,16 @@ public class ChessPlayerListener extends ChessListenerBase {
 			if (b == null) {
 				return;
 			}
-			if (resp.isExpecting(playerName, ExpectBoardCreation.class)) {
-				ExpectBoardCreation a = resp.getAction(playerName, ExpectBoardCreation.class);
+			if (resp.isExpecting(player, ExpectBoardCreation.class)) {
+				ExpectBoardCreation a = resp.getAction(player, ExpectBoardCreation.class);
 				switch (event.getAction()) {
 				case LEFT_CLICK_BLOCK:
 					a.setLocation(b.getLocation());
-					a.handleAction();
+					a.handleAction(player);
 					break;
 				case RIGHT_CLICK_BLOCK:
-					MiscUtil.alertMessage(player,  Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
-					a.cancelAction();
+					MiscUtil.alertMessage(player,  Messages.getString("ChessPlayerListener.boardCreationCancelled"));
+					a.cancelAction(player);
 					break;
 				default:
 					break;
@@ -98,9 +98,9 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		} catch (ChessException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
-			if (resp.isExpecting(playerName, ExpectBoardCreation.class)) {
-				resp.cancelAction(playerName, ExpectBoardCreation.class);
-				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled")); //$NON-NLS-1$
+			if (resp.isExpecting(player, ExpectBoardCreation.class)) {
+				resp.cancelAction(player, ExpectBoardCreation.class);
+				MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.boardCreationCancelled"));
 			}
 		} catch (DHUtilsException e) {
 			MiscUtil.errorMessage(player, e.getMessage());
@@ -116,7 +116,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 		if (System.currentTimeMillis() - lastAnimationEvent(player) < MIN_ANIMATION_WAIT) {
 			return;
 		}
-		lastAnimation.put(player.getName(), System.currentTimeMillis());
+		lastAnimation.put(player.getUniqueId(), System.currentTimeMillis());
 
 		Block targetBlock = null;
 
@@ -160,33 +160,32 @@ public class ChessPlayerListener extends ChessListenerBase {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		StringBuilder games = new StringBuilder();
-		String who = event.getPlayer().getName();
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
-			int colour = game.getPlayerColour(who);
+			int colour = game.getPlayerColour(event.getPlayer().getUniqueId().toString());
 			if (colour != Chess.NOBODY) {
-				plugin.getPlayerTracker().playerRejoined(who);
+				plugin.getPlayerTracker().playerRejoined(event.getPlayer());
 				ChessPlayer other = game.getPlayer(Chess.otherPlayer(colour));
 				if (other != null) {
-					other.alert(Messages.getString("ChessPlayerListener.playerBack", who));
+					other.alert(Messages.getString("ChessPlayerListener.playerBack", event.getPlayer().getDisplayName()));
 				}
 				games.append(" ").append(game.getName());
 			}
 		}
 		if (games.length() > 0) {
-			MiscUtil.alertMessage(event.getPlayer(), Messages.getString("ChessPlayerListener.currentGames", games)); //$NON-NLS-1$
+			MiscUtil.alertMessage(event.getPlayer(), Messages.getString("ChessPlayerListener.currentGames", games));
 		}
 	}
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		String who = event.getPlayer().getName();
-		int timeout = plugin.getConfig().getInt("forfeit_timeout"); //$NON-NLS-1$
+		String who = event.getPlayer().getUniqueId().toString();
+		int timeout = plugin.getConfig().getInt("forfeit_timeout");
 		for (ChessGame game : ChessGameManager.getManager().listGames()) {
 			if (game.isPlayerInGame(who)) {
 				game.playerLeft(who);
-				plugin.getPlayerTracker().playerLeft(who);
+				plugin.getPlayerTracker().playerLeft(event.getPlayer());
 				if (timeout > 0 && game.getState() == GameState.RUNNING) {
-					game.alert(Messages.getString("ChessPlayerListener.playerQuit", who, timeout)); //$NON-NLS-1$
+					game.alert(Messages.getString("ChessPlayerListener.playerQuit", event.getPlayer().getDisplayName(), timeout));
 				}
 			}
 		}
@@ -220,16 +219,16 @@ public class ChessPlayerListener extends ChessListenerBase {
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		ResponseHandler resp = ChessCraft.getInstance().responseHandler;
-		ExpectInvitePlayer ip = resp.getAction(player.getName(), ExpectInvitePlayer.class);
+		ExpectInvitePlayer ip = resp.getAction(player, ExpectInvitePlayer.class);
 
 		if (ip != null) {
 			try {
 				ip.setInviteeName(event.getMessage());
 				event.setCancelled(true);
-				ip.handleAction();
+				ip.handleAction(player);
 			} catch (ChessException e) {
 				MiscUtil.errorMessage(player, e.getMessage());
-				ip.cancelAction();
+				ip.cancelAction(player);
 			}
 		}
 	}
@@ -256,11 +255,11 @@ public class ChessPlayerListener extends ChessListenerBase {
 			return;
 		}
 
-		ChessGameManager.getManager().setCurrentGame(player.getName(), game);
+		ChessGameManager.getManager().setCurrentGame(player, game);
 
 		int clickedSqi = game.getView().getSquareAt(loc);
 		int selectedSqi = bv.getChessBoard().getSelectedSquare();
-		if (game.isPlayerToMove(player.getName())) {
+		if (game.isPlayerToMove(player.getUniqueId().toString())) {
 			if (selectedSqi == Chess.NO_SQUARE) {
 				// select the piece for moving (if it belongs to the player)
 				int colour = game.getPosition().getColor(clickedSqi);
@@ -269,7 +268,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 					int piece = game.getPosition().getPiece(clickedSqi);
 					String what = ChessUtils.pieceToStr(piece).toUpperCase();
 					if (plugin.getConfig().getBoolean("verbose")) {
-						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(clickedSqi))); //$NON-NLS-1$
+						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.pieceSelected", what, Chess.sqiToStr(clickedSqi)));
 					}
 					plugin.getFX().playEffect(player.getLocation(), "piece_selected");
 				}
@@ -278,22 +277,22 @@ public class ChessPlayerListener extends ChessListenerBase {
 					// cancel a selected piece
 					bv.getChessBoard().setSelectedSquare(Chess.NO_SQUARE);
 					if (plugin.getConfig().getBoolean("verbose")) {
-						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled")); //$NON-NLS-1$
+						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.moveCancelled"));
 					}
 					plugin.getFX().playEffect(player.getLocation(), "piece_unselected");
 				} else if (clickedSqi >= 0 && clickedSqi < Chess.NUM_OF_SQUARES) {
 					// try to move the selected piece
-					game.doMove(player.getName(), selectedSqi, clickedSqi);
+					game.doMove(player.getUniqueId().toString(), selectedSqi, clickedSqi);
 					if (plugin.getConfig().getBoolean("verbose")) {
 						MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
-						                                                  game.getPosition().getLastMove().getSAN())); //$NON-NLS-1$
+						                                                  game.getPosition().getLastMove().getSAN()));
 					}
 				}
 			}
-		} else if (game.isPlayerInGame(player.getName())) {
-			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn")); //$NON-NLS-1$
+		} else if (game.isPlayerInGame(player.getUniqueId().toString())) {
+			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn"));
 		} else {
-			MiscUtil.errorMessage(player, Messages.getString("Game.notInGame")); //$NON-NLS-1$
+			MiscUtil.errorMessage(player, Messages.getString("Game.notInGame"));
 		}
 	}
 
@@ -305,18 +304,18 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		if (game != null && selectedSqi != Chess.NO_SQUARE && selectedSqi != clickedSqi) {
 			// a square is already selected; attempt to move the piece in that square to the clicked square
-			game.doMove(player.getName(), selectedSqi, clickedSqi);
+			game.doMove(player.getUniqueId().toString(), selectedSqi, clickedSqi);
 			if (plugin.getConfig().getBoolean("verbose")) {
-				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed", //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.youPlayed",
 				                                                  game.getPosition().getLastMove().getSAN()));
 			}
-		} else if (game != null && game.isPlayerToMove(player.getName()) && colour == game.getPosition().getToPlay()) {
+		} else if (game != null && game.isPlayerToMove(player.getUniqueId().toString()) && colour == game.getPosition().getToPlay()) {
 			// clicking the square that a piece of our colour is on is equivalent to selecting the piece, if it's our move
 			pieceClicked(player, loc, bv);
 		} else {
 			// just try to teleport to the square, if the player is already on the board, and the square is empty
 			if (player.isSneaking()) {
-				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage", //$NON-NLS-1$
+				MiscUtil.statusMessage(player, Messages.getString("ChessPlayerListener.squareMessage",
 				                                                  Chess.sqiToStr(clickedSqi), bv.getName()));
 			}
 			if (bv.isPartOfBoard(player.getLocation()) && player.getLocation().distanceSquared(loc) >= 16 && colour == Chess.NOBODY) {
@@ -352,10 +351,10 @@ public class ChessPlayerListener extends ChessListenerBase {
 	}
 
 	private long lastAnimationEvent(Player player) {
-		if (!lastAnimation.containsKey(player.getName())) {
-			lastAnimation.put(player.getName(), 0L);
+		if (!lastAnimation.containsKey(player.getUniqueId())) {
+			lastAnimation.put(player.getUniqueId(), 0L);
 		}
-		return lastAnimation.get(player.getName());
+		return lastAnimation.get(player.getUniqueId());
 	}
 
 

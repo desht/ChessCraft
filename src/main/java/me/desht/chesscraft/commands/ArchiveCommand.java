@@ -1,5 +1,6 @@
 package me.desht.chesscraft.commands;
 
+import me.desht.chesscraft.ChessValidate;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
@@ -27,13 +28,13 @@ public class ArchiveCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		ChessGame game = null;
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		ChessGame game;
 		if (args.length >= 1) {
 			if (args[0].equals("-this")) {
-				notFromConsole(player);
-				Player p = (Player)player;
-				BoardView bv = BoardViewManager.getManager().partOfChessBoard(p.getLocation());
+				notFromConsole(sender);
+				Player player = (Player)sender;
+				BoardView bv = BoardViewManager.getManager().partOfChessBoard(player.getLocation());
 				if (bv == null) {
 					throw new ChessException(Messages.getString("Designer.notOnBoard"));
 				} else {
@@ -43,14 +44,13 @@ public class ArchiveCommand extends ChessAbstractCommand {
 				game = ChessGameManager.getManager().getGame(args[0]);
 			}
 		} else {
-			notFromConsole(player);
-			game = ChessGameManager.getManager().getCurrentGame(player.getName());
+			notFromConsole(sender);
+			game = ChessGameManager.getManager().getCurrentGame((Player) sender);
 		}
-		if (game == null) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.noActiveGame"));
-		}
+		ChessValidate.notNull(game, Messages.getString("ChessCommandExecutor.noActiveGame"));
+
 		File written = game.writePGN(false);
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.PGNarchiveWritten", written.getName()));
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.PGNarchiveWritten", written.getName()));
 		return true;
 	}
 

@@ -14,7 +14,7 @@ public class OfferDrawButton extends AbstractSignButton {
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		if (game != null) {
-			game.offerDraw(event.getPlayer().getName());
+			game.offerDraw(event.getPlayer().getUniqueId().toString());
 		}
 	}
 

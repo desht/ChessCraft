@@ -119,7 +119,7 @@ public class Results {
 	 */
 	Connection getDBConnection() {
 		try {
-			if (db.getConnection() != null && !db.getConnection().isValid(5)) {
+			if (db.getConnection() != null && db.getActiveDriver() != ResultsDB.SupportedDrivers.SQLITE && !db.getConnection().isValid(5)) {
 				// stale handler
 				LogUtils.info("DB connection no longer valid - attempting reconnection");
 				db.makeDBConnection();

@@ -16,15 +16,11 @@ public abstract class PromoteButton extends AbstractSignButton {
 
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		int playerColour = getGame().getPlayerColour(event.getPlayer().getName());
-		if (playerColour != colour)
-			return;
-
-		ChessPlayer p = getGame().getPlayer(playerColour);
-		if (p != null) {
+		ChessPlayer p = getGame().getPlayer(event.getPlayer().getUniqueId().toString());
+		if (p != null && p.getColour() == colour) {
 			p.cyclePromotionPiece();
+			repaint();
 		}
-		repaint();
 	}
 
 	@Override
@@ -37,7 +33,7 @@ public abstract class PromoteButton extends AbstractSignButton {
 	@Override
 	public boolean isEnabled() {
 		ChessGame game = getGame();
-		return game != null && !game.getPlayerName(colour).isEmpty();
+		return game != null && !game.getPlayerDisplayName(colour).isEmpty();
 	}
 
 	private String getPromoStr() {

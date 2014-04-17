@@ -7,6 +7,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -23,8 +24,8 @@ public class BoardCreationCommand extends ChessAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
-
 		notFromConsole(sender);
+		Player player = (Player) sender;
 
 		if (args.length == 0 || args[0].startsWith("-")) {
 			showUsage(sender);
@@ -39,8 +40,8 @@ public class BoardCreationCommand extends ChessAbstractCommand {
 		// this will throw an exception if the styles are in any way invalid or incompatible
 		BoardStyle.verifyCompatibility(boardStyleName, pieceStyleName);
 
-		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name)); //$NON-NLS-1$
-		ChessCraft.getInstance().responseHandler.expect(sender.getName(), new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.boardCreationPrompt", name));
+		ChessCraft.getInstance().responseHandler.expect(player, new ExpectBoardCreation(name, boardStyleName, pieceStyleName));
 
 		return true;
 	}

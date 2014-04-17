@@ -15,20 +15,13 @@ public class InviteAnyoneButton extends AbstractSignButton {
 		ChessGame game = getGame();
 
 		if (game != null) {
-			game.inviteOpen(event.getPlayer().getName());
+			game.inviteOpen(event.getPlayer());
 		}
 	}
 
 	@Override
 	public boolean isEnabled() {
 		ChessGame game = getGame();
-
-		if (game == null) return false;
-
-		boolean hasWhite = !game.getWhitePlayerName().isEmpty();
-		boolean hasBlack = !game.getBlackPlayerName().isEmpty();
-
-		return game.getState() == GameState.SETTING_UP && (!hasWhite || !hasBlack);
+		return game != null && game.getState() == GameState.SETTING_UP && !game.isFull();
 	}
-
 }

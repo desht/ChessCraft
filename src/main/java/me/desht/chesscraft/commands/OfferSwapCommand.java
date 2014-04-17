@@ -4,6 +4,7 @@ import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class OfferSwapCommand extends ChessAbstractCommand {
@@ -15,11 +16,11 @@ public class OfferSwapCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
-
-		ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
-		game.offerSwap(player.getName());
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		Player player = (Player) sender;
+		ChessGame game = ChessGameManager.getManager().getCurrentGame(player, true);
+		game.offerSwap(player.getUniqueId().toString());
 
 		return true;
 	}

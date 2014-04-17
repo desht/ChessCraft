@@ -19,10 +19,10 @@ public class AIChessPlayer extends ChessPlayer {
 
 	private final ChessAI ai;
 
-	public AIChessPlayer(String name, ChessGame game, int colour) {
-		super(name, game, colour);
+	public AIChessPlayer(String id, ChessGame game, int colour) {
+		super(id, id, game, colour);
 
-		ai = AIFactory.getInstance().getNewAI(game, name, colour == Chess.WHITE);
+		ai = AIFactory.getInstance().getNewAI(game, id, colour == Chess.WHITE);
 	}
 
 	@Override
@@ -99,9 +99,9 @@ public class AIChessPlayer extends ChessPlayer {
 
 	@Override
 	public double getPayoutMultiplier() {
-		AIDefinition aiDef = AIFactory.getInstance().getAIDefinition(getName());
+		AIDefinition aiDef = AIFactory.getInstance().getAIDefinition(getId());
 		if (aiDef == null) {
-			LogUtils.warning("can't find AI definition for " + getName());
+			LogUtils.warning("can't find AI definition for " + getDisplayName());
 			return 2.0;
 		} else {
 			return 1.0 + aiDef.getPayoutMultiplier();
@@ -115,6 +115,11 @@ public class AIChessPlayer extends ChessPlayer {
 
 	@Override
 	public void swapOffered() {
+		// do nothing here
+	}
+
+	@Override
+	public void undoOffered() {
 		// do nothing here
 	}
 
@@ -133,7 +138,7 @@ public class AIChessPlayer extends ChessPlayer {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {
 				if (ChessCraft.getInstance().getConfig().getBoolean("ai.lose_on_fail", false)) {
-					game.winByDefault(otherPlayer.getName());
+					game.winByDefault(otherPlayer.getId());
 				} else {
 					game.drawn(GameResult.Abandoned);
 				}
@@ -149,7 +154,7 @@ public class AIChessPlayer extends ChessPlayer {
 				int from = ai.getPendingFrom();
 				int to = ai.getPendingTo();
 				try {
-					getGame().doMove(getName(), from, to);
+					getGame().doMove(getId(), from, to);
 				} catch (IllegalMoveException e) {
 					getGame().alert(Messages.getString("ChessAI.AIunexpectedException", e.getMessage())); //$NON-NLS-1$
 					ai.setFailed(true);
@@ -159,17 +164,17 @@ public class AIChessPlayer extends ChessPlayer {
 				}
 				break;
 			case DRAW_OFFERED:
-				game.offerDraw(getName());
+				game.offerDraw(getId());
 				break;
 			case DRAW_ACCEPTED:
 				if (otherPlayer != null) {
-					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getName()));
+					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferAccepted", getDisplayName()));
 				}
 				game.drawn(GameResult.DrawAgreed);
 				break;
 			case DRAW_DECLINED:
 				if (otherPlayer != null) {
-					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getName()));
+					otherPlayer.alert(Messages.getString("ExpectYesNoOffer.drawOfferDeclined", getDisplayName()));
 				}
 				break;
 			default:

@@ -270,7 +270,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupCitizens2(PluginManager pm) {
 		Plugin citizens = pm.getPlugin("Citizens");
-		if (citizens != null && citizens instanceof CitizensPlugin) {
+		if (citizens != null && citizens.isEnabled()) {
 			citizensEnabled = true;
 			Debugger.getInstance().debug("Hooked Citizens2 v" + citizens.getDescription().getVersion());
 			CitizensUtil.initCitizens();

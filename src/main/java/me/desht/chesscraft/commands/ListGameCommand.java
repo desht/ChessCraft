@@ -9,6 +9,7 @@ import me.desht.dhutils.MessagePager;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class ListGameCommand extends ChessAbstractCommand {
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) {
 		if (ChessGameManager.getManager().listGames().isEmpty()) {
-			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.noCurrentGames")); //$NON-NLS-1$
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.noCurrentGames"));
 			return true;
 		}
 
@@ -38,19 +39,19 @@ public class ListGameCommand extends ChessAbstractCommand {
 		} else {
 			for (ChessGame game : ChessGameManager.getManager().listGamesSorted()) {
 				String name = game.getName();
-				if (game == ChessGameManager.getManager().getCurrentGame(sender.getName())) {
+				if (sender instanceof Player && game == ChessGameManager.getManager().getCurrentGame((Player) sender)) {
 					name = ChatColor.BOLD + ChatColor.ITALIC.toString() + name + ChatColor.RESET;
 				}
-				String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? TO_MOVE : ""; //$NON-NLS-1$ //$NON-NLS-2$
-				String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? TO_MOVE : ""; //$NON-NLS-1$ //$NON-NLS-2$
-				String white = game.hasPlayer(Chess.WHITE) ? game.getPlayer(Chess.WHITE).getDisplayName() : "?"; //$NON-NLS-1$
-				String black = game.hasPlayer(Chess.BLACK) ? game.getPlayer(Chess.BLACK).getDisplayName() : "?"; //$NON-NLS-1$
+				String curMoveW = game.getPosition().getToPlay() == Chess.WHITE ? TO_MOVE : "";
+				String curMoveB = game.getPosition().getToPlay() == Chess.BLACK ? TO_MOVE : "";
+				String white = game.hasPlayer(Chess.WHITE) ? game.getPlayer(Chess.WHITE).getDisplayName() : "?";
+				String black = game.hasPlayer(Chess.BLACK) ? game.getPlayer(Chess.BLACK).getDisplayName() : "?";
 				String line = String.format(MessagePager.BULLET + "%s: &f%s%s (%s) v %s%s (%s)",
 				                            name,
 				                            curMoveW, white, ChessUtils.getDisplayColour(Chess.WHITE),
 				                            curMoveB, black, ChessUtils.getDisplayColour(Chess.BLACK));
-				if (game.getInvited().length() > 0) {
-					line += Messages.getString("ChessCommandExecutor.invited", game.getInvited()); //$NON-NLS-1$
+				if (game.getInvited() != null) {
+					line += Messages.getString("ChessCommandExecutor.invited", game.getInvited());
 				}
 				pager.add(line);
 			}

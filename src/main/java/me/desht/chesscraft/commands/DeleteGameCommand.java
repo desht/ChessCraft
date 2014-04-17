@@ -29,9 +29,9 @@ public class DeleteGameCommand extends ChessAbstractCommand {
 			PermissionUtils.requirePerms(sender, "chesscraft.commands.delete.game");
 		}
 
-		game.alert(Messages.getString("ChessCommandExecutor.gameDeletedAlert", sender.getName())); //$NON-NLS-1$
+		game.alert(Messages.getString("ChessCommandExecutor.gameDeletedAlert", sender.getName()));
 		ChessGameManager.getManager().deleteGame(gameName, true);
-		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.gameDeleted", gameName)); //$NON-NLS-1$
+		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.gameDeleted", gameName));
 
 		return true;
 	}

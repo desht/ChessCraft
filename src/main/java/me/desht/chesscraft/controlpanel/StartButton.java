@@ -15,7 +15,7 @@ public class StartButton extends AbstractSignButton {
 		ChessGame game = getGame();
 
 		if (game != null) {
-			game.start(event.getPlayer().getName());
+			game.start(event.getPlayer().getUniqueId().toString());
 		}
 	}
 

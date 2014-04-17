@@ -6,6 +6,7 @@ import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -19,18 +20,19 @@ public class GameCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		Player player = (Player) sender;
 
 		if (args.length >= 1) {
-			ChessGameManager.getManager().setCurrentGame(player.getName(), args[0]);
-			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.activeGameChanged", args[0])); //$NON-NLS-1$
+			ChessGameManager.getManager().setCurrentGame(player.getUniqueId(), args[0]);
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.activeGameChanged", args[0]));
 		} else {
-			ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), false);
+			ChessGame game = ChessGameManager.getManager().getCurrentGame(player, false);
 			if (game == null) {
-				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.noActiveGame")); //$NON-NLS-1$
+				MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.noActiveGame"));
 			} else {
-				MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.activeGameIs", game.getName())); //$NON-NLS-1$
+				MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.activeGameIs", game.getName()));
 			}
 		}
 		return true;

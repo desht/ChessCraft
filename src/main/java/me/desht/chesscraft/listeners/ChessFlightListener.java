@@ -9,7 +9,6 @@ import me.desht.chesscraft.event.ChessBoardModifiedEvent;
 import me.desht.chesscraft.event.ChessPlayerFlightToggledEvent;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.FlightController;
-import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.cuboid.Cuboid;
@@ -29,6 +28,7 @@ import org.bukkit.util.Vector;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class ChessFlightListener extends ChessListenerBase {
 
@@ -37,13 +37,13 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	// notes if the player is currently allowed to fly due to being on/near a board
 	// maps the player name to the previous flight speed for the player
-	private final Map<String,PreviousSpeed> allowedToFly = new HashMap<String,PreviousSpeed>();
+	private final Map<UUID,PreviousSpeed> allowedToFly = new HashMap<UUID,PreviousSpeed>();
 
 	// notes when a player was last messaged about flight, to reduce spam
-	private final Map<String,Long> lastMessagedIn = new HashMap<String,Long>();
-	private final Map<String,Long> lastMessagedOut = new HashMap<String,Long>();
+	private final Map<UUID,Long> lastMessagedIn = new HashMap<UUID,Long>();
+	private final Map<UUID,Long> lastMessagedOut = new HashMap<UUID,Long>();
 	// notes when player was last bounced back while flying
-	private final Map<String,Long> lastBounce = new HashMap<String, Long>();
+	private final Map<UUID,Long> lastBounce = new HashMap<UUID, Long>();
 
 	private boolean enabled;
 	private boolean captive;
@@ -80,13 +80,13 @@ public class ChessFlightListener extends ChessListenerBase {
 //				setFlightAllowed(player, bvm.getFlightRegion(player.getLocation()) != null);
 			}
 		} else {
-			for (String playerName : allowedToFly.keySet()) {
-				Player player = Bukkit.getPlayerExact(playerName);
+			for (UUID playerId : allowedToFly.keySet()) {
+				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 					controller.yieldControl(player, gameModeAllowsFlight(player));
 //					player.setAllowFlight(gameModeAllowsFlight(player));
 					// restore previous flight/walk speed
-					allowedToFly.get(playerName).restoreSpeeds();
+					allowedToFly.get(playerId).restoreSpeeds();
 					MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabledByAdmin"));
 				}
 			}
@@ -118,10 +118,10 @@ public class ChessFlightListener extends ChessListenerBase {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerLeft(PlayerQuitEvent event) {
-		String playerName = event.getPlayer().getName();
-		if (allowedToFly.containsKey(playerName)) {
-			allowedToFly.get(playerName).restoreSpeeds();
-			allowedToFly.remove(playerName);
+		UUID id = event.getPlayer().getUniqueId();
+		if (allowedToFly.containsKey(id)) {
+			allowedToFly.get(id).restoreSpeeds();
+			allowedToFly.remove(id);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class ChessFlightListener extends ChessListenerBase {
 	public void onGameModeChange(PlayerGameModeChangeEvent event) {
 		final Player player = event.getPlayer();
 		final boolean isFlying = player.isFlying();
-		if (event.getNewGameMode() != GameMode.CREATIVE && allowedToFly.containsKey(player.getName())) {
+		if (event.getNewGameMode() != GameMode.CREATIVE && allowedToFly.containsKey(player.getUniqueId())) {
 			// If switching away from creative mode and on/near a board, allow flight to continue.
 			// Seems a delayed task is needed here - calling setAllowFlight() directly from the event handler
 			// leaves getAllowFlight() returning true, but the player is still not allowed to fly.  (CraftBukkit bug?)
@@ -139,8 +139,6 @@ public class ChessFlightListener extends ChessListenerBase {
 					if (controller.changeFlight(player, true)) {
 						player.setFlying(isFlying);
 					}
-//					player.setAllowFlight(true);
-//					player.setFlying(isFlying);
 				}
 			});
 		}
@@ -161,7 +159,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		}
 
 		Player player = event.getPlayer();
-		boolean flyingNow = allowedToFly.containsKey(player.getName()) && player.isFlying();
+		boolean flyingNow = allowedToFly.containsKey(player.getUniqueId()) && player.isFlying();
 		boolean boardFlightAllowed = bvm.getFlightRegion(to) != null;
 		boolean otherFlightAllowed = gameModeAllowsFlight(player);
 
@@ -170,7 +168,7 @@ public class ChessFlightListener extends ChessListenerBase {
 			// captive mode - if flying, prevent movement too far from a board by bouncing the
 			// player towards the centre of the board they're trying to leave
 			if (flyingNow && !boardFlightAllowed && !otherFlightAllowed) {
-				Long last = lastBounce.get(player.getName());
+				Long last = lastBounce.get(player.getUniqueId());
 				if (last == null) last = 0L;
 				if (System.currentTimeMillis() - last > BOUNCE_COOLDOWN) {
 					event.setCancelled(true);
@@ -178,7 +176,7 @@ public class ChessFlightListener extends ChessListenerBase {
 					Location origin = c == null ? from : c.getCenter().subtract(0, c.getSizeY(), 0);
 					Vector vec = origin.toVector().subtract(to.toVector()).normalize();
 					player.setVelocity(vec);
-					lastBounce.put(player.getName(), System.currentTimeMillis());
+					lastBounce.put(player.getUniqueId(), System.currentTimeMillis());
 				}
 			} else {
 				setFlightAllowed(player, boardFlightAllowed);
@@ -225,7 +223,7 @@ public class ChessFlightListener extends ChessListenerBase {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onFlyingInteraction(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-		if (allowedToFly.containsKey(player.getName()) && !gameModeAllowsFlight(player) && player.isFlying()) {
+		if (allowedToFly.containsKey(player.getUniqueId()) && !gameModeAllowsFlight(player) && player.isFlying()) {
 			if (event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				if (bvm.partOfChessBoard(event.getClickedBlock().getLocation(), 0) == null
 						&& !PermissionUtils.isAllowedTo(player, "chesscraft.flight.interact")) {
@@ -261,9 +259,8 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * @param allowed true if flight allowed, false otherwise
 	 */
 	private void setFlightAllowed(final Player player, boolean allowed) {
-		String playerName = player.getName();
-
-		boolean currentlyAllowed = allowedToFly.containsKey(playerName);
+		UUID playerId = player.getUniqueId();
+		boolean currentlyAllowed = allowedToFly.containsKey(playerId);
 
 		if (allowed == currentlyAllowed) {
 			return;
@@ -288,7 +285,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		long now = System.currentTimeMillis();
 
 		if (allowed) {
-			allowedToFly.put(playerName, new PreviousSpeed(player));
+			allowedToFly.put(player.getUniqueId(), new PreviousSpeed(player));
 			player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 			player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
 			if (plugin.getConfig().getBoolean("flying.auto")) {
@@ -304,18 +301,18 @@ public class ChessFlightListener extends ChessListenerBase {
 					}
 				});
 			}
-			long last = lastMessagedIn.containsKey(playerName) ? lastMessagedIn.get(playerName) : 0;
+			long last = lastMessagedIn.containsKey(playerId) ? lastMessagedIn.get(playerId) : 0;
 			if (now - last > MESSAGE_COOLDOWN  && player.getGameMode() != GameMode.CREATIVE) {
 				MiscUtil.alertMessage(player, Messages.getString("Flight.flightEnabled"));
-				lastMessagedIn.put(playerName, System.currentTimeMillis());
+				lastMessagedIn.put(playerId, System.currentTimeMillis());
 			}
 		} else {
-			allowedToFly.get(playerName).restoreSpeeds();
-			allowedToFly.remove(playerName);
-			long last = lastMessagedOut.containsKey(playerName) ? lastMessagedOut.get(playerName) : 0;
+			allowedToFly.get(playerId).restoreSpeeds();
+			allowedToFly.remove(playerId);
+			long last = lastMessagedOut.containsKey(playerId) ? lastMessagedOut.get(playerId) : 0;
 			if (now - last > MESSAGE_COOLDOWN && player.getGameMode() != GameMode.CREATIVE) {
 				MiscUtil.alertMessage(player, Messages.getString("Flight.flightDisabled"));
-				lastMessagedOut.put(playerName, System.currentTimeMillis());
+				lastMessagedOut.put(playerId, System.currentTimeMillis());
 			}
 		}
 
@@ -340,8 +337,8 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * the fly/walk speeds are changed in config.
 	 */
 	public void updateSpeeds() {
-		for (String playerName : allowedToFly.keySet()) {
-			Player player = Bukkit.getPlayerExact(playerName);
+		for (UUID playerId : allowedToFly.keySet()) {
+			Player player = Bukkit.getPlayer(playerId);
 			if (player != null) {
 				player.setFlySpeed((float) plugin.getConfig().getDouble("flying.fly_speed"));
 				player.setWalkSpeed((float) plugin.getConfig().getDouble("flying.walk_speed"));
@@ -354,10 +351,10 @@ public class ChessFlightListener extends ChessListenerBase {
 	 * plugin is disabled.
 	 */
 	public void restoreSpeeds() {
-		for (String playerName : allowedToFly.keySet()) {
-			Player player = Bukkit.getPlayerExact(playerName);
+		for (UUID playerId : allowedToFly.keySet()) {
+			Player player = Bukkit.getPlayer(playerId);
 			if (player != null) {
-				allowedToFly.get(playerName).restoreSpeeds();
+				allowedToFly.get(playerId).restoreSpeeds();
 			}
 		}
 	}

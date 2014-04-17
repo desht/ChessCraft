@@ -45,14 +45,18 @@ public abstract class ChessAbstractCommand extends AbstractCommand {
 
 
 	protected List<String> getPlayerInGameCompletions(Plugin plugin, CommandSender sender, String prefix) {
-		List<String> res = new ArrayList<String>();
-
-		for (ChessGame game : ChessGameManager.getManager().listGames()) {
-			if (game.getName().startsWith(prefix) && game.getPlayerColour(sender.getName()) != Chess.NOBODY) {
-				res.add(game.getName());
+		if (sender instanceof Player) {
+			Player player = (Player) sender;
+			List<String> res = new ArrayList<String>();
+			for (ChessGame game : ChessGameManager.getManager().listGames()) {
+				if (game.getName().startsWith(prefix) && game.getPlayer(player.getUniqueId().toString()) != null) {
+					res.add(game.getName());
+				}
 			}
+			return getResult(res, sender, true);
+		} else {
+			return noCompletions(sender);
 		}
-		return getResult(res, sender, true);
 	}
 
 	protected List<String> getBoardCompletions(Plugin plugin, CommandSender sender, String prefix) {

@@ -28,10 +28,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable, ConfigurationListener {
@@ -76,7 +73,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	public BoardView(String boardName, Location origin, BoardRotation rotation, String bStyle, String pStyle) throws ChessException {
 		this.name = boardName;
 		if (BoardViewManager.getManager().boardViewExists(name)) {
-			throw new ChessException(Messages.getString("BoardView.boardExists")); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("BoardView.boardExists"));
 		}
 		attributes = new AttributeCollection(this);
 		registerAttributes();
@@ -129,9 +126,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		Map<String, String> m = (Map<String,String>)conf.get("designer");
 		if (m != null) {
 			String designerName = m.get("setName");
-			String designerPlayerName = m.get("playerName");
+			String designerId = m.get("playerName");
 			if (designerName != null && !designerName.isEmpty()) {
-				setDesigner(new PieceDesigner(this, designerName, designerPlayerName));
+				setDesigner(new PieceDesigner(this, designerName, UUID.fromString(designerId)));
 			}
 		}
 
@@ -163,14 +160,14 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	@Override
 	public Map<String, Object> serialize() {
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("name", name); //$NON-NLS-1$
-		result.put("game", game == null ? "" : game.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center())); //$NON-NLS-1$
-		result.put("direction", chessBoard.getRotation().name()); //$NON-NLS-1$
+		result.put("name", name);
+		result.put("game", game == null ? "" : game.getName());
+		result.put("origin", ChessPersistence.freezeLocation(chessBoard.getA1Center()));
+		result.put("direction", chessBoard.getRotation().name());
 		Map<String, Object> d = new HashMap<String, Object>();
 		if (isDesigning()) {
-			d.put("setName", chessBoard.getDesigner().getSetName()); //$NON-NLS-1$
-			d.put("playerName", chessBoard.getDesigner().getPlayerName()); //$NON-NLS-1$
+			d.put("setName", chessBoard.getDesigner().getSetName());
+			d.put("playerName", chessBoard.getDesigner().getPlayerId().toString());
 		} else {
 			d.put("setName", "");
 			d.put("playerName", "");
@@ -202,7 +199,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	public void autoSave() {
-		if (ChessCraft.getInstance().getConfig().getBoolean("autosave", true)) { //$NON-NLS-1$
+		if (ChessCraft.getInstance().getConfig().getBoolean("autosave", true)) {
 			save();
 		}
 	}
@@ -619,29 +616,29 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 		String bullet = MessagePager.BULLET + ChatColor.YELLOW;
 		Cuboid bounds = getOuterBounds();
-		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame"); //$NON-NLS-1$
+		String gameName = getGame() != null ? getGame().getName() : Messages.getString("ChessCommandExecutor.noGame");
 
-		res.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents", //$NON-NLS-1$
+		res.add(Messages.getString("ChessCommandExecutor.boardDetail.board", getName()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardExtents",
 		                                    MiscUtil.formatLocation(bounds.getLowerNE()),
 		                                    MiscUtil.formatLocation(bounds.getUpperSW())));
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName)); //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.game", gameName));
 		// TODO:  yeah, we lie about the direction of the board here.  Blame Mojang/Bukkit for changing the meaning of the compass points
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().getLeft().toString())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),  //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardOrientation", getRotation().getLeft().toString()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.boardStyle", getBoardStyleName()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.pieceStyle", getPieceStyleName()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.squareSize", getSquareSize(),
 		                                    getWhiteSquareMaterial(), getBlackSquareMaterial()));
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(), //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.frameWidth", getFrameWidth(),
 		                                    getFrameMaterial()));
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight())); //$NON-NLS-1$
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel())); //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.enclosure", getEnclosureMaterial()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.struts", getStrutsMaterial()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight()));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel()));
 		String lockStakeStr = getLockStake() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr)); //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr));
 		String lockTcStr = getLockTcSpec() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr)); //$NON-NLS-1$
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr));
 		String dest = hasTeleportDestination() ? MiscUtil.formatLocation(getTeleportDestination()) : "-";
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.teleportDest", dest));
 
@@ -664,8 +661,9 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		}
 		Location loc = getControlPanel().getTeleportLocation();
 		ChessCraft.getInstance().getPlayerTracker().teleportPlayer(player, loc);
-		if (game != null)
-			ChessGameManager.getManager().setCurrentGame(player.getName(), game);
+		if (game != null) {
+			ChessGameManager.getManager().setCurrentGame(player, game);
+		}
 	}
 
 	public AttributeCollection getAttributes() {

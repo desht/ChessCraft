@@ -205,7 +205,7 @@ public class DynmapIntegration implements Listener {
 	}
 
 	private String getPlayerString(ChessGame game, int colour) {
-		return game.getPlayer(colour) == null ? "?" : game.getPlayer(colour).getName().replace(ChessAI.AI_PREFIX, "[AI]");
+		return game.getPlayer(colour) == null ? "?" : game.getPlayer(colour).getDisplayName().replace(ChessAI.AI_PREFIX, "[AI]");
 	}
 
 	private String colour(String text, String col) {

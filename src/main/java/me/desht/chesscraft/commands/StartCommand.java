@@ -3,6 +3,7 @@ package me.desht.chesscraft.commands;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.List;
@@ -16,12 +17,13 @@ public class StartCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
-		notFromConsole(player);
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
+		notFromConsole(sender);
+		Player player = (Player) sender;
 		if (args.length >= 1) {
-			ChessGameManager.getManager().getGame(args[0]).start(player.getName());
+			ChessGameManager.getManager().getGame(args[0]).start(player.getUniqueId().toString());
 		} else {
-			ChessGameManager.getManager().getCurrentGame(player.getName(), true).start(player.getName());
+			ChessGameManager.getManager().getCurrentGame(player, true).start(player.getUniqueId().toString());
 		}
 		return true;
 	}

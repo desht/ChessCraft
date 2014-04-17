@@ -8,6 +8,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 public class StakeCommand extends ChessAbstractCommand {
@@ -19,20 +20,22 @@ public class StakeCommand extends ChessAbstractCommand {
 	}
 
 	@Override
-	public boolean execute(Plugin plugin, CommandSender player, String[] args) throws ChessException {
+	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
 		if (ChessCraft.economy == null) {
 			return true;
 		}
+		notFromConsole(sender);
+		Player player = (Player) sender;
 
 		String stakeStr = args[0];
 		try {
-			ChessGame game = ChessGameManager.getManager().getCurrentGame(player.getName(), true);
+			ChessGame game = ChessGameManager.getManager().getCurrentGame(player, true);
 			double amount = Double.parseDouble(stakeStr);
-			game.setStake(player.getName(), amount);
+			game.setStake(player, amount);
 			game.getView().getControlPanel().repaintControls();
-			MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.stakeChanged", ChessUtils.formatStakeStr(amount))); //$NON-NLS-1$
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.stakeChanged", ChessUtils.formatStakeStr(amount)));
 		} catch (NumberFormatException e) {
-			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", stakeStr)); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", stakeStr));
 		}
 		return true;
 	}
