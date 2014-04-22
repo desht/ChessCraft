@@ -69,7 +69,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: "Черные ходят"
     clock: "Часы: Белые: {0}, Черные: {1}"
-    invitation: "&- был приглашен.  Ожидаем ответа."
+    invitation: "&6{0}&- был приглашен.  Ожидаем ответа."
     moveHistory: "&eИстория ходов:"
     name: "&eПартия {0} [{1}]:"
     openInvitation: "Партия с открытым приглашением"

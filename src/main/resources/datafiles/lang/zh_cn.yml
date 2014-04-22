@@ -72,7 +72,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: "&8黑方&-执子"
     clock: "时间: &f白方&-： {0}, &8黑方&-： {1}"
-    invitation: "&- 已被邀请. 等待回应."
+    invitation: "&6{0}&- 已被邀请. 等待回应."
     moveHistory: "&e移子记录："
     name: "&e棋局 {0} [{1}]："
     openInvitation: "棋局发出了公开邀请"

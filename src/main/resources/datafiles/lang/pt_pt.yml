@@ -72,7 +72,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: "Vez do jogador &8Preto&-"
     clock: "Relógio: &fBranco&-: {0}, &8Preto&-: {1}"
-    invitation: "&- foi convidado.  Aguardando resposta."
+    invitation: "&6{0}&- foi convidado.  Aguardando resposta."
     moveHistory: "&eHistorial:"
     name: "&eJogo {0} [{1}]:"
     openInvitation: "O jogo tem convite aberto"

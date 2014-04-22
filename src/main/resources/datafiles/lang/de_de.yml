@@ -72,7 +72,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: '&8Schwarz&- ist am Zug'
     clock: 'Uhr: &fWeiss&-: {0} / &8Schwarz&-: {1}'
-    invitation: '&- wurde eingeladen.  Warte auf Antowort.'
+    invitation: '&6{0}&- wurde eingeladen.  Warte auf Antowort.'
     moveHistory: '&eZug Historie:'
     name: '&eSpiel {0} [{1}]:'
     openInvitation: Das Spiel hat eine offene Einladung

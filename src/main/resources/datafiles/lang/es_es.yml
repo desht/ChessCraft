@@ -63,7 +63,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: "Turno de las negras"
     clock: "Reloj: Blancas: {0}, Negras: {1}"
-    invitation: "&- ha sido invitado.  Esperando respuesta."
+    invitation: "&6{0}&- ha sido invitado.  Esperando respuesta."
     moveHistory: "&eHistoria de movimientos:"
     name: "&ePartida {0} [{1}]:"
     openInvitation: "La partida tiene una invitacion publica"

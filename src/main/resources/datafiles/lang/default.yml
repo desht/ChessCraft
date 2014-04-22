@@ -75,7 +75,7 @@ ChessCommandExecutor:
   gameDetail:
     blackToPlay: "&8Black&- to play"
     clock: "Clock: &fWhite&-: {0}, &8Black&-: {1}"
-    invitation: "&- has been invited.  Awaiting response."
+    invitation: "&6{0}&- has been invited.  Awaiting response."
     moveHistory: "&eMove history:"
     name: "&eGame {0} [{1}]:"
     openInvitation: "Game has an open invitation"
