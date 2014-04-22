@@ -2,6 +2,7 @@ package me.desht.chesscraft.enums;
 
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
+import org.apache.commons.lang.StringUtils;
 
 public enum HighlightStyle {
 
@@ -13,7 +14,7 @@ public enum HighlightStyle {
 		}
 		style = style.trim().toUpperCase();
 		for (HighlightStyle h : values()) {
-			if (h.name().equals(style) || ChessUtils.getLevenshteinDistance(h.name(), style) < 2) {
+			if (h.name().equals(style) || StringUtils.getLevenshteinDistance(h.name(), style) < 2) {
 				return h;
 			}
 		}

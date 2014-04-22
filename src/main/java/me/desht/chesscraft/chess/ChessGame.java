@@ -309,22 +309,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return players[colour] != null ? players[colour].getDisplayName() : "";
 	}
 
-//	public String getWhitePlayerId() {
-//		return getPlayerId(Chess.WHITE);
-//	}
-//
-//	public String getBlackPlayerId() {
-//		return getPlayerId(Chess.BLACK);
-//	}
-//
-//	public String getWhitePlayerDisplayName() {
-//		return getPlayerDisplayName(Chess.WHITE);
-//	}
-//
-//	public String getBlackPlayerDisplayName() {
-//		return getPlayerDisplayName(Chess.BLACK);
-//	}
-
 	public UUID getInvited() {
 		return invited;
 	}
@@ -358,10 +342,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public List<Short> getHistory() {
 		return history;
 	}
-
-//	public String getOtherPlayerName(String name) {
-//		return name.equalsIgnoreCase(getWhitePlayerId()) ? getBlackPlayerId() : getWhitePlayerId();
-//	}
 
 	public double getStake() {
 		return stake;
@@ -523,24 +503,27 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[Chess.BLACK].alert(Messages.getString("Game.nowPlayingBlack"));
 	}
 
+	/**
+	 * Check if the game is full, i.e. has a player for both colours.
+	 *
+	 * @return true if the game is full, false otherwise
+	 */
 	public boolean isFull() {
-		return players[Chess.WHITE] != null && players[Chess.BLACK] != null;
+		return hasPlayer(Chess.WHITE) && hasPlayer(Chess.BLACK);
 	}
 
 	/**
-	 * Add the named player (might be an AI) to the game.
+	 * Add the named player (which could be an AI) to the game.
 	 *
 	 * @param playerId ID of the player to add
 	 * @param displayName display name of the player to add
-	 * @throws ChessException
+	 * @return the colour the player was added as
+	 * @throws ChessException if the player could not be added for any reason
 	 */
 	public int addPlayer(String playerId, String displayName) {
 		ensureGameState(GameState.SETTING_UP);
 
-		if (isFull()) {
-			// this could happen if autostart is disabled and two players have already joined
-			throw new ChessException(Messages.getString("Game.gameIsFull"));
-		}
+		ChessValidate.isFalse(isFull(), Messages.getString("Game.gameIsFull"));
 
 		int colour = fillEmptyPlayerSlot(playerId, displayName);
 
@@ -580,8 +563,9 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		players[colour] = chessPlayer;
 
 		int otherColour = Chess.otherPlayer(colour);
-		if (players[otherColour] != null)
-			players[otherColour].alert(Messages.getString("Game.playerJoined", players[colour].getDisplayName()));
+		if (hasPlayer(otherColour)) {
+			getPlayer(otherColour).alert(Messages.getString("Game.playerJoined", chessPlayer.getDisplayName()));
+		}
 
 		return colour;
 	}
@@ -733,24 +717,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ChessPlayer cp = getPlayer(loserId);
 		ChessValidate.notNull(cp, Messages.getString("Game.notInGame"));
 		gameOver(Chess.otherPlayer(cp.getColour()), GameResult.Resigned);
-
-//		setState(GameState.FINISHED);
-//		String winnerId;
-//		switch (cp.getColour()) {
-//			case Chess.WHITE:
-//				winnerId = getPlayerId(Chess.BLACK);
-//				cpGame.setTag(PGN.TAG_RESULT, "0-1");
-//				result = Chess.RES_BLACK_WINS;
-//				break;
-//			case Chess.BLACK:
-//				winnerId = getPlayerId(Chess.WHITE);
-//				cpGame.setTag(PGN.TAG_RESULT, "1-0");
-//				result = Chess.RES_WHITE_WINS;
-//				break;
-//			default:
-//				throw new IllegalArgumentException();
-//		}
-//		announceResult(winnerId, loserId, GameResult.Resigned);
 	}
 
 	/**
@@ -764,25 +730,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		ChessPlayer cp = getPlayer(winnerId);
 		ChessValidate.notNull(cp, Messages.getString("Game.notInGame"));
 		gameOver(cp.getColour(), GameResult.Forfeited);
-
-//		setState(GameState.FINISHED);
-//		String loserId;
-//		switch (cp.getColour()) {
-//			case Chess.WHITE:
-//				loserId = getPlayerId(Chess.BLACK);
-//				cpGame.setTag(PGN.TAG_RESULT, "1-0");
-//				result = Chess.RES_WHITE_WINS;
-//				break;
-//			case Chess.BLACK:
-//				loserId = getPlayerId(Chess.WHITE);
-//				cpGame.setTag(PGN.TAG_RESULT, "0-1");
-//				result = Chess.RES_BLACK_WINS;
-//				break;
-//			default:
-//				throw new IllegalArgumentException();
-//		}
-//
-//		announceResult(winnerId, loserId, GameResult.Forfeited);
 	}
 
 	/**
@@ -792,11 +739,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void drawn(GameResult res) {
 		ensureGameState(GameState.RUNNING);
-		gameOver(Chess.NOBODY, GameResult.DrawAgreed);
-//		setState(GameState.FINISHED);
-//		result = Chess.RES_DRAW;
-//		cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
-//		announceResult(getPlayerId(Chess.WHITE), getPlayerId(Chess.BLACK), res);
+		gameOver(Chess.NOBODY, res);
 	}
 
 	/**
@@ -844,24 +787,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private boolean checkForFinishingPosition() {
 		if (getPosition().isMate()) {
 			gameOver(Chess.otherPlayer(getPosition().getToPlay()), GameResult.Checkmate);
-//			cpGame.setTag(PGN.TAG_RESULT, getPosition().getToPlay() == Chess.WHITE ? "0-1" : "1-0"); //$NON-NLS-2$
-//			result = getPosition().getToPlay() == Chess.WHITE ? Chess.RES_BLACK_WINS : Chess.RES_WHITE_WINS;
-//			setState(GameState.FINISHED);
-//			announceResult(getPlayerNotToMove().getDisplayName(), getPlayerToMove().getDisplayName(), GameResult.Checkmate);
 			return true;
 		} else if (getPosition().isStaleMate()) {
 			gameOver(Chess.NOBODY, GameResult.Stalemate);
-//			result = Chess.RES_DRAW;
-//			cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
-//			setState(GameState.FINISHED);
-//			announceResult(getPlayerNotToMove().getDisplayName(), getPlayerToMove().getDisplayName(), GameResult.Stalemate);
 			return true;
 		} else if (getPosition().getHalfMoveClock() >= 50) {
 			gameOver(Chess.NOBODY, GameResult.FiftyMoveRule);
-//			result = Chess.RES_DRAW;
-//			cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
-//			setState(GameState.FINISHED);
-//			announceResult(getPlayerNotToMove().getDisplayName(), getPlayerToMove().getDisplayName(), GameResult.FiftyMoveRule);
 			return true;
 		}
 		return false;
@@ -972,7 +903,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-
 	private void gameOver(int winnerColour, GameResult rt) {
 		String p1, p2;
 		setState(GameState.FINISHED);
@@ -980,23 +910,25 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			p1 = getPlayer(Chess.WHITE).getDisplayName();
 			p2 = getPlayer(Chess.BLACK).getDisplayName();
 			result = Chess.RES_DRAW;
-			cpGame.setTag(PGN.TAG_RESULT, "1/2-1/2");
 		} else {
 			getPlayer(winnerColour).playEffect("game_won");
 			getPlayer(Chess.otherPlayer(winnerColour)).playEffect("game_lost");
 			p1 = getPlayer(winnerColour).getDisplayName();
 			p2 = getPlayer(Chess.otherPlayer(winnerColour)).getDisplayName();
 			result = winnerColour == Chess.WHITE ? Chess.RES_WHITE_WINS : Chess.RES_BLACK_WINS;
-			cpGame.setTag(PGN.TAG_RESULT, winnerColour == Chess.WHITE ? "1-0" : "0-1");
 		}
-		String msg = Messages.getString(rt.getMsgKey(), p1, p2);
-		if (ChessCraft.getInstance().getConfig().getBoolean("broadcast_results") && !p1.equals(p2)) {
-			MiscUtil.broadcastMessage(msg);
-		} else {
-			alert(msg);
-		}
+		cpGame.setTag(PGN.TAG_RESULT, getPGNResult());
 
-		if (!p1.equals(p2)) {
+		String msg = Messages.getString(rt.getMsgKey(), p1, p2);
+		if (p1.equals(p2)) {
+			getPlayer(Chess.WHITE).alert(msg);
+		} else {
+			if (ChessCraft.getInstance().getConfig().getBoolean("broadcast_results")) {
+				MiscUtil.broadcastMessage(msg);
+			} else {
+				alert(msg);
+			}
+
 			handlePayout();
 
 			Results handler = Results.getResultsHandler();
@@ -1006,74 +938,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 	}
 
-
-	/**
-	 * Announce the result of the game to the server
-	 *
-	 * @param p1 the winner
-	 * @param p2 the loser (unless it's a draw)
-	 * @param rt result to announce
-	 */
-	public void announceResult(String p1, String p2, GameResult rt) {
-		String msg = "";
-		switch (rt) {
-		case Checkmate:
-			msg = Messages.getString("Game.checkmated", p1, p2);
-			break;
-		case Stalemate:
-			msg = Messages.getString("Game.stalemated", p1, p2);
-			break;
-		case FiftyMoveRule:
-			msg = Messages.getString("Game.fiftyMoveRule", p1, p2);
-			break;
-		case DrawAgreed:
-			msg = Messages.getString("Game.drawAgreed", p1, p2);
-			break;
-		case Resigned:
-			msg = Messages.getString("Game.resigned", p1, p2);
-			break;
-		case Forfeited:
-			msg = Messages.getString("Game.forfeited", p1, p2);
-			break;
-		case Abandoned:
-			msg = Messages.getString("Game.abandoned", p1, p2);
-			break;
-		}
-		if (ChessCraft.getInstance().getConfig().getBoolean("broadcast_results")
-				&& !p1.equalsIgnoreCase(p2)) {
-			if (!msg.isEmpty()) {
-				MiscUtil.broadcastMessage(msg);
-			}
-		} else {
-			if (!msg.isEmpty()) {
-				alert(msg);
-			}
-		}
-		if (p1.equalsIgnoreCase(p2)) {
-			return;
-		}
-
-		if (result == Chess.RES_WHITE_WINS) {
-			players[Chess.WHITE].playEffect("game_won");
-			players[Chess.BLACK].playEffect("game_lost");
-		} else if (result == Chess.RES_BLACK_WINS) {
-			players[Chess.BLACK].playEffect("game_won");
-			players[Chess.WHITE].playEffect("game_lost");
-		}
-
-		handlePayout();
-
-		Results handler = Results.getResultsHandler();
-		if (handler != null) {
-			handler.logResult(this, rt);
-		}
-	}
-
 	private void handlePayout() {
-		if (stake <= 0.0 || getPlayerId(Chess.WHITE).equals(getPlayerId(Chess.BLACK))) {
-			return;
-		}
-		if (getState() == GameState.SETTING_UP) {
+		if (stake <= 0.0 || getPlayerId(Chess.WHITE).equals(getPlayerId(Chess.BLACK)) || getState() == GameState.SETTING_UP) {
 			return;
 		}
 
@@ -1089,6 +955,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			players[Chess.WHITE].depositFunds(stake);
 			players[Chess.BLACK].depositFunds(stake);
 			alert(Messages.getString("Game.getStakeBack", ChessUtils.formatStakeStr(stake)));
+			break;
 		}
 
 		stake = 0.0;
@@ -1096,7 +963,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	private void winner(int winningColour) {
 		int losingColour = Chess.otherPlayer(winningColour);
-		double winnings = stake * players[losingColour].getPayoutMultiplier();
+		double winnings = stake * getPlayer(losingColour).getPayoutMultiplier();
 		players[winningColour].depositFunds(winnings);
 		players[winningColour].alert(Messages.getString("Game.youWon", ChessUtils.formatStakeStr(winnings)));
 		players[losingColour].alert(Messages.getString("Game.lostStake", ChessUtils.formatStakeStr(stake)));
@@ -1140,9 +1007,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void alert(UUID id, String message) {
-//		if (playerName.isEmpty() || ChessAI.isAIPlayer(playerName)) {
-//			return;
-//		}
 		Player p = Bukkit.getServer().getPlayer(id);
 		if (p != null) {
 			alert(p, message);
@@ -1150,20 +1014,16 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	}
 
 	public void alert(String message) {
-		if (players[Chess.WHITE] != null) {
-			players[Chess.WHITE].alert(message);
+		if (hasPlayer(Chess.WHITE)) {
+			getPlayer(Chess.WHITE).alert(message);
 		}
-		if (players[Chess.BLACK] != null && !getPlayerId(Chess.WHITE).equals(getPlayerId(Chess.BLACK))) {
-			players[Chess.BLACK].alert(message);
+		if (hasPlayer(Chess.BLACK) && !getPlayerId(Chess.WHITE).equals(getPlayerId(Chess.BLACK))) {
+			getPlayer(Chess.BLACK).alert(message);
 		}
 	}
 
 	public ChessPlayer getPlayerToMove() {
-		return players[getPosition().getToPlay()];
-	}
-
-	public ChessPlayer getPlayerNotToMove() {
-		return players[Chess.otherPlayer(getPosition().getToPlay())];
+		return getPlayer(getPosition().getToPlay());
 	}
 
 	public boolean isPlayerInGame(String playerId) {
@@ -1333,19 +1193,23 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	/**
 	 * Have the given player offer a draw.
 	 *
-	 * @param playerName 	Name of the player making the offer
-	 * 						(could be human or AI, not necessarily a valid Bukkit player)
+	 * @param playerId 	ID of the player making the offer
 	 * @throws ChessException
 	 */
-	public void offerDraw(String playerName) {
-		ensurePlayerInGame(playerName);
-		ensurePlayerToMove(playerName);
+	public void offerDraw(String playerId) {
 		ensureGameState(GameState.RUNNING);
 
-		int colour = getPlayerColour(playerName);
-		int otherColour = Chess.otherPlayer(colour);
-		players[colour].statusMessage(Messages.getString("ChessCommandExecutor.drawOfferedYou", players[otherColour].getDisplayName()));
-		players[otherColour].drawOffered();
+		ChessPlayer cp = getPlayer(playerId);
+		if (cp == null) {
+			return;
+		}
+		ChessPlayer other = getPlayer(Chess.otherPlayer(cp.getColour()));
+		if (other == null) {
+			return;
+		}
+
+		cp.statusMessage(Messages.getString("ChessCommandExecutor.drawOfferedYou", other.getDisplayName()));
+		other.drawOffered();
 
 		getView().getControlPanel().repaintControls();
 	}
@@ -1405,23 +1269,27 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @param playerId ID of player undoing the move
 	 */
 	public void undoMove(String playerId) {
-		ensurePlayerInGame(playerId);
-		ensureGameState(GameState.RUNNING);
+		ChessPlayer cp = getPlayer(playerId);
+		if (cp == null) {
+			return;
+		}
+		ChessPlayer other = getPlayer(Chess.otherPlayer(cp.getColour()));
+		if (other == null) {
+			return;
+		}
+		if (history.size() == 0 || history.size() == 1 && cp.getColour() == Chess.BLACK) {
+			// first move for the player, can't undo yet
+			return;
+		}
 
-		if (history.size() == 0) return;
-		if (history.size() == 1 && playerId.equals(getPlayerId(Chess.BLACK))) return;
-
-		int colour = getPlayerColour(playerId);
-		int otherColour = Chess.otherPlayer(colour);
-
-		if (getPosition().getToPlay() == colour) {
+		if (getPosition().getToPlay() == cp.getColour()) {
 			// need to undo two moves - first the other player's last move
-			players[otherColour].undoLastMove();
+			other.undoLastMove();
 			cpGame.getPosition().undoMove();
 			history.remove(history.size() - 1);
 		}
 		// now undo the undoer's last move
-		players[colour].undoLastMove();
+		cp.undoLastMove();
 		cpGame.getPosition().undoMove();
 		history.remove(history.size() - 1);
 
@@ -1489,8 +1357,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * move in our game model too.  Also check if the AI has failed and we need to abandon.
 	 */
 	private synchronized void checkForAIActivity() {
-		players[Chess.WHITE].checkPendingAction();
-		players[Chess.BLACK].checkPendingAction();
+		getPlayer(Chess.WHITE).checkPendingAction();
+		getPlayer(Chess.BLACK).checkPendingAction();
 	}
 
 	/**
@@ -1500,8 +1368,19 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void playerLeft(String playerId) {
 		int colour = getPlayerColour(playerId);
-		if (players[colour] != null) {
-			players[colour].cleanup();
+		if (hasPlayer(colour)) {
+			getPlayer(colour).cleanup();
 		}
+	}
+
+	/**
+	 * Update an old-style player name with a UUID.
+	 *
+	 * @param colour player's colour
+	 * @param oldStyleName player's old name
+	 * @param uuid player's UUID
+	 */
+	public void migratePlayer(int colour, String oldStyleName, UUID uuid) {
+		players[colour] = new HumanChessPlayer(uuid.toString(), oldStyleName, this, colour);
 	}
 }

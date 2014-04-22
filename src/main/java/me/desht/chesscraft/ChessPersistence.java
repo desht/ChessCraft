@@ -37,6 +37,7 @@ public class ChessPersistence {
 		}
 
 		loadPersistedData();
+		ChessGameManager.getManager().checkForUUIDMigration();
 	}
 
 	public static List<Object> freezeLocation(Location l) {

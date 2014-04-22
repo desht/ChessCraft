@@ -13,7 +13,6 @@ import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
-import net.citizensnpcs.api.CitizensPlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -93,8 +92,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		MiscUtil.init(this);
 		MiscUtil.setColouredConsole(getConfig().getBoolean("coloured_console"));
 
-//		LogUtils.setLogLevel(getConfig().getString("log_level", "INFO"));
-
 		new PluginVersionChecker(this, this);
 
 		DirectoryStructure.setup(this);
@@ -134,6 +131,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
 
 		persistence.reload();
+		ChessGameManager.getManager().checkForUUIDMigration();
 
 		if (sms != null) {
 			sms.setAutosave(true);
@@ -226,23 +224,18 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	}
 
 	private void setupSMS(PluginManager pm) {
-		try {
-			Plugin p = pm.getPlugin("ScrollingMenuSign");
-			if (p != null && p instanceof ScrollingMenuSign) {
-				sms = new SMSIntegration((ScrollingMenuSign) p);
-				Debugger.getInstance().debug("ScrollingMenuSign plugin detected: ChessCraft menus created.");
-			} else {
-				Debugger.getInstance().debug("ScrollingMenuSign plugin not detected.");
-			}
-		} catch (NoClassDefFoundError e) {
-			// this can happen if ScrollingMenuSign was disabled
-			LogUtils.warning("ScrollingMenuSign plugin not detected (NoClassDefFoundError caught).");
+		Plugin p = pm.getPlugin("ScrollingMenuSign");
+		if (p != null && p instanceof ScrollingMenuSign && p.isEnabled()) {
+			sms = new SMSIntegration((ScrollingMenuSign) p);
+			Debugger.getInstance().debug("ScrollingMenuSign plugin detected: ChessCraft menus created.");
+		} else {
+			Debugger.getInstance().debug("ScrollingMenuSign plugin not detected.");
 		}
 	}
 
 	private void setupWorldEdit(PluginManager pm) {
 		Plugin p = pm.getPlugin("WorldEdit");
-		if (p != null && p instanceof WorldEditPlugin) {
+		if (p != null && p instanceof WorldEditPlugin && p.isEnabled()) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Debugger.getInstance().debug("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
@@ -252,7 +245,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupDynmap(PluginManager pm) {
 		Plugin p = pm.getPlugin("dynmap");
-		if (p != null) {
+		if (p != null && p.isEnabled()) {
 			dynmapIntegration = new DynmapIntegration(this, (DynmapAPI) p);
 			Debugger.getInstance().debug("dynmap plugin detected.  Boards and games will be labelled.");
 		} else {

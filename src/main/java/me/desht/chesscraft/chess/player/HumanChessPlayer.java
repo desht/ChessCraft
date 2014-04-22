@@ -4,6 +4,7 @@ import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
@@ -18,29 +19,37 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 public class HumanChessPlayer extends ChessPlayer {
-	private Player player;
 	private final UUID uuid;
+	private final String oldStyleName;
 
 	public HumanChessPlayer(String id, String name, ChessGame game, int colour) {
 		super(id, name, game, colour);
-		uuid = UUID.fromString(id);
-	}
-
-	private Player getBukkitPlayer() {
-		if (player == null) {
-			player = Bukkit.getPlayer(uuid);
+		if (MiscUtil.looksLikeUUID(id)) {
+			uuid = UUID.fromString(id);
+			oldStyleName = null;
 		} else {
-			if (!player.isOnline())
-				player = null;
+			// not a UUID - then *hopefully* this is a Bukkit player name
+			// which can be migrated to a UUID
+			ChessGameManager.getManager().needToDoUUIDMigration(game);
+			oldStyleName = id;
+			uuid = null;
 		}
-
-		return player;
 	}
 
-//	@Override
-//	public String getDisplayName() {
-//		return ChatColor.GOLD + getDisplayName() + ChatColor.RESET;
-//	}
+	public Player getBukkitPlayer() {
+		return uuid == null ? null : Bukkit.getPlayer(uuid);
+	}
+
+	/**
+	 * Get the old-style (player.getName()) player name.  This will only be non-null after an old
+	 * save game file has been loaded and before a UUID migration operation has been carried out
+	 * and is only intended to be used by the migration process.
+	 *
+	 * @return the old-style player name
+	 */
+	public String getOldStyleName() {
+		return oldStyleName;
+	}
 
 	@Override
 	public void promptForFirstMove() {
@@ -66,15 +75,17 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void alert(String message) {
 		Player p = getBukkitPlayer();
-		if (p == null) return;
-		MiscUtil.alertMessage(p, Messages.getString("Game.alertPrefix", getGame().getName()) + message);
+		if (p != null) {
+			MiscUtil.alertMessage(p, Messages.getString("Game.alertPrefix", getGame().getName()) + message);
+		}
 	}
 
 	@Override
 	public void statusMessage(String message) {
 		Player p = getBukkitPlayer();
-		if (p == null) return;
-		MiscUtil.statusMessage(p, message);
+		if (p != null) {
+			MiscUtil.statusMessage(p, message);
+		}
 	}
 
 	@Override
@@ -84,14 +95,14 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void cleanup() {
-		player = null;
+		// nothing to do here
 	}
 
 	@Override
 	public void validateAffordability(String error) {
 		if (error == null) error = "Game.cantAffordToJoin";
 		double stake = getGame().getStake();
-		Player player = Bukkit.getPlayer(uuid);
+		Player player = getBukkitPlayer();
 		if (ChessCraft.economy != null && player == null || !ChessCraft.economy.has(player.getName(), stake)) {
 			throw new ChessException(Messages.getString(error, ChessUtils.formatStakeStr(stake)));
 		}
