@@ -23,11 +23,11 @@ public class ExpectUndoResponse extends ExpectYesNoResponse {
 				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 					if (accepted) {
-						game.alert(offererId, Messages.getString("Game.undoOfferAccepted", player.getDisplayName()));
+						game.alert(offererId, Messages.getString("ExpectYesNoOffer.undoOfferAccepted", player.getDisplayName()));
 						game.undoMove(offererId.toString());
 					} else {
-						game.alert(offererId, Messages.getString("Game.undoOfferDeclined", player.getDisplayName()));
-						MiscUtil.statusMessage(player, Messages.getString("Game.youDeclinedUndoOffer"));
+						game.alert(offererId, Messages.getString("ExpectYesNoOffer.undoOfferDeclined", player.getDisplayName()));
+						MiscUtil.statusMessage(player, Messages.getString("ExpectYesNoOffer.youDeclinedUndoOffer"));
 					}
 				}
 			}
