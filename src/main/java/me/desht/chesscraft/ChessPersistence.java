@@ -100,7 +100,9 @@ public class ChessPersistence {
 				if (current != null) {
 					for (String playerId : current.getKeys(false)) {
 						try {
-							ChessGameManager.getManager().setCurrentGame(UUID.fromString(playerId), current.getString(playerId));
+							if (MiscUtil.looksLikeUUID(playerId)) {
+								ChessGameManager.getManager().setCurrentGame(UUID.fromString(playerId), current.getString(playerId));
+							}
 						} catch (ChessException e) {
 							LogUtils.warning("can't set current game for player " + playerId + ": " + e.getMessage());
 						}

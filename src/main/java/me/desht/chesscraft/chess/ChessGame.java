@@ -1382,5 +1382,6 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void migratePlayer(int colour, String oldStyleName, UUID uuid) {
 		players[colour] = new HumanChessPlayer(uuid.toString(), oldStyleName, this, colour);
+		LogUtils.info("migrated player " + oldStyleName + " to " + uuid + " in game " + getName());
 	}
 }

@@ -255,6 +255,7 @@ public class ChessGameManager {
 				}
 			}
 		}
+		needToMigrate.clear();
 		if (names.size() > 0) {
 			LogUtils.info("migrating " + names.size() + " player names to UUID in saved game files");
 			Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
@@ -290,7 +291,6 @@ public class ChessGameManager {
 				game.save();
 			}
 			LogUtils.info("player name -> UUID migration complete");
-			needToMigrate.clear();
 		}
 	}
 

@@ -131,7 +131,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		fx = new SpecialFX(getConfig().getConfigurationSection("effects"));
 
 		persistence.reload();
-		ChessGameManager.getManager().checkForUUIDMigration();
 
 		if (sms != null) {
 			sms.setAutosave(true);
