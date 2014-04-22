@@ -171,7 +171,7 @@ public class EntityChessStone extends ChessStone {
 	 */
 	public void cleanup() {
 		Debugger.getInstance().debug(2, "destroy NPC " + npc.getFullName());
-		npc.despawn();
+//		npc.despawn();
 		npc.destroy();
 	}
 

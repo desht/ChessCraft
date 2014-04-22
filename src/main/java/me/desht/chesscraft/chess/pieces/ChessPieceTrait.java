@@ -36,7 +36,7 @@ public class ChessPieceTrait extends Trait {
 				Bukkit.getScheduler().runTaskLater(ChessCraft.getInstance(), new Runnable() {
 					@Override
 					public void run() {
-						npc.despawn(DespawnReason.REMOVAL);
+//						npc.despawn(DespawnReason.REMOVAL);
 						npc.destroy();
 					}
 				}, 20L);
