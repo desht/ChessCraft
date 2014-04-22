@@ -31,7 +31,7 @@ ChessCommandExecutor:
   - Dieser Block wird die Mitte des Quadrates A1 sein.
   boardDeleted: Brett gelöscht &6{0}&-.
   boardDetail:
-    board: '&eBrett {0}:'
+    board: '&eSchachbrett {0}:'
     boardStyle: 'Brett Stil: &f{0}'
     enclosure: 'Abdeckung: &f{0}'
     frameWidth: 'Einfassungsbreite: &f{0,number,integer} ({1})'

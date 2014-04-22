@@ -32,7 +32,7 @@ ChessCommandExecutor:
     - "Este bloque sera el centro del cuadrado A1 de la mesa."
   boardDeleted: "Mesa eliminada &6{0}&-."
   boardDetail:
-    board: "&eMesa {0}:"
+    board: "&eMesa de ajedrez {0}:"
     boardStyle: "Estilo de mesa: &f{0}"
     enclosure: "Recinto: &f{0}"
     frameWidth: "Anchura del marco: &f{0,number,integer} ({1})"

@@ -32,7 +32,7 @@ ChessCommandExecutor:
     - "This block will become the centre of the board's A1 square."
   boardDeleted: "Deleted board &6{0}&-."
   boardDetail:
-    board: "Board &6{0}:"
+    board: "Chessboard &6{0}:"
     boardStyle: "Board Style: &f{0}"
     enclosure: "Enclosure: &f{0}"
     frameWidth: "Frame width: &f{0,number,integer} ({1})"

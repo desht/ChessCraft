@@ -32,7 +32,7 @@ ChessCommandExecutor:
     - "O bloco selecionado será o centro do quadrado A1 do tabuleiro."
   boardDeleted: "Tabuleiro &6{0}&- removido."
   boardDetail:
-    board: "&eTabuleiro {0}:"
+    board: "&eTabuleiro de xadrez {0}:"
     boardStyle: "Estilo de tabuleiro: &f{0}"
     enclosure: "Limites: &f{0}"
     frameWidth: "Largura do frame: &f{0,number,integer} ({1})"
