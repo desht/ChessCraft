@@ -50,8 +50,8 @@ public class ListGameCommand extends ChessAbstractCommand {
 				                            name,
 				                            curMoveW, white, ChessUtils.getDisplayColour(Chess.WHITE),
 				                            curMoveB, black, ChessUtils.getDisplayColour(Chess.BLACK));
-				if (game.getInvited() != null) {
-					line += Messages.getString("ChessCommandExecutor.invited", game.getInvited());
+				if (game.getInvitedId() != null) {
+					line += Messages.getString("ChessCommandExecutor.invited", game.getInvitedId());
 				}
 				pager.add(line);
 			}

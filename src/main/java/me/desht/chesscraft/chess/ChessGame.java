@@ -39,8 +39,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class ChessGame implements ConfigurationSerializable, ChessPersistable {
-	public static final UUID OPEN_INVITATION = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
 	private final String name;
 	private final BoardView view;
 	private final Game cpGame;
@@ -56,6 +54,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	private TimeControl tcWhite, tcBlack;
 	private int result;
 	private double stake;
+	private boolean openInvite;
 
 	/**
 	 * Constructor: Creating a new Chess game.
@@ -78,6 +77,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 		state = GameState.SETTING_UP;
 		invited = null;
+		openInvite = false;
 		setTimeControl(view.getDefaultTcSpec());
 		created = System.currentTimeMillis();
 		started = finished = lastOpenInvite = 0L;
@@ -118,6 +118,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		state = GameState.valueOf(conf.getString("state"));
 		String inv = conf.getString("invited", "");
 		invited = inv.isEmpty() ? null : UUID.fromString(inv);
+		openInvite = conf.getBoolean("openInvite", false);
 		List<Integer> hTmp = conf.getIntegerList("moves");
 		for (int m : hTmp) {
 			history.add((short) m);
@@ -177,6 +178,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		map.put("playerBlackDisp", getPlayerDisplayName(Chess.BLACK));
 		map.put("state", state.toString());
 		map.put("invited", invited);
+		map.put("openInvite", openInvite);
 		map.put("moves", history);
 		map.put("created", created);
 		map.put("started", started);
@@ -309,7 +311,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		return players[colour] != null ? players[colour].getDisplayName() : "";
 	}
 
-	public UUID getInvited() {
+	public UUID getInvitedId() {
 		return invited;
 	}
 
@@ -349,6 +351,10 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 
 	public int getPromotionPiece(int colour) {
 		return hasPlayer(colour) ? getPlayer(colour).getPromotionPiece() : Chess.QUEEN;
+	}
+
+	public boolean isOpenInvite() {
+		return openInvite;
 	}
 
 	/**
@@ -598,6 +604,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 				alert(invited, Messages.getString("Game.inviteWithdrawn"));
 			}
 			invited = invitee.getUniqueId();
+			openInvite = false;
 			alert(inviter, Messages.getString("Game.inviteSent", invitee.getDisplayName()));
 		} else {
 			// no human by this name, try to add an AI of the given name
@@ -625,7 +632,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake())));
 		}
 		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName()));
-		invited = OPEN_INVITATION;
+		openInvite = true;
 		lastOpenInvite = now;
 	}
 
@@ -652,6 +659,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 */
 	public void clearInvitation() {
 		invited = null;
+		openInvite = false;
 	}
 
 	/**
@@ -1329,11 +1337,16 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		if (getState() == GameState.RUNNING) {
 			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.clock", tcWhite.getClockString(), tcBlack.getClockString()));	//$NON-NLS-1$
 		}
-		if (getInvited() != null) {
-			if (getInvited().equals(OPEN_INVITATION)) {
+		if (getInvitedId() != null) {
+			if (isOpenInvite()) {
 				res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.openInvitation"));
 			} else {
-				res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", getInvited()));
+				Player p = Bukkit.getPlayer(getInvitedId());
+				if (p == null) {
+					invited = null;
+				} else {
+					res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.invitation", p.getDisplayName()));
+				}
 			}
 		}
 		res.add(Messages.getString("ChessCommandExecutor.gameDetail.moveHistory"));

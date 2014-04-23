@@ -110,8 +110,8 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void validateInvited(String error) {
-		UUID invited = getGame().getInvited();
-		if (!invited.equals(ChessGame.OPEN_INVITATION) && !invited.equals(uuid)) {
+		UUID invited = getGame().getInvitedId();
+		if (!getGame().isOpenInvite() && !invited.equals(uuid)) {
 			throw new ChessException(Messages.getString(error));
 		}
 	}
