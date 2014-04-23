@@ -73,6 +73,8 @@ public abstract class ChessPlayer {
 		return promotionPiece;
 	}
 
+	public abstract String getResultsName();
+
 	public abstract void validateAffordability(String error);
 	public abstract void validateInvited(String error);
 

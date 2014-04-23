@@ -13,7 +13,9 @@ import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.MiscUtil;
+import me.desht.dhutils.UUIDFetcher;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -21,17 +23,25 @@ import java.util.UUID;
 public class HumanChessPlayer extends ChessPlayer {
 	private final UUID uuid;
 	private final String oldStyleName;
+	private String resultsName;
 
 	public HumanChessPlayer(String id, String name, ChessGame game, int colour) {
 		super(id, name, game, colour);
 		if (MiscUtil.looksLikeUUID(id)) {
 			uuid = UUID.fromString(id);
 			oldStyleName = null;
+			Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
+				@Override
+				public void run() {
+					OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+					setResultsName(op.getName());
+				}
+			});
 		} else {
 			// not a UUID - then *hopefully* this is a Bukkit player name
 			// which can be migrated to a UUID
 			ChessGameManager.getManager().needToDoUUIDMigration(game);
-			oldStyleName = id;
+			resultsName = oldStyleName = id;
 			uuid = null;
 		}
 	}
@@ -51,6 +61,15 @@ public class HumanChessPlayer extends ChessPlayer {
 		return oldStyleName;
 	}
 
+	public synchronized void setResultsName(String resultsName) {
+		this.resultsName = resultsName;
+	}
+
+	@Override
+	public synchronized String getResultsName() {
+		return resultsName;
+	}
+
 	@Override
 	public void promptForFirstMove() {
 		alert(Messages.getString("Game.started", ChessUtils.getDisplayColour(getColour()), ChessUtils.getWandDescription()));
@@ -59,8 +78,9 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void promptForNextMove() {
 		Player p = getBukkitPlayer();
-		if (p == null)
+		if (p == null) {
 			return;
+		}
 
 		alert(Messages.getString("Game.playerPlayedMove",
 		                         ChessUtils.getDisplayColour(getOtherColour()),
@@ -111,7 +131,7 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void validateInvited(String error) {
 		UUID invited = getGame().getInvitedId();
-		if (!getGame().isOpenInvite() && !invited.equals(uuid)) {
+		if (!getGame().isOpenInvite() && (invited == null || !invited.equals(uuid))) {
 			throw new ChessException(Messages.getString(error));
 		}
 	}

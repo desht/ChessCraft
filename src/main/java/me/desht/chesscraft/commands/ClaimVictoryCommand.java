@@ -41,7 +41,7 @@ public class ClaimVictoryCommand extends ChessAbstractCommand {
 			return true;
 		}
 
-		int timeout = plugin.getConfig().getInt("forfeit_timeout");
+		int timeout = plugin.getConfig().getInt("timeout_forfeit", 60);
 		long leftAt = ((ChessCraft)plugin).getPlayerTracker().getPlayerLeftAt(UUID.fromString(other.getId()));
 		ChessValidate.isTrue(leftAt > 0, Messages.getString("ChessCommandExecutor.otherPlayerMustBeOffline"));
 		long now = System.currentTimeMillis();

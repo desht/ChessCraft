@@ -139,7 +139,6 @@ ChessPlayerListener:
   boardCreationCancelled: "Board creation cancelled."
   currentGames: "Your current chess games: {0}"
   moveCancelled: "Move cancelled."
-  notYourTurn: "It is not your turn!"
   pieceSelected: "&f{0}&- at &f{1}&- selected. Left-click to move it."
   playerBack: "{0} is back in the game!"
   playerInviteCancelled: "&6Player invitation cancelled."

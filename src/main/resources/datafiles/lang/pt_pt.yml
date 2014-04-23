@@ -133,7 +133,6 @@ ChessPlayerListener:
   boardCreationCancelled: "Criação de tabuleiro cancelada."
   currentGames: "Os seus jogos atuais: {0}"
   moveCancelled: "Movimento cancelado."
-  notYourTurn: "Não é a sua vez!"
   pieceSelected: "&f{0}&- em &f{1}&- selecionada. Clique esquerdo para mover."
   playerBack: "{0} voltou ao jogo!"
   playerInviteCancelled: "&6Convite cancelado."

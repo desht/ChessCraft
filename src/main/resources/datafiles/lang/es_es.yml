@@ -118,7 +118,6 @@ ChessPlayerListener:
   boardCreationCancelled: "Creacion de la mesa cancelada."
   currentGames: "Tus partidas de ajedrez actuales: {0}"
   moveCancelled: "Movimiento cancelado."
-  notYourTurn: "No es tu turno!"
   pieceSelected:
     - "Has seleccionado tu &f{0}&- a &f{1}&-."
     - "&5-&- Haz click izquierdo a un cuadrado o a otra pieza para mover tu &f{0}."

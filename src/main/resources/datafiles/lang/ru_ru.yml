@@ -125,7 +125,6 @@ ChessPlayerListener:
   boardCreationCancelled: "Создание доски прекращено."
   currentGames: "Ваша текущая партия: {0}"
   moveCancelled: "Ход отменен."
-  notYourTurn: "Сейчас не ваш ход!"
   pieceSelected: "&f{0}&- at &f{1}&- выбрана. Щелкните левой клавишей мыши для хода."
   playerBack: "{0} вернулся в игру!"
   playerInviteCancelled: "&6Игрок отклонил приглашение."

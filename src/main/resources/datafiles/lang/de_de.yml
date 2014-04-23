@@ -129,7 +129,6 @@ ChessPlayerListener:
   boardCreationCancelled: Erstellung des Bretts abgebrochen.
   currentGames: 'Deine aktuellen Schachspiele: {0}'
   moveCancelled: Zug abgebrochen.
-  notYourTurn: Du bist nicht am Zug!
   pieceSelected: '&f{0}&- auf &f{1}&- ausgewählt. Linksklick um zu ziehen.'
   playerBack: '{0} ist zurueck im Spiel!'
   playerInviteCancelled: '&6Player Einladung abgebrochen.'

@@ -3,17 +3,13 @@ package me.desht.chesscraft.results;
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.chess.player.ChessPlayer;
-import me.desht.chesscraft.chess.player.HumanChessPlayer;
 import me.desht.chesscraft.enums.GameResult;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
-import org.bukkit.entity.Player;
 
 import java.sql.*;
 
 public class ResultEntry implements DatabaseSavable {
-
 	private final String playerWhite, playerBlack;
 	private final String gameName;
 	private final long startTime, endTime;
@@ -22,27 +18,14 @@ public class ResultEntry implements DatabaseSavable {
 	private final String pgnData;
 
 	ResultEntry(ChessGame game, GameResult rt) {
-		playerWhite = getResultsName(game.getPlayer(Chess.WHITE));
-		playerBlack = getResultsName(game.getPlayer(Chess.BLACK));
+		playerWhite = game.getPlayer(Chess.WHITE).getResultsName();
+		playerBlack = game.getPlayer(Chess.BLACK).getResultsName();
 		gameName = game.getName();
 		startTime = game.getStarted();
 		endTime = game.getFinished();
 		result = rt;
 		pgnResult = game.getPGNResult();
 		pgnData = ChessCraft.getInstance().getConfig().getBoolean("results.pgn_db") ? game.getPGN() : null;
-	}
-
-	private String getResultsName(ChessPlayer cp) {
-		// this isn't very pretty, but it's needed to preserve backwards compat
-		// with the existing database layout
-		if (cp.isHuman()) {
-			// should be safe to assume player is still online here
-			Player p = ((HumanChessPlayer) cp).getBukkitPlayer();
-			return p.getName();
-		} else {
-			// AI players use the internal ID, not the displayname
-			return cp.getId();
-		}
 	}
 
 	ResultEntry(String plw, String plb, String gn, long start, long end, String pgnRes, GameResult rt) {

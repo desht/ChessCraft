@@ -290,7 +290,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 				}
 			}
 		} else if (game.isPlayerInGame(player.getUniqueId().toString())) {
-			MiscUtil.errorMessage(player, Messages.getString("ChessPlayerListener.notYourTurn"));
+			MiscUtil.errorMessage(player, Messages.getString("Game.notYourTurn"));
 		} else {
 			MiscUtil.errorMessage(player, Messages.getString("Game.notInGame"));
 		}

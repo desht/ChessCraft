@@ -557,12 +557,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException if the player may not join for any reason
 	 */
 	private int fillEmptyPlayerSlot(String playerId, String displayName) {
-		int colour;
-		if (players[Chess.WHITE] != null) {
-			colour = Chess.BLACK;
-		} else {
-			colour = Chess.WHITE;
-		}
+		int colour = hasPlayer(Chess.WHITE) ? Chess.BLACK : Chess.WHITE;
+
 		ChessPlayer chessPlayer = createPlayer(playerId, displayName, colour);
 		chessPlayer.validateInvited("Game.notInvited");
 		chessPlayer.validateAffordability("Game.cantAffordToJoin");
@@ -762,6 +758,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	public void doMove(String playerId, int fromSquare, int toSquare) throws IllegalMoveException, ChessException {
 		ensureGameState(GameState.RUNNING);
 		ensurePlayerToMove(playerId);
+
 		if (fromSquare == Chess.NO_SQUARE) {
 			return;
 		}
@@ -779,11 +776,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		toggleChessClocks();
 		autoSave();
 
-		players[prevToMove].cancelOffers();
+		getPlayer(prevToMove).cancelOffers();
 
 		if (!checkForFinishingPosition()) {
 			// the game continues...
-			players[getPosition().getToPlay()].promptForNextMove();
+			getPlayer(getPosition().getToPlay()).promptForNextMove();
 		}
 	}
 

@@ -129,7 +129,6 @@ ChessPlayerListener:
   boardCreationCancelled: "棋盘生成被取消."
   currentGames: "你的当前棋局： {0}"
   moveCancelled: "移子取消."
-  notYourTurn: "还没轮到你执子!"
   pieceSelected: "位于 &f{1}&- 的 &f{0}&- 被选中. 左键点击移动."
   playerBack: "{0} 回到了棋局中!"
   playerInviteCancelled: "&6玩家邀请取消."

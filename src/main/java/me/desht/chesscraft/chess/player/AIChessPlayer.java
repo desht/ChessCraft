@@ -57,6 +57,11 @@ public class AIChessPlayer extends ChessPlayer {
 	}
 
 	@Override
+	public String getResultsName() {
+		return getId();
+	}
+
+	@Override
 	public void cleanup() {
 		ai.delete();
 	}
