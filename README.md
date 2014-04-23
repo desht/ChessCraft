@@ -1,35 +1,31 @@
 # ChessCraft
 
-ChessCraft is a Bukkit plugin that allows you to play chess on your CraftBukkit Minecraft server.
+ChessCraft is a Bukkit plugin for playing chess on your CraftBukkit (Minecraft) server.
  
 ## Installation and Usage
 
-Detailed documentation can be found in BukkitDev: http://dev.bukkit.org/server-mods/chesscraft
+Detailed documentation can be found in BukkitDev: http://dev.bukkit.org/bukkit-plugins/chesscraft
 
 ## Building
 
-If you want to build ChessCraft yourself, you will need Maven.
+If you want to build ChessCraft yourself, you will need Git and Maven.  All build dependencies will be automatically retrieved by Maven.
 
-1) Install dhutils: run ```git clone https://github.com/desht/dhutils``` followed by ```mvn install```
+1) Run ```git clone https://github.com/desht/ChessCraft```
 
-2a) Download a copy of ScrollingMenuSign.jar (get the latest version) from http://dev.bukkit.org/server-mods/scrollingmenusign
+2) Run ```cd ChessCraft```
 
-2b) Run ```mvn install:install-file -DgroupId=me.desht -DartifactId=scrollingmenusign -Dversion=x.y.z -Dpackaging=jar -Dfile=ScrollingMenuSign.jar``` (replace *x.y.z* with the version you downloaded)
-
-(Alternatively, you can do ```git clone https://github.com/desht/ScrollingMenuSign``` and build it from source - see https://github.com/desht/ScrollingMenuSign)
-
-3) Run ```mvn clean install```
+2) Run ```mvn clean install```
 
 This should give you a copy of ChessCraft.jar under the target/ directory.
-
-Use ```mvn eclipse:eclipse``` to create the .project and .classpath files if you want to open the project in Eclipse.
 
 ## License
 
 ChessCraft by Des Herriott is licensed under the [Gnu GPL v3](http://www.gnu.org/licenses/gpl-3.0.html). 
 
-ChessCraft includes unmodified copies of the following third-party projects:
+ChessCraft includes an unmodified copy of the following third-party project:
 
-* [Chesspresso](http://www.chesspresso.org/) 
 * [jChecs](http://jchecs.free.fr/en/index.php)
 
+ChessCraft also uses (via a shaded Maven dependency): 
+
+* [Chesspresso](http://www.chesspresso.org/) 
