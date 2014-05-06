@@ -12,6 +12,7 @@ import me.desht.dhutils.*;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
+import me.desht.landslide.LandslidePlugin;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
@@ -55,8 +56,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private DynmapIntegration dynmapIntegration;
 	private boolean protocolLibEnabled;
 	private boolean citizensEnabled;
+    private LandslideIntegration landslideIntegration;
 
-	@Override
+    @Override
 	public void onLoad() {
 		ConfigurationSerialization.registerClass(BoardView.class);
 		ConfigurationSerialization.registerClass(ChessGame.class);
@@ -115,6 +117,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		setupDynmap(pm);
 		setupCitizens2(pm);
 		setupProtocolLib(pm);
+        setupLandslide(pm);
 
 		new ChessPlayerListener(this);
 		new ChessBlockListener(this);
@@ -212,7 +215,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
-		if (vault != null && vault instanceof net.milkbowl.vault.Vault) {
+		if (vault != null && vault.isEnabled() && vault instanceof net.milkbowl.vault.Vault) {
 			Debugger.getInstance().debug("Loaded Vault v" + vault.getDescription().getVersion());
 			if (!setupEconomy()) {
 				LogUtils.warning("No economy plugin detected - game stakes not available");
@@ -224,7 +227,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupSMS(PluginManager pm) {
 		Plugin p = pm.getPlugin("ScrollingMenuSign");
-		if (p != null && p instanceof ScrollingMenuSign && p.isEnabled()) {
+		if (p != null && p.isEnabled() && p instanceof ScrollingMenuSign) {
 			sms = new SMSIntegration((ScrollingMenuSign) p);
 			Debugger.getInstance().debug("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 		} else {
@@ -232,9 +235,16 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		}
 	}
 
-	private void setupWorldEdit(PluginManager pm) {
+    private void setupLandslide(PluginManager pm) {
+        Plugin lsl = pm.getPlugin("Landslide");
+        if (lsl != null && lsl.isEnabled() && lsl instanceof LandslidePlugin) {
+            landslideIntegration = new LandslideIntegration(this);
+        }
+    }
+
+    private void setupWorldEdit(PluginManager pm) {
 		Plugin p = pm.getPlugin("WorldEdit");
-		if (p != null && p instanceof WorldEditPlugin && p.isEnabled()) {
+		if (p != null && p.isEnabled() && p instanceof WorldEditPlugin && p.isEnabled()) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Debugger.getInstance().debug("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
@@ -254,7 +264,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupProtocolLib(PluginManager pm) {
 		Plugin pLib = pm.getPlugin("ProtocolLib");
-		if (pLib != null && pLib instanceof ProtocolLibrary && pLib.isEnabled()) {
+		if (pLib != null && pLib.isEnabled() && pLib instanceof ProtocolLibrary) {
 			protocolLibEnabled = true;
 			Debugger.getInstance().debug("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
 		}
@@ -300,7 +310,11 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		return dynmapIntegration;
 	}
 
-	/**
+    public LandslideIntegration getLandslideIntegration() {
+        return landslideIntegration;
+    }
+
+    /**
 	 * @return the protocolLibEnabled
 	 */
 	public boolean isProtocolLibEnabled() {
