@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.ChessUtils;
 import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.ArrayList;

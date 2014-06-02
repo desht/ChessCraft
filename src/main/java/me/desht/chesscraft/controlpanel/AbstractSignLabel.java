@@ -8,7 +8,6 @@ import me.desht.chesscraft.enums.GameState;
 import me.desht.dhutils.Debugger;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -109,7 +108,7 @@ public abstract class AbstractSignLabel {
 		Debugger.getInstance().debug(3, "about to repaint control panel sign: " + block + " on board " + getView().getName());
 		byte data = getSignDirection();
 		if (block.getType() != Material.WALL_SIGN || block.getData() != data) {
-			MaterialWithData.get("wall_sign:" + data).applyToBlock(block);
+            block.setTypeIdAndData(Material.WALL_SIGN.getId(), data, false);
 		}
 
 		Sign sign = (Sign) block.getState();

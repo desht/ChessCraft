@@ -14,7 +14,6 @@ import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.PermissionUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.BlockType;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.Bukkit;

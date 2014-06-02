@@ -3,7 +3,6 @@ package me.desht.chesscraft.chess.pieces;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.dhutils.Debugger;
 import net.citizensnpcs.api.ai.event.NavigationCompleteEvent;
-import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 import org.bukkit.Bukkit;

@@ -1,7 +1,6 @@
 package me.desht.chesscraft.enums;
 
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
 import org.apache.commons.lang.StringUtils;
 
 public enum HighlightStyle {

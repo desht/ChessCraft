@@ -9,12 +9,11 @@ package me.desht.chesscraft.util;
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.dhutils.LogUtils;
+import me.desht.dhutils.ItemNames;
 import me.desht.dhutils.block.MaterialWithData;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Material;
+import org.bukkit.material.MaterialData;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -129,19 +128,19 @@ public class ChessUtils {
 		return matches.toArray(new String[matches.size()]);
 	}
 
-	public static Material getWandMaterial() {
+	public static MaterialData getWandMaterial() {
 		String wand = ChessCraft.getInstance().getConfig().getString("wand_item");
 		if (wand.isEmpty() || wand.equalsIgnoreCase("*")) {
 			return null;
 		} else {
 			MaterialWithData mat = MaterialWithData.get(wand);
-			return mat == null ? null : mat.getBukkitMaterial();
+			return mat == null ? null : mat.getMaterialData();
 		}
 	}
 
 	public static String getWandDescription() {
-		Material mat = getWandMaterial();
-		return mat == null ? Messages.getString("ChessUtils.anything") : mat.toString();
+		MaterialData mat = getWandMaterial();
+		return mat == null ? Messages.getString("ChessUtils.anything") : ItemNames.lookup(mat.toItemStack());
 	}
 
 

@@ -1,7 +1,6 @@
 package me.desht.chesscraft.chess.ai;
 
 import me.desht.dhutils.Debugger;
-import me.desht.dhutils.LogUtils;
 
 import java.io.*;
 

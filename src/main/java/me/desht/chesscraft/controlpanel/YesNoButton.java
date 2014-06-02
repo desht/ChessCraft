@@ -10,11 +10,8 @@ import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.UUID;
 
 public abstract class YesNoButton extends AbstractSignButton {
 

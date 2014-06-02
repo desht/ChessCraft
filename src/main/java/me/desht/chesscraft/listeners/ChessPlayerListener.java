@@ -14,7 +14,10 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectBoardCreation;
 import me.desht.chesscraft.expector.ExpectInvitePlayer;
 import me.desht.chesscraft.util.ChessUtils;
-import me.desht.dhutils.*;
+import me.desht.dhutils.DHUtilsException;
+import me.desht.dhutils.Debugger;
+import me.desht.dhutils.MessagePager;
+import me.desht.dhutils.MiscUtil;
 import me.desht.dhutils.block.BlockType;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
@@ -28,6 +31,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,8 +126,8 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				Material wandMat = ChessUtils.getWandMaterial();
-				if (wandMat == null || player.getItemInHand().getType() == wandMat) {
+				MaterialData wandMat = ChessUtils.getWandMaterial();
+				if (wandMat == null || player.getItemInHand().isSimilar(wandMat.toItemStack())) {
 					targetBlock = player.getTargetBlock(transparent, 120);
 					Debugger.getInstance().debug(2, "Player " + player.getName() + " waved at block " + targetBlock);
 					Location loc = targetBlock.getLocation();

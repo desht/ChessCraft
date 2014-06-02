@@ -1,6 +1,5 @@
 package me.desht.chesscraft.expector;
 
-import chesspresso.Chess;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameResult;

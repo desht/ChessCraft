@@ -1,6 +1,5 @@
 package me.desht.chesscraft.util;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.dhutils.LogUtils;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;

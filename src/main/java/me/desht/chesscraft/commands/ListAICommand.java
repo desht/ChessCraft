@@ -1,6 +1,5 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
