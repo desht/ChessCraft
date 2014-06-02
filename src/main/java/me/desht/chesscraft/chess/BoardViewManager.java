@@ -21,6 +21,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 
 import java.io.File;
 import java.util.*;
@@ -366,8 +367,8 @@ public class BoardViewManager {
 
 		for (BoardView bv : listBoardViews()) {
 			Cuboid c = bv.getOuterBounds();
-			MaterialWithData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
-			if (BlockType.canPassThrough(mat.getId())) {
+			MaterialData mat = bv.getChessBoard().getBoardStyle().getEnclosureMaterial();
+			if (BlockType.canPassThrough(mat.getItemTypeId())) {
 				c = c.expand(CuboidDirection.Up, Math.max(5, (c.getSizeY() * above) / 100));
 				c = c.outset(CuboidDirection.Horizontal, Math.max(5, (c.getSizeX() * outside) / 100));
 			}

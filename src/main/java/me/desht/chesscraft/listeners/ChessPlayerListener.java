@@ -330,7 +330,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 	private void teleportToPiece(Player player, BoardView bv, Location loc) {
 		Block b = loc.getBlock();
 		Block b1 = b.getRelative(BlockFace.UP);
-		boolean isSolid = !BlockType.canPassThrough(bv.getEnclosureMaterial().getId());
+		boolean isSolid = !BlockType.canPassThrough(bv.getEnclosureMaterial().getItemTypeId());
 		int max = isSolid ? bv.getOuterBounds().getUpperY() - 2 : loc.getWorld().getMaxHeight();
 		while (b.getType() != Material.AIR && b1.getType() != Material.AIR && b1.getLocation().getY() < max) {
 			b = b.getRelative(BlockFace.UP);

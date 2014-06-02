@@ -16,6 +16,7 @@ import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.*;
 import me.desht.dhutils.block.MaterialWithData;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.material.MaterialData;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -129,52 +130,52 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		return (Integer) attributes.get(LIGHT_LEVEL);
 	}
 
-	public MaterialWithData getBlackSquareMaterial() {
-		return (MaterialWithData) attributes.get(BLACK_SQUARE);
+	public MaterialData getBlackSquareMaterial() {
+		return ((MaterialWithData) attributes.get(BLACK_SQUARE)).getMaterialData();
 	}
 
-	public MaterialWithData getWhiteSquareMaterial() {
-		return (MaterialWithData) attributes.get(WHITE_SQUARE);
+	public MaterialData getWhiteSquareMaterial() {
+		return ((MaterialWithData) attributes.get(WHITE_SQUARE)).getMaterialData();
 	}
 
-	public MaterialWithData getControlPanelMaterial() {
-		return (MaterialWithData) attributes.get(PANEL);
+	public MaterialData getControlPanelMaterial() {
+		return ((MaterialWithData) attributes.get(PANEL)).getMaterialData();
 	}
 
-	public MaterialWithData getEnclosureMaterial() {
-		return (MaterialWithData) attributes.get(ENCLOSURE);
+	public MaterialData getEnclosureMaterial() {
+		return ((MaterialWithData) attributes.get(ENCLOSURE)).getMaterialData();
 	}
 
-	public MaterialWithData getFrameMaterial() {
-		return (MaterialWithData) attributes.get(FRAME);
+	public MaterialData getFrameMaterial() {
+		return ((MaterialWithData) attributes.get(FRAME)).getMaterialData();
 	}
 
 	public HighlightStyle getHighlightStyle() {
 		return (HighlightStyle) attributes.get(HIGHLIGHT_STYLE);
 	}
 
-	public MaterialWithData getHighlightMaterial() {
-		return (MaterialWithData) attributes.get(HIGHLIGHT_SQUARE);
+	public MaterialData getHighlightMaterial() {
+		return ((MaterialWithData) attributes.get(HIGHLIGHT_SQUARE)).getMaterialData();
 	}
 
-	public MaterialWithData getStrutsMaterial() {
-		return (MaterialWithData) attributes.get(STRUTS);
+	public MaterialData getStrutsMaterial() {
+		return ((MaterialWithData) attributes.get(STRUTS)).getMaterialData();
 	}
 
-	public MaterialWithData getHighlightMaterial(boolean isWhiteSquare) {
+	public MaterialData getHighlightMaterial(boolean isWhiteSquare) {
 		return isWhiteSquare ? getWhiteSquareHighlightMaterial() : getBlackSquareHighlightMaterial();
 	}
 
-	public MaterialWithData getBlackSquareHighlightMaterial() {
-		return (MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE);
+	public MaterialData getBlackSquareHighlightMaterial() {
+		return ((MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE)).getMaterialData();
 	}
 
-	public MaterialWithData getWhiteSquareHighlightMaterial() {
-		return (MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE);
+	public MaterialData getWhiteSquareHighlightMaterial() {
+		return ((MaterialWithData) attributes.get(HIGHLIGHT_BLACK_SQUARE)).getMaterialData();
 	}
 
-	public MaterialWithData getSelectedHighlightMaterial() {
-		return (MaterialWithData) attributes.get(HIGHLIGHT_SELECTED);
+	public MaterialData getSelectedHighlightMaterial() {
+		return ((MaterialWithData) attributes.get(HIGHLIGHT_SELECTED)).getMaterialData();
 	}
 
 	private void validateIsBlock(MaterialWithData mat, String tag) {
@@ -281,7 +282,7 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 	}
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+	public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equals(LIGHT_LEVEL)) {
 			int level = (Integer) newVal;
 			ChessValidate.isTrue(level >= 0 && level <= 15, "Light level must be in range 0-15");
@@ -290,7 +291,8 @@ public class BoardStyle implements Comparable<BoardStyle>, ConfigurationListener
 		} else if (newVal instanceof MaterialWithData) {
 			validateIsBlock((MaterialWithData) newVal, key);
 		}
-	}
+        return newVal;
+    }
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {

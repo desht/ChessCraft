@@ -144,18 +144,7 @@ public class ChessUtils {
 		return mat == null ? Messages.getString("ChessUtils.anything") : mat.toString();
 	}
 
-	public static String formatStakeStr(double stake) {
-		try {
-			if (ChessCraft.economy != null && ChessCraft.economy.isEnabled()) {
-				return ChessCraft.economy.format(stake);
-			}
-		} catch (Exception e) {
-			LogUtils.warning("Caught exception from " + ChessCraft.economy.getName() + " while trying to format quantity " + stake + ":");
-			e.printStackTrace();
-			LogUtils.warning("ChessCraft will continue but you should verify your economy plugin configuration.");
-		}
-		return new DecimalFormat("#0.00").format(stake);
-	}
+
 
 
 } // end class ChessUtils

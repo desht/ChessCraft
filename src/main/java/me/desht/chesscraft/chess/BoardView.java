@@ -11,21 +11,22 @@ import me.desht.chesscraft.chess.pieces.PieceDesigner;
 import me.desht.chesscraft.controlpanel.ControlPanel;
 import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.chesscraft.util.TerrainBackup;
 import me.desht.dhutils.*;
 import me.desht.dhutils.block.CraftMassBlockUpdate;
 import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 
 import java.io.File;
 import java.util.*;
@@ -107,7 +108,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		attributes = new AttributeCollection(this);
 		registerAttributes();
 		for (Entry<String, String> e : save2attr.entrySet()) {
-			attributes.set(e.getValue(), conf.getString(e.getKey()));
+            attributes.set(e.getValue(), conf.getString(e.getKey()));
 		}
 
 		List<?> origin = conf.getList("origin");
@@ -247,7 +248,10 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getChessSet().syncToPosition(game.getPosition(), chessBoard);
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
-			chessBoard.getBoard().shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1).fill(0, (byte)0, mbu);
+			chessBoard.getBoard()
+                    .shift(CuboidDirection.Up, 1)
+                    .expand(CuboidDirection.Up, chessBoard.getBoardStyle().getHeight() - 1)
+                    .fill(new MaterialData(Material.AIR), mbu);
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 			attributes.set(DEFAULT_TC, getDefaultTcSpec());
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
@@ -293,27 +297,27 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return chessBoard.getBoardStyle().getLightLevel();
 	}
 
-	public MaterialWithData getBlackSquareMaterial() {
+	public MaterialData getBlackSquareMaterial() {
 		return chessBoard.getBoardStyle().getBlackSquareMaterial();
 	}
 
-	public MaterialWithData getWhiteSquareMaterial() {
+	public MaterialData getWhiteSquareMaterial() {
 		return chessBoard.getBoardStyle().getWhiteSquareMaterial();
 	}
 
-	public MaterialWithData getFrameMaterial() {
+	public MaterialData getFrameMaterial() {
 		return chessBoard.getBoardStyle().getFrameMaterial();
 	}
 
-	public MaterialWithData getControlPanelMaterial() {
+	public MaterialData getControlPanelMaterial() {
 		return chessBoard.getBoardStyle().getControlPanelMaterial();
 	}
 
-	public MaterialWithData getEnclosureMaterial() {
+	public MaterialData getEnclosureMaterial() {
 		return chessBoard.getBoardStyle().getEnclosureMaterial();
 	}
 
-	public MaterialWithData getStrutsMaterial() {
+	public MaterialData getStrutsMaterial() {
 		return chessBoard.getBoardStyle().getStrutsMaterial();
 	}
 
@@ -636,7 +640,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.height", getHeight()));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.lightLevel", getLightLevel()));
 		String lockStakeStr = getLockStake() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
-		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", ChessUtils.formatStakeStr(getDefaultStake()), lockStakeStr));
+		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultStake", EconomyUtil.formatStakeStr(getDefaultStake()), lockStakeStr));
 		String lockTcStr = getLockTcSpec() ? Messages.getString("ChessCommandExecutor.boardDetail.locked") : "";
 		res.add(bullet + Messages.getString("ChessCommandExecutor.boardDetail.defaultTimeControl", getDefaultTcSpec(), lockTcStr));
 		String dest = hasTeleportDestination() ? MiscUtil.formatLocation(getTeleportDestination()) : "-";
@@ -671,11 +675,12 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 	}
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+	public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.equals(DEFAULT_TC) && !newVal.toString().isEmpty()) {
 			new TimeControl(newVal.toString());		// force validation of the spec
 		}
-	}
+        return newVal;
+    }
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {

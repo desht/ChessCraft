@@ -10,21 +10,21 @@ import me.desht.chesscraft.enums.BoardRotation;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.material.MaterialData;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ControlPanel {
-
 	public static final int PANEL_WIDTH = 8;
 
 	private final BoardView view;
-	private final BoardRotation boardDir, signDir;
+    private final BoardRotation signDir;
 	private final Cuboid panelBlocks;
 	private final Cuboid toMoveIndicator;
 	private final PlyCountLabel plyCountLabel;
@@ -35,7 +35,7 @@ public class ControlPanel {
 
 	public ControlPanel(BoardView view) {
 		this.view = view;
-		boardDir = view.getRotation();
+        BoardRotation boardDir = view.getRotation();
 		signDir = boardDir.getRight();
 
 		buttonLocs = new HashMap<PersistableLocation, AbstractSignButton>();
@@ -101,7 +101,7 @@ public class ControlPanel {
 	}
 
 	public void removeSigns() {
-		panelBlocks.shift(signDir.getDirection(), 1).fill(0, (byte)0);
+		panelBlocks.shift(signDir.getDirection(), 1).fill(new MaterialData(Material.AIR));
 	}
 
 	public <T extends AbstractSignButton> T getSignButton(Class<T> type) {
@@ -181,7 +181,7 @@ public class ControlPanel {
 	}
 
 	public void updateToMoveIndicator(int toPlay) {
-		MaterialWithData mat = getView().getControlPanelMaterial();
+		MaterialData mat = getView().getControlPanelMaterial();
 		if (toPlay == Chess.WHITE) {
 			mat = getView().getWhiteSquareMaterial();
 		} else if (toPlay == Chess.BLACK) {

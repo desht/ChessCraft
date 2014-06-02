@@ -21,14 +21,15 @@ import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.PersistableLocation;
 import me.desht.dhutils.block.CraftMassBlockUpdate;
 import me.desht.dhutils.block.MassBlockUpdate;
-import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.cuboid.Cuboid;
 import me.desht.dhutils.cuboid.Cuboid.CuboidDirection;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.material.MaterialData;
+import org.bukkit.material.Wool;
 
 public class ChessBoard {
-
 	// the center of the A1 square (lower-left on the board)
 	private final PersistableLocation a1Center;
 	// the lower-left-most part (outer corner) of the a1 square (depends on rotation)
@@ -71,7 +72,7 @@ public class ChessBoard {
 	 * @throws ChessException
 	 */
 	public ChessBoard(Location origin, BoardRotation rotation, String boardStyleName, String pieceStyleName) throws ChessException {
-		setBoardStyle(boardStyleName);
+        setBoardStyle(boardStyleName);
 		setChessSet(pieceStyleName != null && !pieceStyleName.isEmpty() ? pieceStyleName : boardStyle.getPieceStyleName());
 		this.rotation = rotation;
 		a1Center = new PersistableLocation(origin);
@@ -341,7 +342,7 @@ public class ChessBoard {
 	}
 
 	private void paintStruts(MassBlockUpdate mbu) {
-		MaterialWithData struts = boardStyle.getStrutsMaterial();
+		MaterialData struts = boardStyle.getStrutsMaterial();
 
 		// vertical struts at the frame corners
 		Cuboid c = new Cuboid(frameBoard.getLowerNE()).shift(CuboidDirection.Up, 1).expand(CuboidDirection.Up, boardStyle.getHeight());
@@ -364,7 +365,7 @@ public class ChessBoard {
 
 	private void paintFrame(MassBlockUpdate mbu) {
 		int fw = boardStyle.getFrameWidth();
-		MaterialWithData fm = boardStyle.getFrameMaterial();
+		MaterialData fm = boardStyle.getFrameMaterial();
 		frameBoard.getFace(CuboidDirection.West).expand(CuboidDirection.East, fw - 1).fill(fm, mbu);
 		frameBoard.getFace(CuboidDirection.South).expand(CuboidDirection.North, fw - 1).fill(fm, mbu);
 		frameBoard.getFace(CuboidDirection.East).expand(CuboidDirection.West, fw - 1).fill(fm, mbu);
@@ -400,7 +401,7 @@ public class ChessBoard {
 
 	private void highlightSelectedBoardSquare(int sqi) {
 		Cuboid sq = getSquare(Chess.sqiToRow(sqi), Chess.sqiToCol(sqi));
-		MaterialWithData squareHighlightColor = boardStyle.getSelectedHighlightMaterial();
+		MaterialData squareHighlightColor = boardStyle.getSelectedHighlightMaterial();
 		sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
 		sq.getFace(CuboidDirection.North).fill(squareHighlightColor);
 		sq.getFace(CuboidDirection.West).fill(squareHighlightColor);
@@ -412,7 +413,7 @@ public class ChessBoard {
 
 	private void highlightBoardSquare(int row, int col) {
 		Cuboid sq = getSquare(row, col);
-		MaterialWithData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
+		MaterialData squareHighlightColor = boardStyle.getHighlightMaterial(col + (row % 2) % 2 == 1);
 		switch (boardStyle.getHighlightStyle()) {
 		case EDGES:
 			sq.getFace(CuboidDirection.East).fill(squareHighlightColor);
@@ -422,14 +423,14 @@ public class ChessBoard {
 			break;
 		case CORNERS:
 			for (Block b : sq.corners()) {
-				squareHighlightColor.applyToBlock(b);
+                b.setTypeIdAndData(squareHighlightColor.getItemTypeId(), squareHighlightColor.getData(), false);
 			}
 			break;
 		case CHECKERED:
 		case CHEQUERED:
 			for (Block b : sq) {
 				if ((b.getLocation().getBlockX() - b.getLocation().getBlockZ()) % 2 == 0) {
-					squareHighlightColor.applyToBlock(b.getLocation().getBlock());
+                    b.setTypeIdAndData(squareHighlightColor.getItemTypeId(), squareHighlightColor.getData(), false);
 				}
 			}
 			break;
@@ -513,7 +514,7 @@ public class ChessBoard {
 	 * Board is in designer mode - paint some markers on unused squares
 	 */
 	private void paintDesignIndicators(MassBlockUpdate mbu) {
-		MaterialWithData marker = MaterialWithData.get("wool:red"); // configurable?
+        Wool marker = new Wool(DyeColor.RED);  // make configurable?
 		for (int row = 0; row < 8; ++row) {
 			for (int col = 0; col < 8; ++col) {
 				if (row < 2 && col < 5 || row == 6 && col == 0 || row == 7 && col < 5) {
@@ -584,22 +585,22 @@ public class ChessBoard {
 		int err = dx - dz;
 
 		while (loc1.getBlockX() != loc2.getBlockX() || loc1.getBlockZ() != loc2.getBlockZ()) {
-			int sqi = getSquareAt(loc1);
-			MaterialWithData m = isHighlighting ?
-					boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) :
-						(Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
-					m.applyToBlock(loc1.getBlock());
-					int e2 = 2 * err;
-					if (e2 > -dz) {
-						err -= dz;
-						loc1.add(sx, 0, 0);
-					}
-					if (e2 < dx) {
-						err += dx;
-						loc1.add(0, 0, sz);
-					}
-		}
-	}
+            int sqi = getSquareAt(loc1);
+            MaterialData m = isHighlighting ?
+                    boardStyle.getHighlightMaterial(Chess.isWhiteSquare(sqi)) :
+                    (Chess.isWhiteSquare(sqi) ? boardStyle.getWhiteSquareMaterial() : boardStyle.getBlackSquareMaterial());
+            loc1.getBlock().setTypeIdAndData(m.getItemTypeId(), m.getData(), false);
+            int e2 = 2 * err;
+            if (e2 > -dz) {
+                err -= dz;
+                loc1.add(sx, 0, 0);
+            }
+            if (e2 < dx) {
+                err += dx;
+                loc1.add(0, 0, sz);
+            }
+        }
+    }
 
 	/**
 	 * Clear full area associated with this board
@@ -681,5 +682,5 @@ public class ChessBoard {
 		}
 		return Chess.coorToSqi(col, row);
 	}
-} // end class ChessBoard
+}
 

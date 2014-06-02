@@ -1,6 +1,5 @@
 package me.desht.chesscraft;
 
-import com.comphenix.protocol.ProtocolLibrary;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.desht.chesscraft.chess.*;
 import me.desht.chesscraft.chess.ai.AIFactory;
@@ -8,11 +7,11 @@ import me.desht.chesscraft.citizens.CitizensUtil;
 import me.desht.chesscraft.commands.*;
 import me.desht.chesscraft.listeners.*;
 import me.desht.chesscraft.results.Results;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.*;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
-import me.desht.landslide.LandslidePlugin;
 import me.desht.scrollingmenusign.ScrollingMenuSign;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.command.Command;
@@ -39,8 +38,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	private ChessPersistence persistence;
 
 	public final ResponseHandler responseHandler = new ResponseHandler(this);
-
-	public static Economy economy = null;
 
 	private final CommandManager cmds = new CommandManager(this);
 
@@ -177,7 +174,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Results.shutdown();
 
 		instance = null;
-		economy = null;
 
 		Debugger.getInstance().debug("disable complete");
 	}
@@ -215,19 +211,27 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupVault(PluginManager pm) {
 		Plugin vault =  pm.getPlugin("Vault");
-		if (vault != null && vault.isEnabled() && vault instanceof net.milkbowl.vault.Vault) {
-			Debugger.getInstance().debug("Loaded Vault v" + vault.getDescription().getVersion());
-			if (!setupEconomy()) {
-				LogUtils.warning("No economy plugin detected - game stakes not available");
-			}
-		} else {
+		if (vault != null && vault.isEnabled()) {
+            int ver = PluginVersionChecker.getRelease(vault.getDescription().getVersion());
+            boolean legacyMode = ver < 1003000;  // 1.3.0
+            Debugger.getInstance().debug("Detected Vault v" + vault.getDescription().getVersion());
+            if (legacyMode) {
+                LogUtils.warning("Detected an older version of Vault.  Correct UUID functionality requires Vault 1.4.1 or later.");
+            }
+            Economy econ = setupEconomy();
+            if (econ != null) {
+                EconomyUtil.init(econ, legacyMode);
+            } else {
+                LogUtils.warning("No economy plugin detected - game stakes not available");
+            }
+        } else {
 			LogUtils.warning("Vault not loaded: game stakes not available");
 		}
 	}
 
-	private void setupSMS(PluginManager pm) {
+    private void setupSMS(PluginManager pm) {
 		Plugin p = pm.getPlugin("ScrollingMenuSign");
-		if (p != null && p.isEnabled() && p instanceof ScrollingMenuSign) {
+		if (p != null && p.isEnabled()) {
 			sms = new SMSIntegration((ScrollingMenuSign) p);
 			Debugger.getInstance().debug("ScrollingMenuSign plugin detected: ChessCraft menus created.");
 		} else {
@@ -237,14 +241,14 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
     private void setupLandslide(PluginManager pm) {
         Plugin lsl = pm.getPlugin("Landslide");
-        if (lsl != null && lsl.isEnabled() && lsl instanceof LandslidePlugin) {
+        if (lsl != null && lsl.isEnabled()) {
             landslideIntegration = new LandslideIntegration(this);
         }
     }
 
     private void setupWorldEdit(PluginManager pm) {
 		Plugin p = pm.getPlugin("WorldEdit");
-		if (p != null && p.isEnabled() && p instanceof WorldEditPlugin && p.isEnabled()) {
+		if (p != null && p.isEnabled()) {
 			worldEditPlugin = (WorldEditPlugin) p;
 			Debugger.getInstance().debug("WorldEdit plugin detected: chess board terrain saving enabled.");
 		} else {
@@ -264,9 +268,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	private void setupProtocolLib(PluginManager pm) {
 		Plugin pLib = pm.getPlugin("ProtocolLib");
-		if (pLib != null && pLib.isEnabled() && pLib instanceof ProtocolLibrary) {
+		if (pLib != null && pLib.isEnabled()) {
 			protocolLibEnabled = true;
-			Debugger.getInstance().debug("Hooked ProtocolLib v" + pLib.getDescription().getVersion());
+			Debugger.getInstance().debug("Detected ProtocolLib v" + pLib.getDescription().getVersion());
 		}
 	}
 
@@ -274,20 +278,20 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		Plugin citizens = pm.getPlugin("Citizens");
 		if (citizens != null && citizens.isEnabled()) {
 			citizensEnabled = true;
-			Debugger.getInstance().debug("Hooked Citizens2 v" + citizens.getDescription().getVersion());
+			Debugger.getInstance().debug("Detected Citizens2 v" + citizens.getDescription().getVersion());
 			CitizensUtil.initCitizens();
 		} else {
 			LogUtils.warning("Citizens plugin not detected: entity-based chess sets will not be available");
 		}
 	}
 
-	private Boolean setupEconomy() {
+	private Economy setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
-			economy = economyProvider.getProvider();
-		}
-
-		return (economy != null);
+			return economyProvider.getProvider();
+		} else {
+            return null;
+        }
 	}
 
 	public ChessPersistence getPersistenceHandler() {
@@ -314,16 +318,10 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
         return landslideIntegration;
     }
 
-    /**
-	 * @return the protocolLibEnabled
-	 */
 	public boolean isProtocolLibEnabled() {
 		return protocolLibEnabled;
 	}
 
-	/**
-	 * @return the citizensEnabled
-	 */
 	public boolean isCitizensEnabled() {
 		return citizensEnabled;
 	}
@@ -382,7 +380,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 	/* ConfigurationListener */
 
 	@Override
-	public void onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
+	public Object onConfigurationValidate(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
 		if (key.startsWith("auto_delete.") || key.startsWith("timeout")) {
 			String dur = newVal.toString();
 			try {
@@ -399,7 +397,8 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		} else if (key.equals("database.table_prefix") && newVal.toString().isEmpty()) {
 			throw new DHUtilsException("'database.table_prefix' may not be empty");
 		}
-	}
+        return newVal;
+    }
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {

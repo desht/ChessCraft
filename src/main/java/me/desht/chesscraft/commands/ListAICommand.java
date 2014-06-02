@@ -4,6 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ai.AIFactory;
 import me.desht.chesscraft.chess.ai.AIFactory.AIDefinition;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.MessagePager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
@@ -33,8 +34,8 @@ public class ListAICommand extends ChessAbstractCommand {
 				StringBuilder sb = new StringBuilder(Messages.getString("ChessCommandExecutor.AIList",
 				                                                        aiDef.getName(), aiDef.getImplClassName(),
 				                                                        aiDef.getComment()));
-				if (ChessCraft.economy != null) {
-					sb.append(", " + Messages.getString("ChessCommandExecutor.AIpayout", (int) (aiDef.getPayoutMultiplier() * 100))); //$NON-NLS-1$
+				if (EconomyUtil.enabled()) {
+					sb.append(", ").append(Messages.getString("ChessCommandExecutor.AIpayout", (int) (aiDef.getPayoutMultiplier() * 100)));
 				}
 
 				lines.add(MessagePager.BULLET +  sb.toString());

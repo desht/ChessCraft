@@ -12,8 +12,8 @@ import me.desht.chesscraft.expector.ExpectSwapResponse;
 import me.desht.chesscraft.expector.ExpectUndoResponse;
 import me.desht.chesscraft.expector.ExpectYesNoResponse;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.MiscUtil;
-import me.desht.dhutils.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -30,13 +30,8 @@ public class HumanChessPlayer extends ChessPlayer {
 		if (MiscUtil.looksLikeUUID(id)) {
 			uuid = UUID.fromString(id);
 			oldStyleName = null;
-			Bukkit.getScheduler().runTaskAsynchronously(ChessCraft.getInstance(), new Runnable() {
-				@Override
-				public void run() {
-					OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
-					setResultsName(op.getName());
-				}
-			});
+            OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+            setResultsName(op.getName());
 		} else {
 			// not a UUID - then *hopefully* this is a Bukkit player name
 			// which can be migrated to a UUID
@@ -45,6 +40,10 @@ public class HumanChessPlayer extends ChessPlayer {
 			uuid = null;
 		}
 	}
+
+    public OfflinePlayer getOfflinePlayer() {
+        return Bukkit.getOfflinePlayer(uuid);
+    }
 
 	public Player getBukkitPlayer() {
 		return uuid == null ? null : Bukkit.getPlayer(uuid);
@@ -122,9 +121,9 @@ public class HumanChessPlayer extends ChessPlayer {
 	public void validateAffordability(String error) {
 		if (error == null) error = "Game.cantAffordToJoin";
 		double stake = getGame().getStake();
-		Player player = getBukkitPlayer();
-		if (ChessCraft.economy != null && player == null || !ChessCraft.economy.has(player.getName(), stake)) {
-			throw new ChessException(Messages.getString(error, ChessUtils.formatStakeStr(stake)));
+		OfflinePlayer player = getOfflinePlayer();
+		if (EconomyUtil.enabled() && (player == null || !EconomyUtil.has(player, stake))) {
+			throw new ChessException(Messages.getString(error, EconomyUtil.formatStakeStr(stake)));
 		}
 	}
 
@@ -143,13 +142,15 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void withdrawFunds(double amount) {
-		ChessCraft.economy.withdrawPlayer(getDisplayName(), amount);
-		alert(Messages.getString("Game.paidStake", ChessUtils.formatStakeStr(amount)));
-	}
+        OfflinePlayer player = getOfflinePlayer();
+        EconomyUtil.withdraw(player, amount);
+        alert(Messages.getString("Game.paidStake", EconomyUtil.formatStakeStr(amount)));
+    }
 
 	@Override
 	public void depositFunds(double amount) {
-		ChessCraft.economy.depositPlayer(getDisplayName(), amount);
+        OfflinePlayer player = getBukkitPlayer();
+        EconomyUtil.deposit(player, amount);
 	}
 
 	@Override
@@ -163,7 +164,6 @@ public class HumanChessPlayer extends ChessPlayer {
 	@Override
 	public void cancelOffers() {
 		Player p = getBukkitPlayer();
-
 		if (p != null) {
 			// making a move after a draw/swap/undo offer has been made is equivalent to declining the offer
 			ExpectYesNoResponse.handleYesNoResponse(p, false);

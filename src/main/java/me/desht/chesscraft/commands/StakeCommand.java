@@ -1,11 +1,10 @@
 package me.desht.chesscraft.commands;
 
-import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.MiscUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ public class StakeCommand extends ChessAbstractCommand {
 
 	@Override
 	public boolean execute(Plugin plugin, CommandSender sender, String[] args) throws ChessException {
-		if (ChessCraft.economy == null) {
+		if (!EconomyUtil.enabled()) {
 			return true;
 		}
 		notFromConsole(sender);
@@ -33,12 +32,11 @@ public class StakeCommand extends ChessAbstractCommand {
 			double amount = Double.parseDouble(stakeStr);
 			game.setStake(player, amount);
 			game.getView().getControlPanel().repaintControls();
-			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.stakeChanged", ChessUtils.formatStakeStr(amount)));
+			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.stakeChanged", EconomyUtil.formatStakeStr(amount)));
 		} catch (NumberFormatException e) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.invalidNumeric", stakeStr));
 		}
 		return true;
 	}
-
 }
 

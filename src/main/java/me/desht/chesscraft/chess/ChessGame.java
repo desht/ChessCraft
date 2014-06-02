@@ -20,6 +20,7 @@ import me.desht.chesscraft.event.ChessGameStateChangedEvent;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -82,8 +83,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		created = System.currentTimeMillis();
 		started = finished = lastOpenInvite = 0L;
 		result = Chess.RES_NOT_FINISHED;
-		if (creator != null && ChessCraft.economy != null) {
-			double playerBalance = ChessCraft.economy.getBalance(creator.getName());
+		if (creator != null && EconomyUtil.enabled()) {
+			double playerBalance = EconomyUtil.getBalance(creator);
 			double defStake = view.getDefaultStake();
 			if (view.getLockStake() && defStake > playerBalance) {
 				throw new ChessException(Messages.getString("Game.cantAffordToJoin", defStake));
@@ -365,7 +366,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException	if the stake is out of range or not affordable or the game isn't in setup phase
 	 */
 	public void setStake(Player player, double newStake) {
-		if (ChessCraft.economy == null) {
+		if (!EconomyUtil.enabled()) {
 			return;
 		}
 
@@ -380,7 +381,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			throw new ChessException(Messages.getString("Game.noNegativeStakes"));
 		}
 
-		if (!ChessCraft.economy.has(player.getName(), newStake)) {
+		if (!EconomyUtil.has(player, newStake)) {
 			throw new ChessException(Messages.getString("ChessCommandExecutor.cantAffordStake"));	//$NON-NLS-1$
 		}
 
@@ -404,7 +405,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 	 * @throws ChessException	if the new stake is out of range or not affordable or the game isn't in setup phase
 	 */
 	public void adjustStake(Player player, double adjustment) {
-		if (ChessCraft.economy == null) {
+		if (!EconomyUtil.enabled()) {
 			return;
 		}
 
@@ -415,11 +416,11 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 			// allow stake to be adjusted down without throwing an exception
 			// could happen if global max stake was changed to something lower than
 			// a game's current stake setting
-			newStake = Math.min(max, ChessCraft.economy.getBalance(player.getName()));
+			newStake = Math.min(max, EconomyUtil.getBalance(player));
 		}
-		if (!ChessCraft.economy.has(player.getName(), newStake) && adjustment < 0.0) {
+		if (!EconomyUtil.has(player, newStake) && adjustment < 0.0) {
 			// similarly for the player's own balance
-			newStake = Math.min(max, ChessCraft.economy.getBalance(player.getName()));
+			newStake = Math.min(max, EconomyUtil.getBalance(player));
 		}
 
 		setStake(player, newStake);
@@ -592,8 +593,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		@SuppressWarnings("deprecation") Player invitee = Bukkit.getServer().getPlayer(inviteeName);
 		if (invitee != null) {
 			alert(invitee, Messages.getString("Game.youAreInvited", inviter.getDisplayName()));
-			if (ChessCraft.economy != null && getStake() > 0.0) {
-				alert(invitee, Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake())));
+			if (EconomyUtil.enabled() && getStake() > 0.0) {
+				alert(invitee, Messages.getString("Game.gameHasStake", EconomyUtil.formatStakeStr(getStake())));
 			}
 			alert(invitee, Messages.getString("Game.joinPrompt"));
 			if (invited != null) {
@@ -624,8 +625,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		}
 
 		MiscUtil.broadcastMessage((Messages.getString("Game.openInviteCreated", inviter.getDisplayName())));
-		if (ChessCraft.economy != null && getStake() > 0.0) {
-			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", ChessUtils.formatStakeStr(getStake())));
+		if (EconomyUtil.enabled() && getStake() > 0.0) {
+			MiscUtil.broadcastMessage(Messages.getString("Game.gameHasStake", EconomyUtil.formatStakeStr(getStake())));
 		}
 		MiscUtil.broadcastMessage(Messages.getString("Game.joinPromptGlobal", getName()));
 		openInvite = true;
@@ -959,7 +960,7 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		case Chess.RES_NOT_FINISHED:
 			players[Chess.WHITE].depositFunds(stake);
 			players[Chess.BLACK].depositFunds(stake);
-			alert(Messages.getString("Game.getStakeBack", ChessUtils.formatStakeStr(stake)));
+			alert(Messages.getString("Game.getStakeBack", EconomyUtil.formatStakeStr(stake)));
 			break;
 		}
 
@@ -970,8 +971,8 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		int losingColour = Chess.otherPlayer(winningColour);
 		double winnings = stake * getPlayer(losingColour).getPayoutMultiplier();
 		players[winningColour].depositFunds(winnings);
-		players[winningColour].alert(Messages.getString("Game.youWon", ChessUtils.formatStakeStr(winnings)));
-		players[losingColour].alert(Messages.getString("Game.lostStake", ChessUtils.formatStakeStr(stake)));
+		players[winningColour].alert(Messages.getString("Game.youWon", EconomyUtil.formatStakeStr(winnings)));
+		players[losingColour].alert(Messages.getString("Game.lostStake", EconomyUtil.formatStakeStr(stake)));
 	}
 
 	/**
@@ -1323,12 +1324,12 @@ public class ChessGame implements ConfigurationSerializable, ChessPersistable {
 		res.add(Messages.getString("ChessCommandExecutor.gameDetail.name", getName(), getState()));
 		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.players", white, black, getView().getName()));
 		res.add(bullet +  Messages.getString("ChessCommandExecutor.gameDetail.halfMoves", getHistory().size()));
-		if (ChessCraft.economy != null) {
-			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", ChessUtils.formatStakeStr(getStake())));
+		if (EconomyUtil.enabled()) {
+			res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.stake", EconomyUtil.formatStakeStr(getStake())));
 		}
 		res.add(bullet + (getPosition().getToPlay() == Chess.WHITE ?
 				Messages.getString("ChessCommandExecutor.gameDetail.whiteToPlay") :
-					Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay")));
+		        Messages.getString("ChessCommandExecutor.gameDetail.blackToPlay")));
 
 		res.add(bullet + Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", tcWhite.toString()));
 		if (getState() == GameState.RUNNING) {

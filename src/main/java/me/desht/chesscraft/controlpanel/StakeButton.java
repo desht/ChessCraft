@@ -3,7 +3,7 @@ package me.desht.chesscraft.controlpanel;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.enums.GameState;
-import me.desht.chesscraft.util.ChessUtils;
+import me.desht.chesscraft.util.EconomyUtil;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -32,7 +32,7 @@ public class StakeButton extends AbstractSignButton {
 
 	@Override
 	public boolean isEnabled() {
-		return getGame() != null;
+		return getGame() != null && EconomyUtil.enabled();
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class StakeButton extends AbstractSignButton {
 
 		ChessGame game = getGame();
 		double stake = game == null ? getView().getDefaultStake() : game.getStake();
-		String[] s =  ChessUtils.formatStakeStr(stake).split(" ", 2);
+		String[] s =  EconomyUtil.formatStakeStr(stake).split(" ", 2);
 		res[2] = getIndicatorColour() + s[0];
 		res[3] = s.length > 1 ? getIndicatorColour() + s[1] : "";
 

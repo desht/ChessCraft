@@ -1,6 +1,7 @@
 package me.desht.chesscraft.commands;
 
 import chesspresso.Chess;
+import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.DirectoryStructure;
 import me.desht.chesscraft.chess.*;
 import me.desht.chesscraft.chess.ai.AIFactory;
