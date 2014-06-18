@@ -149,7 +149,7 @@ public class HumanChessPlayer extends ChessPlayer {
 
 	@Override
 	public void depositFunds(double amount) {
-        OfflinePlayer player = getBukkitPlayer();
+        OfflinePlayer player = getOfflinePlayer();
         EconomyUtil.deposit(player, amount);
 	}
 
