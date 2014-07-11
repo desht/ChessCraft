@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.desht</groupId>
-    <version>2.5.1</version>
+    <version>2.5.2-SNAPSHOT</version>
     <artifactId>chesscraft</artifactId>
     <packaging>jar</packaging>
     <name>ChessCraft</name>
@@ -184,7 +184,7 @@
         <dependency>
             <groupId>me.desht</groupId>
             <artifactId>dhutils-lib</artifactId>
-            <version>2.16.0-SNAPSHOT</version>
+            <version>2.17.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>me.desht</groupId>
