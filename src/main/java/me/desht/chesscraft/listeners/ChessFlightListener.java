@@ -58,7 +58,7 @@ public class ChessFlightListener extends ChessListenerBase {
 		controller.setControllerListener(new FlightController.OnControllerChanged() {
 			@Override
 			public void onChanged(Player player, Plugin controller) {
-				System.out.println("ChessCraft: controller changed: now " + (controller == null ? "(none)" : controller.getName()));
+				Debugger.getInstance().debug("ChessCraft: flight controller changed: now " + (controller == null ? "(none)" : controller.getName()));
 			}
 		});
 		enabled = plugin.getConfig().getBoolean("flying.enabled");

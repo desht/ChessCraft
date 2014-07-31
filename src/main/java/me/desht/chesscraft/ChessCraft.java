@@ -9,6 +9,7 @@ import me.desht.chesscraft.listeners.*;
 import me.desht.chesscraft.results.Results;
 import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.dhutils.*;
+import me.desht.dhutils.block.MaterialWithData;
 import me.desht.dhutils.commands.CommandManager;
 import me.desht.dhutils.nms.NMSHelper;
 import me.desht.dhutils.responsehandler.ResponseHandler;
@@ -396,7 +397,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			throw new DHUtilsException("'version' config item may not be changed");
 		} else if (key.equals("database.table_prefix") && newVal.toString().isEmpty()) {
 			throw new DHUtilsException("'database.table_prefix' may not be empty");
-		}
+		} else if (key.equals("wand_item")) {
+            try {
+                MaterialWithData.get(newVal.toString());
+            } catch (IllegalArgumentException e) {
+                throw new DHUtilsException("Invalid wand material: " + newVal.toString());
+            }
+        }
         return newVal;
     }
 

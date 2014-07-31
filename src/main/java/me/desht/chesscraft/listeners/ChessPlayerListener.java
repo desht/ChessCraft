@@ -111,6 +111,18 @@ public class ChessPlayerListener extends ChessListenerBase {
 		}
 	}
 
+    private boolean holdingRightItem(ItemStack stack) {
+        MaterialData wandMat = ChessUtils.getWandMaterial();
+        if (wandMat == null) {
+            return true;
+        } else if (wandMat.getItemType() == Material.AIR) {
+            return stack == null || stack.getType() == Material.AIR;
+        } else {
+            return wandMat.getItemType() == stack.getType() &&
+                    (stack.getType().getMaxDurability() > 0 || stack.getDurability() == wandMat.getData());
+        }
+    }
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerAnimation(PlayerAnimationEvent event) {
 		Player player = event.getPlayer();
@@ -126,8 +138,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		try {
 			if (event.getAnimationType() == PlayerAnimationType.ARM_SWING) {
-				MaterialData wandMat = ChessUtils.getWandMaterial();
-				if (wandMat == null || player.getItemInHand().isSimilar(wandMat.toItemStack())) {
+				if (holdingRightItem(player.getItemInHand())) {
 					targetBlock = player.getTargetBlock(transparent, 120);
 					Debugger.getInstance().debug(2, "Player " + player.getName() + " waved at block " + targetBlock);
 					Location loc = targetBlock.getLocation();
