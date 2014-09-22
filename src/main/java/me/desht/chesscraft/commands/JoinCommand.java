@@ -51,11 +51,11 @@ public class JoinCommand extends ChessAbstractCommand {
 		MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.joinedGame",
 		                                                  game.getName(), ChessUtils.getDisplayColour(colour)));
 
-		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) {
-			game.getPlayer(colour).summonToGame();
-		} else {
-			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.canTeleport", game.getName()));
-		}
+//		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) {
+//			game.getPlayer(colour).teleport();
+//		} else {
+//			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.canTeleport", game.getName()));
+//		}
 		return true;
 	}
 

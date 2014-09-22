@@ -3,9 +3,7 @@ package me.desht.chesscraft.chess.player;
 import chesspresso.Chess;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
-import me.desht.chesscraft.chess.ChessGame;
-import me.desht.chesscraft.chess.ChessGameManager;
-import me.desht.chesscraft.chess.TimeControl;
+import me.desht.chesscraft.chess.*;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.expector.ExpectDrawResponse;
 import me.desht.chesscraft.expector.ExpectSwapResponse;
@@ -24,8 +22,9 @@ public class HumanChessPlayer extends ChessPlayer {
 	private final UUID uuid;
 	private final String oldStyleName;
 	private String resultsName;
+    private int tcWarned;
 
-	public HumanChessPlayer(String id, String name, ChessGame game, int colour) {
+    public HumanChessPlayer(String id, String name, ChessGame game, int colour) {
 		super(id, name, game, colour);
 		if (MiscUtil.looksLikeUUID(id)) {
 			uuid = UUID.fromString(id);
@@ -154,10 +153,10 @@ public class HumanChessPlayer extends ChessPlayer {
 	}
 
 	@Override
-	public void summonToGame() {
+	public void teleport(BoardView view) {
 		Player p = getBukkitPlayer();
 		if (p != null) {
-			getGame().getView().summonPlayer(p);
+			view.summonPlayer(p);
 		}
 	}
 
@@ -222,8 +221,28 @@ public class HumanChessPlayer extends ChessPlayer {
 		if (timeControl.isNewPhase()) {
 			alert(Messages.getString("Game.newTimeControlPhase", timeControl.phaseString()));
 		} else if (getGame().getPosition().getPlyNumber() <= 2) {
-			alert(Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", getGame().getTimeControl(getColour()).getSpec()));
+			alert(Messages.getString("ChessCommandExecutor.gameDetail.timeControlType", timeControl.getSpec()));
 		}
 	}
 
+    @Override
+    public void timeControlCheck() {
+        TwoPlayerClock clock = getGame().getClock();
+        if (needToWarn(clock)) {
+            alert(Messages.getString("Game.timeControlWarning", clock.getRemainingTime(getColour()) / 1000));
+            tcWarned++;
+        }
+    }
+    private boolean needToWarn(TwoPlayerClock clock) {
+        if (clock.getTimeControl().getControlType() == TimeControl.ControlType.NONE) {
+            return false;
+        }
+        long remaining = clock.getRemainingTime(getColour());
+        long t = ChessCraft.getInstance().getConfig().getInt("time_control.warn_seconds") * 1000;
+        long tot = clock.getTimeControl().getTotalTime();
+        long warning = Math.min(t, tot) >>> tcWarned;
+
+//        int tickInt = (ChessCraft.getInstance().getConfig().getInt("tick_interval") * 1000) + 50;	// fudge for inaccuracy of tick timer
+        return remaining <= warning && remaining > warning - 1050;
+    }
 }

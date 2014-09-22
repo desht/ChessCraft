@@ -51,6 +51,6 @@ public abstract class ExpectYesNoResponse extends ExpectBase {
 		ExpectYesNoResponse response = respHandler.getAction(player, c);
 		response.setResponse(isAccepted);
 		response.handleAction(player);
-		response.getGame().getView().getControlPanel().repaintControls();
+//		response.getGame().getView().getControlPanel().repaintControls();
 	}
 }

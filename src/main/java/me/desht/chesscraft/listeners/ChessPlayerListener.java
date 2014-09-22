@@ -272,7 +272,7 @@ public class ChessPlayerListener extends ChessListenerBase {
 
 		ChessGameManager.getManager().setCurrentGame(player, game);
 
-		int clickedSqi = game.getView().getSquareAt(loc);
+		int clickedSqi = bv.getSquareAt(loc);
 		int selectedSqi = bv.getChessBoard().getSelectedSquare();
 		if (game.isPlayerToMove(player.getUniqueId().toString())) {
 			if (selectedSqi == Chess.NO_SQUARE) {

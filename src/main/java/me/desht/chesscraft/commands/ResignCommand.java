@@ -2,6 +2,7 @@ package me.desht.chesscraft.commands;
 
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
+import me.desht.chesscraft.chess.player.ChessPlayer;
 import me.desht.chesscraft.exceptions.ChessException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +31,9 @@ public class ResignCommand extends ChessAbstractCommand {
 		}
 
 		if (game != null) {
-			game.resign(player.getUniqueId().toString());
+            game.ensurePlayerInGame(player.getUniqueId().toString());
+            ChessPlayer cp = game.getPlayer(player.getUniqueId().toString());
+			game.resign(cp.getColour());
 		}
 
 		return true;

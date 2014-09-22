@@ -28,13 +28,12 @@ public class TimeControlCommand extends ChessAbstractCommand {
 
 		ChessGame game = ChessGameManager.getManager().getCurrentGame(player, true);
 		game.setTimeControl(tcSpec);
-		ControlPanel cp = game.getView().getControlPanel();
-		cp.getTcDefs().addCustomSpec(tcSpec);
-		cp.getSignButton(TimeControlButton.class).repaint();
-		cp.updateClock(Chess.WHITE, game.getTimeControl(Chess.WHITE));
-		cp.updateClock(Chess.BLACK, game.getTimeControl(Chess.BLACK));
+//		ControlPanel cp = game.getView().getControlPanel();
+//		cp.getTcDefs().addCustomSpec(tcSpec);
+//		cp.getSignButton(TimeControlButton.class).repaint();
+//		cp.updateClock(Chess.WHITE, game.getTimeControl());
 
-		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTimeControl(Chess.WHITE).toString()));
+		game.alert(Messages.getString("ChessCommandExecutor.timeControlSet", tcSpec, game.getTimeControl().toString()));
 
 		return true;
 	}

@@ -13,7 +13,7 @@ public class BoardInfoButton extends AbstractSignButton {
 
 	@Override
 	public void execute(PlayerInteractEvent event) {
-		MessagePager pager = MessagePager.getPager(event.getPlayer()).clear();
+		MessagePager pager = MessagePager.getPager(event.getPlayer()).clear().setParseColours(true);
 		List<String> l = getView().getBoardDetail();
 		pager.add(l);
 		pager.showPage();

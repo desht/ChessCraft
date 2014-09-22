@@ -36,7 +36,7 @@ public class PromoteCommand extends ChessAbstractCommand {
 			game.getPlayer(colour).setPromotionPiece(piece);
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.promotionPieceSet",
 					game.getName(),ChessUtils.pieceToStr(piece).toUpperCase()));
-			game.getView().getControlPanel().getSignButton(colour == Chess.WHITE ? PromoteWhiteButton.class : PromoteBlackButton.class).repaint();
+//			game.getView().getControlPanel().getSignButton(colour == Chess.WHITE ? PromoteWhiteButton.class : PromoteBlackButton.class).repaint();
 		}
 
 		return true;

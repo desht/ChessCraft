@@ -16,7 +16,7 @@ public class GameInfoButton extends AbstractSignButton {
 	public void execute(PlayerInteractEvent event) {
 		ChessGame game = getGame();
 		if (game != null) {
-			MessagePager pager = MessagePager.getPager(event.getPlayer()).clear();
+			MessagePager pager = MessagePager.getPager(event.getPlayer()).clear().setParseColours(true);
 			List<String> l = game.getGameDetail();
 			pager.add(l);
 			pager.showPage();

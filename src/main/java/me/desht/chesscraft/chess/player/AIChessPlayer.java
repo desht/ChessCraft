@@ -5,6 +5,7 @@ import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
+import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.chess.TimeControl;
@@ -93,7 +94,7 @@ public class AIChessPlayer extends ChessPlayer {
 	}
 
 	@Override
-	public void summonToGame() {
+	public void teleport(BoardView view) {
 		// nothing to do here
 	}
 
@@ -143,12 +144,12 @@ public class AIChessPlayer extends ChessPlayer {
 			// this will happen if the AI caught an exception and its state can't be guaranteed anymore
 			try {
 				if (ChessCraft.getInstance().getConfig().getBoolean("ai.lose_on_fail", false)) {
-					game.winByDefault(otherPlayer.getId());
+					game.winByDefault(otherPlayer.getColour());
 				} else {
 					game.drawn(GameResult.Abandoned);
 				}
 			} catch (ChessException e) {
-				// should never get here
+				// should never get here!
 				LogUtils.severe("Unexpected exception caught while trying to draw game - deleted", e);
 				ChessGameManager.getManager().deleteGame(game.getName(), true);
 			}
@@ -198,4 +199,10 @@ public class AIChessPlayer extends ChessPlayer {
 	public void notifyTimeControl(TimeControl timeControl) {
 		ai.notifyTimeControl(timeControl);
 	}
+
+
+    @Override
+    public void timeControlCheck() {
+        ai.notifyTimeControl(getGame().getClock().getTimeControl());
+    }
 }

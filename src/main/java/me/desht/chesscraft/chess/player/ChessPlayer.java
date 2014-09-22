@@ -1,7 +1,9 @@
 package me.desht.chesscraft.chess.player;
 
 import chesspresso.Chess;
+import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.ChessGame;
+import me.desht.chesscraft.chess.GameListener;
 import me.desht.chesscraft.chess.TimeControl;
 import org.apache.commons.lang.Validate;
 
@@ -51,6 +53,9 @@ public abstract class ChessPlayer {
 
 	public void setPromotionPiece(int promotionPiece) {
 		this.promotionPiece = promotionPiece;
+        for (GameListener l : getGame().getListeners()) {
+            l.promotionPieceChanged(this, promotionPiece);
+        }
 	}
 
 	public int getPromotionPiece() {
@@ -93,7 +98,7 @@ public abstract class ChessPlayer {
 	public abstract void withdrawFunds(double amount);
 	public abstract void depositFunds(double amount);
 
-	public abstract void summonToGame();
+	public abstract void teleport(BoardView view);
 
 	public abstract void cancelOffers();
 
@@ -110,4 +115,6 @@ public abstract class ChessPlayer {
 	public abstract void playEffect(String effect);
 
 	public abstract void notifyTimeControl(TimeControl timeControl);
+
+    public abstract void timeControlCheck();
 }

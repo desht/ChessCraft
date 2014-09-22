@@ -146,7 +146,10 @@ public class ChessPersistence {
 				// load the board's game too, if there is one
 				if (!bv.getSavedGameName().isEmpty()) {
 					File gameFile = new File(DirectoryStructure.getGamesPersistDirectory(), bv.getSavedGameName() + ".yml");
-					loadGame(gameFile);
+					ChessGame game = loadGame(gameFile);
+                    if (game != null) {
+                        bv.setGame(game);
+                    }
 				}
 				return true;
 			} else {
@@ -161,7 +164,7 @@ public class ChessPersistence {
 		}
 	}
 
-	private boolean loadGame(File f) {
+	private ChessGame loadGame(File f) {
 		Debugger.getInstance().debug("loading game: " + f);
 		try {
 			Configuration conf = MiscUtil.loadYamlUTF8(f);
@@ -176,10 +179,10 @@ public class ChessPersistence {
 			if (game != null) {
 				ChessGameManager.getManager().registerGame(game);
 			}
-			return game != null;
+			return game;
 		} catch (Exception e) {
 			LogUtils.severe("can't load saved game from " + f.getName() + ": " + e.getMessage(), e);
-			return false;
+			return null;
 		}
 	}
 

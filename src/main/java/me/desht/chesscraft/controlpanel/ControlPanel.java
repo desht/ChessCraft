@@ -155,8 +155,11 @@ public class ControlPanel {
 
 	public void repaintClocks() {
 		ChessGame game = view.getGame();
-		updateClock(Chess.WHITE, game == null ? null : game.getTimeControl(Chess.WHITE));
-		updateClock(Chess.BLACK, game == null ? null : game.getTimeControl(Chess.BLACK));
+        if (game != null) {
+            TimeControl tc = game.getTimeControl();
+            updateClock(Chess.WHITE, tc.getClockString());
+            updateClock(Chess.BLACK, tc.getClockString());
+        }
 	}
 
 	public void repaintSignButtons() {
@@ -200,10 +203,15 @@ public class ControlPanel {
 		halfMoveClockLabel.repaint();
 	}
 
-	public void updateClock(int colour, TimeControl tc) {
-		clockLabels[colour].setTimeControl(tc);
-		clockLabels[colour].repaint();
-	}
+//	public void updateClock(int colour, TimeControl tc) {
+//		clockLabels[colour].setTimeControl(tc);
+//		clockLabels[colour].repaint();
+//	}
+
+    public void updateClock(int colour, String timeStr) {
+        clockLabels[colour].setLabel(timeStr);
+        clockLabels[colour].repaint();
+    }
 
 	/**
 	 * Calculate the control panel position based on the boardview's position

@@ -4,6 +4,7 @@ import me.desht.chesscraft.ChessCraft;
 import me.desht.chesscraft.Messages;
 import me.desht.chesscraft.chess.BoardView;
 import me.desht.chesscraft.chess.BoardViewManager;
+import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.chess.ChessGameManager;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.dhutils.MessagePager;
@@ -71,26 +72,30 @@ public class TeleportCommand extends ChessAbstractCommand {
 			}
 		} else if (getBooleanOption("b") && args.length > 0) {
 			// teleport to board
-			portToBoard(player, args[0]);
+            PermissionUtils.requirePerms(sender, "checkers.commands.teleport.board");
+            BoardView bv = BoardViewManager.getManager().getBoardView(args[0]);
+            if (bv != null) {
+                bv.summonPlayer(player);
+            }
 		} else if (args.length == 0) {
 			// teleport out of (or back to) current game
 			BoardViewManager.getManager().teleportOut(player);
 		} else {
 			// teleport to game, or maybe board
+            BoardView bv;
 			if (ChessGameManager.getManager().checkGame(args[0])) {
-				ChessGameManager.getManager().getGame(args[0]).getView().summonPlayer(player);
+                ChessGame game = ChessGameManager.getManager().getGame(args[0]);
+                bv = BoardViewManager.getManager().findBoardForGame(game);
 			} else {
-				portToBoard(player, args[0]);
+                PermissionUtils.requirePerms(player, "chesscraft.commands.teleport.board");
+                bv = BoardViewManager.getManager().getBoardView(args[0]);
 			}
+            if (bv != null) {
+                bv.summonPlayer(player);
+            }
 		}
 
 		return true;
-	}
-
-	private void portToBoard(Player player, String boardName) {
-		BoardView bv = BoardViewManager.getManager().getBoardView(boardName);
-		PermissionUtils.requirePerms(player, "chesscraft.commands.teleport.board");
-		bv.summonPlayer(player);
 	}
 
 	private void showTeleportDests(CommandSender sender) {

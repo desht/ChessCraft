@@ -374,4 +374,13 @@ public class BoardViewManager {
 			flightRegions.add(c);
 		}
 	}
+
+    public BoardView findBoardForGame(ChessGame game) {
+        for (BoardView bv : listBoardViews()) {
+            if (bv.getGame() != null && bv.getGame().getName().equals(game.getName())) {
+                return bv;
+            }
+        }
+        return null;
+    }
 }

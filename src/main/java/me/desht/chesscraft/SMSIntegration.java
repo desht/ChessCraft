@@ -1,6 +1,7 @@
 package me.desht.chesscraft;
 
 import me.desht.chesscraft.chess.BoardView;
+import me.desht.chesscraft.chess.BoardViewManager;
 import me.desht.chesscraft.chess.ChessGame;
 import me.desht.chesscraft.event.ChessBoardCreatedEvent;
 import me.desht.chesscraft.event.ChessBoardDeletedEvent;
@@ -8,10 +9,7 @@ import me.desht.chesscraft.event.ChessGameCreatedEvent;
 import me.desht.chesscraft.event.ChessGameDeletedEvent;
 import me.desht.dhutils.LogUtils;
 import me.desht.dhutils.MiscUtil;
-import me.desht.scrollingmenusign.SMSException;
-import me.desht.scrollingmenusign.SMSHandler;
-import me.desht.scrollingmenusign.SMSMenu;
-import me.desht.scrollingmenusign.ScrollingMenuSign;
+import me.desht.scrollingmenusign.*;
 import me.desht.scrollingmenusign.enums.SMSMenuAction;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -69,7 +67,10 @@ public class SMSIntegration implements Listener {
 		addItem(TP_GAME, game.getName(), "/chess tp " + game.getName()); //$NON-NLS-1$
 		addItem(DEL_GAME, game.getName(), "/chess delete game " + game.getName()); //$NON-NLS-1$
 
-		removeItem(CREATE_GAME, game.getView().getName());
+        BoardView bv = BoardViewManager.getManager().findBoardForGame(game);
+        if (bv != null) {
+            removeItem(CREATE_GAME, bv.getName());
+        }
 	}
 
 	@EventHandler
@@ -80,16 +81,19 @@ public class SMSIntegration implements Listener {
 		removeItem(TP_GAME, game.getName());
 		removeItem(DEL_GAME, game.getName());
 
-		addItem(CREATE_GAME, game.getView().getName(), "/chess create game - " + game.getView().getName());  //$NON-NLS-1$
+        BoardView bv = BoardViewManager.getManager().findBoardForGame(game);
+        if (bv != null) {
+            addItem(CREATE_GAME, bv.getName(), "/chess create game - " + bv.getName());
+        }
 	}
 
 	private void createMenus() {
-		createMenu(BOARD_INFO, Messages.getString("SMSIntegration.boardInfo")); //$NON-NLS-1$
-		createMenu(CREATE_GAME, Messages.getString("SMSIntegration.createGame")); //$NON-NLS-1$
-		createMenu(TP_GAME, Messages.getString("SMSIntegration.gotoGame")); //$NON-NLS-1$
-		createMenu(GAME_INFO, Messages.getString("SMSIntegration.gameInfo")); //$NON-NLS-1$
-		createMenu(DEL_GAME, Messages.getString("SMSIntegration.deleteGame")); //$NON-NLS-1$
-		createMenu(TP_BOARD, Messages.getString("SMSIntegration.gotoBoard")); //$NON-NLS-1$
+		createMenu(BOARD_INFO, Messages.getString("SMSIntegration.boardInfo"));
+		createMenu(CREATE_GAME, Messages.getString("SMSIntegration.createGame"));
+		createMenu(TP_GAME, Messages.getString("SMSIntegration.gotoGame"));
+		createMenu(GAME_INFO, Messages.getString("SMSIntegration.gameInfo"));
+		createMenu(DEL_GAME, Messages.getString("SMSIntegration.deleteGame"));
+		createMenu(TP_BOARD, Messages.getString("SMSIntegration.gotoBoard"));
 
 		setAutosave(false);
 	}
@@ -97,7 +101,7 @@ public class SMSIntegration implements Listener {
 	private void createMenu(String name, String title) {
 		SMSMenu menu;
 		if (!smsHandler.checkMenu(name)) {
-			menu = smsHandler.createMenu(name, title, "&ChessCraft"); //$NON-NLS-1$
+			menu = smsHandler.createMenu(name, title, ChessCraft.getInstance());
 			menu.setAutosort(true);
 		} else {
 			try {
@@ -116,7 +120,7 @@ public class SMSIntegration implements Listener {
 		if (smsHandler.checkMenu(menuName)) {
 			try {
 				SMSMenu menu = smsHandler.getMenu(menuName);
-				menu.addItem(label, command, ""); //$NON-NLS-1$
+				menu.addItem(new SMSMenuItem(menu, label, command, ""));
 				menu.notifyObservers(SMSMenuAction.REPAINT);
 			} catch (SMSException e) {
 				// shouldn't get here

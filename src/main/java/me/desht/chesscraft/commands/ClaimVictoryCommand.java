@@ -47,7 +47,7 @@ public class ClaimVictoryCommand extends ChessAbstractCommand {
 		long now = System.currentTimeMillis();
 		long elapsed = (now - leftAt) / 1000;
 		if (elapsed >= timeout) {
-			game.winByDefault(player.getUniqueId().toString());
+			game.winByDefault(cp.getColour());
 		} else {
 			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.needToWait", timeout - elapsed));
 		}

@@ -28,11 +28,11 @@ public class CreateGameCommand extends ChessAbstractCommand {
 
 		int colour = getBooleanOption("black") ? Chess.BLACK : Chess.WHITE;
 		ChessGame game = ChessGameManager.getManager().createGame((Player) sender, gameName, boardName, colour);
-		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) {
-			game.getPlayer(colour).summonToGame();
-		} else {
-			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
-		}
+//		if (plugin.getConfig().getBoolean("auto_teleport_on_join")) {
+//			game.getPlayer(colour).teleport();
+//		} else {
+//			MiscUtil.statusMessage(sender, Messages.getString("ChessCommandExecutor.canTeleport", game.getName())); //$NON-NLS-1$
+//		}
 
 		return true;
 	}

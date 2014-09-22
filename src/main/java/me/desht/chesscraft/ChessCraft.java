@@ -98,7 +98,6 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		Messages.init(getConfig().getString("locale", "default"));
 
-		tickTask = new ChessTickTask();
 		persistence = new ChessPersistence();
 
 		// This is just here so the results DB stuff gets loaded at startup
@@ -143,7 +142,9 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 			ProtocolLibIntegration.registerPacketHandler(this);
 			ProtocolLibIntegration.setEntityVolume(getConfig().getDouble("entity_volume"));
 		}
-		tickTask.start(20L);
+
+        tickTask = new ChessTickTask();
+        tickTask.runTaskTimer(this, 20L, 20L);
 
 		setupMetrics();
 
@@ -163,7 +164,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 		AIFactory.getInstance().clearDown();
 		for (ChessGame game : gm.listGames()) {
-			game.clockTick();
+			game.tick();
 		}
 		getServer().getScheduler().cancelTasks(this);
 		persistence.save();
@@ -398,10 +399,13 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 		} else if (key.equals("database.table_prefix") && newVal.toString().isEmpty()) {
 			throw new DHUtilsException("'database.table_prefix' may not be empty");
 		} else if (key.equals("wand_item")) {
-            try {
-                MaterialWithData.get(newVal.toString());
-            } catch (IllegalArgumentException e) {
-                throw new DHUtilsException("Invalid wand material: " + newVal.toString());
+            String s = newVal.toString();
+            if (!s.isEmpty() && !s.equals("*")) {
+                try {
+                    MaterialWithData.get(s);
+                } catch (IllegalArgumentException e) {
+                    throw new DHUtilsException("Invalid wand material: " + s);
+                }
             }
         }
         return newVal;
@@ -409,9 +413,7 @@ public class ChessCraft extends JavaPlugin implements ConfigurationListener, Plu
 
 	@Override
 	public void onConfigurationChanged(ConfigurationManager configurationManager, String key, Object oldVal, Object newVal) {
-		if (key.equalsIgnoreCase("tick_interval")) {
-			tickTask.start(0L);
-		} else if (key.equalsIgnoreCase("locale")) {
+		if (key.equalsIgnoreCase("locale")) {
 			Messages.setMessageLocale(newVal.toString());
 			// redraw control panel signs in the right language
 			updateAllControlPanels();

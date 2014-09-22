@@ -8,27 +8,21 @@ import me.desht.chesscraft.util.ChessUtils;
 public class ClockLabel extends AbstractSignLabel {
 
 	private static final int[] xPos = new int[2];
+
+    private String timeStr = ChessUtils.milliSecondsToHMS(0);
+
 	static {
 		xPos[Chess.WHITE] = 2;
 		xPos[Chess.BLACK] = 5;
 	}
 
 	private final int colour;
-	private TimeControl timeControl;
+//	private TimeControl timeControl;
 
 	public ClockLabel(ControlPanel panel, int colour) {
 		super(panel, ChessUtils.getColour(colour), xPos[colour], 1);
 
 		this.colour = colour;
-		timeControl = null;
-	}
-
-	public TimeControl getTimeControl() {
-		return timeControl;
-	}
-
-	public void setTimeControl(TimeControl timeControl) {
-		this.timeControl = timeControl;
 	}
 
 	@Override
@@ -41,22 +35,26 @@ public class ClockLabel extends AbstractSignLabel {
 		String[] res = new String[] { "", "", "", "" };
 
 		res[0] = colour == Chess.WHITE ? Messages.getString("Game.white") : Messages.getString("Game.black");
+        res[2] = getIndicatorColour() + timeStr;
 
-		if (timeControl == null) {
-			res[2] = getIndicatorColour() + ChessUtils.milliSecondsToHMS(0);
-		} else {
-			res[2] = getIndicatorColour() + timeControl.getClockString();
-			switch (timeControl.getControlType()) {
-			case NONE:
-				res[3] = Messages.getString("ControlPanel.timeElapsed");
-				break;
-			default:
-				res[3] = Messages.getString("ControlPanel.timeRemaining");
-				break;
-			}
-		}
+        if (getGame() == null) {
+            res[3] = "";
+        } else {
+            TimeControl timeControl = getGame().getClock().getTimeControl();
+            switch (timeControl.getControlType()) {
+                case NONE:
+                    res[3] = Messages.getString("ControlPanel.timeElapsed");
+                    break;
+                default:
+                    res[3] = Messages.getString("ControlPanel.timeRemaining");
+                    break;
+            }
+        }
 
 		return res;
 	}
 
+    public void setLabel(String timeStr) {
+        this.timeStr = timeStr == null ? ChessUtils.milliSecondsToHMS(0) : timeStr;
+    }
 }

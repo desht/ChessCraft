@@ -51,7 +51,7 @@ public class MoveCommand extends ChessAbstractCommand {
 			from = m.getFromSqi();
 			to = m.getToSqi();
 		}
-		game.getView().getChessBoard().setSelectedSquare(from);
+//		game.getView().getChessBoard().setSelectedSquare(from);
 		try {
 			game.doMove(player.getUniqueId().toString(), from, to);
 			MiscUtil.statusMessage(sender, Messages.getString("ChessPlayerListener.youPlayed",

@@ -45,8 +45,9 @@ public class ChessGameManager {
 		String gameName = game.getName();
 		if (!chessGames.containsKey(gameName)) {
 			chessGames.put(gameName, game);
-			Bukkit.getPluginManager().callEvent(new ChessGameCreatedEvent(game));
-		} else {
+            game.save();
+            Bukkit.getPluginManager().callEvent(new ChessGameCreatedEvent(game));
+        } else {
 			throw new ChessException("trying to register duplicate game " + gameName);
 		}
 	}
@@ -153,7 +154,7 @@ public class ChessGameManager {
 	public ChessGame getCurrentGame(Player player, boolean verify) {
 		ChessGame game = currentGame.get(player.getUniqueId());
 		if (verify && game == null) {
-			throw new ChessException(Messages.getString("Game.noActiveGame")); //$NON-NLS-1$
+			throw new ChessException(Messages.getString("Game.noActiveGame"));
 		}
 		return game;
 	}
@@ -175,7 +176,7 @@ public class ChessGameManager {
 	 * @param playerName player's name
 	 * @return a unique game name
 	 */
-	private String makeGameName(String playerName) {
+	private String makeUniqueGameName(String playerName) {
 		String res;
 		int n = 1;
 		do {
@@ -188,11 +189,13 @@ public class ChessGameManager {
 	/**
 	 * Convenience method to create a new chess game.
 	 *
-	 * @param player		The player who is creating the game
-	 * @param gameName		Name of the game - may be null, in which case a name will be generated
-	 * @param boardName		Name of the board for the game - may be null, in which case a free board will be picked
-	 * @return	The game object
-	 * @throws ChessException	if there is any problem creating the game
+	 * @param player the player who is creating the game
+	 * @param gameName name of the game - may be null, in which case a name
+     *                 will be generated
+	 * @param boardName name of the board for the game - may be null, in which
+     *                  case an arbitrary free board will be picked
+	 * @return the new game
+	 * @throws ChessException if there is any problem creating the game
 	 */
 	public ChessGame createGame(Player player, String gameName, String boardName, int colour) {
 		BoardView bv;
@@ -205,19 +208,28 @@ public class ChessGameManager {
 		return createGame(player, gameName, bv, colour);
 	}
 
+    /**
+     * Convenience method to create a new chess game.
+     *
+     * @param player the player who is creating the game
+     * @param gameName name of the game - may be null, in which case a name
+     *                 will be generated
+     * @param bv the board for the game - may not be null
+     * @return the new game
+     * @throws ChessException if there is any problem creating the game
+     */
 	public ChessGame createGame(Player player, String gameName, BoardView bv, int colour) {
 		if (gameName == null || gameName.equals("-")) {
-			gameName = makeGameName(player.getName());
+			gameName = makeUniqueGameName(player.getName());
 		}
 
-		ChessGame game = new ChessGame(gameName, player, bv, colour);
-		registerGame(game);
+        String tcSpec = bv.getControlPanel().getTcDefs().currentDef().getSpec();
+		ChessGame game = new ChessGame(gameName, player, tcSpec, colour);
+        registerGame(game);
+        bv.setGame(game);
 		setCurrentGame(player, game);
-		bv.getControlPanel().repaintControls();
 
-		game.autoSave();
-
-		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), game.getView().getName()));
+		MiscUtil.statusMessage(player, Messages.getString("ChessCommandExecutor.gameCreated", game.getName(), bv.getName()));
 
 		return game;
 	}

@@ -124,17 +124,20 @@ public class DynmapIntegration implements Listener {
 
 	@EventHandler
 	public void onGameCreated(ChessGameCreatedEvent event) {
-		addMarker(event.getGame().getView());
+        BoardView bv = BoardViewManager.getManager().findBoardForGame(event.getGame());
+		addMarker(bv);
 	}
 
 	@EventHandler
 	public void onGameDeleted(ChessGameDeletedEvent event) {
-		addMarker(event.getGame().getView());
+        BoardView bv = BoardViewManager.getManager().findBoardForGame(event.getGame());
+		addMarker(bv);
 	}
 
 	@EventHandler
 	public void onGameStateChanged(ChessGameStateChangedEvent event) {
-		addMarker(event.getGame().getView());
+        BoardView bv = BoardViewManager.getManager().findBoardForGame(event.getGame());
+		addMarker(bv);
 	}
 
 	private void initMarkerSet() {

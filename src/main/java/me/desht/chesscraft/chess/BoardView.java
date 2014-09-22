@@ -8,8 +8,10 @@ import chesspresso.position.PositionListener;
 import me.desht.chesscraft.*;
 import me.desht.chesscraft.chess.pieces.ChessSet;
 import me.desht.chesscraft.chess.pieces.PieceDesigner;
-import me.desht.chesscraft.controlpanel.ControlPanel;
+import me.desht.chesscraft.chess.player.ChessPlayer;
+import me.desht.chesscraft.controlpanel.*;
 import me.desht.chesscraft.enums.BoardRotation;
+import me.desht.chesscraft.enums.GameState;
 import me.desht.chesscraft.exceptions.ChessException;
 import me.desht.chesscraft.util.EconomyUtil;
 import me.desht.chesscraft.util.TerrainBackup;
@@ -32,7 +34,7 @@ import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class BoardView implements PositionListener, PositionChangeListener, ConfigurationSerializable, ChessPersistable, ConfigurationListener {
+public class BoardView implements PositionListener, PositionChangeListener, GameListener, ConfigurationSerializable, ChessPersistable, ConfigurationListener {
 
 	private static final String DEFAULT_STAKE = "defaultstake";
 	private static final String LOCK_STAKE = "lockstake";
@@ -195,14 +197,39 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		return new BoardView(conf);
 	}
 
-	public void save() {
-		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
-	}
+    public void tick() {
+        if (game != null) {
+            ChessPlayer player = game.getPlayerToMove();
+            if (player != null) {
+                updateClock(player.getColour());
+            }
+            game.tick();
+        }
+    }
 
-	public void autoSave() {
-		if (ChessCraft.getInstance().getConfig().getBoolean("autosave", true)) {
-			save();
-		}
+    private void updateClock(int colour) {
+        if (game.getState() != GameState.RUNNING) {
+            return;
+        }
+        TwoPlayerClock clock = game.getClock();
+        clock.tick();
+        getControlPanel().updateClock(colour, clock.getClockString(colour));
+
+        ChessPlayer cp = game.getPlayer(colour);
+        if (clock.getRemainingTime(colour) <= 0) {
+            try {
+                ChessPlayer other = game.getPlayer(Chess.otherPlayer(colour));
+                game.winByDefault(other.getColour());
+            } catch (ChessException e) {
+                LogUtils.severe("unexpected exception: " + e.getMessage(), e);
+            }
+        } else {
+            cp.timeControlCheck();
+        }
+    }
+
+    public void save() {
+		ChessCraft.getInstance().getPersistenceHandler().savePersistable("board", this);
 	}
 
 	public String getName() {
@@ -241,11 +268,13 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 		if (game != null) {
 			game.getPosition().addPositionListener(this);
 			game.getPosition().addPositionChangeListener(this);
+            game.addGameListener(this);
 			Move lastMove = game.getPosition().getLastMove();
 			if (lastMove != null) {
 				chessBoard.highlightSquares(lastMove.getFromSqi(), lastMove.getToSqi());
 			}
 			chessBoard.getChessSet().syncToPosition(game.getPosition(), chessBoard);
+            getControlPanel().getTcDefs().addCustomSpec(game.getTimeControl().getSpec());
 		} else {
 			chessBoard.highlightSquares(Chess.NO_ROW, Chess.NO_COL);
 			chessBoard.getBoard()
@@ -255,14 +284,17 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
 			attributes.set(DEFAULT_TC, getDefaultTcSpec());
 			chessBoard.getChessSet().syncToPosition(null, chessBoard);
-		}
+            System.out.println("board cleared: " + this.getName());
+        }
 		mbu.notifyClients();
 		controlPanel.repaintClocks();
 		controlPanel.repaintControls();
+        save();
 	}
 
 	public void setTeleportDestination(Location loc) {
 		teleportOutDest = loc == null ? null : new PersistableLocation(loc);
+        save();
 	}
 
 	public Location getTeleportDestination() {
@@ -331,6 +363,7 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 
 	public void setDesigner(PieceDesigner designer) {
 		chessBoard.setDesigner(designer);
+        save();
 	}
 
 	public String getDefaultTcSpec() {
@@ -700,4 +733,61 @@ public class BoardView implements PositionListener, PositionChangeListener, Conf
 			getControlPanel().setTimeControl("");
 		}
 	}
+
+    @Override
+    public void gameStateChanged(GameState state) {
+        if (state == GameState.RUNNING) {
+            if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_start")) {
+                getGame().getPlayer(Chess.WHITE).teleport(this);
+                getGame().getPlayer(Chess.BLACK).teleport(this);
+            }
+        }
+        getControlPanel().repaintControls();
+    }
+
+    @Override
+    public boolean tryTimeControlChange(String tcSpec) {
+        return !getLockTcSpec();
+    }
+
+    @Override
+    public void timeControlChanged(String spec) {
+        ControlPanel cp = getControlPanel();
+        cp.getTcDefs().addCustomSpec(spec);
+        cp.getSignButton(TimeControlButton.class).repaint();
+        updateClock(Chess.WHITE);
+        updateClock(Chess.BLACK);
+    }
+
+    @Override
+    public boolean tryStakeChange(double newStake) {
+        return !getLockStake();
+    }
+
+    @Override
+    public void stakeChanged(double newStake) {
+        getControlPanel().getSignButton(StakeButton.class).repaint();
+    }
+
+    @Override
+    public void playerAdded(ChessPlayer cp) {
+        if (cp != null) {
+            getControlPanel().repaintControls();
+            if (ChessCraft.getInstance().getConfig().getBoolean("auto_teleport_on_join")) {
+                cp.teleport(this);
+            } else {
+                cp.alert(Messages.getString("ChessCommandExecutor.canTeleport", game.getName()));
+            }
+        }
+    }
+
+    @Override
+    public void gameDeleted() {
+        setGame(null);
+    }
+
+    @Override
+    public void promotionPieceChanged(ChessPlayer chessPlayer, int promotionPiece) {
+        getControlPanel().getSignButton(chessPlayer.getColour() == Chess.WHITE ? PromoteWhiteButton.class : PromoteBlackButton.class).repaint();
+    }
 }
