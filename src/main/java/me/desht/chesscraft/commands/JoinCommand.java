@@ -38,7 +38,7 @@ public class JoinCommand extends ChessAbstractCommand {
 		} else {
 			// find a game (or games) with an invitation for us
 			for (ChessGame game : cMgr.listGames()) {
-				if (game.getInvitedId().equals(player.getUniqueId())) {
+				if ((game.getInvitedId() != null) && (game.getInvitedId().equals(player.getUniqueId()))) {
 					colour = game.addPlayer(player.getUniqueId().toString(), player.getDisplayName());
 					gameName = game.getName();
 				}
